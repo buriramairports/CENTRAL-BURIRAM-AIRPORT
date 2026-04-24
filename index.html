@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบศูนย์กลางบริการอิเล็กทรอนิกส์</title>
+    
+    <!-- นำเข้า Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- นำเข้า FontAwesome (สำหรับไอคอน) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- นำเข้า Google Fonts (Kanit) -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* สไตล์กำหนดเอง */
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: #f4f6f9;
+        }
+        .navbar {
+            background-color: #2e7d32; /* สีเขียวเข้มแบบภาพตัวอย่าง */
+        }
+        .hero-section {
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1542273917363-3b1817f69a5d?q=80&w=2070&auto=format&fit=crop') no-repeat center center;
+            background-size: cover;
+            color: white;
+            padding: 100px 0;
+            text-align: center;
+        }
+        /* แต่งปุ่มเมนูบริการ */
+        .service-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            border: none;
+            border-radius: 10px;
+        }
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .service-icon {
+            font-size: 40px;
+            color: #2e7d32;
+            margin-bottom: 15px;
+        }
+        /* แต่งกล่องข่าวสาร */
+        .news-card img {
+            height: 200px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. แถบเมนูด้านบน (Navbar) -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#"><i class="fa-solid fa-leaf"></i> องค์กรของเรา</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link active" href="#">หน้าหลัก</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#services">บริการประชาชน</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#news">ข่าวสาร</a></li>
+                </ul>
+                <!-- จุดแสดงปุ่ม Login หรือ ชื่อผู้ใช้ -->
+                <div id="userMenu">
+                    <button class="btn btn-outline-light" onclick="showAuthModal()"><i class="fa-solid fa-right-to-bracket"></i> เข้าสู่ระบบ / สมัครสมาชิก</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 2. ภาพแบนเนอร์ (Hero Section) -->
+    <section class="hero-section">
+        <div class="container">
+            <h1 class="display-4 fw-bold">ระบบเชื่อมโยงและแสดงข้อมูล</h1>
+            <p class="lead">ศูนย์รวมบริการอิเล็กทรอนิกส์ เข้าถึงง่าย จบในที่เดียว</p>
+        </div>
+    </section>
+
+    <!-- 3. เมนูบริการ E-Services -->
+    <section id="services" class="container mt-5">
+        <h3 class="mb-4 text-center" style="color: #2e7d32; font-weight: 600;">บริการอิเล็กทรอนิกส์ (E-Services)</h3>
+        <div class="row text-center g-4">
+            
+            <!-- ปุ่มที่ 1: ระบบจองทัศนศึกษา -->
+            <div class="col-md-3 col-6">
+                <div class="card service-card h-100 p-3 shadow-sm" onclick="handleServiceClick('study-tour')">
+                    <div class="card-body">
+                        <i class="fa-solid fa-bus service-icon"></i>
+                        <h5 class="card-title">ระบบจองทัศนศึกษา</h5>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ปุ่มที่ 2: ระบบจองห้อง VIP -->
+            <div class="col-md-3 col-6">
+                <div class="card service-card h-100 p-3 shadow-sm" onclick="handleServiceClick('vip-room')">
+                    <div class="card-body">
+                        <i class="fa-solid fa-people-roof service-icon"></i>
+                        <h5 class="card-title">จองห้องรับรอง VIP</h5>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ปุ่มที่ 3: ระบบจองรถยนต์ -->
+            <div class="col-md-3 col-6">
+                <div class="card service-card h-100 p-3 shadow-sm" onclick="handleServiceClick('car-booking')">
+                    <div class="card-body">
+                        <i class="fa-solid fa-car service-icon"></i>
+                        <h5 class="card-title">ระบบจองรถส่วนกลาง</h5>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ปุ่มที่ 4: อื่นๆ -->
+            <div class="col-md-3 col-6">
+                <div class="card service-card h-100 p-3 shadow-sm" onclick="handleServiceClick('it-support')">
+                    <div class="card-body">
+                        <i class="fa-solid fa-headset service-icon"></i>
+                        <h5 class="card-title">แจ้งซ่อม/IT Support</h5>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- 4. ส่วนข่าวสารประชาสัมพันธ์ -->
+    <section id="news" class="container mt-5 mb-5">
+        <h3 class="mb-4" style="color: #2e7d32; font-weight: 600;">ข่าวเด่น / ประชาสัมพันธ์</h3>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card news-card shadow-sm h-100">
+                    <img src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=2070&auto=format&fit=crop" class="card-img-top" alt="news">
+                    <div class="card-body">
+                        <h5 class="card-title">เปิดตัวระบบ E-Services ใหม่</h5>
+                        <p class="card-text text-muted">เข้าถึงบริการต่างๆ ของหน่วยงานได้ง่ายขึ้น ด้วยระบบ Single Sign-On...</p>
+                        <a href="#" class="btn btn-sm btn-outline-success">อ่านเพิ่มเติม</a>
+                    </div>
+                </div>
+            </div>
+            <!-- สามารถเพิ่มกล่องข่าวอื่นๆ ตรงนี้ได้ -->
+        </div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- ส่วนของ Popup (Modal) เข้าสู่ระบบ / สมัครสมาชิก -->
+    <!-- ============================================== -->
+    <div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header text-white" style="background-color: #2e7d32;">
+                    <h5 class="modal-title" id="authModalLabel">เข้าสู่ระบบ / สมัครสมาชิก</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <!-- ฟอร์มเข้าสู่ระบบ (หน้าตาหลอกๆ ก่อน) -->
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label class="form-label">ชื่อผู้ใช้งาน หรือ อีเมล</label>
+                            <input type="text" class="form-control" id="username" placeholder="กรอกชื่อผู้ใช้">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">รหัสผ่าน</label>
+                            <input type="password" class="form-control" id="password" placeholder="กรอกรหัสผ่าน">
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="button" class="btn btn-success" onclick="mockLogin()">เข้าสู่ระบบ</button>
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="#" class="text-decoration-none" style="color: #2e7d32;">ลืมรหัสผ่าน?</a> | 
+                            <a href="#" class="text-decoration-none" style="color: #2e7d32;">ยังไม่มีบัญชี? สมัครที่นี่</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- นำเข้า Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- นำเข้า SweetAlert2 สำหรับแจ้งเตือนสวยๆ -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // --- ส่วนของการจัดการ Logic (Javascript) --- //
+
+        // ตัวแปรจำลองสถานะการ Login (เดี๋ยวในอนาคตเราจะเช็คจาก localStorage/Session)
+        let isLoggedIn = false; 
+        
+        // ฟังก์ชันเรียก Popup Login ขึ้นมา
+        function showAuthModal() {
+            var myModal = new bootstrap.Modal(document.getElementById('authModal'));
+            myModal.show();
+        }
+
+        // ฟังก์ชันเมื่อผู้ใช้คลิกปุ่มระบบบริการต่างๆ
+        function handleServiceClick(serviceName) {
+            if (!isLoggedIn) {
+                // ถ้ายังไม่ Login ให้แจ้งเตือนและเด้ง Popup
+                Swal.fire({
+                    icon: 'info',
+                    title: 'กรุณาเข้าสู่ระบบ',
+                    text: 'คุณต้องเข้าสู่ระบบก่อนใช้งานบริการนี้',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#2e7d32'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        showAuthModal();
+                    }
+                });
+            } else {
+                // ถ้า Login แล้ว ก็ส่งไปที่หน้าระบบนั้นๆ (เดี๋ยวเราค่อยใส่ URL จริงทีหลัง)
+                Swal.fire({
+                    icon: 'success',
+                    title: 'กำลังพาท่านไป...',
+                    text: 'เข้าสู่ระบบ: ' + serviceName,
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+                
+                // ตัวอย่างการเปลี่ยนหน้าเว็บ (เอา Comment ออกเมื่อมีไฟล์จริง)
+                // if(serviceName === 'study-tour') window.location.href = 'study-tour/index.html';
+                // if(serviceName === 'vip-room') window.location.href = 'vip-room/index.html';
+            }
+        }
+
+        // ฟังก์ชันจำลองการ Login (Mock Login)
+        function mockLogin() {
+            // สมมติว่าส่งข้อมูลไปเช็คกับ Google Apps Script แล้วผ่าน
+            isLoggedIn = true; // เปลี่ยนสถานะเป็น Login แล้ว
+
+            // ปิด Popup
+            const modalElement = document.getElementById('authModal');
+            const modalInstance = bootstrap.Modal.getInstance(modalElement);
+            modalInstance.hide();
+
+            // แจ้งเตือนสำเร็จ
+            Swal.fire({
+                icon: 'success',
+                title: 'เข้าสู่ระบบสำเร็จ!',
+                text: 'ยินดีต้อนรับเข้าสู่ระบบ',
+                timer: 1500,
+                showConfirmButton: false
+            });
+
+            // เปลี่ยนปุ่มมุมขวาบนให้เป็นชื่อผู้ใช้ แทนปุ่ม Login
+            document.getElementById('userMenu').innerHTML = `
+                <div class="dropdown">
+                    <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fa-solid fa-user-circle"></i> สวัสดี, ผู้ใช้งานทั่วไป
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#">ข้อมูลส่วนตัว</a></li>
+                        <li><a class="dropdown-item" href="#">ประวัติการจอง</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#" onclick="mockLogout()">ออกจากระบบ</a></li>
+                    </ul>
+                </div>
+            `;
+        }
+
+        // ฟังก์ชันจำลองการ Logout
+        function mockLogout() {
+            isLoggedIn = false;
+            // รีเซ็ตปุ่มมุมขวาบนกลับเป็นเหมือนเดิม
+            document.getElementById('userMenu').innerHTML = `
+                <button class="btn btn-outline-light" onclick="showAuthModal()"><i class="fa-solid fa-right-to-bracket"></i> เข้าสู่ระบบ / สมัครสมาชิก</button>
+            `;
+        }
+
+    </script>
+</body>
+</html>
