@@ -6,157 +6,125 @@
     <title>ระบบศูนย์กลางบริการ กรมท่าอากาศยาน</title>
     
     <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- FontAwesome (Icons) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6.5.1 (แก้ปัญหาไอคอน X ไม่ขึ้น) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Google Fonts (Kanit) -->
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <!-- Swiper JS CSS (สำหรับทำสไลด์ข่าว) -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+    <!-- Swiper JS CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
     <style>
         :root {
-            /* โทนสีน้ำเงินของกรมท่าอากาศยาน */
-            --primary-blue: #0A3161; 
-            --secondary-blue: #155297;
-            --accent-blue: #4A90E2;
+            var(--primary-blue): #0A3161; 
+            --primary-blue: #0A3161; /* สีหลัก */
+            --secondary-blue: #155297; /* สีรอง */
             --light-bg: #F4F7F6;
         }
 
         body {
             font-family: 'Kanit', sans-serif;
             background-color: var(--light-bg);
-            background-image: url('https://www.transparenttextures.com/patterns/cubes.png'); /* ลายพื้นหลังบางๆ */
+            background-image: url('https://www.transparenttextures.com/patterns/cubes.png');
         }
 
         /* Navbar */
-        .navbar {
-            background-color: var(--primary-blue);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
+        .navbar { background-color: var(--primary-blue); box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .navbar-brand img { height: 40px; margin-right: 10px; }
 
-        /* เมนูลอยด้านขวา (Floating Social/Menu) แบบในภาพ */
+        /* การแก้ปัญหาคลิกเมนูแล้วเลื่อนเลย Navbar บัง */
+        html { scroll-behavior: smooth; }
+        .scroll-offset { scroll-margin-top: 80px; }
+
+        /* เมนูลอยด้านขวา */
         .floating-menu {
-            position: fixed;
-            right: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            background: white;
-            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
-            border-radius: 10px 0 0 10px;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
+            position: fixed; right: 0; top: 50%; transform: translateY(-50%);
+            background: white; box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+            border-radius: 10px 0 0 10px; z-index: 1000; display: flex; flex-direction: column;
         }
         .floating-menu a {
-            color: var(--primary-blue);
-            padding: 15px;
-            text-align: center;
-            border-bottom: 1px solid #eee;
-            transition: 0.3s;
+            color: var(--primary-blue); padding: 12px; text-align: center; border-bottom: 1px solid #eee;
+            transition: 0.3s; font-size: 1.2rem;
         }
-        .floating-menu a:hover {
-            background: var(--light-bg);
-            color: var(--secondary-blue);
-        }
+        .floating-menu a:hover { background: var(--light-bg); color: var(--secondary-blue); }
 
-        /* Hero Banner (สไลด์หลัก) */
-        .hero-carousel .carousel-item {
-            height: 450px;
-            background-color: #333; /* สีพื้นหลังกรณีรูปโหลดยังไม่เสร็จ */
-        }
-        .hero-carousel .carousel-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0.8;
-        }
-        /* เปลี่ยนจุดไข่ปลาให้เป็นสี่เหลี่ยมแบนๆ แบบต้นฉบับ */
-        .carousel-indicators [data-bs-target] {
-            width: 20px;
-            height: 5px;
-            background-color: white;
-            border: none;
-        }
+        /* สไลด์หลัก */
+        .hero-carousel .carousel-item { height: 450px; background-color: #333; }
+        .hero-carousel .carousel-item img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; }
+        .carousel-indicators [data-bs-target] { width: 20px; height: 5px; background-color: white; border: none; }
 
-        /* เมนูบริการไอคอนกลมๆ ใต้สไลด์ */
-        .icon-menu-section {
-            background: white;
-            padding: 20px 0;
-            border-bottom: 1px solid #ddd;
-        }
-        .icon-box {
-            text-align: center;
-            text-decoration: none;
-            color: #333;
-            transition: transform 0.2s;
-            display: block;
-        }
+        /* เมนูไอคอนกลมๆ ใต้สไลด์ */
+        .icon-menu-section { background: white; padding: 20px 0; border-bottom: 1px solid #ddd; }
+        .icon-box { text-align: center; text-decoration: none; color: #333; transition: transform 0.2s; display: block; }
         .icon-box:hover { transform: translateY(-5px); color: var(--primary-blue); }
-        .icon-box i {
-            font-size: 35px;
-            color: var(--primary-blue);
-            margin-bottom: 10px;
-        }
+        .icon-box i { font-size: 35px; color: var(--primary-blue); margin-bottom: 10px; }
 
-        /* การ์ดข่าวสาร */
-        .news-section { padding: 40px 0; }
+        /* การ์ดทั่วไป */
         .card-header-custom {
-            background: transparent;
-            border-bottom: none;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background: transparent; border-bottom: none; padding: 15px 20px;
+            display: flex; justify-content: space-between; align-items: center;
         }
-        .card-header-custom h5 {
-            color: var(--secondary-blue);
-            font-weight: 600;
-            margin: 0;
-        }
-        .btn-view-all {
-            background-color: #8CA8C4; /* สีปุ่มดูทั้งหมด */
-            color: white;
-            border-radius: 20px;
-            font-size: 0.85rem;
-        }
+        .card-header-custom h5 { color: var(--secondary-blue); font-weight: 600; margin: 0; }
+        .btn-view-all { background-color: #8CA8C4; color: white; border-radius: 20px; font-size: 0.85rem; transition: 0.3s; }
+        .btn-view-all:hover { background-color: var(--primary-blue); color: white; }
 
         /* Swiper สไตล์ */
         .swiper { width: 100%; height: 100%; }
-        .swiper-slide { cursor: pointer; }
-        .news-img-top { height: 200px; object-fit: cover; width: 100%; }
-        
-        /* สไตล์ข่าวแนวนอน (รูปซ้าย ข้อความขวา) */
-        .news-horizontal { display: flex; }
-        .news-horizontal img { width: 45%; object-fit: cover; }
+        .news-horizontal { display: flex; cursor: pointer; }
+        .news-horizontal img { width: 45%; height: 150px; object-fit: cover; }
         .news-horizontal .content { padding: 15px; width: 55%; }
-
-        /* สไตล์จุด Pagination ของ Swiper */
+        .news-img-top { height: 180px; object-fit: cover; width: 100%; cursor: pointer;}
         .swiper-pagination-bullet { border-radius: 0; width: 15px; height: 5px; }
         .swiper-pagination-bullet-active { background: var(--primary-blue); }
 
-        /* E-Service Section (รอโหลดจาก JS) */
-        .e-service-card {
-            border-left: 4px solid var(--primary-blue);
-            cursor: pointer;
-            transition: 0.3s;
+        /* E-Service Section */
+        .e-service-card { border-left: 4px solid var(--primary-blue); cursor: pointer; transition: 0.3s; }
+        .e-service-card:hover { background-color: var(--primary-blue); color: white !important; }
+        .e-service-card:hover i, .e-service-card:hover small { color: white !important; }
+
+        /* ปฏิทินกิจกรรม */
+        .calendar-item { display: flex; padding: 12px 0; border-bottom: 1px solid #eee; align-items: center; }
+        .calendar-date { width: 60px; text-align: center; line-height: 1; color: var(--secondary-blue); border-right: 2px solid #ddd; margin-right: 15px; padding-right: 15px;}
+        .calendar-date .day { font-size: 1.8rem; font-weight: bold; }
+        .calendar-date .month { font-size: 0.8rem; font-weight: 500;}
+        .calendar-desc { font-size: 0.9rem; line-height: 1.4; color: #444; }
+
+        /* ลิงก์หน่วยงาน 4 ช่อง */
+        .quick-link-box {
+            background-color: #7290A8; color: white; text-align: center; padding: 25px 10px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-decoration: none; height: 100%; transition: 0.3s; border: 1px solid rgba(255,255,255,0.2);
         }
-        .e-service-card:hover {
-            background-color: var(--primary-blue);
-            color: white !important;
-        }
-        .e-service-card:hover i { color: white !important; }
+        .quick-link-box:hover { background-color: var(--primary-blue); color: white; transform: scale(1.02); z-index: 2;}
+        .quick-link-box i { font-size: 2rem; margin-bottom: 10px; }
+
+        /* Footer */
+        .footer-top-logos { background: white; padding: 15px 0; border-bottom: 2px solid var(--primary-blue); }
+        .footer-top-logos img { height: 40px; margin: 0 10px; filter: grayscale(100%); opacity: 0.7; transition: 0.3s;}
+        .footer-top-logos img:hover { filter: grayscale(0%); opacity: 1; }
+        
+        .footer-main { background-color: var(--primary-blue); color: white; padding: 40px 0 20px; font-size: 0.9rem; }
+        .footer-main .icon-circle { width: 40px; height: 40px; border-radius: 50%; border: 1px solid white; display: inline-flex; justify-content: center; align-items: center; margin: 0 5px; color: white; text-decoration: none;}
+        .footer-main .icon-circle:hover { background: white; color: var(--primary-blue); }
+        
+        .footer-sitemap { background-color: #E9ECEF; padding: 40px 0 20px; font-size: 0.85rem; }
+        .footer-sitemap h6 { font-weight: 600; color: var(--primary-blue); margin-bottom: 15px; border-bottom: 2px solid #ccc; padding-bottom: 10px; display: inline-block;}
+        .footer-sitemap ul { list-style: none; padding: 0; }
+        .footer-sitemap ul li { margin-bottom: 8px; }
+        .footer-sitemap a { color: #555; text-decoration: none; transition: 0.2s; }
+        .footer-sitemap a:hover { color: var(--primary-blue); padding-left: 5px;}
     </style>
 </head>
 <body>
 
-    <!-- เมนูลอยด้านขวา -->
-    <div class="floating-menu">
+    <!-- เมนูลอยด้านขวา (อัปเดตไอคอนแล้ว) -->
+    <div class="floating-menu shadow-lg">
         <a href="#" title="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-        <a href="#" title="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
-        <a href="#" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
-        <a href="#" title="ร้องเรียน"><i class="fa-solid fa-comment-dots"></i></a>
+        <a href="#" title="Twitter(X)"><i class="fa-brands fa-x-twitter"></i></a>
+        <a href="#" title="YouTube"><i class="fa-brands fa-youtube" style="color: #c4302b;"></i></a>
+        <a href="#" title="Messenger"><i class="fa-brands fa-facebook-messenger" style="color: #0084ff;"></i></a>
+        <a href="#" title="การเข้าถึง"><i class="fa-solid fa-universal-access" style="color: #2e7d32;"></i></a>
+        <a href="#" style="background-color: var(--primary-blue); color: white;" title="เขียนข้อร้องเรียน"><i class="fa-solid fa-pen-to-square"></i></a>
     </div>
 
     <!-- แถบเมนูด้านบน -->
@@ -172,7 +140,8 @@
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item"><a class="nav-link active" href="#">หน้าหลัก</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">เกี่ยวกับหน่วยงาน</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#eservices">บริการประชาชน</a></li>
+                    <!-- แก้ไขลิงก์ให้ชี้ไปยัง ID ที่มี .scroll-offset -->
+                    <li class="nav-item"><a class="nav-link" href="#eservices-section">บริการประชาชน</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">ติดต่อเรา</a></li>
                 </ul>
                 <div id="userMenu">
@@ -184,7 +153,7 @@
         </div>
     </nav>
 
-    <!-- สไลด์หลัก (Hero Banner) - คลิกลิ้งค์ได้ -->
+    <!-- สไลด์หลัก -->
     <div id="heroCarousel" class="carousel slide hero-carousel" data-bs-ride="carousel">
         <div class="carousel-indicators">
             <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
@@ -192,7 +161,7 @@
         </div>
         <div class="carousel-inner">
             <div class="carousel-item active">
-                <a href="#link-to-open-data"> <!-- ลิ้งค์เมื่อคลิกแบนเนอร์ -->
+                <a href="#">
                     <img src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=2074&auto=format&fit=crop" class="d-block w-100" alt="Banner 1">
                     <div class="carousel-caption d-none d-md-block text-start">
                         <h1 class="fw-bold" style="text-shadow: 2px 2px 4px #000;">ระบบข้อมูลเปิด (Open Data)</h1>
@@ -201,51 +170,41 @@
                 </a>
             </div>
             <div class="carousel-item">
-                <a href="#link-to-news">
+                <a href="#">
                     <img src="https://images.unsplash.com/photo-1542296332-2e4473faf563?q=80&w=2070&auto=format&fit=crop" class="d-block w-100" alt="Banner 2">
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- เมนูไอคอนลัด (Icon Menu) -->
+    <!-- เมนูไอคอนลัด -->
     <div class="icon-menu-section shadow-sm">
         <div class="container">
             <div class="row justify-content-center g-3">
-                <div class="col-md-2 col-4">
-                    <a href="#" class="icon-box">
-                        <i class="fa-solid fa-desktop"></i>
-                        <div style="font-size: 14px;">บริการประชาชน</div>
-                    </a>
-                </div>
-                <div class="col-md-2 col-4">
-                    <a href="#" class="icon-box">
-                        <i class="fa-solid fa-users-gear"></i>
-                        <div style="font-size: 14px;">บริการเจ้าหน้าที่</div>
-                    </a>
-                </div>
-                <div class="col-md-2 col-4">
-                    <a href="#" class="icon-box">
-                        <i class="fa-solid fa-folder-open"></i>
-                        <div style="font-size: 14px;">สารสนเทศกรมฯ</div>
-                    </a>
-                </div>
-                <div class="col-md-2 col-4">
-                    <a href="#" class="icon-box">
-                        <i class="fa-solid fa-mobile-screen"></i>
-                        <div style="font-size: 14px;">Mobile App</div>
-                    </a>
-                </div>
+                <div class="col-md-2 col-4"><a href="#eservices-section" class="icon-box"><i class="fa-solid fa-desktop"></i><div style="font-size: 14px;">บริการประชาชน</div></a></div>
+                <div class="col-md-2 col-4"><a href="#" class="icon-box"><i class="fa-solid fa-users-gear"></i><div style="font-size: 14px;">บริการเจ้าหน้าที่</div></a></div>
+                <div class="col-md-2 col-4"><a href="#" class="icon-box"><i class="fa-solid fa-folder-open"></i><div style="font-size: 14px;">สารสนเทศกรมฯ</div></a></div>
+                <div class="col-md-2 col-4"><a href="#" class="icon-box"><i class="fa-solid fa-mobile-screen"></i><div style="font-size: 14px;">Mobile App</div></a></div>
             </div>
         </div>
     </div>
 
-    <!-- ส่วนเนื้อหา ข่าวสาร และ E-Service -->
-    <div class="container news-section">
+    <!-- ส่วนเนื้อหาหลัก -->
+    <div class="container mt-5 mb-5">
         
-        <!-- แถวที่ 1: ข่าวเด่น & แวดวงข่าว -->
+        <!-- แถวที่ 1: ระบบ E-Services (มี class scroll-offset กัน Navbar บัง) -->
+        <div id="eservices-section" class="scroll-offset mb-5">
+            <h4 class="fw-bold mb-4" style="color: var(--primary-blue);">
+                <i class="fa-solid fa-laptop-code"></i> ระบบบริการอิเล็กทรอนิกส์ (E-Services)
+            </h4>
+            <div class="row g-3" id="eservice-container">
+                <!-- ข้อมูลถูก Render โดย JS ด้านล่าง -->
+            </div>
+        </div>
+
+        <!-- แถวที่ 2: ข่าวเด่น & แวดวงข่าว -->
         <div class="row g-4 mb-5">
-            <!-- 1. ข่าวเด่น (แนวนอน) -->
+            <!-- ข่าวเด่น -->
             <div class="col-lg-7">
                 <div class="card shadow-sm h-100 border-0">
                     <div class="card-header-custom">
@@ -255,25 +214,13 @@
                     <div class="card-body p-0 pb-4">
                         <div class="swiper swiper-horizontal">
                             <div class="swiper-wrapper">
-                                <!-- สไลด์ที่ 1 -->
-                                <div class="swiper-slide" onclick="window.location.href='news-detail.html'">
+                                <div class="swiper-slide" onclick="window.location.href='#'">
                                     <div class="news-horizontal">
-                                        <img src="https://images.unsplash.com/photo-1517400508447-f8dd518b86db?w=500&auto=format" alt="news">
+                                        <img src="https://images.unsplash.com/photo-1517400508447-f8dd518b86db?w=500" alt="news">
                                         <div class="content">
                                             <h6 class="fw-bold">อธิบดีฯ ลงพื้นที่ตรวจเยี่ยมท่าอากาศยานภูมิภาค พร้อมรับมือช่วงเทศกาล</h6>
-                                            <p class="text-muted small mb-1">เน้นย้ำมาตรฐานความปลอดภัย และการอำนวยความสะดวก...</p>
+                                            <p class="text-muted small mb-1">เน้นย้ำมาตรฐานความปลอดภัย...</p>
                                             <small class="text-secondary"><i class="fa-regular fa-calendar"></i> 20 เม.ย. 67</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- สไลด์ที่ 2 -->
-                                <div class="swiper-slide" onclick="window.location.href='news-detail.html'">
-                                    <div class="news-horizontal">
-                                        <img src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=500&auto=format" alt="news">
-                                        <div class="content">
-                                            <h6 class="fw-bold">ประชุมเชิงปฏิบัติการพัฒนาระบบเทคโนโลยีสารสนเทศ</h6>
-                                            <p class="text-muted small mb-1">ยกระดับการให้บริการ E-Service แบบ Single Sign-On...</p>
-                                            <small class="text-secondary"><i class="fa-regular fa-calendar"></i> 18 เม.ย. 67</small>
                                         </div>
                                     </div>
                                 </div>
@@ -283,8 +230,7 @@
                     </div>
                 </div>
             </div>
-
-            <!-- 2. แวดวงข่าว (แนวตั้ง) -->
+            <!-- แวดวงข่าว -->
             <div class="col-lg-5">
                 <div class="card shadow-sm h-100 border-0">
                     <div class="card-header-custom">
@@ -294,17 +240,8 @@
                     <div class="card-body p-0 pb-4">
                         <div class="swiper swiper-vertical-card">
                             <div class="swiper-wrapper">
-                                <!-- สไลด์ที่ 1 -->
-                                <div class="swiper-slide" onclick="window.location.href='news-detail.html'">
-                                    <img src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=500&auto=format" class="news-img-top" alt="news">
-                                    <div class="p-3">
-                                        <h6 class="fw-bold">พิธีเปิดตัวโครงการจัดเก็บข้อมูล Open Data ภาคประชาชน</h6>
-                                        <small class="text-secondary"><i class="fa-regular fa-calendar"></i> 23 เม.ย. 67</small>
-                                    </div>
-                                </div>
-                                <!-- สไลด์ที่ 2 -->
-                                <div class="swiper-slide" onclick="window.location.href='news-detail.html'">
-                                    <img src="https://images.unsplash.com/photo-1573164713988-8665fc963095?w=500&auto=format" class="news-img-top" alt="news">
+                                <div class="swiper-slide" onclick="window.location.href='#'">
+                                    <img src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=500" class="news-img-top" alt="news">
                                     <div class="p-3">
                                         <h6 class="fw-bold">ประกาศรับสมัครงาน ตำแหน่งนักวิชาการคอมพิวเตอร์</h6>
                                         <small class="text-secondary"><i class="fa-regular fa-calendar"></i> 15 เม.ย. 67</small>
@@ -318,17 +255,218 @@
             </div>
         </div>
 
-        <!-- แถวที่ 2: ระบบ E-Services (สร้างอัตโนมัติจากข้อมูล) -->
-        <h4 id="eservices" class="fw-bold mb-4" style="color: var(--primary-blue);"><i class="fa-solid fa-laptop-code"></i> ระบบบริการอิเล็กทรอนิกส์ (E-Services)</h4>
-        
-        <!-- จุดนี้คือที่ที่ Javascript จะเอาปุ่มระบบมาวาดลงไป -->
-        <div class="row g-3" id="eservice-container">
-            <!-- ข้อมูลจะถูก render ที่นี่ -->
+        <!-- แถวที่ 3: ปฏิทิน | มัลติมีเดีย | ลิงก์หน่วยงาน (อิงจากภาพที่ 4) -->
+        <div class="row g-4 mb-4">
+            
+            <!-- 3.1 ปฏิทินกิจกรรม -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm h-100 border-0">
+                    <div class="card-header-custom bg-white">
+                        <h5 style="color: #555;">ปฏิทินกิจกรรม</h5>
+                    </div>
+                    <div class="card-body pt-0">
+                        <div class="calendar-item">
+                            <div class="calendar-date">
+                                <div class="day">28</div>
+                                <div class="month">เม.ย. 67</div>
+                            </div>
+                            <div class="calendar-desc">
+                                ประชุมคณะกรรมการระดับชาติ กำกับโครงการ Effectively Managing Networks...
+                            </div>
+                        </div>
+                        <div class="calendar-item">
+                            <div class="calendar-date">
+                                <div class="day">23</div>
+                                <div class="month">เม.ย. 67</div>
+                            </div>
+                            <div class="calendar-desc">
+                                บรรยายพิเศษสัมมนา Triple Planetary Crisis
+                            </div>
+                        </div>
+                        <div class="calendar-item border-0">
+                            <div class="calendar-date">
+                                <div class="day">21</div>
+                                <div class="month">เม.ย. 67</div>
+                            </div>
+                            <div class="calendar-desc">
+                                พิธีเปิดโครงการฝึกอบรมหลักสูตรสืบสวน
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white border-0 text-end pb-3">
+                        <button class="btn btn-view-all btn-sm">ดูทั้งหมด</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3.2 สื่อมัลติมีเดีย (Youtube) -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm h-100 border-0">
+                    <div class="card-header-custom bg-white">
+                        <h5 style="color: #555;">สื่อมัลติมีเดีย</h5>
+                    </div>
+                    <div class="card-body p-0 text-center bg-dark">
+                        <!-- ฝังคลิป Youtube -->
+                        <iframe width="100%" height="250" src="https://www.youtube.com/embed/dQw4w9WgXcQ?si=abcdefgh" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                    </div>
+                    <div class="card-footer bg-white border-0 d-flex justify-content-between align-items-center pb-3">
+                        <span class="fw-bold small">DOA Inside EP: 1 รู้หรือไม่...</span>
+                        <button class="btn btn-view-all btn-sm">ดูทั้งหมด</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3.3 ลิงก์เว็บไซต์หน่วยงาน -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm h-100 border-0">
+                    <div class="card-header-custom bg-white">
+                        <h5 style="color: #555;">ลิงก์เว็บไซต์หน่วยงาน</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="row g-0 h-100">
+                            <div class="col-6">
+                                <a href="#" class="quick-link-box" style="border-right: 2px solid white; border-bottom: 2px solid white;">
+                                    <i class="fa-solid fa-users"></i>
+                                    <span>ส่วนกลาง</span>
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a href="#" class="quick-link-box" style="border-bottom: 2px solid white;">
+                                    <i class="fa-solid fa-sitemap"></i>
+                                    <span>ส่วนภูมิภาค</span>
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a href="#" class="quick-link-box" style="border-right: 2px solid white;">
+                                    <i class="fa-solid fa-handshake"></i>
+                                    <span style="font-size: 0.85rem;">หน่วยงานระดับกรม/<br>องค์การมหาชน</span>
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a href="#" class="quick-link-box">
+                                    <i class="fa-solid fa-browser"></i>
+                                    <span style="font-size: 0.85rem;">ระบบสำหรับ<br>บริการประชาชน</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div> <!-- End Row 3 -->
+    </div> <!-- End Container -->
+
+    <!-- ===================================== -->
+    <!-- FOOTER (ส่วนล่างสุด อิงจากภาพที่ 3) -->
+    <!-- ===================================== -->
+    <footer class="mt-5">
+        <!-- 1. แถบโลโก้หน่วยงานที่เกี่ยวข้อง (สมมติ) -->
+        <div class="footer-top-logos text-center overflow-hidden">
+            <div class="container d-flex justify-content-center flex-wrap">
+                <i class="fa-solid fa-plane-up fa-2x mx-3 text-muted"></i>
+                <i class="fa-solid fa-shield-halved fa-2x mx-3 text-muted"></i>
+                <i class="fa-solid fa-building-shield fa-2x mx-3 text-muted"></i>
+                <i class="fa-solid fa-globe fa-2x mx-3 text-muted"></i>
+                <i class="fa-solid fa-passport fa-2x mx-3 text-muted"></i>
+                <i class="fa-solid fa-scale-balanced fa-2x mx-3 text-muted"></i>
+            </div>
         </div>
 
-    </div>
+        <!-- 2. ข้อมูลติดต่อ และ รับข่าวสาร -->
+        <div class="footer-main">
+            <div class="container">
+                <div class="row align-items-center g-4">
+                    <!-- ที่อยู่ -->
+                    <div class="col-md-5 border-end border-secondary pe-4">
+                        <h5 class="fw-bold mb-3"><i class="fa-solid fa-building me-2"></i> กรมท่าอากาศยาน (DOA)</h5>
+                        <p class="mb-1"><i class="fa-solid fa-location-dot me-2"></i> 71 ซอยงามดูพลี ถนนพระราม 4 แขวงทุ่งมหาเมฆ เขตสาทร กรุงเทพฯ 10120</p>
+                        <p class="mb-1"><i class="fa-solid fa-phone me-2"></i> 0 2287 0320-9</p>
+                        <p class="mb-0"><i class="fa-solid fa-envelope me-2"></i> saraban@airports.go.th</p>
+                    </div>
+                    
+                    <!-- Call Center & Social -->
+                    <div class="col-md-3 text-center border-end border-secondary">
+                        <h4 class="fw-bold text-warning mb-0">Call Center</h4>
+                        <h1 class="display-6 fw-bold mb-3">1111</h1>
+                        <div>
+                            <a href="#" class="icon-circle"><i class="fa-brands fa-facebook-f"></i></a>
+                            <a href="#" class="icon-circle"><i class="fa-brands fa-x-twitter"></i></a>
+                            <a href="#" class="icon-circle"><i class="fa-brands fa-youtube"></i></a>
+                        </div>
+                    </div>
 
-    <!-- Modal Login (เหมือนเดิม) -->
+                    <!-- รับข่าวสาร & สถิติ -->
+                    <div class="col-md-4 ps-4">
+                        <p class="mb-2">เพื่อลงทะเบียนรับข้อมูลข่าวสารอิเล็กทรอนิกส์ กรุณากรอกอีเมลของท่าน</p>
+                        <div class="input-group mb-4">
+                            <input type="email" class="form-control" placeholder="อีเมลของคุณ...">
+                            <button class="btn btn-warning" type="button">สมัครรับข้อมูล</button>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="me-3 small">จำนวนผู้เข้าชมเว็บไซต์</div>
+                            <div class="bg-secondary px-3 py-1 rounded me-2">68,811,964</div>
+                            <div class="me-2 small">ออนไลน์:</div>
+                            <div class="bg-success px-2 py-1 rounded">59</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Sitemap (แผนผังเว็บไซต์) -->
+        <div class="footer-sitemap">
+            <div class="container">
+                <div class="row text-center text-md-start">
+                    <div class="col-md-12 mb-4 text-center">
+                        <a href="#" class="text-muted small me-3">เงื่อนไขการให้บริการเว็บไซต์</a> | 
+                        <a href="#" class="text-muted small mx-3">นโยบายคุ้มครองข้อมูลส่วนบุคคล</a> | 
+                        <a href="#" class="text-muted small mx-3">นโยบายความปลอดภัย</a>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <h6>ข่าวสารกรมฯ</h6>
+                        <ul>
+                            <li><a href="#">ข่าวเด่น DOA</a></li>
+                            <li><a href="#">แวดวงข่าว</a></li>
+                            <li><a href="#">ข่าวจัดซื้อ/จัดจ้าง</a></li>
+                            <li><a href="#">ประกาศรับสมัครงาน</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <h6>บริการประชาชน</h6>
+                        <ul>
+                            <li><a href="#">ข้อมูลเปิดภาครัฐ (Open Data)</a></li>
+                            <li><a href="#">คู่มือการปฏิบัติงาน/การให้บริการ</a></li>
+                            <li><a href="#">รายงานการดำเนินงาน (Annual Report)</a></li>
+                            <li><a href="#">ระบบ E-Services</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <h6>สารสนเทศกรมฯ</h6>
+                        <ul>
+                            <li><a href="#">กฎ ระเบียบ ข้อบังคับ</a></li>
+                            <li><a href="#">งบประมาณประจำปี</a></li>
+                            <li><a href="#">แบบฟอร์มให้บริการ</a></li>
+                            <li><a href="#">e-Books</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <h6>เว็บไซต์ที่น่าสนใจ</h6>
+                        <ul>
+                            <li><a href="#">กระทรวงคมนาคม</a></li>
+                            <li><a href="#">กรมการบินพลเรือน</a></li>
+                            <li><a href="#">บริษัท ท่าอากาศยานไทย จำกัด</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="text-center mt-4 pt-3 border-top border-secondary small text-muted">
+                    © 2567 สงวนลิขสิทธิ์ตามพระราชบัญญัติลิขสิทธิ์โดย กรมท่าอากาศยาน<br>
+                    รองรับการแสดงผลบนเบราว์เซอร์ Chrome, Firefox, Safari, Edge
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal Login -->
     <div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -347,9 +485,6 @@
                             <input type="password" class="form-control" placeholder="Password">
                         </div>
                         <button type="button" class="btn btn-primary w-100 mb-3" style="background-color: var(--secondary-blue);" onclick="mockLogin()">เข้าสู่ระบบ</button>
-                        <div class="text-center">
-                            <a href="#" class="text-decoration-none">สมัครสมาชิกใหม่</a>
-                        </div>
                     </form>
                 </div>
             </div>
@@ -357,41 +492,27 @@
     </div>
 
     <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        // 1. กำหนดค่า Swiper (สำหรับสไลด์ข่าว)
-        const swiperHorizontal = new Swiper('.swiper-horizontal', {
-            loop: true,
-            autoplay: { delay: 4000, disableOnInteraction: false },
-            pagination: { el: '.swiper-pagination', clickable: true },
-        });
+        // กำหนด Swiper
+        new Swiper('.swiper-horizontal', { loop: true, autoplay: { delay: 4000 }, pagination: { el: '.swiper-pagination', clickable: true }});
+        new Swiper('.swiper-vertical-card', { loop: true, autoplay: { delay: 5000 }, pagination: { el: '.swiper-pagination', clickable: true }});
 
-        const swiperVerticalCard = new Swiper('.swiper-vertical-card', {
-            loop: true,
-            autoplay: { delay: 5000, disableOnInteraction: false },
-            pagination: { el: '.swiper-pagination', clickable: true },
-        });
-
-        // ==========================================
-        // 2. จำลองฐานข้อมูล E-Service (อนาคตดึงจาก Google Sheet ได้)
-        // ==========================================
+        // สร้างการ์ด E-Service อัตโนมัติ
         const eServicesData = [
             { id: 'tour', name: 'ระบบจองวันทัศนศึกษา', icon: 'fa-bus', desc: 'สำหรับหน่วยงานภายนอก' },
-            { id: 'vip', name: 'ระบบจองห้องรับรองพิเศษ (VIP)', icon: 'fa-crown', desc: 'สำหรับผู้บริหารและแขก VIP' },
-            { id: 'car', name: 'ระบบจองรถยนต์ส่วนกลาง', icon: 'fa-car', desc: 'สำหรับเจ้าหน้าที่ภายใน' },
+            { id: 'vip', name: 'ระบบจองห้องรับรอง (VIP)', icon: 'fa-crown', desc: 'สำหรับผู้บริหาร/แขก' },
+            { id: 'car', name: 'ระบบจองรถยนต์ส่วนกลาง', icon: 'fa-car', desc: 'สำหรับเจ้าหน้าที่' },
             { id: 'meeting', name: 'ระบบจองห้องประชุม', icon: 'fa-people-roof', desc: 'จองห้องประชุมออนไลน์' }
         ];
 
-        // ฟังก์ชันสร้างการ์ด E-Service อัตโนมัติลงในหน้าเว็บ
         function renderEServices() {
             const container = document.getElementById('eservice-container');
-            container.innerHTML = ''; // เคลียร์ของเก่า
-
             eServicesData.forEach(service => {
-                const cardHTML = `
+                container.innerHTML += `
                     <div class="col-md-3 col-6">
                         <div class="card h-100 p-3 shadow-sm e-service-card" onclick="handleServiceClick('${service.id}', '${service.name}')">
                             <div class="card-body text-center p-0 pt-2">
@@ -400,70 +521,33 @@
                                 <small class="text-muted" style="font-size: 11px;">${service.desc}</small>
                             </div>
                         </div>
-                    </div>
-                `;
-                container.innerHTML += cardHTML;
+                    </div>`;
             });
         }
-
-        // เรียกใช้งานตอนโหลดหน้าเว็บ
         renderEServices();
 
-        // ==========================================
-        // 3. ระบบ Login & เช็คสิทธิ์ (เหมือนเดิม)
-        // ==========================================
+        // ระบบ Login จำลอง
         let isLoggedIn = false; 
-
-        function showAuthModal() {
-            new bootstrap.Modal(document.getElementById('authModal')).show();
-        }
+        function showAuthModal() { new bootstrap.Modal(document.getElementById('authModal')).show(); }
 
         function handleServiceClick(serviceId, serviceName) {
             if (!isLoggedIn) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'กรุณาเข้าสู่ระบบ',
-                    text: 'เพื่อใช้งาน ' + serviceName,
-                    confirmButtonColor: '#0A3161'
-                }).then(() => showAuthModal());
+                Swal.fire({ icon: 'warning', title: 'กรุณาเข้าสู่ระบบ', text: 'เพื่อใช้งาน ' + serviceName, confirmButtonColor: '#0A3161' }).then(() => showAuthModal());
             } else {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'กำลังเข้าสู่ระบบ',
-                    text: serviceName,
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-                // อนาคต: window.location.href = `/${serviceId}`;
+                Swal.fire({ icon: 'success', title: 'เข้าสู่ระบบ: ' + serviceName, showConfirmButton: false, timer: 1500 });
             }
         }
 
         function mockLogin() {
             isLoggedIn = true;
             bootstrap.Modal.getInstance(document.getElementById('authModal')).hide();
-            Swal.fire({ icon: 'success', title: 'เข้าสู่ระบบสำเร็จ', showConfirmButton: false, timer: 1500 });
-            
-            document.getElementById('userMenu').innerHTML = `
-                <div class="dropdown">
-                    <button class="btn btn-light rounded-pill px-4 dropdown-toggle" data-bs-toggle="dropdown">
-                        <i class="fa-solid fa-circle-user text-primary"></i> คุณ สมชาย ใจดี
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow">
-                        <li><a class="dropdown-item" href="#">หน้าโปรไฟล์</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-danger" href="#" onclick="mockLogout()">ออกจากระบบ</a></li>
-                    </ul>
-                </div>
-            `;
+            Swal.fire({ icon: 'success', title: 'สำเร็จ', showConfirmButton: false, timer: 1000 });
+            document.getElementById('userMenu').innerHTML = `<button class="btn btn-light rounded-pill" onclick="mockLogout()"><i class="fa-solid fa-right-from-bracket text-danger"></i> ออกจากระบบ</button>`;
         }
 
         function mockLogout() {
             isLoggedIn = false;
-            document.getElementById('userMenu').innerHTML = `
-                <button class="btn btn-outline-light rounded-pill px-4" onclick="showAuthModal()">
-                    <i class="fa-solid fa-user me-2"></i>เข้าสู่ระบบ E-Service
-                </button>
-            `;
+            document.getElementById('userMenu').innerHTML = `<button class="btn btn-outline-light rounded-pill px-4" onclick="showAuthModal()"><i class="fa-solid fa-user me-2"></i>เข้าสู่ระบบ E-Service</button>`;
         }
     </script>
 </body>
