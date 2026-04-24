@@ -737,10 +737,10 @@
 
                     cardHTML = `
                         <div class="${cat.colSize} mb-4">
-                            <div class="card shadow-sm h-100 border-0" style="border-top: 5px solid ${cat.themeColor} !important;">
-                                <div class="card-header-solid" style="background-color: ${cat.themeColor};">
-                                    <div class="mb-0 fs-5">${cat.title} <span class="dept-badge">${cat.department}</span></div>
-                                </div>
+        <div class="card shadow-sm h-100 border-0 overflow-hidden">
+            <div class="card-header-solid" style="background-color: ${cat.themeColor}; border-radius: 0;">
+                <div class="mb-0 fs-5">${cat.title} <span class="dept-badge">${cat.department}</span></div>
+            </div>
                                 <div class="card-body text-list-container pb-4 pt-2">
                                     ${listHTML}
                                 </div>
