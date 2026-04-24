@@ -7,7 +7,7 @@
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- FontAwesome 6.5.1 (แก้ปัญหาไอคอน X ไม่ขึ้น) -->
+    <!-- FontAwesome 6.5.1 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Google Fonts (Kanit) -->
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -16,9 +16,8 @@
 
     <style>
         :root {
-            var(--primary-blue): #0A3161; 
-            --primary-blue: #0A3161; /* สีหลัก */
-            --secondary-blue: #155297; /* สีรอง */
+            --primary-blue: #0A3161; 
+            --secondary-blue: #155297;
             --light-bg: #F4F7F6;
         }
 
@@ -31,8 +30,6 @@
         /* Navbar */
         .navbar { background-color: var(--primary-blue); box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .navbar-brand img { height: 40px; margin-right: 10px; }
-
-        /* การแก้ปัญหาคลิกเมนูแล้วเลื่อนเลย Navbar บัง */
         html { scroll-behavior: smooth; }
         .scroll-offset { scroll-margin-top: 80px; }
 
@@ -53,7 +50,7 @@
         .hero-carousel .carousel-item img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; }
         .carousel-indicators [data-bs-target] { width: 20px; height: 5px; background-color: white; border: none; }
 
-        /* เมนูไอคอนกลมๆ ใต้สไลด์ */
+        /* เมนูไอคอนลัด */
         .icon-menu-section { background: white; padding: 20px 0; border-bottom: 1px solid #ddd; }
         .icon-box { text-align: center; text-decoration: none; color: #333; transition: transform 0.2s; display: block; }
         .icon-box:hover { transform: translateY(-5px); color: var(--primary-blue); }
@@ -83,18 +80,23 @@
         .e-service-card:hover i, .e-service-card:hover small { color: white !important; }
 
         /* ปฏิทินกิจกรรม */
-        .calendar-item { display: flex; padding: 12px 0; border-bottom: 1px solid #eee; align-items: center; }
+        .calendar-item { display: flex; padding: 12px 0; border-bottom: 1px solid #eee; align-items: center; cursor: pointer; transition: 0.2s;}
+        .calendar-item:hover { background-color: #f8f9fa; transform: translateX(5px); }
         .calendar-date { width: 60px; text-align: center; line-height: 1; color: var(--secondary-blue); border-right: 2px solid #ddd; margin-right: 15px; padding-right: 15px;}
         .calendar-date .day { font-size: 1.8rem; font-weight: bold; }
         .calendar-date .month { font-size: 0.8rem; font-weight: 500;}
         .calendar-desc { font-size: 0.9rem; line-height: 1.4; color: #444; }
 
+        /* สไตล์ Modal ปฏิทิน (เลียนแบบในรูป) */
+        .modal-calendar-header { background-color: #213C6D; color: white; border-bottom: none; padding: 20px;}
+        .modal-calendar-title-box { display: flex; align-items: flex-start; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 15px;}
+        .modal-calendar-title-date { font-size: 2.5rem; font-weight: bold; line-height: 1; margin-right: 15px; text-align: center;}
+        .modal-calendar-title-month { font-size: 0.8rem; font-weight: normal; }
+        .modal-calendar-meta { font-size: 0.9rem; }
+        .modal-calendar-meta i { width: 20px; text-align: center; margin-right: 5px;}
+
         /* ลิงก์หน่วยงาน 4 ช่อง */
-        .quick-link-box {
-            background-color: #7290A8; color: white; text-align: center; padding: 25px 10px;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            text-decoration: none; height: 100%; transition: 0.3s; border: 1px solid rgba(255,255,255,0.2);
-        }
+        .quick-link-box { background-color: #7290A8; color: white; text-align: center; padding: 25px 10px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-decoration: none; height: 100%; transition: 0.3s; border: 1px solid rgba(255,255,255,0.2); }
         .quick-link-box:hover { background-color: var(--primary-blue); color: white; transform: scale(1.02); z-index: 2;}
         .quick-link-box i { font-size: 2rem; margin-bottom: 10px; }
 
@@ -102,7 +104,6 @@
         .footer-top-logos { background: white; padding: 15px 0; border-bottom: 2px solid var(--primary-blue); }
         .footer-top-logos img { height: 40px; margin: 0 10px; filter: grayscale(100%); opacity: 0.7; transition: 0.3s;}
         .footer-top-logos img:hover { filter: grayscale(0%); opacity: 1; }
-        
         .footer-main { background-color: var(--primary-blue); color: white; padding: 40px 0 20px; font-size: 0.9rem; }
         .footer-main .icon-circle { width: 40px; height: 40px; border-radius: 50%; border: 1px solid white; display: inline-flex; justify-content: center; align-items: center; margin: 0 5px; color: white; text-decoration: none;}
         .footer-main .icon-circle:hover { background: white; color: var(--primary-blue); }
@@ -113,11 +114,15 @@
         .footer-sitemap ul li { margin-bottom: 8px; }
         .footer-sitemap a { color: #555; text-decoration: none; transition: 0.2s; }
         .footer-sitemap a:hover { color: var(--primary-blue); padding-left: 5px;}
+        
+        /* ปุ่มซ่อน Footer */
+        .toggle-sitemap-btn { background-color: #E9ECEF; border: none; width: 100%; padding: 10px; color: var(--primary-blue); font-weight: 600; border-top: 1px solid #ccc; transition: 0.2s;}
+        .toggle-sitemap-btn:hover { background-color: #d1d5da; }
     </style>
 </head>
 <body>
 
-    <!-- เมนูลอยด้านขวา (อัปเดตไอคอนแล้ว) -->
+    <!-- เมนูลอยด้านขวา -->
     <div class="floating-menu shadow-lg">
         <a href="#" title="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
         <a href="#" title="Twitter(X)"><i class="fa-brands fa-x-twitter"></i></a>
@@ -140,7 +145,6 @@
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item"><a class="nav-link active" href="#">หน้าหลัก</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">เกี่ยวกับหน่วยงาน</a></li>
-                    <!-- แก้ไขลิงก์ให้ชี้ไปยัง ID ที่มี .scroll-offset -->
                     <li class="nav-item"><a class="nav-link" href="#eservices-section">บริการประชาชน</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">ติดต่อเรา</a></li>
                 </ul>
@@ -165,7 +169,7 @@
                     <img src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=2074&auto=format&fit=crop" class="d-block w-100" alt="Banner 1">
                     <div class="carousel-caption d-none d-md-block text-start">
                         <h1 class="fw-bold" style="text-shadow: 2px 2px 4px #000;">ท่าอากาศยานบุรีรัมย์</h1>
-                        <p style="text-shadow: 1px 1px 2px #000;">บูรณาการข้อมูลเพื่อการเข้าถึงที่ง่ายขึ้น</p>
+                        <p style="text-shadow: 1px 1px 2px #000;">ประตูสู่อารยธรรมอีสานใต้</p>
                     </div>
                 </a>
             </div>
@@ -192,19 +196,19 @@
     <!-- ส่วนเนื้อหาหลัก -->
     <div class="container mt-5 mb-5">
         
-        <!-- แถวที่ 1: ระบบ E-Services (มี class scroll-offset กัน Navbar บัง) -->
+        <!-- แถวที่ 1: ระบบ E-Services -->
         <div id="eservices-section" class="scroll-offset mb-5">
             <h4 class="fw-bold mb-4" style="color: var(--primary-blue);">
                 <i class="fa-solid fa-laptop-code"></i> ระบบบริการอิเล็กทรอนิกส์ (E-Services)
             </h4>
             <div class="row g-3" id="eservice-container">
-                <!-- ข้อมูลถูก Render โดย JS ด้านล่าง -->
+                <!-- ข้อมูลถูก Render โดย JS -->
             </div>
         </div>
 
         <!-- แถวที่ 2: ข่าวเด่น & แวดวงข่าว -->
         <div class="row g-4 mb-5">
-            <!-- ข่าวเด่น -->
+            <!-- 2.1 ข่าวเด่น (เพิ่มสไลด์ทดสอบ) -->
             <div class="col-lg-7">
                 <div class="card shadow-sm h-100 border-0">
                     <div class="card-header-custom">
@@ -214,13 +218,36 @@
                     <div class="card-body p-0 pb-4">
                         <div class="swiper swiper-horizontal">
                             <div class="swiper-wrapper">
+                                <!-- ข่าวที่ 1 -->
                                 <div class="swiper-slide" onclick="window.location.href='#'">
                                     <div class="news-horizontal">
                                         <img src="https://images.unsplash.com/photo-1517400508447-f8dd518b86db?w=500" alt="news">
                                         <div class="content">
                                             <h6 class="fw-bold">อธิบดีฯ ลงพื้นที่ตรวจเยี่ยมท่าอากาศยานภูมิภาค พร้อมรับมือช่วงเทศกาล</h6>
-                                            <p class="text-muted small mb-1">เน้นย้ำมาตรฐานความปลอดภัย...</p>
+                                            <p class="text-muted small mb-1">เน้นย้ำมาตรฐานความปลอดภัยและการอำนวยความสะดวก...</p>
                                             <small class="text-secondary"><i class="fa-regular fa-calendar"></i> 20 เม.ย. 67</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- ข่าวที่ 2 (ทดสอบสไลด์) -->
+                                <div class="swiper-slide" onclick="window.location.href='#'">
+                                    <div class="news-horizontal">
+                                        <img src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=500" alt="news">
+                                        <div class="content">
+                                            <h6 class="fw-bold">การซ้อมแผนฉุกเฉินท่าอากาศยานเต็มรูปแบบ ประจำปี 2567</h6>
+                                            <p class="text-muted small mb-1">เพื่อเตรียมความพร้อมรับมือสถานการณ์ฉุกเฉินทุกรูปแบบ...</p>
+                                            <small class="text-secondary"><i class="fa-regular fa-calendar"></i> 18 เม.ย. 67</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- ข่าวที่ 3 (ทดสอบสไลด์) -->
+                                <div class="swiper-slide" onclick="window.location.href='#'">
+                                    <div class="news-horizontal">
+                                        <img src="https://images.unsplash.com/photo-1569154941061-e231b4732ef1?w=500" alt="news">
+                                        <div class="content">
+                                            <h6 class="fw-bold">แจ้งเตือนผู้โดยสาร เผื่อเวลาเดินทางช่วงเทศกาลสงกรานต์</h6>
+                                            <p class="text-muted small mb-1">แนะนำให้มาถึงสนามบินล่วงหน้าอย่างน้อย 2 ชั่วโมง...</p>
+                                            <small class="text-secondary"><i class="fa-regular fa-calendar"></i> 10 เม.ย. 67</small>
                                         </div>
                                     </div>
                                 </div>
@@ -230,7 +257,8 @@
                     </div>
                 </div>
             </div>
-            <!-- แวดวงข่าว -->
+            
+            <!-- 2.2 แวดวงข่าว (เพิ่มสไลด์ทดสอบ) -->
             <div class="col-lg-5">
                 <div class="card shadow-sm h-100 border-0">
                     <div class="card-header-custom">
@@ -240,11 +268,28 @@
                     <div class="card-body p-0 pb-4">
                         <div class="swiper swiper-vertical-card">
                             <div class="swiper-wrapper">
+                                <!-- ข่าวที่ 1 -->
                                 <div class="swiper-slide" onclick="window.location.href='#'">
                                     <img src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=500" class="news-img-top" alt="news">
                                     <div class="p-3">
                                         <h6 class="fw-bold">ประกาศรับสมัครงาน ตำแหน่งนักวิชาการคอมพิวเตอร์</h6>
                                         <small class="text-secondary"><i class="fa-regular fa-calendar"></i> 15 เม.ย. 67</small>
+                                    </div>
+                                </div>
+                                <!-- ข่าวที่ 2 (ทดสอบสไลด์) -->
+                                <div class="swiper-slide" onclick="window.location.href='#'">
+                                    <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=500" class="news-img-top" alt="news">
+                                    <div class="p-3">
+                                        <h6 class="fw-bold">โครงการอบรมให้ความรู้ด้านการดับเพลิงเบื้องต้น</h6>
+                                        <small class="text-secondary"><i class="fa-regular fa-calendar"></i> 12 เม.ย. 67</small>
+                                    </div>
+                                </div>
+                                <!-- ข่าวที่ 3 (ทดสอบสไลด์) -->
+                                <div class="swiper-slide" onclick="window.location.href='#'">
+                                    <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500" class="news-img-top" alt="news">
+                                    <div class="p-3">
+                                        <h6 class="fw-bold">ประกาศผู้ชนะการเสนอราคา โครงการปรับปรุงอาคารผู้โดยสาร</h6>
+                                        <small class="text-secondary"><i class="fa-regular fa-calendar"></i> 5 เม.ย. 67</small>
                                     </div>
                                 </div>
                             </div>
@@ -255,41 +300,41 @@
             </div>
         </div>
 
-        <!-- แถวที่ 3: ปฏิทิน | มัลติมีเดีย | ลิงก์หน่วยงาน (อิงจากภาพที่ 4) -->
+        <!-- แถวที่ 3: ปฏิทิน | มัลติมีเดีย | ลิงก์หน่วยงาน -->
         <div class="row g-4 mb-4">
             
-            <!-- 3.1 ปฏิทินกิจกรรม -->
+            <!-- 3.1 ปฏิทินกิจกรรม (เพิ่ม onClick) -->
             <div class="col-lg-4">
                 <div class="card shadow-sm h-100 border-0">
                     <div class="card-header-custom bg-white">
                         <h5 style="color: #555;">ปฏิทินกิจกรรม</h5>
                     </div>
                     <div class="card-body pt-0">
-                        <div class="calendar-item">
+                        <div class="calendar-item" onclick="showCalendarDetail('28', 'เม.ย. 69', 'ประชุมคณะกรรมการระดับชาติ กำกับโครงการ Effectively Managing Networks...', '08.30-16.30 น.', 'ห้องประชุม 1003 ชั้น 10', 'สำนักงานนโยบายและแผนฯ')">
                             <div class="calendar-date">
                                 <div class="day">28</div>
                                 <div class="month">เม.ย. 69</div>
                             </div>
                             <div class="calendar-desc">
-                                ประชุม...3
+                                ประชุมคณะกรรมการระดับชาติ กำกับโครงการ...
                             </div>
                         </div>
-                        <div class="calendar-item">
+                        <div class="calendar-item" onclick="showCalendarDetail('23', 'เม.ย. 69', 'บรรยายพิเศษสัมมนา Triple Planetary Crisis', '09.00-12.00 น.', 'ห้องประชุมใหญ่', 'สำนักงานสิ่งแวดล้อมฯ')">
                             <div class="calendar-date">
                                 <div class="day">23</div>
                                 <div class="month">เม.ย. 69</div>
                             </div>
                             <div class="calendar-desc">
-                                ประชุม...2
+                                บรรยายพิเศษสัมมนา Triple Planetary...
                             </div>
                         </div>
-                        <div class="calendar-item border-0">
+                        <div class="calendar-item border-0" onclick="showCalendarDetail('21', 'เม.ย. 69', 'พิธีเปิดโครงการฝึกอบรมหลักสูตรสืบสวน', '13.00-16.00 น.', 'ศูนย์ฝึกอบรม', 'กรมป่าไม้')">
                             <div class="calendar-date">
                                 <div class="day">21</div>
                                 <div class="month">เม.ย. 69</div>
                             </div>
                             <div class="calendar-desc">
-                                ประชุม...1
+                                พิธีเปิดโครงการฝึกอบรมหลักสูตรสืบสวน...
                             </div>
                         </div>
                     </div>
@@ -299,15 +344,15 @@
                 </div>
             </div>
 
-            <!-- 3.2 สื่อมัลติมีเดีย (Youtube) -->
+            <!-- 3.2 สื่อมัลติมีเดีย (Youtube Fix แล้วใช้ลิงก์ Embed) -->
             <div class="col-lg-4">
                 <div class="card shadow-sm h-100 border-0">
                     <div class="card-header-custom bg-white">
                         <h5 style="color: #555;">สื่อมัลติมีเดีย</h5>
                     </div>
                     <div class="card-body p-0 text-center bg-dark">
-                        <!-- ฝังคลิป Youtube -->
-                        <iframe width="100%" height="250" src="https://youtu.be/c2hLmlUXxbs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                        <!-- ฝังคลิป Youtube (เปลี่ยน URL เป็นแบบ embed) -->
+                        <iframe width="100%" height="250" src="https://www.youtube.com/embed/c2hLmlUXxbs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                     </div>
                     <div class="card-footer bg-white border-0 d-flex justify-content-between align-items-center pb-3">
                         <span class="fw-bold small">DOA Inside EP: 1 รู้หรือไม่...</span>
@@ -324,30 +369,10 @@
                     </div>
                     <div class="card-body p-0">
                         <div class="row g-0 h-100">
-                            <div class="col-6">
-                                <a href="#" class="quick-link-box" style="border-right: 2px solid white; border-bottom: 2px solid white;">
-                                    <i class="fa-solid fa-users"></i>
-                                    <span>ส่วนกลาง</span>
-                                </a>
-                            </div>
-                            <div class="col-6">
-                                <a href="#" class="quick-link-box" style="border-bottom: 2px solid white;">
-                                    <i class="fa-solid fa-sitemap"></i>
-                                    <span>ส่วนภูมิภาค</span>
-                                </a>
-                            </div>
-                            <div class="col-6">
-                                <a href="#" class="quick-link-box" style="border-right: 2px solid white;">
-                                    <i class="fa-solid fa-handshake"></i>
-                                    <span style="font-size: 0.85rem;">หน่วยงานระดับกรม/<br>องค์การมหาชน</span>
-                                </a>
-                            </div>
-                            <div class="col-6">
-                                <a href="#" class="quick-link-box">
-                                    <i class="fa-solid fa-browser"></i>
-                                    <span style="font-size: 0.85rem;">ระบบสำหรับ<br>บริการประชาชน</span>
-                                </a>
-                            </div>
+                            <div class="col-6"><a href="#" class="quick-link-box" style="border-right: 2px solid white; border-bottom: 2px solid white;"><i class="fa-solid fa-users"></i><span>ส่วนกลาง</span></a></div>
+                            <div class="col-6"><a href="#" class="quick-link-box" style="border-bottom: 2px solid white;"><i class="fa-solid fa-sitemap"></i><span>ส่วนภูมิภาค</span></a></div>
+                            <div class="col-6"><a href="#" class="quick-link-box" style="border-right: 2px solid white;"><i class="fa-solid fa-handshake"></i><span style="font-size: 0.85rem;">หน่วยงานระดับกรม/<br>องค์การมหาชน</span></a></div>
+                            <div class="col-6"><a href="#" class="quick-link-box"><i class="fa-solid fa-browser"></i><span style="font-size: 0.85rem;">ระบบสำหรับ<br>บริการประชาชน</span></a></div>
                         </div>
                     </div>
                 </div>
@@ -357,10 +382,10 @@
     </div> <!-- End Container -->
 
     <!-- ===================================== -->
-    <!-- FOOTER (ส่วนล่างสุด อิงจากภาพที่ 3) -->
+    <!-- FOOTER -->
     <!-- ===================================== -->
     <footer class="mt-5">
-        <!-- 1. แถบโลโก้หน่วยงานที่เกี่ยวข้อง (สมมติ) -->
+        <!-- 1. แถบโลโก้หน่วยงานที่เกี่ยวข้อง -->
         <div class="footer-top-logos text-center overflow-hidden">
             <div class="container d-flex justify-content-center flex-wrap">
                 <i class="fa-solid fa-plane-up fa-2x mx-3 text-muted"></i>
@@ -376,15 +401,12 @@
         <div class="footer-main">
             <div class="container">
                 <div class="row align-items-center g-4">
-                    <!-- ที่อยู่ -->
                     <div class="col-md-5 border-end border-secondary pe-4">
                         <h5 class="fw-bold mb-3"><i class="fa-solid fa-building me-2"></i> ท่าอากาศยานบุรีรัมย์</h5>
-                        <p class="mb-1"><i class="fa-solid fa-location-dot me-2"></i> 123</p>
-                        <p class="mb-1"><i class="fa-solid fa-phone me-2"></i> 044.....</p>
+                        <p class="mb-1"><i class="fa-solid fa-location-dot me-2"></i> 144 หมู่ 12 ต.ร่อนทอง อ.สตึก จ.บุรีรัมย์ 31150</p>
+                        <p class="mb-1"><i class="fa-solid fa-phone me-2"></i> 044-666-666</p>
                         <p class="mb-0"><i class="fa-solid fa-envelope me-2"></i> buriram@airports.go.th</p>
                     </div>
-                    
-                    <!-- Call Center & Social -->
                     <div class="col-md-3 text-center border-end border-secondary">
                         <h4 class="fw-bold text-warning mb-0">Call Center</h4>
                         <h1 class="display-6 fw-bold mb-3">1111</h1>
@@ -394,8 +416,6 @@
                             <a href="#" class="icon-circle"><i class="fa-brands fa-youtube"></i></a>
                         </div>
                     </div>
-
-                    <!-- รับข่าวสาร & สถิติ -->
                     <div class="col-md-4 ps-4">
                         <p class="mb-2">เพื่อลงทะเบียนรับข้อมูลข่าวสารอิเล็กทรอนิกส์ กรุณากรอกอีเมลของท่าน</p>
                         <div class="input-group mb-4">
@@ -413,60 +433,72 @@
             </div>
         </div>
 
-        <!-- 3. Sitemap (แผนผังเว็บไซต์) -->
-        <div class="footer-sitemap">
-            <div class="container">
-                <div class="row text-center text-md-start">
-                    <div class="col-md-12 mb-4 text-center">
-                        <a href="#" class="text-muted small me-3">เงื่อนไขการให้บริการเว็บไซต์</a> | 
-                        <a href="#" class="text-muted small mx-3">นโยบายคุ้มครองข้อมูลส่วนบุคคล</a> | 
-                        <a href="#" class="text-muted small mx-3">นโยบายความปลอดภัย</a>
+        <!-- ปุ่มสำหรับ ซ่อน/แสดง Sitemap -->
+        <button class="toggle-sitemap-btn" type="button" data-bs-toggle="collapse" data-bs-target="#footerSitemapContainer" aria-expanded="false" aria-controls="footerSitemapContainer">
+            <i class="fa-solid fa-chevron-down me-2"></i> แสดง/ซ่อน แผนผังเว็บไซต์
+        </button>
+
+        <!-- 3. Sitemap (ใส่ Collapse ซ่อนไว้เป็นค่าเริ่มต้น) -->
+        <div class="collapse" id="footerSitemapContainer">
+            <div class="footer-sitemap">
+                <div class="container">
+                    <div class="row text-center text-md-start">
+                        <div class="col-md-12 mb-4 text-center">
+                            <a href="#" class="text-muted small me-3">เงื่อนไขการให้บริการเว็บไซต์</a> | 
+                            <a href="#" class="text-muted small mx-3">นโยบายคุ้มครองข้อมูลส่วนบุคคล</a> | 
+                            <a href="#" class="text-muted small mx-3">นโยบายความปลอดภัย</a>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <h6>ข่าวสารกรมฯ</h6>
+                            <ul>
+                                <li><a href="#">ข่าวเด่น DOA</a></li>
+                                <li><a href="#">แวดวงข่าว</a></li>
+                                <li><a href="#">ข่าวจัดซื้อ/จัดจ้าง</a></li>
+                                <li><a href="#">ประกาศรับสมัครงาน</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <h6>บริการประชาชน</h6>
+                            <ul>
+                                <li><a href="#">ข้อมูลเปิดภาครัฐ (Open Data)</a></li>
+                                <li><a href="#">คู่มือการปฏิบัติงาน/การให้บริการ</a></li>
+                                <li><a href="#">รายงานการดำเนินงาน (Annual Report)</a></li>
+                                <li><a href="#">ระบบ E-Services</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <h6>สารสนเทศกรมฯ</h6>
+                            <ul>
+                                <li><a href="#">กฎ ระเบียบ ข้อบังคับ</a></li>
+                                <li><a href="#">งบประมาณประจำปี</a></li>
+                                <li><a href="#">แบบฟอร์มให้บริการ</a></li>
+                                <li><a href="#">e-Books</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <h6>เว็บไซต์ที่น่าสนใจ</h6>
+                            <ul>
+                                <li><a href="#">กระทรวงคมนาคม</a></li>
+                                <li><a href="#">กรมการบินพลเรือน</a></li>
+                                <li><a href="#">บริษัท ท่าอากาศยานไทย จำกัด</a></li>
+                            </ul>
+                        </div>
                     </div>
-                    <div class="col-md-3 col-6">
-                        <h6>ข่าวสารกรมฯ</h6>
-                        <ul>
-                            <li><a href="#">ข่าวเด่น DOA</a></li>
-                            <li><a href="#">แวดวงข่าว</a></li>
-                            <li><a href="#">ข่าวจัดซื้อ/จัดจ้าง</a></li>
-                            <li><a href="#">ประกาศรับสมัครงาน</a></li>
-                        </ul>
-                    </div>
-                    <div class="col-md-3 col-6">
-                        <h6>บริการประชาชน</h6>
-                        <ul>
-                            <li><a href="#">ข้อมูลเปิดภาครัฐ (Open Data)</a></li>
-                            <li><a href="#">คู่มือการปฏิบัติงาน/การให้บริการ</a></li>
-                            <li><a href="#">รายงานการดำเนินงาน (Annual Report)</a></li>
-                            <li><a href="#">ระบบ E-Services</a></li>
-                        </ul>
-                    </div>
-                    <div class="col-md-3 col-6">
-                        <h6>สารสนเทศกรมฯ</h6>
-                        <ul>
-                            <li><a href="#">กฎ ระเบียบ ข้อบังคับ</a></li>
-                            <li><a href="#">งบประมาณประจำปี</a></li>
-                            <li><a href="#">แบบฟอร์มให้บริการ</a></li>
-                            <li><a href="#">e-Books</a></li>
-                        </ul>
-                    </div>
-                    <div class="col-md-3 col-6">
-                        <h6>เว็บไซต์ที่น่าสนใจ</h6>
-                        <ul>
-                            <li><a href="#">กระทรวงคมนาคม</a></li>
-                            <li><a href="#">กรมการบินพลเรือน</a></li>
-                            <li><a href="#">บริษัท ท่าอากาศยานไทย จำกัด</a></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="text-center mt-4 pt-3 border-top border-secondary small text-muted">
-                    © 2567 สงวนลิขสิทธิ์ตามพระราชบัญญัติลิขสิทธิ์โดย กรมท่าอากาศยาน<br>
-                    รองรับการแสดงผลบนเบราว์เซอร์ Chrome, Firefox, Safari, Edge
                 </div>
             </div>
         </div>
+        <!-- ส่วนล่างสุด -->
+        <div class="text-center py-3 border-top border-secondary small text-white" style="background-color: #213C6D;">
+            © 2567 สงวนลิขสิทธิ์ตามพระราชบัญญัติลิขสิทธิ์โดย ท่าอากาศยานบุรีรัมย์<br>
+            รองรับการแสดงผลบนเบราว์เซอร์ Chrome, Firefox, Safari, Edge
+        </div>
     </footer>
 
-    <!-- Modal Login -->
+    <!-- ===================================== -->
+    <!-- MODAL ต่างๆ -->
+    <!-- ===================================== -->
+    
+    <!-- Modal เข้าสู่ระบบ -->
     <div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -476,16 +508,52 @@
                 </div>
                 <div class="modal-body p-4">
                     <form id="loginForm">
-                        <div class="mb-3">
-                            <label class="form-label">ชื่อผู้ใช้งาน</label>
-                            <input type="text" class="form-control" placeholder="Username">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">รหัสผ่าน</label>
-                            <input type="password" class="form-control" placeholder="Password">
-                        </div>
+                        <div class="mb-3"><label class="form-label">ชื่อผู้ใช้งาน</label><input type="text" class="form-control" placeholder="Username"></div>
+                        <div class="mb-3"><label class="form-label">รหัสผ่าน</label><input type="password" class="form-control" placeholder="Password"></div>
                         <button type="button" class="btn btn-primary w-100 mb-3" style="background-color: var(--secondary-blue);" onclick="mockLogin()">เข้าสู่ระบบ</button>
                     </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal ปฏิทินกิจกรรม (แบบในรูปตัวอย่าง) -->
+    <div class="modal fade" id="calendarModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0">
+                <!-- ส่วนหัว สีน้ำเงินเข้ม แบบในรูป -->
+                <div class="modal-header modal-calendar-header flex-column align-items-stretch">
+                    <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal"></button>
+                    
+                    <div class="modal-calendar-title-box">
+                        <div class="modal-calendar-title-date">
+                            <div id="modalCalDay">28</div>
+                            <div id="modalCalMonth" class="modal-calendar-title-month">เม.ย. 69</div>
+                        </div>
+                        <div>
+                            <h5 id="modalCalTitle" class="mb-0 fw-bold" style="line-height: 1.5;">ชื่อกิจกรรม</h5>
+                        </div>
+                    </div>
+
+                    <div class="row modal-calendar-meta g-2">
+                        <div class="col-md-6"><i class="fa-regular fa-calendar-days"></i> วันที่: <span id="modalCalDateFull"></span></div>
+                        <div class="col-md-6"><i class="fa-solid fa-location-dot"></i> สถานที่: <span id="modalCalLocation"></span></div>
+                        <div class="col-md-6"><i class="fa-regular fa-clock"></i> เวลา: <span id="modalCalTime"></span></div>
+                        <div class="col-md-6"><i class="fa-regular fa-building"></i> หน่วยงาน: <span id="modalCalDept"></span></div>
+                    </div>
+                </div>
+                <!-- ส่วนรายละเอียด -->
+                <div class="modal-body p-4">
+                    <h5 class="fw-bold mb-3" style="color: var(--primary-blue);" id="modalCalTitleBody">ชื่อกิจกรรม</h5>
+                    <div class="text-center mb-4 bg-light p-4 rounded">
+                        <i class="fa-solid fa-image fa-4x text-muted opacity-25"></i>
+                        <p class="text-muted mt-2 small">รูปภาพประกอบ (ถ้ามี)</p>
+                    </div>
+                    <div class="d-flex justify-content-between text-muted small border-top pt-3">
+                        <span><span id="modalCalDateBottom"></span> | อ่าน 0 ครั้ง</span>
+                        <button class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-print"></i> Print</button>
+                    </div>
+                    <div class="mt-3 text-muted">ประเภท: ประชุม</div>
                 </div>
             </div>
         </div>
@@ -497,11 +565,11 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        // กำหนด Swiper
+        // 1. ตั้งค่า Swiper ให้เลื่อนออโต้
         new Swiper('.swiper-horizontal', { loop: true, autoplay: { delay: 4000 }, pagination: { el: '.swiper-pagination', clickable: true }});
         new Swiper('.swiper-vertical-card', { loop: true, autoplay: { delay: 5000 }, pagination: { el: '.swiper-pagination', clickable: true }});
 
-        // สร้างการ์ด E-Service อัตโนมัติ
+        // 2. สร้างการ์ด E-Service
         const eServicesData = [
             { id: 'tour', name: 'ระบบจองวันทัศนศึกษา', icon: 'fa-bus', desc: 'สำหรับหน่วยงานภายนอก' },
             { id: 'vip', name: 'ระบบจองห้องรับรอง (VIP)', icon: 'fa-crown', desc: 'สำหรับผู้บริหาร/แขก' },
@@ -526,7 +594,22 @@
         }
         renderEServices();
 
-        // ระบบ Login จำลอง
+        // 3. ฟังก์ชันเปิด Modal ปฏิทินและส่งค่าไปแสดง
+        function showCalendarDetail(day, month, title, time, location, dept) {
+            document.getElementById('modalCalDay').innerText = day;
+            document.getElementById('modalCalMonth').innerText = month;
+            document.getElementById('modalCalTitle').innerText = title;
+            document.getElementById('modalCalTitleBody').innerText = title;
+            document.getElementById('modalCalDateFull').innerText = day + ' ' + month;
+            document.getElementById('modalCalDateBottom').innerText = day + ' ' + month;
+            document.getElementById('modalCalTime').innerText = time;
+            document.getElementById('modalCalLocation').innerText = location;
+            document.getElementById('modalCalDept').innerText = dept;
+
+            new bootstrap.Modal(document.getElementById('calendarModal')).show();
+        }
+
+        // 4. ระบบ Login จำลอง
         let isLoggedIn = false; 
         function showAuthModal() { new bootstrap.Modal(document.getElementById('authModal')).show(); }
 
