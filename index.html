@@ -85,7 +85,20 @@
         .calendar-date { width: 60px; text-align: center; line-height: 1; color: var(--secondary-blue); border-right: 2px solid #ddd; margin-right: 15px; padding-right: 15px;}
         .calendar-date .day { font-size: 1.8rem; font-weight: bold; }
         .calendar-date .month { font-size: 0.8rem; font-weight: 500;}
-        .calendar-desc { font-size: 0.9rem; line-height: 1.4; color: #444; }
+                .calendar-desc { 
+            font-size: 0.9rem; 
+            line-height: 1.4; 
+            color: #444; 
+            
+            /* คำสั่งเพิ่มใหม่ เพื่อตัดข้อความที่ยาวเกินไป */
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* กำหนดให้แสดงสูงสุด 2 บรรทัด (แก้ตัวเลขได้) */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            word-break: break-word; /* บังคับตัดคำที่พิมพ์ติดกันยาวๆ */
+            width: 100%;
+        }
 
         /* สไตล์ Modal ปฏิทิน (เลียนแบบในรูป) */
         .modal-calendar-header { background-color: #213C6D; color: white; border-bottom: none; padding: 20px;}
