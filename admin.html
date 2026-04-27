@@ -413,24 +413,36 @@
                     <form id="formEService" onsubmit="saveEService(event)">
                         <input type="hidden" id="srv_ServiceID">
                         <input type="hidden" id="srv_OrderList">
+                        
                         <div class="mb-3">
                             <label class="form-label fw-bold">ชื่อระบบ <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="srv_ServiceName" required>
+                            <input type="text" class="form-control" id="srv_ServiceName" placeholder="เช่น ระบบจองห้องประชุม" required>
                         </div>
+                        
                         <div class="mb-3">
                             <label class="form-label fw-bold">ไอคอน (FontAwesome) <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="srv_IconClass" required>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fa-solid fa-icons"></i></span>
+                                <input type="text" class="form-control" id="srv_IconClass" placeholder="เช่น fa-bus, fa-car" required>
+                            </div>
+                            <div class="form-text">
+                                <a href="https://fontawesome.com/search?o=r&m=free" target="_blank" class="text-decoration-none">
+                                    <i class="fa-solid fa-arrow-up-right-from-square"></i> คลิกที่นี่เพื่อดูชื่อไอคอนฟรี
+                                </a> (ก๊อปปี้เฉพาะชื่อ เช่น fa-car)
+                            </div>
                         </div>
+                        
                         <div class="mb-3">
                             <label class="form-label fw-bold">ลิงก์ระบบ <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control font-monospace" id="srv_URL" required>
+                            <input type="url" class="form-control font-monospace" id="srv_URL" placeholder="https://..." required>
                         </div>
+                        
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold">การเปิดลิงก์</label>
                                 <select class="form-select" id="srv_Target">
-                                    <option value="_blank">แท็บใหม่</option>
-                                    <option value="_self">หน้าเดิม</option>
+                                    <option value="_blank">แท็บใหม่ (_blank)</option>
+                                    <option value="_self">หน้าเดิม (_self)</option>
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3 d-flex align-items-end pb-2">
@@ -492,7 +504,7 @@
     </div>
     <!-- ================= สิ้นสุด Modal: จัดการ Airlines ================= -->
     
-    <!-- ================= เริ่มต้น Modal: จัดการ หมวดหมู่ข่าว ================= -->
+   <!-- ================= เริ่มต้น Modal: จัดการ หมวดหมู่ข่าว ================= -->
     <div class="modal fade" id="newsCatModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0">
@@ -504,29 +516,34 @@
                     <form id="formNewsCat" onsubmit="saveNewsCat(event)">
                         <input type="hidden" id="ncat_CategoryID">
                         <input type="hidden" id="ncat_OrderList">
+                        
                         <div class="mb-3">
                             <label class="form-label fw-bold">ชื่อหมวดหมู่ <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="ncat_CategoryName" required>
+                            <input type="text" class="form-control" id="ncat_CategoryName" placeholder="เช่น ข่าวประชาสัมพันธ์" required>
                         </div>
+                        
                         <div class="mb-3">
                             <label class="form-label fw-bold">กลุ่มงานที่รับผิดชอบ <span class="text-danger">*</span></label>
-                            <!-- 🟢 Dropdown สำหรับเลือกกลุ่มงาน -->
+                            <!-- Dropdown สำหรับเลือกกลุ่มงาน -->
                             <select class="form-select" id="ncat_Department" required>
                                 <option value="">กำลังโหลดข้อมูล...</option>
                             </select>
                         </div>
+                        
                         <div class="mb-3">
                             <label class="form-label fw-bold">รูปแบบการแสดงผล</label>
                             <select class="form-select" id="ncat_LayoutType">
                                 <option value="slider">สไลด์รูปภาพ แนวนอน (Slider)</option>
-                                <option value="slider-vertical">สไลด์การ์ด แนวตั้ง</option>
+                                <option value="slider-vertical">สไลด์การ์ด แนวตั้ง (Vertical Slider)</option>
                                 <option value="text-list">รายการข้อความ (Text List)</option>
                             </select>
+                            <div class="form-text">ถ้าเลือกเป็นรายการข้อความ กรุณาเลือกสีด้านล่างด้วยครับ</div>
                         </div>
+                        
                         <div class="row">
                             <div class="col-6 mb-3">
                                 <label class="form-label fw-bold">สีของหมวดหมู่</label>
-                                <input type="color" class="form-control form-control-color w-100" id="ncat_ThemeColor" value="#0A3161">
+                                <input type="color" class="form-control form-control-color w-100" id="ncat_ThemeColor" value="#0A3161" title="เลือกสีของหัวข้อ">
                             </div>
                             <div class="col-6 mb-3 d-flex align-items-center">
                                 <div class="form-check form-switch mt-4">
