@@ -455,9 +455,9 @@
                 <div class="modal-body">
                     <!-- โลโก้ลอย -->
                     <div class="auth-logo-wrapper">
-                        <!-- สมมติรูปโลโก้ คุณสามารถเปลี่ยน src ได้ -->
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/DOA_Thailand_logo.svg/1200px-DOA_Thailand_logo.svg.png" alt="Logo">
-                    </div>
+    <!-- เปลี่ยนจาก img เป็นไอคอนเครื่องบินสีน้ำเงิน -->
+    <i class="fa-solid fa-plane-departure fa-3x" style="color: var(--primary-blue);"></i>
+</div>
                     <h3 class="auth-title">เข้าสู่ระบบกลาง</h3>
                     <p class="auth-subtitle">ท่าอากาศยานบุรีรัมย์</p>
 
@@ -899,16 +899,23 @@
         }
 
         // ฟังก์ชันเมื่อกดปุ่ม "เข้าสู่ระบบ"
+       // ==================== ส่งข้อมูล Login ====================
         function submitLogin(e) {
             e.preventDefault();
             const btn = document.getElementById('btnLoginBtn');
+            const userInp = document.getElementById('loginUsername');
+            const passInp = document.getElementById('loginPassword');
+            
+            // 🟢 1. เปลี่ยนข้อความปุ่ม และ ล็อก (Disable) ช่องกรอกข้อมูล
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังเข้าสู่ระบบ...';
             btn.disabled = true;
+            userInp.disabled = true;
+            passInp.disabled = true;
 
             const formData = new URLSearchParams();
             formData.append('action', 'login');
-            formData.append('username', document.getElementById('loginUsername').value);
-            formData.append('password', document.getElementById('loginPassword').value);
+            formData.append('username', userInp.value);
+            formData.append('password', passInp.value);
 
             fetch(API_URL, { method: 'POST', body: formData })
                 .then(res => res.json())
@@ -918,7 +925,9 @@
                         bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
                         Swal.fire({ icon: 'success', title: data.message, showConfirmButton: false, timer: 1500 });
                         
-                        // อัปเดตเมนูมุมขวาบนให้เป็นชื่อคน Login
+                        // 🟢 2. เคลียร์ฟอร์มทิ้งทันทีที่ Login สำเร็จ
+                        document.getElementById('formLogin').reset(); 
+                        
                         document.getElementById('userMenu').innerHTML = `
                             <div class="dropdown">
                                 <button class="btn btn-light rounded-pill px-4 dropdown-toggle" data-bs-toggle="dropdown">
@@ -936,15 +945,25 @@
                     }
                 })
                 .catch(error => Swal.fire({ icon: 'error', title: 'การเชื่อมต่อขัดข้อง', text: 'โปรดลองใหม่อีกครั้ง' }))
-                .finally(() => { btn.innerHTML = 'เข้าสู่ระบบ'; btn.disabled = false; });
+                .finally(() => { 
+                    // 🟢 3. ปลดล็อกช่องกรอกข้อมูลเมื่อประมวลผลเสร็จ (ไม่ว่าจะผ่านหรือไม่ผ่าน)
+                    btn.innerHTML = 'เข้าสู่ระบบ'; 
+                    btn.disabled = false; 
+                    userInp.disabled = false;
+                    passInp.disabled = false;
+                });
         }
 
-        // ฟังก์ชันเมื่อกดปุ่ม "สมัครสมาชิก"
+         // ==================== ส่งข้อมูล Register ====================
         function submitRegister(e) {
             e.preventDefault();
             const btn = document.getElementById('btnRegBtn');
+            const form = document.getElementById('formRegister');
+            
+            // 🟢 1. ล็อกช่องกรอกข้อมูลทั้งหมดในฟอร์มสมัคร
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึกข้อมูล...';
             btn.disabled = true;
+            Array.from(form.elements).forEach(inp => inp.disabled = true);
 
             const formData = new URLSearchParams();
             formData.append('action', 'register');
@@ -963,18 +982,27 @@
                     if (data.status === 'success') {
                         Swal.fire({ icon: 'success', title: data.message, confirmButtonColor: '#16a34a' })
                             .then(() => switchToLogin());
-                        document.getElementById('formRegister').reset(); 
+                        form.reset(); // ล้างฟอร์ม
                     } else {
                         Swal.fire({ icon: 'error', title: 'ไม่สามารถสมัครได้', text: data.message });
                     }
                 })
                 .catch(error => Swal.fire({ icon: 'error', title: 'การเชื่อมต่อขัดข้อง', text: 'โปรดลองใหม่อีกครั้ง' }))
-                .finally(() => { btn.innerHTML = 'สมัครสมาชิก'; btn.disabled = false; });
+                .finally(() => { 
+                    // 🟢 2. ปลดล็อกช่องกรอกข้อมูลทั้งหมด
+                    btn.innerHTML = 'สมัครสมาชิก'; 
+                    btn.disabled = false; 
+                    Array.from(form.elements).forEach(inp => inp.disabled = false);
+                });
         }
 
         // ฟังก์ชันออกจากระบบ
+       // ==================== ออกจากระบบ ====================
         function mockLogout() { 
             isLoggedIn = false; 
+            // 🟢 เคลียร์ฟอร์มกันเหนียวอีกรอบตอนกดออก
+            document.getElementById('formLogin').reset(); 
+            
             document.getElementById('userMenu').innerHTML = `<button class="btn btn-outline-light rounded-pill px-4" onclick="showAuthModal()"><i class="fa-solid fa-user me-2"></i> เข้าสู่ระบบ</button>`; 
             Swal.fire({ icon: 'info', title: 'ออกจากระบบแล้ว', showConfirmButton: false, timer: 1000 });
         }
