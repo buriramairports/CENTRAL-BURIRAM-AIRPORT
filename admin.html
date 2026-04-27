@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบจัดการหลังบ้าน | ท่าอากาศยานบุรีรัมย์</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: #f1f5f9; /* สีเทาอ่อนสบายตา */
+            overflow-x: hidden;
+        }
+        
+        /* ---------------- Sidebar ---------------- */
+        .sidebar {
+            width: 260px;
+            height: 100vh;
+            background-color: #1e293b; /* สีกรมท่าเข้ม */
+            position: fixed;
+            left: 0;
+            top: 0;
+            color: #cbd5e1;
+            transition: 0.3s;
+            z-index: 1000;
+        }
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            background-color: #0f172a;
+            border-bottom: 1px solid #334155;
+        }
+        .sidebar-menu {
+            padding: 15px 0;
+            list-style: none;
+            margin: 0;
+        }
+        .sidebar-menu li a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: 0.2s;
+            font-size: 0.95rem;
+        }
+        .sidebar-menu li a:hover, .sidebar-menu li a.active {
+            background-color: #3b82f6; /* สีน้ำเงินสว่างเมื่อเลือก */
+            color: white;
+            border-left: 4px solid #60a5fa;
+        }
+        .sidebar-menu li a i {
+            width: 25px;
+            font-size: 1.1rem;
+        }
+        
+        /* ---------------- Main Content ---------------- */
+        .main-content {
+            margin-left: 260px; /* เว้นที่ให้ Sidebar */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* ---------------- Topbar ---------------- */
+        .topbar {
+            background-color: white;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            z-index: 100;
+        }
+        
+        /* ---------------- Page Content ---------------- */
+        .page-content {
+            padding: 30px;
+            flex-grow: 1;
+        }
+        .card-custom {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.03);
+        }
+        
+        /* สถิติกล่องเล็กๆ (Stat Cards) */
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.03);
+            border-left: 5px solid #3b82f6;
+        }
+        .stat-card .icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            background: #eff6ff;
+            color: #3b82f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.8rem;
+            margin-right: 15px;
+        }
+        
+        .footer-text {
+            text-align: center;
+            padding: 20px;
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- เช็คสิทธิ์ด้วย JS ก่อนโหลดหน้าจอ (ป้องกันหน้ากระพริบ) -->
+    <script>
+        const userData = JSON.parse(localStorage.getItem('userData'));
+        // ถ้าไม่มีข้อมูล หรือ เป็นแค่ User ธรรมดา ให้เตะกลับไปหน้าแรกทันที
+        if (!userData || (userData.role !== 'SuperAdmin' && userData.role !== 'SubAdmin')) {
+            window.location.href = 'index.html';
+        }
+    </script>
+
+    <!-- Sidebar ด้านซ้าย -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <i class="fa-solid fa-plane-departure fa-2x text-white mb-2"></i>
+            <h5 class="text-white mb-0 fw-bold">Admin Panel</h5>
+            <small style="color: #94a3b8;">ท่าอากาศยานบุรีรัมย์</small>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="#" class="active"><i class="fa-solid fa-gauge-high"></i> หน้าหลัก (Dashboard)</a></li>
+            <li><a href="#"><i class="fa-solid fa-newspaper"></i> จัดการข่าวสาร</a></li>
+            <li><a href="#"><i class="fa-solid fa-plane-arrival"></i> ตารางเที่ยวบิน</a></li>
+            <li><a href="#"><i class="fa-solid fa-users-line"></i> สถิติผู้โดยสาร</a></li>
+            
+            <li class="mt-4 px-3"><small class="text-uppercase fw-bold" style="color: #64748b; font-size: 0.7rem;">จัดการข้อมูลพื้นฐาน</small></li>
+            <li><a href="#"><i class="fa-solid fa-laptop-code"></i> ระบบ E-Services</a></li>
+            <li><a href="#"><i class="fa-solid fa-plane-circle-check"></i> สายการบิน</a></li>
+            <li><a href="#"><i class="fa-solid fa-layer-group"></i> หมวดหมู่ข่าว</a></li>
+            
+            <!-- เมนูนี้จะโชว์เฉพาะ SuperAdmin (เดี๋ยวเราใช้ JS ซ่อน/แสดง) -->
+            <li id="menuSuperAdminGroup">
+                <div class="mt-4 px-3"><small class="text-uppercase fw-bold" style="color: #64748b; font-size: 0.7rem;">ตั้งค่าระบบ</small></div>
+                <a href="#"><i class="fa-solid fa-sitemap"></i> กลุ่มงาน (Departments)</a>
+                <a href="#"><i class="fa-solid fa-users-gear"></i> จัดการผู้ใช้งาน</a>
+                <a href="#"><i class="fa-solid fa-gear"></i> ตั้งค่าเว็บไซต์</a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- พื้นที่เนื้อหาด้านขวา -->
+    <div class="main-content">
+        
+        <!-- Topbar ด้านบน -->
+        <div class="topbar">
+            <h5 class="mb-0 fw-bold text-dark">ภาพรวมระบบ</h5>
+            
+            <div class="dropdown">
+                <button class="btn btn-light dropdown-toggle border-0" type="button" data-bs-toggle="dropdown" style="background: transparent;">
+                    <i class="fa-solid fa-circle-user text-primary fs-5 me-2 align-middle"></i> 
+                    <span id="adminNameDisplay" class="fw-bold">กำลังโหลด...</span>
+                    <span id="adminRoleDisplay" class="badge bg-danger ms-2">Admin</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                    <li><a class="dropdown-item" href="#"><i class="fa-solid fa-user-shield me-2"></i> ข้อมูลส่วนตัว</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="#" onclick="adminLogout()"><i class="fa-solid fa-right-from-bracket me-2"></i> ออกจากระบบ</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- เนื้อหา (เปลี่ยนไปตามเมนูที่กด) -->
+        <div class="page-content">
+            
+            <!-- Welcome Alert -->
+            <div class="alert alert-primary border-0 shadow-sm mb-4" role="alert" style="background-color: #eff6ff; color: #1e3a8a;">
+                <h5 class="alert-heading fw-bold"><i class="fa-solid fa-hand-wave me-2"></i> ยินดีต้อนรับกลับมา!</h5>
+                <p class="mb-0">นี่คือพื้นที่สำหรับจัดการข้อมูลเว็บไซต์ หากคุณมีสิทธิ์เป็น SubAdmin คุณจะเห็นเฉพาะเมนูของกลุ่มงาน <strong id="adminDeptDisplay">---</strong> เท่านั้น</p>
+            </div>
+
+            <!-- กล่องสถิติ (รอต่อกับฐานข้อมูล) -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <div class="stat-card border-primary">
+                        <div class="icon"><i class="fa-solid fa-newspaper"></i></div>
+                        <div>
+                            <h3 class="fw-bold mb-0 text-dark">24</h3>
+                            <div class="text-muted small">ข่าวสารทั้งหมด</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card" style="border-left-color: #22c55e;">
+                        <div class="icon" style="background: #dcfce7; color: #22c55e;"><i class="fa-solid fa-users"></i></div>
+                        <div>
+                            <h3 class="fw-bold mb-0 text-dark">1,204</h3>
+                            <div class="text-muted small">ผู้ใช้งานระบบ</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card" style="border-left-color: #f59e0b;">
+                        <div class="icon" style="background: #fef3c7; color: #f59e0b;"><i class="fa-solid fa-laptop-code"></i></div>
+                        <div>
+                            <h3 class="fw-bold mb-0 text-dark">5</h3>
+                            <div class="text-muted small">E-Services ที่เปิดใช้งาน</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card" style="border-left-color: #8b5cf6;">
+                        <div class="icon" style="background: #ede9fe; color: #8b5cf6;"><i class="fa-solid fa-plane-up"></i></div>
+                        <div>
+                            <h3 class="fw-bold mb-0 text-dark">18</h3>
+                            <div class="text-muted small">เที่ยวบินเดือนนี้</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- พื้นที่รอทำระบบตารางจัดการข้อมูลใน Step ถัดไป -->
+            <div class="card card-custom p-4 text-center text-muted mt-5">
+                <i class="fa-solid fa-screwdriver-wrench fa-3x mb-3 opacity-25"></i>
+                <h5>พื้นที่สำหรับแสดงตารางข้อมูล</h5>
+                <p>เราจะเริ่มเขียนโค้ดดึงข้อมูลจาก Google Sheet มาแสดงตรงนี้ใน Step ถัดไปครับ</p>
+            </div>
+
+        </div>
+
+        <div class="footer-text">
+            &copy; 2026 ระบบจัดการหลังบ้าน - ท่าอากาศยานบุรีรัมย์
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // 1. ดึงข้อมูล User จาก localStorage เพื่อแสดงบนหน้าจอ
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('userData'));
+            
+            if(user) {
+                // แสดงชื่อและแผนก
+                document.getElementById('adminNameDisplay').innerText = user.fullname;
+                document.getElementById('adminRoleDisplay').innerText = user.role;
+                document.getElementById('adminDeptDisplay').innerText = user.department;
+
+                // การจัดการสิทธิ์ (Role-based UI)
+                if (user.role === 'SubAdmin') {
+                    // เปลี่ยนป้าย Role เป็นสีเหลือง
+                    document.getElementById('adminRoleDisplay').className = "badge bg-warning text-dark ms-2";
+                    // ซ่อนเมนูตั้งค่าระบบ (ที่มีเฉพาะ SuperAdmin)
+                    document.getElementById('menuSuperAdminGroup').style.display = 'none';
+                }
+            }
+        });
+
+        // 2. ฟังก์ชันออกจากระบบ
+        function adminLogout() {
+            Swal.fire({
+                title: 'ยืนยันการออกจากระบบ?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'ออกจากระบบ',
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    localStorage.removeItem('userData'); // ลบข้อมูลทิ้ง
+                    window.location.href = 'index.html'; // เตะกลับไปหน้าแรก
+                }
+            });
+        }
+    </script>
+</body>
+</html>
