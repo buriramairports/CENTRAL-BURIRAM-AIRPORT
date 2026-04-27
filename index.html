@@ -84,7 +84,7 @@
         .calendar-date .month { font-size: 0.8rem; font-weight: 500;}
         .calendar-desc { font-size: 0.9rem; line-height: 1.4; color: #444; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; word-break: break-word; width: 100%; }
 
-        /* ลิงก์หน่วยงาน 4 ช่อง (อัปเดตตำแหน่งปุ่ม) */
+        /* ลิงก์หน่วยงาน 4 ช่อง */
         .quick-link-box { background-color: #7290A8; color: white; text-align: center; padding: 25px 10px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-decoration: none; height: 100%; transition: 0.3s; border: 1px solid rgba(255,255,255,0.2); }
         .quick-link-box:hover { background-color: var(--primary-blue); color: white; transform: scale(1.02); z-index: 2;}
         .quick-link-box i { font-size: 2rem; margin-bottom: 10px; }
@@ -122,6 +122,23 @@
         .footer-sitemap a:hover { color: var(--primary-blue); padding-left: 5px;}
         .toggle-sitemap-btn { background-color: #E9ECEF; border: none; width: 100%; padding: 10px; color: var(--primary-blue); font-weight: 600; border-top: 1px solid #ccc; transition: 0.2s;}
         .toggle-sitemap-btn:hover { background-color: #d1d5da; }
+
+        /* ====================================================
+           สไตล์ฟอร์ม Login / Register (แบบในรูปที่ขอมา)
+           ==================================================== */
+        .auth-modal-content { border: none; border-radius: 15px; padding: 20px; }
+        .auth-logo-wrapper { width: 100px; height: 100px; background: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin: -60px auto 20px; box-shadow: 0 10px 20px rgba(0, 200, 100, 0.2); }
+        .auth-title { font-weight: 800; color: #1e293b; text-align: center; }
+        .auth-subtitle { color: #64748b; text-align: center; margin-bottom: 30px; font-size: 0.95rem;}
+        .form-label { font-weight: 600; color: #334155; font-size: 0.9rem; margin-bottom: 5px;}
+        .form-label .req { color: #ef4444; } 
+        .form-control-custom { border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 15px; font-size: 0.95rem; color: #475569; }
+        .form-control-custom:focus { border-color: #22c55e; box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1); }
+        .btn-auth-submit { background-color: #16a34a; border: none; border-radius: 8px; padding: 12px; font-weight: bold; font-size: 1.1rem; width: 100%; color: white; transition: 0.2s; }
+        .btn-auth-submit:hover { background-color: #15803d; }
+        .btn-auth-submit:disabled { background-color: #86efac; cursor: not-allowed; }
+        .btn-auth-switch { color: #16a34a; font-weight: bold; text-decoration: none; cursor: pointer; }
+        .pdpa-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 15px; margin-bottom: 20px; }
     </style>
 </head>
 <body>
@@ -238,7 +255,6 @@
                 </div>
             </div>
 
-            <!-- บริการและสารสนเทศ (แก้ไขการจัดวางปุ่ม 4 ปุ่มใหม่) -->
             <div class="col-lg-4">
                 <div class="card shadow-sm h-100 border-0 bg-light">
                     <div class="card-header-custom bg-transparent">
@@ -246,7 +262,6 @@
                     </div>
                     <div class="card-body p-0">
                         <div class="row g-0 h-100">
-                            <!-- แถวที่ 1 -->
                             <div class="col-6">
                                 <a href="javascript:void(0)" onclick="showFlightScheduleModal()" class="quick-link-box" style="border-right: 2px solid white; border-bottom: 2px solid white;">
                                     <i class="fa-solid fa-plane-arrival"></i><span>ตารางเที่ยวบิน</span>
@@ -257,7 +272,6 @@
                                     <i class="fa-solid fa-users-line"></i><span>สถิติผู้โดยสาร</span>
                                 </a>
                             </div>
-                            <!-- แถวที่ 2 -->
                             <div class="col-6">
                                 <a href="#" class="quick-link-box" style="border-right: 2px solid white; background-color: #637F9A;">
                                     <i class="fa-solid fa-users-gear"></i><span>บริการเจ้าหน้าที่</span>
@@ -301,15 +315,12 @@
         <div class="footer-main">
             <div class="container">
                 <div class="row align-items-start g-4">
-                    <!-- คอลัมน์ 1: ที่อยู่ -->
                     <div class="col-lg-4 border-end border-secondary pe-4">
                         <h5 class="fw-bold mb-3"><i class="fa-solid fa-building me-2"></i> ท่าอากาศยานบุรีรัมย์</h5>
                         <p class="mb-2"><i class="fa-solid fa-location-dot me-2"></i> 144 หมู่ 12 ต.ร่อนทอง อ.สตึก จ.บุรีรัมย์ 31150</p>
                         <p class="mb-2"><i class="fa-solid fa-phone me-2"></i> 044-666-334</p>
                         <p class="mb-0"><i class="fa-solid fa-envelope me-2"></i> buriram@airports.go.th</p>
                     </div>
-                    
-                    <!-- คอลัมน์ 2: สายการบิน -->
                     <div class="col-lg-4 border-end border-secondary px-4">
                         <h5 class="fw-bold mb-3 text-warning"><i class="fa-solid fa-plane-circle-check me-2"></i> สายการบินที่ให้บริการ</h5>
                         <div id="footer-airlines-container">
@@ -329,8 +340,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- คอลัมน์ 3: สถิติผู้เข้าชมเว็บ -->
                     <div class="col-lg-4 ps-4">
                         <h5 class="fw-bold mb-3"><i class="fa-solid fa-chart-line me-2"></i> สถิติผู้เข้าชมเว็บไซต์</h5>
                         <div class="stats-box">
@@ -359,7 +368,6 @@
             <i class="fa-solid fa-chevron-down me-2"></i> แสดง/ซ่อน แผนผังเว็บไซต์
         </button>
 
-        <!-- Sitemap -->
         <div class="collapse" id="footerSitemapContainer">
             <div class="footer-sitemap">
                 <div class="container">
@@ -395,201 +403,138 @@
     <!-- MODAL ต่างๆ -->
     <!-- ===================================== -->
     
-    <!-- Modal เข้าสู่ระบบ & Modal ปฏิทินกิจกรรม -->
-    <div class="modal fade" id="authModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header text-white" style="background-color: var(--primary-blue);"><h5 class="modal-title"><i class="fa-solid fa-lock"></i> เข้าสู่ระบบกลาง (Single Sign-On)</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><form id="loginForm"><div class="mb-3"><label class="form-label">ชื่อผู้ใช้งาน</label><input type="text" class="form-control" placeholder="Username"></div><div class="mb-3"><label class="form-label">รหัสผ่าน</label><input type="password" class="form-control" placeholder="Password"></div><button type="button" class="btn btn-primary w-100 mb-3" style="background-color: var(--secondary-blue);" onclick="mockLogin()">เข้าสู่ระบบ</button></form></div></div></div></div>
+    <!-- 1. Modal เข้าสู่ระบบ (Login) -->
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content auth-modal-content mt-5">
+                <div class="modal-body">
+                    <div class="auth-logo-wrapper">
+                        <!-- โลโก้ใหม่: เป็นไอคอนเครื่องบิน แทนรูปที่เสีย -->
+                        <i class="fa-solid fa-plane-departure fa-3x" style="color: var(--primary-blue);"></i>
+                    </div>
+                    <h3 class="auth-title">เข้าสู่ระบบกลาง</h3>
+                    <p class="auth-subtitle">ท่าอากาศยานบุรีรัมย์</p>
+
+                    <form id="formLogin" onsubmit="submitLogin(event)">
+                        <div class="mb-3">
+                            <label class="form-label">ชื่อผู้ใช้ (Username) <span class="req">*</span></label>
+                            <input type="text" class="form-control form-control-custom" id="loginUsername" placeholder="กรอกชื่อผู้ใช้" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">รหัสผ่าน <span class="req">*</span></label>
+                            <input type="password" class="form-control form-control-custom" id="loginPassword" placeholder="กรอกรหัสผ่าน" required>
+                        </div>
+                        <button type="submit" class="btn-auth-submit mb-3" id="btnLoginBtn">เข้าสู่ระบบ</button>
+                        <div class="text-center text-muted small">
+                            ยังไม่มีบัญชีใช่หรือไม่? <a class="btn-auth-switch" onclick="switchToRegister()">สมัครสมาชิก</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Modal สมัครสมาชิก (Register) -->
+    <div class="modal fade" id="registerModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content auth-modal-content mt-5">
+                <div class="modal-body">
+                    <div class="auth-logo-wrapper">
+                        <i class="fa-solid fa-plane-departure fa-3x" style="color: var(--primary-blue);"></i>
+                    </div>
+                    <h3 class="auth-title">สมัครสมาชิกใหม่</h3>
+                    <p class="auth-subtitle">เพื่อเข้าใช้งานระบบบริการอิเล็กทรอนิกส์ ท่าอากาศยานบุรีรัมย์</p>
+
+                    <form id="formRegister" onsubmit="submitRegister(event)">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">ชื่อ <span class="req">*</span></label>
+                                <input type="text" class="form-control form-control-custom" id="regFname" placeholder="ชื่อจริง" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">นามสกุล <span class="req">*</span></label>
+                                <input type="text" class="form-control form-control-custom" id="regLname" placeholder="นามสกุล" required>
+                            </div>
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">เบอร์โทรศัพท์ <span class="req">*</span></label>
+                                <input type="tel" class="form-control form-control-custom" id="regPhone" placeholder="08xxxxxxxx" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email <span class="req">*</span></label>
+                                <input type="email" class="form-control form-control-custom" id="regEmail" placeholder="อีเมล" required>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">สถานศึกษา / หน่วยงาน / องค์กร <span class="req">*</span></label>
+                            <input type="text" class="form-control form-control-custom" id="regOrg" placeholder="ระบุชื่อหน่วยงาน หรือ บริษัท" required>
+                        </div>
+
+                        <h6 class="fw-bold mb-3" style="color: #15803d;"><i class="fa-solid fa-key"></i> ข้อมูลเข้าสู่ระบบ</h6>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label">ชื่อผู้ใช้ (Username) <span class="req">*</span></label>
+                                <input type="text" class="form-control form-control-custom" id="regUsername" placeholder="ใช้สำหรับ Login" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">รหัสผ่าน <span class="req">*</span></label>
+                                <input type="password" class="form-control form-control-custom" id="regPassword" placeholder="อย่างน้อย 6 ตัวอักษร" minlength="6" required>
+                            </div>
+                        </div>
+
+                        <div class="pdpa-box d-flex align-items-center">
+                            <input class="form-check-input me-3 mt-0" type="checkbox" id="regPdpa" style="transform: scale(1.2);" required>
+                            <label class="form-check-label text-muted small" for="regPdpa">
+                                ข้าพเจ้าได้อ่านและยอมรับ <a href="#" class="fw-bold text-success text-decoration-none" onclick="showPdpaModal(event)">นโยบายความเป็นส่วนตัว (PDPA)</a>
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn-auth-submit mb-3" id="btnRegBtn">สมัครสมาชิก</button>
+                        <div class="text-center text-muted small">
+                            มีบัญชีแล้ว? <a class="btn-auth-switch" onclick="switchToLogin()">เข้าสู่ระบบ</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Modal ข้อตกลง PDPA -->
+    <div class="modal fade" id="pdpaModal" tabindex="-1" style="z-index: 1060;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title fw-bold text-success"><i class="fa-solid fa-shield-halved"></i> นโยบายความเป็นส่วนตัว (PDPA)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4 text-muted" style="font-size: 0.95rem;">
+                    ข้าพเจ้ายินยอมให้ระบบจัดเก็บและประมวลผลข้อมูลส่วนบุคคล (ชื่อ, เบอร์โทร, อีเมล) 
+                    เพื่อใช้ในการติดต่อและยืนยันตัวตนสำหรับการรับบริการอิเล็กทรอนิกส์เท่านั้น 
+                    ทั้งนี้ข้อมูลของท่านจะถูกเก็บรักษาเป็นความลับและไม่นำไปเผยแพร่ต่อบุคคลที่สาม
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">ปิด</button>
+                    <button type="button" class="btn btn-success" onclick="acceptPdpa()"><i class="fa-solid fa-check"></i> ข้าพเจ้ายอมรับ</button>
+                </div>
+            </div>
+        </div>
+    </div>
     
+    <!-- Modal ปฏิทินกิจกรรม -->
     <div class="modal fade" id="calendarModal" tabindex="-1"><div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content border-0"><div class="modal-header modal-calendar-header flex-column align-items-stretch"><button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal"></button><div class="modal-calendar-title-box"><div class="modal-calendar-title-date"><div id="modalCalDay">28</div><div id="modalCalMonth" class="modal-calendar-title-month">เม.ย. 69</div></div><div><h5 id="modalCalTitle" class="mb-0 fw-bold" style="line-height: 1.5;">ชื่อกิจกรรม</h5></div></div><div class="row modal-calendar-meta g-2"><div class="col-md-6"><i class="fa-regular fa-calendar-days"></i> วันที่: <span id="modalCalDateFull"></span></div><div class="col-md-6"><i class="fa-solid fa-location-dot"></i> สถานที่: <span id="modalCalLocation"></span></div><div class="col-md-6"><i class="fa-regular fa-clock"></i> เวลา: <span id="modalCalTime"></span></div><div class="col-md-6"><i class="fa-regular fa-building"></i> หน่วยงาน: <span id="modalCalDept"></span></div></div></div><div class="modal-body p-4"><h5 class="fw-bold mb-3" style="color: var(--primary-blue);" id="modalCalTitleBody">ชื่อกิจกรรม</h5><div class="text-center mb-4 bg-light p-4 rounded"><i class="fa-solid fa-image fa-4x text-muted opacity-25"></i></div><div class="d-flex justify-content-between text-muted small border-top pt-3"><span><span id="modalCalDateBottom"></span> | อ่าน 0 ครั้ง</span><button class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-print"></i> Print</button></div></div></div></div></div>
 
     <!-- Modal รวมระบบ E-Services -->
-    <div class="modal fade" id="allEServicesModal" tabindex="-1">
-        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content border-0 bg-light">
-                <div class="modal-header text-white" style="background-color: var(--primary-blue);">
-                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-laptop-code"></i> ระบบบริการอิเล็กทรอนิกส์ทั้งหมด</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-4"><div class="row g-3" id="all-eservice-container"></div></div>
-            </div>
-        </div>
-    </div>
+    <div class="modal fade" id="allEServicesModal" tabindex="-1"><div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"><div class="modal-content border-0 bg-light"><div class="modal-header text-white" style="background-color: var(--primary-blue);"><h5 class="modal-title fw-bold"><i class="fa-solid fa-laptop-code"></i> ระบบบริการอิเล็กทรอนิกส์ทั้งหมด</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><div class="row g-3" id="all-eservice-container"></div></div></div></div></div>
 
     <!-- Modal สถิติผู้เข้าชมเว็บย้อนหลัง -->
-    <div class="modal fade" id="webStatsModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header text-white" style="background-color: var(--primary-blue);">
-                    <h5 class="modal-title"><i class="fa-solid fa-chart-line"></i> สถิติผู้เข้าชมเว็บย้อนหลัง</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row g-2 mb-4">
-                        <div class="col-8">
-                            <select class="form-select">
-                                <option value="2569">พ.ศ. 2569</option>
-                                <option value="2568">พ.ศ. 2568</option>
-                            </select>
-                        </div>
-                        <div class="col-4">
-                            <button class="btn btn-primary w-100"><i class="fa-solid fa-filter"></i> กรอง</button>
-                        </div>
-                    </div>
-                    <table class="table table-bordered table-striped text-center">
-                        <thead class="table-light"><tr><th>เดือน</th><th>จำนวนผู้เข้าชมเว็บ</th></tr></thead>
-                        <tbody>
-                            <tr><td>เมษายน</td><td>7,000</td></tr>
-                            <tr><td>มีนาคม</td><td>3,000</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div class="modal fade" id="webStatsModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header text-white" style="background-color: var(--primary-blue);"><h5 class="modal-title"><i class="fa-solid fa-chart-line"></i> สถิติผู้เข้าชมเว็บย้อนหลัง</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-2 mb-4"><div class="col-8"><select class="form-select"><option value="2569">พ.ศ. 2569</option><option value="2568">พ.ศ. 2568</option></select></div><div class="col-4"><button class="btn btn-primary w-100"><i class="fa-solid fa-filter"></i> กรอง</button></div></div><table class="table table-bordered table-striped text-center"><thead class="table-light"><tr><th>เดือน</th><th>จำนวนผู้เข้าชมเว็บ</th></tr></thead><tbody><tr><td>เมษายน</td><td>7,000</td></tr><tr><td>มีนาคม</td><td>3,000</td></tr></tbody></table></div></div></div></div>
 
-    <!-- NEW: Modal สถิติผู้โดยสาร -->
-    <div class="modal fade" id="passengerStatsModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content border-0">
-                <div class="modal-header text-white" style="background-color: var(--primary-blue);">
-                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-users-line"></i> ข้อมูลสถิติผู้โดยสาร</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <!-- กล่องสรุปยอดรวม (YTD) -->
-                    <div class="passenger-summary-box mb-4">
-                        <h6 class="mb-1 opacity-75">ยอดรวมผู้โดยสารสะสม (ตั้งแต่ 1 ม.ค. ถึงปัจจุบัน)</h6>
-                        <h1 class="display-5 fw-bold mb-0">152,430 <span class="fs-5 fw-normal">คน</span></h1>
-                    </div>
-
-                    <!-- ฟิลเตอร์ -->
-                    <div class="row g-2 mb-3">
-                        <div class="col-md-4">
-                            <select class="form-select">
-                                <option value="2569" selected>ประจำปี พ.ศ. 2569</option>
-                                <option value="2568">ประจำปี พ.ศ. 2568</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <button class="btn btn-primary w-100"><i class="fa-solid fa-filter"></i> ค้นหา</button>
-                        </div>
-                    </div>
-
-                    <!-- ตารางข้อมูลรายเดือน -->
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-hover text-center passenger-table align-middle">
-                            <thead>
-                                <tr>
-                                    <th width="25%">เดือน</th>
-                                    <th width="35%">จำนวนผู้โดยสาร (คน)</th>
-                                    <th width="40%">หมายเหตุ</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="fw-bold">พฤษภาคม</td>
-                                    <td class="fs-5 text-muted">-</td>
-                                    <td class="text-muted small">อยู่ระหว่างรวบรวมข้อมูลล่าสุด</td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-bold">เมษายน</td>
-                                    <td class="fs-5 fw-bold text-success">42,100</td>
-                                    <td class="text-muted small">ช่วงเทศกาลสงกรานต์</td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-bold">มีนาคม</td>
-                                    <td class="fs-5">35,200</td>
-                                    <td class="text-muted small">-</td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-bold">กุมภาพันธ์</td>
-                                    <td class="fs-5">38,500</td>
-                                    <td class="text-muted small">มีกิจกรรมงานวิ่ง Marathon</td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-bold">มกราคม</td>
-                                    <td class="fs-5">36,630</td>
-                                    <td class="text-muted small">เทศกาลปีใหม่</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Modal สถิติผู้โดยสาร -->
+    <div class="modal fade" id="passengerStatsModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content border-0"><div class="modal-header text-white" style="background-color: var(--primary-blue);"><h5 class="modal-title fw-bold"><i class="fa-solid fa-users-line"></i> ข้อมูลสถิติผู้โดยสาร</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><div class="passenger-summary-box mb-4"><h6 class="mb-1 opacity-75">ยอดรวมผู้โดยสารสะสม (ตั้งแต่ 1 ม.ค. ถึงปัจจุบัน)</h6><h1 class="display-5 fw-bold mb-0">152,430 <span class="fs-5 fw-normal">คน</span></h1></div><div class="row g-2 mb-3"><div class="col-md-4"><select class="form-select"><option value="2569" selected>ประจำปี พ.ศ. 2569</option><option value="2568">ประจำปี พ.ศ. 2568</option></select></div><div class="col-md-2"><button class="btn btn-primary w-100"><i class="fa-solid fa-filter"></i> ค้นหา</button></div></div><div class="table-responsive"><table class="table table-bordered table-hover text-center passenger-table align-middle"><thead><tr><th width="25%">เดือน</th><th width="35%">จำนวนผู้โดยสาร (คน)</th><th width="40%">หมายเหตุ</th></tr></thead><tbody><tr><td class="fw-bold">พฤษภาคม</td><td class="fs-5 text-muted">-</td><td class="text-muted small">อยู่ระหว่างรวบรวมข้อมูลล่าสุด</td></tr><tr><td class="fw-bold">เมษายน</td><td class="fs-5 fw-bold text-success">42,100</td><td class="text-muted small">ช่วงเทศกาลสงกรานต์</td></tr><tr><td class="fw-bold">มีนาคม</td><td class="fs-5">35,200</td><td class="text-muted small">-</td></tr><tr><td class="fw-bold">กุมภาพันธ์</td><td class="fs-5">38,500</td><td class="text-muted small">มีกิจกรรมงานวิ่ง Marathon</td></tr><tr><td class="fw-bold">มกราคม</td><td class="fs-5">36,630</td><td class="text-muted small">เทศกาลปีใหม่</td></tr></tbody></table></div></div></div></div></div>
 
     <!-- Modal ตารางเที่ยวบิน -->
-    <div class="modal fade" id="flightModal" tabindex="-1">
-        <div class="modal-dialog modal-xl modal-dialog-centered">
-            <div class="modal-content border-0">
-                <div class="modal-header text-white" style="background-color: var(--primary-blue);">
-                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-plane-departure"></i> ตารางเที่ยวบินประจำเดือน พฤษภาคม 2569</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-0">
-                    <div class="row g-0">
-                        <!-- คอลัมน์ 1: รูปภาพ -->
-                        <div class="col-lg-4 bg-light border-end text-center d-flex align-items-center justify-content-center p-3">
-                            <img src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500" class="img-fluid rounded shadow-sm" alt="Flight Schedule Cover" style="max-height: 400px; object-fit: cover;">
-                        </div>
-                        
-                        <!-- คอลัมน์ 2: ปฏิทิน -->
-                        <div class="col-lg-4 p-4 border-end">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <button class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-chevron-left"></i></button>
-                                <h6 class="fw-bold mb-0 text-primary">พฤษภาคม 2569</h6>
-                                <button class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-chevron-right"></i></button>
-                            </div>
-                            
-                            <div class="flight-calendar-grid">
-                                <div class="flight-day-header text-danger">อา</div><div class="flight-day-header">จ</div><div class="flight-day-header">อ</div><div class="flight-day-header">พ</div><div class="flight-day-header">พฤ</div><div class="flight-day-header">ศ</div><div class="flight-day-header text-danger">ส</div>
-                                
-                                <div class="flight-day-box border-0 bg-transparent"></div>
-                                <div class="flight-day-box border-0 bg-transparent"></div>
-                                <div class="flight-day-box border-0 bg-transparent"></div>
-                                <div class="flight-day-box border-0 bg-transparent"></div>
-                                <div class="flight-day-box border-0 bg-transparent"></div>
-                                <div class="flight-day-box has-flight" onclick="selectFlightDate(this, '1 พ.ค. 69', true)"><div class="flight-date-num">1</div><div class="flight-airline-dot text-danger"><i class="fa-solid fa-plane"></i> AirAsia</div></div>
-                                <div class="flight-day-box has-flight" onclick="selectFlightDate(this, '2 พ.ค. 69', true)"><div class="flight-date-num">2</div><div class="flight-airline-dot text-danger"><i class="fa-solid fa-plane"></i> AirAsia</div></div>
-                                
-                                <div class="flight-day-box has-flight" onclick="selectFlightDate(this, '3 พ.ค. 69', true)"><div class="flight-date-num text-danger">3</div><div class="flight-airline-dot text-danger"><i class="fa-solid fa-plane"></i> AirAsia</div></div>
-                                <div class="flight-day-box" onclick="selectFlightDate(this, '4 พ.ค. 69', false)"><div class="flight-date-num">4</div></div>
-                                <div class="flight-day-box" onclick="selectFlightDate(this, '5 พ.ค. 69', false)"><div class="flight-date-num">5</div></div>
-                                <div class="flight-day-box" onclick="selectFlightDate(this, '6 พ.ค. 69', false)"><div class="flight-date-num">6</div></div>
-                                <div class="flight-day-box has-flight" onclick="selectFlightDate(this, '7 พ.ค. 69', true)"><div class="flight-date-num">7</div><div class="flight-airline-dot text-warning"><i class="fa-solid fa-plane"></i> NokAir</div></div>
-                                <div class="flight-day-box has-flight active-day" onclick="selectFlightDate(this, '8 พ.ค. 69', true)"><div class="flight-date-num flight-active-date-num">8</div><div class="flight-airline-dot"><i class="fa-solid fa-plane"></i> AirAsia</div></div>
-                                <div class="flight-day-box has-flight" onclick="selectFlightDate(this, '9 พ.ค. 69', true)"><div class="flight-date-num text-danger">9</div><div class="flight-airline-dot text-danger"><i class="fa-solid fa-plane"></i> AirAsia</div></div>
-                            </div>
-                            <div class="text-center mt-3 small text-muted"><i class="fa-solid fa-circle text-success opacity-50"></i> วันที่มีเที่ยวบินให้บริการ</div>
-                        </div>
-
-                        <!-- คอลัมน์ 3: รายละเอียด -->
-                        <div class="col-lg-4 p-4 bg-light">
-                            <h5 class="fw-bold mb-3 border-bottom pb-2" style="color: var(--primary-blue);">
-                                <i class="fa-solid fa-list-check"></i> รายการเที่ยวบิน
-                            </h5>
-                            <div class="text-muted small mb-3">วันที่เลือก: <span id="flightSelectedDate" class="fw-bold text-dark fs-6">8 พฤษภาคม 2569</span></div>
-                            
-                            <div id="flightDetailsResult">
-                                <div class="card border-0 shadow-sm mb-3 border-start border-danger border-4">
-                                    <div class="card-body p-3">
-                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <div class="fw-bold text-danger"><i class="fa-solid fa-plane"></i> Thai AirAsia</div>
-                                            <span class="badge bg-danger rounded-pill">FD3522</span>
-                                        </div>
-                                        <div class="d-flex justify-content-between text-muted small">
-                                            <div class="text-center"><div>ดอนเมือง (DMK)</div><div class="fs-5 fw-bold text-dark">07:00</div></div>
-                                            <div class="align-self-center"><i class="fa-solid fa-arrow-right-long"></i></div>
-                                            <div class="text-center"><div>บุรีรัมย์ (BFV)</div><div class="fs-5 fw-bold text-dark">08:00</div></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div class="modal fade" id="flightModal" tabindex="-1"><div class="modal-dialog modal-xl modal-dialog-centered"><div class="modal-content border-0"><div class="modal-header text-white" style="background-color: var(--primary-blue);"><h5 class="modal-title fw-bold"><i class="fa-solid fa-plane-departure"></i> ตารางเที่ยวบินประจำเดือน พฤษภาคม 2569</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-0"><div class="row g-0"><div class="col-lg-4 bg-light border-end text-center d-flex align-items-center justify-content-center p-3"><img src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500" class="img-fluid rounded shadow-sm" alt="Flight Schedule Cover" style="max-height: 400px; object-fit: cover;"></div><div class="col-lg-4 p-4 border-end"><div class="d-flex justify-content-between align-items-center mb-3"><button class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-chevron-left"></i></button><h6 class="fw-bold mb-0 text-primary">พฤษภาคม 2569</h6><button class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-chevron-right"></i></button></div><div class="flight-calendar-grid"><div class="flight-day-header text-danger">อา</div><div class="flight-day-header">จ</div><div class="flight-day-header">อ</div><div class="flight-day-header">พ</div><div class="flight-day-header">พฤ</div><div class="flight-day-header">ศ</div><div class="flight-day-header text-danger">ส</div><div class="flight-day-box border-0 bg-transparent"></div><div class="flight-day-box border-0 bg-transparent"></div><div class="flight-day-box border-0 bg-transparent"></div><div class="flight-day-box border-0 bg-transparent"></div><div class="flight-day-box border-0 bg-transparent"></div><div class="flight-day-box has-flight" onclick="selectFlightDate(this, '1 พ.ค. 69', true)"><div class="flight-date-num">1</div><div class="flight-airline-dot text-danger"><i class="fa-solid fa-plane"></i> AirAsia</div></div><div class="flight-day-box has-flight" onclick="selectFlightDate(this, '2 พ.ค. 69', true)"><div class="flight-date-num">2</div><div class="flight-airline-dot text-danger"><i class="fa-solid fa-plane"></i> AirAsia</div></div><div class="flight-day-box has-flight" onclick="selectFlightDate(this, '3 พ.ค. 69', true)"><div class="flight-date-num text-danger">3</div><div class="flight-airline-dot text-danger"><i class="fa-solid fa-plane"></i> AirAsia</div></div><div class="flight-day-box" onclick="selectFlightDate(this, '4 พ.ค. 69', false)"><div class="flight-date-num">4</div></div><div class="flight-day-box" onclick="selectFlightDate(this, '5 พ.ค. 69', false)"><div class="flight-date-num">5</div></div><div class="flight-day-box" onclick="selectFlightDate(this, '6 พ.ค. 69', false)"><div class="flight-date-num">6</div></div><div class="flight-day-box has-flight" onclick="selectFlightDate(this, '7 พ.ค. 69', true)"><div class="flight-date-num">7</div><div class="flight-airline-dot text-warning"><i class="fa-solid fa-plane"></i> NokAir</div></div><div class="flight-day-box has-flight active-day" onclick="selectFlightDate(this, '8 พ.ค. 69', true)"><div class="flight-date-num flight-active-date-num">8</div><div class="flight-airline-dot"><i class="fa-solid fa-plane"></i> AirAsia</div></div><div class="flight-day-box has-flight" onclick="selectFlightDate(this, '9 พ.ค. 69', true)"><div class="flight-date-num text-danger">9</div><div class="flight-airline-dot text-danger"><i class="fa-solid fa-plane"></i> AirAsia</div></div></div><div class="text-center mt-3 small text-muted"><i class="fa-solid fa-circle text-success opacity-50"></i> วันที่มีเที่ยวบินให้บริการ</div></div><div class="col-lg-4 p-4 bg-light"><h5 class="fw-bold mb-3 border-bottom pb-2" style="color: var(--primary-blue);"><i class="fa-solid fa-list-check"></i> รายการเที่ยวบิน</h5><div class="text-muted small mb-3">วันที่เลือก: <span id="flightSelectedDate" class="fw-bold text-dark fs-6">8 พฤษภาคม 2569</span></div><div id="flightDetailsResult"><div class="card border-0 shadow-sm mb-3 border-start border-danger border-4"><div class="card-body p-3"><div class="d-flex justify-content-between align-items-center mb-2"><div class="fw-bold text-danger"><i class="fa-solid fa-plane"></i> Thai AirAsia</div><span class="badge bg-danger rounded-pill">FD3522</span></div><div class="d-flex justify-content-between text-muted small"><div class="text-center"><div>ดอนเมือง (DMK)</div><div class="fs-5 fw-bold text-dark">07:00</div></div><div class="align-self-center"><i class="fa-solid fa-arrow-right-long"></i></div><div class="text-center"><div>บุรีรัมย์ (BFV)</div><div class="fs-5 fw-bold text-dark">08:00</div></div></div></div></div></div></div></div></div></div></div></div>
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -597,7 +542,15 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        // E-Services
+        // ==========================================
+        // 0. ตั้งค่า API & สถานะระบบ
+        // ==========================================
+        const API_URL = "https://script.google.com/macros/s/AKfycbx_KEKYYe2Mu1vTORWF8GZnV4zuOku_4IqEvwhZ4q556ggVOHjy-blHKvY_IuYOfGHqaA/exec";
+        let isLoggedIn = false; 
+
+        // ==========================================
+        // 1. ระบบ E-Services
+        // ==========================================
         const eServicesData = [
             { id: 'tour', name: 'ระบบจองวันทัศนศึกษา', icon: 'fa-bus', desc: 'สำหรับหน่วยงานภายนอก' },
             { id: 'vip', name: 'ระบบจองห้องรับรอง (VIP)', icon: 'fa-crown', desc: 'สำหรับผู้บริหาร/แขก' },
@@ -618,9 +571,10 @@
             eServicesData.forEach(s => modalContainer.innerHTML += createCardHTML(s, 'col-md-3 col-6'));
         }
         renderEServices();
-        function showAllEServicesModal() { new bootstrap.Modal(document.getElementById('allEServicesModal')).show(); }
 
-        // Dynamic News
+        // ==========================================
+        // 2. ระบบ Dynamic News
+        // ==========================================
         const newsCategories = [
             { id: 'main', title: 'ข่าวเด่น ท่าอากาศยานบุรีรัมย์', department: 'กลุ่มงานบริหาร', isActive: true, order: 1, layoutType: 'slider', colSize: 'col-lg-7', themeColor: 'transparent', items: [{ title: "อธิบดีฯ ลงพื้นที่ตรวจเยี่ยม...", date: "20 เม.ย. 69", img: "https://images.unsplash.com/photo-1517400508447-f8dd518b86db?w=500" }] },
             { id: 'gen', title: 'แวดวงข่าว', department: 'ทั้งหมด', isActive: true, order: 2, layoutType: 'slider-vertical', colSize: 'col-lg-5', themeColor: 'transparent', items: [{ title: "โครงการอบรมดับเพลิง...", date: "12 เม.ย. 69", img: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=500" }] },
@@ -648,12 +602,20 @@
         }
         renderDynamicNews();
 
-        // Modals Functions
+        // ==========================================
+        // 3. UI Interactions & Modals
+        // ==========================================
+        function showAllEServicesModal() { new bootstrap.Modal(document.getElementById('allEServicesModal')).show(); }
         function showWebStatsModal() { new bootstrap.Modal(document.getElementById('webStatsModal')).show(); }
         function showFlightScheduleModal() { new bootstrap.Modal(document.getElementById('flightModal')).show(); }
         function showPassengerStatsModal() { new bootstrap.Modal(document.getElementById('passengerStatsModal')).show(); }
+        function toggleChatbot() { Swal.fire({ icon: 'info', title: 'ระบบแชทบอท', text: 'กำลังอยู่ในช่วงพัฒนา จะเปิดให้บริการเร็วๆ นี้ครับ', confirmButtonColor: '#0A3161' }); }
+        
+        function showCalendarDetail(day, month, title, time, location, dept) { 
+            document.getElementById('modalCalDay').innerText = day; document.getElementById('modalCalMonth').innerText = month; document.getElementById('modalCalTitle').innerText = title; document.getElementById('modalCalTitleBody').innerText = title; document.getElementById('modalCalDateFull').innerText = day + ' ' + month; document.getElementById('modalCalDateBottom').innerText = day + ' ' + month; document.getElementById('modalCalTime').innerText = time; document.getElementById('modalCalLocation').innerText = location; document.getElementById('modalCalDept').innerText = dept; 
+            new bootstrap.Modal(document.getElementById('calendarModal')).show(); 
+        }
 
-        // Flight Calendar Logic
         function selectFlightDate(element, dateText, hasFlight) {
             document.querySelectorAll('.flight-day-box').forEach(el => { el.classList.remove('active-day'); const num = el.querySelector('.flight-date-num'); if(num) num.classList.remove('flight-active-date-num'); });
             element.classList.add('active-day'); const numEl = element.querySelector('.flight-date-num'); if(numEl) numEl.classList.add('flight-active-date-num');
@@ -666,14 +628,140 @@
             }
         }
 
-        // Other Logic
-        function toggleChatbot() { Swal.fire({ icon: 'info', title: 'ระบบแชทบอท', text: 'กำลังอยู่ในช่วงพัฒนา จะเปิดให้บริการเร็วๆ นี้ครับ', confirmButtonColor: '#0A3161' }); }
-        function showCalendarDetail(day, month, title, time, location, dept) { document.getElementById('modalCalDay').innerText = day; document.getElementById('modalCalMonth').innerText = month; document.getElementById('modalCalTitle').innerText = title; document.getElementById('modalCalTitleBody').innerText = title; document.getElementById('modalCalDateFull').innerText = day + ' ' + month; document.getElementById('modalCalDateBottom').innerText = day + ' ' + month; document.getElementById('modalCalTime').innerText = time; document.getElementById('modalCalLocation').innerText = location; document.getElementById('modalCalDept').innerText = dept; new bootstrap.Modal(document.getElementById('calendarModal')).show(); }
-        let isLoggedIn = false; 
-        function showAuthModal() { const eModal = bootstrap.Modal.getInstance(document.getElementById('allEServicesModal')); if(eModal) eModal.hide(); new bootstrap.Modal(document.getElementById('authModal')).show(); }
-        function handleServiceClick(id, name) { if(!isLoggedIn) Swal.fire({ icon: 'warning', title: 'กรุณาเข้าสู่ระบบ', confirmButtonColor: '#0A3161' }).then(showAuthModal); else Swal.fire({ icon: 'success', title: 'กำลังพาไปที่', text: name, showConfirmButton: false, timer: 1500 }); }
-        function mockLogin() { isLoggedIn = true; bootstrap.Modal.getInstance(document.getElementById('authModal')).hide(); Swal.fire({ icon: 'success', showConfirmButton: false, timer: 1000 }); document.getElementById('userMenu').innerHTML = `<button class="btn btn-light rounded-pill" onclick="mockLogout()"><i class="fa-solid fa-right-from-bracket text-danger"></i> ออกจากระบบ</button>`; }
-        function mockLogout() { isLoggedIn = false; document.getElementById('userMenu').innerHTML = `<button class="btn btn-outline-light rounded-pill px-4" onclick="showAuthModal()"><i class="fa-solid fa-user me-2"></i> เข้าสู่ระบบ</button>`; }
+        function handleServiceClick(id, name) { 
+            if(!isLoggedIn) {
+                Swal.fire({ icon: 'warning', title: 'กรุณาเข้าสู่ระบบ', text: 'เพื่อใช้งาน ' + name, confirmButtonColor: '#0A3161' }).then(showAuthModal); 
+            } else {
+                Swal.fire({ icon: 'success', title: 'กำลังพาไปที่', text: name, showConfirmButton: false, timer: 1500 }); 
+            }
+        }
+
+        // ==========================================
+        // 4. ระบบ Login / Register / PDPA (เชื่อมต่อ API)
+        // ==========================================
+        
+        function showAuthModal() { 
+            const eModalEl = document.getElementById('allEServicesModal');
+            if(eModalEl) { const eModal = bootstrap.Modal.getInstance(eModalEl); if(eModal) eModal.hide(); }
+            new bootstrap.Modal(document.getElementById('loginModal')).show(); 
+        }
+        function switchToRegister() {
+            bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
+            new bootstrap.Modal(document.getElementById('registerModal')).show();
+        }
+        function switchToLogin() {
+            bootstrap.Modal.getInstance(document.getElementById('registerModal')).hide();
+            new bootstrap.Modal(document.getElementById('loginModal')).show();
+        }
+        function showPdpaModal(e) {
+            e.preventDefault();
+            new bootstrap.Modal(document.getElementById('pdpaModal')).show();
+        }
+        function acceptPdpa() {
+            document.getElementById('regPdpa').checked = true; 
+            bootstrap.Modal.getInstance(document.getElementById('pdpaModal')).hide();
+        }
+
+        // ==================== ส่งข้อมูล Login ====================
+        function submitLogin(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnLoginBtn');
+            const userInp = document.getElementById('loginUsername');
+            const passInp = document.getElementById('loginPassword');
+            
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังเข้าสู่ระบบ...';
+            btn.disabled = true;
+            userInp.disabled = true;
+            passInp.disabled = true;
+
+            const formData = new URLSearchParams();
+            formData.append('action', 'login');
+            formData.append('username', userInp.value);
+            formData.append('password', passInp.value);
+
+            fetch(API_URL, { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        isLoggedIn = true;
+                        bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
+                        Swal.fire({ icon: 'success', title: data.message, showConfirmButton: false, timer: 1500 });
+                        
+                        document.getElementById('formLogin').reset(); 
+                        
+                        document.getElementById('userMenu').innerHTML = `
+                            <div class="dropdown">
+                                <button class="btn btn-light rounded-pill px-4 dropdown-toggle" data-bs-toggle="dropdown">
+                                    <i class="fa-solid fa-circle-user text-primary"></i> ${data.user.fullname}
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow">
+                                    <li><a class="dropdown-item" href="#"><i class="fa-regular fa-id-card me-2"></i>โปรไฟล์</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-danger" href="#" onclick="mockLogout()"><i class="fa-solid fa-right-from-bracket me-2"></i>ออกจากระบบ</a></li>
+                                </ul>
+                            </div>
+                        `;
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: data.message });
+                    }
+                })
+                .catch(error => Swal.fire({ icon: 'error', title: 'การเชื่อมต่อขัดข้อง', text: 'โปรดลองใหม่อีกครั้ง' }))
+                .finally(() => { 
+                    btn.innerHTML = 'เข้าสู่ระบบ'; 
+                    btn.disabled = false; 
+                    userInp.disabled = false;
+                    passInp.disabled = false;
+                });
+        }
+
+        // ==================== ส่งข้อมูล Register ====================
+        function submitRegister(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnRegBtn');
+            // สร้าง Array ของ ID ช่องกรอกทั้งหมดที่ต้องการล็อก
+            const inputsToDisable = ['regFname', 'regLname', 'regPhone', 'regEmail', 'regOrg', 'regUsername', 'regPassword', 'regPdpa'];
+            
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึกข้อมูล...';
+            btn.disabled = true;
+            inputsToDisable.forEach(id => document.getElementById(id).disabled = true);
+
+            const formData = new URLSearchParams();
+            formData.append('action', 'register');
+            formData.append('fname', document.getElementById('regFname').value);
+            formData.append('lname', document.getElementById('regLname').value);
+            formData.append('phone', document.getElementById('regPhone').value);
+            formData.append('email', document.getElementById('regEmail').value);
+            formData.append('org', document.getElementById('regOrg').value);
+            formData.append('username', document.getElementById('regUsername').value);
+            formData.append('password', document.getElementById('regPassword').value);
+            formData.append('pdpa', document.getElementById('regPdpa').checked);
+
+            fetch(API_URL, { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        Swal.fire({ icon: 'success', title: data.message, confirmButtonColor: '#16a34a' })
+                            .then(() => switchToLogin());
+                        document.getElementById('formRegister').reset(); 
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'ไม่สามารถสมัครได้', text: data.message });
+                    }
+                })
+                .catch(error => Swal.fire({ icon: 'error', title: 'การเชื่อมต่อขัดข้อง', text: 'โปรดลองใหม่อีกครั้ง' }))
+                .finally(() => { 
+                    btn.innerHTML = 'สมัครสมาชิก'; 
+                    btn.disabled = false; 
+                    inputsToDisable.forEach(id => document.getElementById(id).disabled = false);
+                });
+        }
+
+        // ==================== ออกจากระบบ ====================
+        function mockLogout() { 
+            isLoggedIn = false; 
+            document.getElementById('formLogin').reset(); 
+            document.getElementById('userMenu').innerHTML = `<button class="btn btn-outline-light rounded-pill px-4" onclick="showAuthModal()"><i class="fa-solid fa-user me-2"></i> เข้าสู่ระบบ</button>`; 
+            Swal.fire({ icon: 'info', title: 'ออกจากระบบแล้ว', showConfirmButton: false, timer: 1000 });
+        }
     </script>
 </body>
 </html>
