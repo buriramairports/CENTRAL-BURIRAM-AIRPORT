@@ -550,7 +550,7 @@
         // ==========================================
         // ระบบนำทาง (Navigation/Menu Switching)
         // ==========================================
-        function switchView(viewId, clickedMenuElement) {
+        /*function switchView(viewId, clickedMenuElement) {
             // ซ่อนทุกหน้า (views)
             document.querySelectorAll('.admin-view').forEach(view => {
                 view.style.display = 'none';
@@ -570,8 +570,8 @@
             if (viewId === 'settings') {
                 loadSettingsData();
             }
-            if (viewId === 'eservices') loadTableData('EServices', renderEServicesTable);
-        }
+        
+        }*/
 
         // ==========================================
         // ระบบดึงข้อมูลการตั้งค่า (Settings)
@@ -650,6 +650,7 @@
             if (viewId === 'settings') loadSettingsData();
             if (viewId === 'banners') loadTableData('Banners', renderBannersTable);
             if (viewId === 'departments') loadTableData('Departments', renderDeptsTable);
+            if (viewId === 'eservices') loadTableData('EServices', renderEServicesTable);
         }
 
         // ==========================================
