@@ -639,7 +639,39 @@
         // ==========================================
         // 4. ระบบ Login / Register / PDPA (เชื่อมต่อ API)
         // ==========================================
-        
+          // 🟢 [เพิ่มใหม่] ตรวจสอบสถานะการล็อกอินทุกครั้งที่เปิดหน้าเว็บ
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedUser = localStorage.getItem('userData');
+            if (savedUser) {
+                const user = JSON.parse(savedUser);
+                isLoggedIn = true;
+                updateUserMenuUI(user); // เรียกใช้ฟังก์ชันเปลี่ยนปุ่มมุมขวาบน
+            }
+        });
+
+        // 🟢 [เพิ่มใหม่] ฟังก์ชันสำหรับเปลี่ยนปุ่มมุมขวาบน (ใช้ซ้ำได้)
+        function updateUserMenuUI(user) {
+            let adminMenu = '';
+            // ถ้าเป็นแอดมิน ให้เพิ่มปุ่มลัดไปหน้าหลังบ้าน
+            if (user.role === 'SuperAdmin' || user.role === 'SubAdmin') {
+                adminMenu = `<li><a class="dropdown-item text-success fw-bold" href="admin.html"><i class="fa-solid fa-gauge-high me-2"></i>ไปที่ระบบหลังบ้าน</a></li><li><hr class="dropdown-divider"></li>`;
+            }
+
+            document.getElementById('userMenu').innerHTML = `
+                <div class="dropdown">
+                    <button class="btn btn-light rounded-pill px-4 dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fa-solid fa-circle-user text-primary"></i> ${user.fullname}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow">
+                        ${adminMenu}
+                        <li><a class="dropdown-item" href="#"><i class="fa-regular fa-id-card me-2"></i>โปรไฟล์ส่วนตัว</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#" onclick="mockLogout()"><i class="fa-solid fa-right-from-bracket me-2"></i>ออกจากระบบ</a></li>
+                    </ul>
+                </div>
+            `;
+        }
+        // การสลับหน้าต่าง Modal
         function showAuthModal() { 
             const eModalEl = document.getElementById('allEServicesModal');
             if(eModalEl) { const eModal = bootstrap.Modal.getInstance(eModalEl); if(eModal) eModal.hide(); }
@@ -670,9 +702,7 @@
             const passInp = document.getElementById('loginPassword');
             
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังเข้าสู่ระบบ...';
-            btn.disabled = true;
-            userInp.disabled = true;
-            passInp.disabled = true;
+            btn.disabled = true; userInp.disabled = true; passInp.disabled = true;
 
             const formData = new URLSearchParams();
             formData.append('action', 'login');
@@ -682,35 +712,22 @@
             fetch(API_URL, { method: 'POST', body: formData })
                 .then(res => res.json())
                 .then(data => {
-                   if (data.status === 'success') {
+                    if (data.status === 'success') {
                         isLoggedIn = true;
                         bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
                         Swal.fire({ icon: 'success', title: data.message, showConfirmButton: false, timer: 1000 });
                         
                         document.getElementById('formLogin').reset(); 
                         
-                        // 🟢 บันทึกข้อมูลลงในเบราว์เซอร์ เพื่อให้หน้า admin.html ดึงไปเช็คสิทธิ์ได้
+                        // บันทึกลงเบราว์เซอร์
                         localStorage.setItem('userData', JSON.stringify(data.user));
 
-                        // 🟢 เช็ค Role: ถ้าเป็น Admin ให้เด้งไปหน้า admin.html
+                        // 🟢 ถ้าเป็นแอดมิน เด้งไปหน้า admin ทันที
                         if (data.user.role === 'SuperAdmin' || data.user.role === 'SubAdmin') {
-                            setTimeout(() => {
-                                window.location.href = 'admin.html'; // ลิงก์ไปหน้าแอดมิน
-                            }, 1000);
+                            setTimeout(() => { window.location.href = 'admin.html'; }, 1000);
                         } else {
-                            // ถ้าเป็น User ธรรมดา ให้เปลี่ยนปุ่มเมนูมุมขวาบนปกติ
-                            document.getElementById('userMenu').innerHTML = `
-                                <div class="dropdown">
-                                    <button class="btn btn-light rounded-pill px-4 dropdown-toggle" data-bs-toggle="dropdown">
-                                        <i class="fa-solid fa-circle-user text-primary"></i> ${data.user.fullname}
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-end shadow">
-                                        <li><a class="dropdown-item" href="#"><i class="fa-regular fa-id-card me-2"></i>โปรไฟล์</a></li>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item text-danger" href="#" onclick="mockLogout()"><i class="fa-solid fa-right-from-bracket me-2"></i>ออกจากระบบ</a></li>
-                                    </ul>
-                                </div>
-                            `;
+                            // ถ้าเป็น User ธรรมดา ให้อัปเดตแค่ UI
+                            updateUserMenuUI(data.user);
                         }
                     } else {
                         Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: data.message });
@@ -718,10 +735,7 @@
                 })
                 .catch(error => Swal.fire({ icon: 'error', title: 'การเชื่อมต่อขัดข้อง', text: 'โปรดลองใหม่อีกครั้ง' }))
                 .finally(() => { 
-                    btn.innerHTML = 'เข้าสู่ระบบ'; 
-                    btn.disabled = false; 
-                    userInp.disabled = false;
-                    passInp.disabled = false;
+                    btn.innerHTML = 'เข้าสู่ระบบ'; btn.disabled = false; userInp.disabled = false; passInp.disabled = false;
                 });
         }
 
@@ -729,12 +743,10 @@
         function submitRegister(e) {
             e.preventDefault();
             const btn = document.getElementById('btnRegBtn');
-            // สร้าง Array ของ ID ช่องกรอกทั้งหมดที่ต้องการล็อก
             const inputsToDisable = ['regFname', 'regLname', 'regPhone', 'regEmail', 'regOrg', 'regUsername', 'regPassword', 'regPdpa'];
             
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึกข้อมูล...';
-            btn.disabled = true;
-            inputsToDisable.forEach(id => document.getElementById(id).disabled = true);
+            btn.disabled = true; inputsToDisable.forEach(id => document.getElementById(id).disabled = true);
 
             const formData = new URLSearchParams();
             formData.append('action', 'register');
@@ -751,27 +763,20 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        Swal.fire({ icon: 'success', title: data.message, confirmButtonColor: '#16a34a' })
-                            .then(() => switchToLogin());
+                        Swal.fire({ icon: 'success', title: data.message, confirmButtonColor: '#16a34a' }).then(() => switchToLogin());
                         document.getElementById('formRegister').reset(); 
-                    } else {
-                        Swal.fire({ icon: 'error', title: 'ไม่สามารถสมัครได้', text: data.message });
-                    }
+                    } else { Swal.fire({ icon: 'error', title: 'ไม่สามารถสมัครได้', text: data.message }); }
                 })
                 .catch(error => Swal.fire({ icon: 'error', title: 'การเชื่อมต่อขัดข้อง', text: 'โปรดลองใหม่อีกครั้ง' }))
-                .finally(() => { 
-                    btn.innerHTML = 'สมัครสมาชิก'; 
-                    btn.disabled = false; 
-                    inputsToDisable.forEach(id => document.getElementById(id).disabled = false);
-                });
+                .finally(() => { btn.innerHTML = 'สมัครสมาชิก'; btn.disabled = false; inputsToDisable.forEach(id => document.getElementById(id).disabled = false); });
         }
 
         // ==================== ออกจากระบบ ====================
         function mockLogout() { 
             isLoggedIn = false; 
+            localStorage.removeItem('userData'); // 🟢 ลบความจำทิ้ง
             document.getElementById('formLogin').reset(); 
             document.getElementById('userMenu').innerHTML = `<button class="btn btn-outline-light rounded-pill px-4" onclick="showAuthModal()"><i class="fa-solid fa-user me-2"></i> เข้าสู่ระบบ</button>`; 
-            localStorage.removeItem('userData');
             Swal.fire({ icon: 'info', title: 'ออกจากระบบแล้ว', showConfirmButton: false, timer: 1000 });
         }
     </script>
