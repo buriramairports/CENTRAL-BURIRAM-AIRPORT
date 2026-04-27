@@ -159,8 +159,8 @@
             
             <li class="mt-4 px-3"><small class="text-uppercase fw-bold" style="color: #64748b; font-size: 0.7rem;">จัดการข้อมูลพื้นฐาน</small></li>
             <li><a href="#" onclick="switchView('eservices', this)"><i class="fa-solid fa-laptop-code"></i> ระบบ E-Services</a></li>
-            <li><a href="#"><i class="fa-solid fa-plane-circle-check"></i> สายการบิน</a></li>
-            <li><a href="#"><i class="fa-solid fa-layer-group"></i> หมวดหมู่ข่าว</a></li>
+            <li><a href="#" onclick="switchView('airlines', this)"><i class="fa-solid fa-plane-circle-check"></i> สายการบิน</a></li>
+            <li><a href="#" onclick="switchView('newscategories', this)"><i class="fa-solid fa-layer-group"></i> หมวดหมู่ข่าว</a></li>
             
             <!-- เมนูนี้จะโชว์เฉพาะ SuperAdmin (เดี๋ยวเราใช้ JS ซ่อน/แสดง) -->
             <li id="menuSuperAdminGroup">
@@ -367,59 +367,48 @@
                 </div>
             </div>
 
-    <!-- Modal: จัดการ E-Services (วางไว้ก่อนแท็ก </body>) -->
-    <div class="modal fade" id="eserviceModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title fw-bold" id="eserviceModalTitle">เพิ่ม/แก้ไข ระบบ E-Service</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            <!-- ================= VIEW 6: สายการบิน (Airlines) ================= -->
+            <div id="view-airlines" class="admin-view" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold text-dark mb-0"><i class="fa-solid fa-plane-circle-check me-2 text-warning"></i> จัดการสายการบิน</h4>
+                    <div>
+                        <button id="btnSaveOrder-Airlines" class="btn btn-warning me-2 d-none" onclick="saveAirlineOrder()"><i class="fa-solid fa-save me-1"></i> บันทึกลำดับ</button>
+                        <button class="btn btn-success" onclick="openAirlineModal()"><i class="fa-solid fa-plus me-1"></i> เพิ่มสายการบิน</button>
+                    </div>
                 </div>
-                <div class="modal-body p-4">
-                    <form id="formEService" onsubmit="saveEService(event)">
-                        <input type="hidden" id="srv_ServiceID">
-                        <input type="hidden" id="srv_OrderList">
-                        
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">ชื่อระบบ <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="srv_ServiceName" placeholder="เช่น ระบบจองห้องประชุม" required>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">ไอคอน (FontAwesome Class) <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light"><i class="fa-solid fa-icons"></i></span>
-                                <input type="text" class="form-control" id="srv_IconClass" placeholder="เช่น fa-bus, fa-car" required>
-                            </div>
-                            <div class="form-text"><a href="https://fontawesome.com/search?o=r&m=free" target="_blank">คลิกที่นี่เพื่อดูชื่อไอคอนฟรี</a> (ใส่เฉพาะชื่อ เช่น fa-car)</div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">ลิงก์ระบบ (URL) <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control text-primary font-monospace" id="srv_URL" placeholder="https://..." required>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">การเปิดลิงก์</label>
-                                <select class="form-select" id="srv_Target">
-                                    <option value="_blank">เปิดแท็บใหม่ (_blank)</option>
-                                    <option value="_self">เปิดในหน้าเดิม (_self)</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6 mb-3 d-flex align-items-end pb-2">
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="srv_IsActive" style="transform: scale(1.2);" checked>
-                                    <label class="form-check-label ms-2 fw-bold text-success" for="srv_IsActive">เปิดใช้งาน</label>
-                                </div>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100 mt-2" id="btnSaveEService">บันทึกข้อมูล</button>
-                    </form>
+                <div class="card card-custom">
+                    <div class="card-body p-0 table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr><th width="10%">ลำดับ</th><th width="15%" class="text-center">โลโก้</th><th width="30%">ชื่อสายการบิน / เบอร์โทร</th><th width="20%">สีธีม (Theme)</th><th width="10%">สถานะ</th><th width="15%" class="text-center">จัดการ</th></tr>
+                            </thead>
+                            <tbody id="tbody-airlines"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
+
+            <!-- ================= VIEW 7: หมวดหมู่ข่าว (News Categories) ================= -->
+            <div id="view-newscategories" class="admin-view" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold text-dark mb-0"><i class="fa-solid fa-layer-group me-2 text-info"></i> จัดการหมวดหมู่ข่าวสาร</h4>
+                    <div>
+                        <button id="btnSaveOrder-NewsCats" class="btn btn-warning me-2 d-none" onclick="saveNewsCatOrder()"><i class="fa-solid fa-save me-1"></i> บันทึกลำดับ</button>
+                        <button class="btn btn-success" onclick="openNewsCatModal()"><i class="fa-solid fa-plus me-1"></i> เพิ่มหมวดหมู่</button>
+                    </div>
+                </div>
+                <div class="card card-custom">
+                    <div class="card-body p-0 table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr><th width="10%">ลำดับ</th><th width="25%">ชื่อหมวดหมู่ข่าว</th><th width="20%">เจ้าของ (กลุ่มงาน)</th><th width="20%">รูปแบบแสดงผล</th><th width="10%">สถานะ</th><th width="15%" class="text-center">จัดการ</th></tr>
+                            </thead>
+                            <tbody id="tbody-newscategories"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+   
 
         </div>
 
@@ -502,6 +491,146 @@
             </div>
         </div>
     </div>
+     <!-- Modal: จัดการ E-Services (วางไว้ก่อนแท็ก </body>) -->
+    <div class="modal fade" id="eserviceModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold" id="eserviceModalTitle">เพิ่ม/แก้ไข ระบบ E-Service</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="formEService" onsubmit="saveEService(event)">
+                        <input type="hidden" id="srv_ServiceID">
+                        <input type="hidden" id="srv_OrderList">
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">ชื่อระบบ <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="srv_ServiceName" placeholder="เช่น ระบบจองห้องประชุม" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">ไอคอน (FontAwesome Class) <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fa-solid fa-icons"></i></span>
+                                <input type="text" class="form-control" id="srv_IconClass" placeholder="เช่น fa-bus, fa-car" required>
+                            </div>
+                            <div class="form-text"><a href="https://fontawesome.com/search?o=r&m=free" target="_blank">คลิกที่นี่เพื่อดูชื่อไอคอนฟรี</a> (ใส่เฉพาะชื่อ เช่น fa-car)</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">ลิงก์ระบบ (URL) <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control text-primary font-monospace" id="srv_URL" placeholder="https://..." required>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">การเปิดลิงก์</label>
+                                <select class="form-select" id="srv_Target">
+                                    <option value="_blank">เปิดแท็บใหม่ (_blank)</option>
+                                    <option value="_self">เปิดในหน้าเดิม (_self)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3 d-flex align-items-end pb-2">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="srv_IsActive" style="transform: scale(1.2);" checked>
+                                    <label class="form-check-label ms-2 fw-bold text-success" for="srv_IsActive">เปิดใช้งาน</label>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mt-2" id="btnSaveEService">บันทึกข้อมูล</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal: สายการบิน -->
+    <div class="modal fade" id="airlineModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold" id="airlineModalTitle">เพิ่ม/แก้ไข สายการบิน</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="formAirline" onsubmit="saveAirline(event)">
+                        <input type="hidden" id="air_AirlineID"><input type="hidden" id="air_OrderList">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">ชื่อสายการบิน <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="air_AirlineName" placeholder="เช่น Thai AirAsia (แอร์เอเชีย)" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">เบอร์โทรติดต่อ (Call Center) <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="air_PhoneNumber" placeholder="เช่น 044-xxx-xxx" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">URL โลโก้สายการบิน (Google Drive Link)</label>
+                            <input type="url" class="form-control" id="air_IconURL" placeholder="https://...">
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label fw-bold">สีประจำสายการบิน</label>
+                                <input type="color" class="form-control form-control-color w-100" id="air_ThemeColor" value="#dc3545" title="เลือกสีสายการบิน">
+                            </div>
+                            <div class="col-6 mb-3 d-flex align-items-center">
+                                <div class="form-check form-switch mt-4">
+                                    <input class="form-check-input" type="checkbox" id="air_IsActive" style="transform: scale(1.2);" checked>
+                                    <label class="form-check-label ms-2 fw-bold text-success" for="air_IsActive">เปิดใช้งาน</label>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mt-2" id="btnSaveAirline">บันทึกข้อมูล</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: หมวดหมู่ข่าว -->
+    <div class="modal fade" id="newsCatModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold" id="newsCatModalTitle">เพิ่ม/แก้ไข หมวดหมู่ข่าว</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="formNewsCat" onsubmit="saveNewsCat(event)">
+                        <input type="hidden" id="ncat_CategoryID"><input type="hidden" id="ncat_OrderList">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">ชื่อหมวดหมู่ <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="ncat_CategoryName" placeholder="เช่น ข่าวประชาสัมพันธ์" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">กลุ่มงานที่รับผิดชอบ (เจ้าของข่าว) <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="ncat_Department" placeholder="เช่น กลุ่มงานบริหาร หรือ ทั้งหมด" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">รูปแบบการแสดงผลหน้าแรก</label>
+                            <select class="form-select" id="ncat_LayoutType">
+                                <option value="slider">สไลด์รูปภาพ แนวนอน (Slider)</option>
+                                <option value="slider-vertical">สไลด์การ์ด แนวตั้ง (Vertical Slider)</option>
+                                <option value="text-list">รายการข้อความ (Text List)</option>
+                            </select>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label fw-bold">สีของหมวดหมู่ (ถ้าเป็น Text List)</label>
+                                <input type="color" class="form-control form-control-color w-100" id="ncat_ThemeColor" value="#0A3161">
+                            </div>
+                            <div class="col-6 mb-3 d-flex align-items-center">
+                                <div class="form-check form-switch mt-4">
+                                    <input class="form-check-input" type="checkbox" id="ncat_IsActive" style="transform: scale(1.2);" checked>
+                                    <label class="form-check-label ms-2 fw-bold text-success" for="ncat_IsActive">เปิดใช้งาน</label>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mt-2" id="btnSaveNewsCat">บันทึกข้อมูล</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- ============================สิ้นสุดModal: จัดการต่างๆ============================== -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -550,29 +679,7 @@
         // ==========================================
         // ระบบนำทาง (Navigation/Menu Switching)
         // ==========================================
-        /*function switchView(viewId, clickedMenuElement) {
-            // ซ่อนทุกหน้า (views)
-            document.querySelectorAll('.admin-view').forEach(view => {
-                view.style.display = 'none';
-            });
-            // โชว์หน้าที่ต้องการ
-            document.getElementById('view-' + viewId).style.display = 'block';
-
-            // เคลียร์ปุ่ม Active ออกจากเมนูเดิม และไฮไลต์เมนูใหม่
-            document.querySelectorAll('.sidebar-menu a').forEach(menu => {
-                menu.classList.remove('active');
-            });
-            if(clickedMenuElement) {
-                clickedMenuElement.classList.add('active');
-            }
-
-            // ถ้ากดเข้าหน้า Settings ให้โหลดข้อมูลจาก Google Sheet
-            if (viewId === 'settings') {
-                loadSettingsData();
-            }
-        
-        }*/
-
+     
         // ==========================================
         // ระบบดึงข้อมูลการตั้งค่า (Settings)
         // ==========================================
@@ -651,6 +758,8 @@
             if (viewId === 'banners') loadTableData('Banners', renderBannersTable);
             if (viewId === 'departments') loadTableData('Departments', renderDeptsTable);
             if (viewId === 'eservices') loadTableData('EServices', renderEServicesTable);
+            if (viewId === 'airlines') loadTableData('Airlines', renderAirlinesTable);
+            if (viewId === 'newscategories') loadTableData('NewsCategories', renderNewsCatsTable);
         }
 
         // ==========================================
@@ -1087,6 +1196,52 @@
                 }).finally(() => { btn.innerHTML = 'บันทึกข้อมูล'; btn.disabled = false; });
         }
         //////////////////////////END E-SERVICE//////////////////////////////
+    // ==========================================
+        // ✈️ ระบบจัดการ สายการบิน (Airlines)
+        // ==========================================
+        function renderAirlinesTable(data) {
+            const tbody = document.getElementById('tbody-airlines');
+            tbody.innerHTML = '';
+            if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4">ไม่มีข้อมูล</td></tr>'; return; }
+            data.sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList)).forEach((item, index) => {
+                let badge = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิดใช้งาน</span>' : '<span class="badge bg-secondary">ปิด</span>';
+                let imgHtml = item.IconURL ? `<img src="${item.IconURL}" style="height: 40px; background:white; padding:2px; border-radius:5px; object-fit:contain;">` : '<i class="fa-solid fa-plane fa-2x text-muted"></i>';
+                let colorBox = `<div style="width: 25px; height: 25px; background-color: ${item.ThemeColor}; border-radius: 50%; border: 1px solid #ccc; display:inline-block;"></div>`;
+                
+                let btnUp = index > 0 ? `<button class="btn btn-sm btn-light text-primary me-1" onclick="moveAirlineOrder(${index}, -1)"><i class="fa-solid fa-arrow-up"></i></button>` : `<button class="btn btn-sm btn-light me-1" style="visibility:hidden;"><i class="fa-solid fa-arrow-up"></i></button>`;
+                let btnDown = index < data.length - 1 ? `<button class="btn btn-sm btn-light text-primary me-2" onclick="moveAirlineOrder(${index}, 1)"><i class="fa-solid fa-arrow-down"></i></button>` : `<button class="btn btn-sm btn-light me-2" style="visibility:hidden;"><i class="fa-solid fa-arrow-down"></i></button>`;
+
+                tbody.innerHTML += `<tr><td class="fw-bold text-center h5 text-muted">${item.OrderList}</td><td class="text-center">${imgHtml}</td><td><div class="fw-bold text-dark fs-6">${item.AirlineName || '-'}</div><small class="text-muted"><i class="fa-solid fa-phone fa-sm"></i> ${item.PhoneNumber || '-'}</small></td><td>${colorBox}</td><td>${badge}</td><td class="text-center text-nowrap">${btnUp}${btnDown}<button class="btn btn-sm btn-outline-warning me-1" onclick="openAirlineModal('${item.AirlineID}')"><i class="fa-solid fa-pen"></i></button><button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('Airlines', 'AirlineID', '${item.AirlineID}')"><i class="fa-solid fa-trash"></i></button></td></tr>`;
+            });
+        }
+        function moveAirlineOrder(idx, dir) { let t = currentTableData[idx]; currentTableData[idx] = currentTableData[idx + dir]; currentTableData[idx + dir] = t; currentTableData.forEach((i, x) => i.OrderList = x + 1); renderAirlinesTable(currentTableData); document.getElementById('btnSaveOrder-Airlines').classList.remove('d-none'); }
+        function saveAirlineOrder() { Swal.fire({ title: 'กำลังบันทึก...', allowOutsideClick: false, didOpen: () => Swal.showLoading() }); const payload = currentTableData.map(i => ({ id: i.AirlineID, order: i.OrderList })); fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'updateOrder', sheetName: 'Airlines', idColumn: 'AirlineID', orderJSON: JSON.stringify(payload) }) }).then(res=>res.json()).then(res=>{ if(res.status==='success'){Swal.fire({icon:'success',title:'สำเร็จ!',showConfirmButton:false,timer:1500}); document.getElementById('btnSaveOrder-Airlines').classList.add('d-none');} }); }
+        function openAirlineModal(id = '') { const f = document.getElementById('formAirline'); f.reset(); document.getElementById('air_AirlineID').value = ''; document.getElementById('airlineModalTitle').innerText = 'เพิ่มสายการบิน'; if(id){ document.getElementById('airlineModalTitle').innerText = 'แก้ไขสายการบิน'; const i = currentTableData.find(x => x.AirlineID === id); document.getElementById('air_AirlineID').value = i.AirlineID; document.getElementById('air_AirlineName').value = i.AirlineName; document.getElementById('air_PhoneNumber').value = i.PhoneNumber; document.getElementById('air_IconURL').value = i.IconURL; document.getElementById('air_ThemeColor').value = i.ThemeColor; document.getElementById('air_OrderList').value = i.OrderList; document.getElementById('air_IsActive').checked = (i.IsActive === 'TRUE'); } new bootstrap.Modal(document.getElementById('airlineModal')).show(); }
+        function saveAirline(e) { e.preventDefault(); const btn = document.getElementById('btnSaveAirline'); btn.innerHTML='กำลังบันทึก...'; btn.disabled=true; let rawUrl = document.getElementById('air_IconURL').value; let ord = document.getElementById('air_OrderList').value; if(!document.getElementById('air_AirlineID').value) ord = currentTableData.length + 1; const recordData = { AirlineID: document.getElementById('air_AirlineID').value, AirlineName: document.getElementById('air_AirlineName').value, IconURL: convertDriveImageLink(rawUrl), PhoneNumber: document.getElementById('air_PhoneNumber').value, ThemeColor: document.getElementById('air_ThemeColor').value, OrderList: ord, IsActive: document.getElementById('air_IsActive').checked ? 'TRUE':'FALSE' }; fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'Airlines', idColumn: 'AirlineID', recordJSON: JSON.stringify(recordData) }) }).then(res=>res.json()).then(res=>{ if(res.status==='success'){ bootstrap.Modal.getInstance(document.getElementById('airlineModal')).hide(); Swal.fire({icon:'success',title:res.message,showConfirmButton:false,timer:1500}); loadTableData('Airlines', renderAirlinesTable); } }).finally(()=>{btn.innerHTML='บันทึกข้อมูล'; btn.disabled=false;}); }
+
+        // ==========================================
+        // 📑 ระบบจัดการ หมวดหมู่ข่าว (News Categories)
+        // ==========================================
+        function renderNewsCatsTable(data) {
+            const tbody = document.getElementById('tbody-newscategories');
+            tbody.innerHTML = '';
+            if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4">ไม่มีข้อมูล</td></tr>'; return; }
+            data.sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList)).forEach((item, index) => {
+                let badge = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิดใช้งาน</span>' : '<span class="badge bg-secondary">ปิด</span>';
+                let layoutLabel = item.LayoutType === 'slider' ? '<i class="fa-solid fa-images text-primary"></i> สไลด์รูปภาพ' : item.LayoutType === 'slider-vertical' ? '<i class="fa-solid fa-grip-vertical text-info"></i> สไลด์แนวตั้ง' : '<i class="fa-solid fa-list text-secondary"></i> แบบรายการ (Text)';
+                let colorBadge = item.LayoutType === 'text-list' ? `<span class="badge" style="background-color:${item.ThemeColor};">${item.ThemeColor}</span>` : '-';
+                
+                let btnUp = index > 0 ? `<button class="btn btn-sm btn-light text-primary me-1" onclick="moveNewsCatOrder(${index}, -1)"><i class="fa-solid fa-arrow-up"></i></button>` : `<button class="btn btn-sm btn-light me-1" style="visibility:hidden;"><i class="fa-solid fa-arrow-up"></i></button>`;
+                let btnDown = index < data.length - 1 ? `<button class="btn btn-sm btn-light text-primary me-2" onclick="moveNewsCatOrder(${index}, 1)"><i class="fa-solid fa-arrow-down"></i></button>` : `<button class="btn btn-sm btn-light me-2" style="visibility:hidden;"><i class="fa-solid fa-arrow-down"></i></button>`;
+
+                tbody.innerHTML += `<tr><td class="fw-bold text-center h5 text-muted">${item.OrderList}</td><td><div class="fw-bold text-dark fs-6">${item.CategoryName || '-'}</div>${colorBadge}</td><td>${item.Department}</td><td>${layoutLabel}</td><td>${badge}</td><td class="text-center text-nowrap">${btnUp}${btnDown}<button class="btn btn-sm btn-outline-warning me-1" onclick="openNewsCatModal('${item.CategoryID}')"><i class="fa-solid fa-pen"></i></button><button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('NewsCategories', 'CategoryID', '${item.CategoryID}')"><i class="fa-solid fa-trash"></i></button></td></tr>`;
+            });
+        }
+        function moveNewsCatOrder(idx, dir) { let t = currentTableData[idx]; currentTableData[idx] = currentTableData[idx + dir]; currentTableData[idx + dir] = t; currentTableData.forEach((i, x) => i.OrderList = x + 1); renderNewsCatsTable(currentTableData); document.getElementById('btnSaveOrder-NewsCats').classList.remove('d-none'); }
+        function saveNewsCatOrder() { Swal.fire({ title: 'กำลังบันทึก...', allowOutsideClick: false, didOpen: () => Swal.showLoading() }); const payload = currentTableData.map(i => ({ id: i.CategoryID, order: i.OrderList })); fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'updateOrder', sheetName: 'NewsCategories', idColumn: 'CategoryID', orderJSON: JSON.stringify(payload) }) }).then(res=>res.json()).then(res=>{ if(res.status==='success'){Swal.fire({icon:'success',title:'สำเร็จ!',showConfirmButton:false,timer:1500}); document.getElementById('btnSaveOrder-NewsCats').classList.add('d-none');} }); }
+        function openNewsCatModal(id = '') { const f = document.getElementById('formNewsCat'); f.reset(); document.getElementById('ncat_CategoryID').value = ''; document.getElementById('newsCatModalTitle').innerText = 'เพิ่มหมวดหมู่ข่าว'; if(id){ document.getElementById('newsCatModalTitle').innerText = 'แก้ไขหมวดหมู่ข่าว'; const i = currentTableData.find(x => x.CategoryID === id); document.getElementById('ncat_CategoryID').value = i.CategoryID; document.getElementById('ncat_CategoryName').value = i.CategoryName; document.getElementById('ncat_Department').value = i.Department; document.getElementById('ncat_LayoutType').value = i.LayoutType; document.getElementById('ncat_ThemeColor').value = i.ThemeColor; document.getElementById('ncat_OrderList').value = i.OrderList; document.getElementById('ncat_IsActive').checked = (i.IsActive === 'TRUE'); } new bootstrap.Modal(document.getElementById('newsCatModal')).show(); }
+        function saveNewsCat(e) { e.preventDefault(); const btn = document.getElementById('btnSaveNewsCat'); btn.innerHTML='กำลังบันทึก...'; btn.disabled=true; let ord = document.getElementById('ncat_OrderList').value; if(!document.getElementById('ncat_CategoryID').value) ord = currentTableData.length + 1; const recordData = { CategoryID: document.getElementById('ncat_CategoryID').value, CategoryName: document.getElementById('ncat_CategoryName').value, Department: document.getElementById('ncat_Department').value, LayoutType: document.getElementById('ncat_LayoutType').value, ThemeColor: document.getElementById('ncat_ThemeColor').value, OrderList: ord, IsActive: document.getElementById('ncat_IsActive').checked ? 'TRUE':'FALSE' }; fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'NewsCategories', idColumn: 'CategoryID', recordJSON: JSON.stringify(recordData) }) }).then(res=>res.json()).then(res=>{ if(res.status==='success'){ bootstrap.Modal.getInstance(document.getElementById('newsCatModal')).hide(); Swal.fire({icon:'success',title:res.message,showConfirmButton:false,timer:1500}); loadTableData('NewsCategories', renderNewsCatsTable); } }).finally(()=>{btn.innerHTML='บันทึกข้อมูล'; btn.disabled=false;}); }
+        ///////////////////////////////////////////////////////////////////
     </script>
 </body>
 </html>
