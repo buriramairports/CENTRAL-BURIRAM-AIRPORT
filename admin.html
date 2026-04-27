@@ -286,6 +286,8 @@
             <div id="view-banners" class="admin-view" style="display: none;">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h4 class="fw-bold text-dark mb-0"><i class="fa-regular fa-images me-2 text-primary"></i> จัดการแบนเนอร์สไลด์หน้าแรก</h4>
+                    <!-- 🟢 เพิ่มปุ่มบันทึกลำดับตรงนี้ (ซ่อนไว้เริ่มต้น) -->
+                        <button id="btnSaveOrder-Banners" class="btn btn-warning me-2 d-none" onclick="saveBannerOrder()"><i class="fa-solid fa-save me-1"></i> บันทึกลำดับ</button>
                     <button class="btn btn-success" onclick="openBannerModal()"><i class="fa-solid fa-plus me-1"></i> เพิ่มรูปสไลด์</button>
                 </div>
                 <div class="card card-custom">
@@ -493,17 +495,20 @@
         // 🖼️ อัปเดต: ระบบ Banners (มีปุ่ม ⬆️⬇️ และแปลงลิงก์ Drive)
         // ==========================================
         
-        // 🟢 ฟังก์ชันวิเศษ: แปลงลิงก์ Google Drive อัตโนมัติ
+        // 🟢 อัปเดต: แปลงลิงก์ Google Drive ให้ใช้แบบ Thumbnail (แสดงผลได้ 100%)
         function convertDriveImageLink(url) {
             let id = "";
-            const regexView = /\/file\/d\/([a-zA-Z0-9_-]+)/; // จับลิงก์แบบ view
-            const regexId = /id=([a-zA-Z0-9_-]+)/; // จับลิงก์แบบ open?id=
+            const regexView = /\/file\/d\/([a-zA-Z0-9_-]+)/; 
+            const regexId = /id=([a-zA-Z0-9_-]+)/; 
             
             if (url.match(regexView)) id = url.match(regexView)[1];
             else if (url.match(regexId)) id = url.match(regexId)[1];
             
-            if (id) return `https://drive.google.com/uc?export=view&id=${id}`;
-            return url; // ถ้าไม่ใช่ลิงก์ Drive ก็คืนค่าเดิมไป
+            if (id) {
+                // ใช้ API Thumbnail ของ Google (กำหนดความกว้าง 1000px)
+                return `https://drive.google.com/thumbnail?id=${id}&sz=w1000`;
+            }
+            return url; 
         }
 
         ////////////////////////////////////////////////
@@ -571,31 +576,51 @@
             });
         }
 
-        // 🟢 ฟังก์ชันใหม่: สลับลำดับแบนเนอร์
+        // 🟢 อัปเดต: ฟังก์ชันสลับลำดับ (สลับแค่บนหน้าจอ ไม่ยิง API)
         function moveBannerOrder(currentIndex, direction) {
-            // หา object ของตัวปัจจุบัน และตัวเป้าหมายที่จะสลับที่
-            let sortedData = [...currentTableData].sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList));
-            let currentItem = sortedData[currentIndex];
-            let targetItem = sortedData[currentIndex + direction];
+            // สลับข้อมูลใน Array ปัจจุบัน
+            let temp = currentTableData[currentIndex];
+            currentTableData[currentIndex] = currentTableData[currentIndex + direction];
+            currentTableData[currentIndex + direction] = temp;
 
-            // สลับเลข OrderList กัน
-            let tempOrder = currentItem.OrderList;
-            currentItem.OrderList = targetItem.OrderList;
-            targetItem.OrderList = tempOrder;
-
-            Swal.fire({ title: 'กำลังสลับตำแหน่ง...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-
-            // ใช้การยิง API 2 ครั้งติดกัน (บันทึกตัวที่ 1 และ 2)
-            const req1 = new URLSearchParams({ action: 'saveRecord', sheetName: 'Banners', idColumn: 'BannerID', recordJSON: JSON.stringify(currentItem) });
-            const req2 = new URLSearchParams({ action: 'saveRecord', sheetName: 'Banners', idColumn: 'BannerID', recordJSON: JSON.stringify(targetItem) });
-
-            Promise.all([
-                fetch(API_URL, { method: 'POST', body: req1 }),
-                fetch(API_URL, { method: 'POST', body: req2 })
-            ]).then(() => {
-                Swal.close();
-                loadTableData('Banners', renderBannersTable); // โหลดตารางใหม่
+            // รันตัวเลข OrderList ใหม่ทั้งหมดให้เรียง 1, 2, 3...
+            currentTableData.forEach((item, idx) => {
+                item.OrderList = idx + 1;
             });
+
+            // วาดตารางใหม่
+            renderBannersTable(currentTableData);
+
+            // โชว์ปุ่ม "บันทึกลำดับ" สีเหลืองขึ้นมา
+            document.getElementById('btnSaveOrder-Banners').classList.remove('d-none');
+        }
+
+         // 🟢 เพิ่มใหม่: ฟังก์ชันกดบันทึกลำดับทั้งหมดพร้อมกัน
+        function saveBannerOrder() {
+            Swal.fire({ title: 'กำลังบันทึกลำดับ...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            // สร้าง Array ดึงไปเฉพาะ ID และ เลขลำดับใหม่
+            const orderPayload = currentTableData.map(item => {
+                return { id: item.BannerID, order: item.OrderList };
+            });
+
+            const formData = new URLSearchParams();
+            formData.append('action', 'updateOrder');
+            formData.append('sheetName', 'Banners');
+            formData.append('idColumn', 'BannerID');
+            formData.append('orderJSON', JSON.stringify(orderPayload)); // โยนก้อนข้อมูลไป
+
+            fetch(API_URL, { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.status === 'success') {
+                        Swal.fire({ icon: 'success', title: 'บันทึกลำดับสำเร็จ!', showConfirmButton: false, timer: 1500 });
+                        // ซ่อนปุ่มสีเหลืองกลับไปเหมือนเดิม
+                        document.getElementById('btnSaveOrder-Banners').classList.add('d-none');
+                    } else {
+                        Swal.fire('ผิดพลาด', res.message, 'error');
+                    }
+                });
         }
 
         // เปิด Modal Banners (เพิ่ม/แก้ไข)
