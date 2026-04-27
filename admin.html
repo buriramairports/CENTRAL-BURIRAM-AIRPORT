@@ -34,7 +34,7 @@
         if (!userData || (userData.role !== 'SuperAdmin' && userData.role !== 'SubAdmin')) { window.location.href = 'index.html'; }
     </script>
 
-    <!-- Sidebar -->
+    <!-- ================= เริ่มต้น Sidebar ================= -->
     <div class="sidebar">
         <div class="sidebar-header">
             <i class="fa-solid fa-plane-departure fa-2x text-white mb-2"></i>
@@ -66,9 +66,12 @@
             </li>
         </ul>
     </div>
+    <!-- ================= สิ้นสุด Sidebar ================= -->
 
     <!-- Main Content -->
     <div class="main-content">
+        
+        <!-- ================= เริ่มต้น Topbar ================= -->
         <div class="topbar">
             <h5 class="mb-0 fw-bold text-dark">ภาพรวมระบบ</h5>
             <div class="dropdown">
@@ -84,9 +87,11 @@
                 </ul>
             </div>
         </div>
+        <!-- ================= สิ้นสุด Topbar ================= -->
 
         <div class="page-content">
-            <!-- VIEW: Dashboard -->
+            
+            <!-- ================= เริ่มต้น หน้า Dashboard ================= -->
             <div id="view-dashboard" class="admin-view">
                 <div class="alert alert-primary border-0 shadow-sm mb-4" style="background-color: #eff6ff; color: #1e3a8a;">
                     <h5 class="alert-heading fw-bold"><i class="fa-solid fa-hand-wave me-2"></i> ยินดีต้อนรับกลับมา!</h5>
@@ -99,8 +104,9 @@
                     <div class="col-md-3"><div class="stat-card" style="border-left-color: #8b5cf6;"><div class="icon" style="background: #ede9fe; color: #8b5cf6;"><i class="fa-solid fa-plane-up"></i></div><div><h3 class="fw-bold mb-0 text-dark">18</h3><div class="text-muted small">เที่ยวบินเดือนนี้</div></div></div></div>
                 </div>
             </div>
+            <!-- ================= สิ้นสุด หน้า Dashboard ================= -->
 
-            <!-- VIEW: Settings -->
+            <!-- ================= เริ่มต้น หน้า ตั้งค่าเว็บไซต์ (Settings) ================= -->
             <div id="view-settings" class="admin-view" style="display: none;">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h4 class="fw-bold text-dark mb-0"><i class="fa-solid fa-gear me-2 text-secondary"></i> ตั้งค่าเว็บไซต์</h4>
@@ -111,24 +117,46 @@
                         <div class="row mb-4">
                             <div class="col-md-3 fw-bold text-secondary">ข้อมูลทั่วไป</div>
                             <div class="col-md-9">
-                                <div class="mb-3"><label class="form-label">ชื่อเว็บไซต์</label><input type="text" class="form-control" id="set_SystemName"></div>
-                                <div class="mb-3"><label class="form-label">จำนวนข่าวสูงสุดในหน้าแรก</label><input type="number" class="form-control" id="set_NewsLimitHome" style="max-width: 150px;"></div>
+                                <div class="mb-3">
+                                    <label class="form-label">ชื่อเว็บไซต์</label>
+                                    <input type="text" class="form-control" id="set_SystemName">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">จำนวนข่าวสูงสุดในหน้าแรก</label>
+                                    <input type="number" class="form-control" id="set_NewsLimitHome" style="max-width: 150px;">
+                                </div>
                             </div>
                         </div>
                         <hr class="text-muted">
                         <div class="row mb-4">
                             <div class="col-md-3 fw-bold text-secondary">ตั้งค่าแบนเนอร์หน้าแรก</div>
                             <div class="col-md-9">
-                                <div class="mb-3"><label class="form-label">ระยะเวลาเปลี่ยนภาพ (มิลลิวินาที)</label><input type="number" class="form-control" id="set_BannerSpeed" style="max-width: 150px;" placeholder="เช่น 6000"><div class="form-text">1000 มิลลิวินาที = 1 วินาที</div></div>
-                                <div class="mb-3"><label class="form-label">เอฟเฟกต์การเปลี่ยนภาพ</label><select class="form-select" id="set_BannerEffect" style="max-width: 250px;"><option value="slide">เลื่อนด้านข้าง (Slide)</option><option value="fade">ค่อยๆ จางหาย (Fade)</option></select></div>
+                                <div class="mb-3">
+                                    <label class="form-label">ระยะเวลาเปลี่ยนภาพ (มิลลิวินาที)</label>
+                                    <input type="number" class="form-control" id="set_BannerSpeed" style="max-width: 150px;" placeholder="เช่น 6000">
+                                    <div class="form-text">1000 มิลลิวินาที = 1 วินาที</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">เอฟเฟกต์การเปลี่ยนภาพ</label>
+                                    <select class="form-select" id="set_BannerEffect" style="max-width: 250px;">
+                                        <option value="slide">เลื่อนด้านข้าง (Slide)</option>
+                                        <option value="fade">ค่อยๆ จางหาย (Fade)</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                         <hr class="text-muted">
                         <div class="row mb-4">
                             <div class="col-md-3 fw-bold text-secondary">Google Drive IDs <br><small class="text-danger">(ห้ามแก้ไขหากไม่จำเป็น)</small></div>
                             <div class="col-md-9">
-                                <div class="mb-3"><label class="form-label">Folder ID สำหรับเก็บรูปหน้าปก</label><input type="text" class="form-control font-monospace" id="set_FolderImageID" readonly></div>
-                                <div class="mb-3"><label class="form-label">Folder ID สำหรับเก็บไฟล์แนบ</label><input type="text" class="form-control font-monospace" id="set_FolderFileID" readonly></div>
+                                <div class="mb-3">
+                                    <label class="form-label">Folder ID สำหรับเก็บรูปหน้าปก</label>
+                                    <input type="text" class="form-control font-monospace" id="set_FolderImageID" readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Folder ID สำหรับเก็บไฟล์แนบ</label>
+                                    <input type="text" class="form-control font-monospace" id="set_FolderFileID" readonly>
+                                </div>
                             </div>
                         </div>
                         <hr class="text-muted">
@@ -144,93 +172,394 @@
                     </form>
                 </div>
             </div>
+            <!-- ================= สิ้นสุด หน้า ตั้งค่าเว็บไซต์ ================= -->
 
-            <!-- VIEW: Banners -->
+            <!-- ================= เริ่มต้น หน้า จัดการแบนเนอร์ (Banners) ================= -->
             <div id="view-banners" class="admin-view" style="display: none;">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h4 class="fw-bold text-dark mb-0"><i class="fa-regular fa-images me-2 text-primary"></i> จัดการแบนเนอร์สไลด์</h4>
-                    <div><button id="btnSaveOrder-Banners" class="btn btn-warning me-2 d-none" onclick="saveBannerOrder()"><i class="fa-solid fa-save me-1"></i> บันทึกลำดับ</button><button class="btn btn-success" onclick="openBannerModal()"><i class="fa-solid fa-plus me-1"></i> เพิ่มรูปสไลด์</button></div>
+                    <div>
+                        <button id="btnSaveOrder-Banners" class="btn btn-warning me-2 d-none" onclick="saveBannerOrder()"><i class="fa-solid fa-save me-1"></i> บันทึกลำดับ</button>
+                        <button class="btn btn-success" onclick="openBannerModal()"><i class="fa-solid fa-plus me-1"></i> เพิ่มรูปสไลด์</button>
+                    </div>
                 </div>
-                <div class="card card-custom"><div class="card-body p-0 table-responsive"><table class="table table-hover align-middle mb-0"><thead class="table-light"><tr><th width="10%">ลำดับ</th><th width="20%">รูปภาพ</th><th width="35%">หัวข้อสไลด์</th><th width="15%">สถานะ</th><th width="20%" class="text-center">จัดการ</th></tr></thead><tbody id="tbody-banners"></tbody></table></div></div>
+                <div class="card card-custom">
+                    <div class="card-body p-0 table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="10%">ลำดับ</th>
+                                    <th width="20%">รูปภาพ</th>
+                                    <th width="35%">หัวข้อสไลด์</th>
+                                    <th width="15%">สถานะ</th>
+                                    <th width="20%" class="text-center">จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-banners"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
+            <!-- ================= สิ้นสุด หน้า จัดการแบนเนอร์ ================= -->
 
-            <!-- VIEW: Departments -->
+            <!-- ================= เริ่มต้น หน้า จัดการกลุ่มงาน (Departments) ================= -->
             <div id="view-departments" class="admin-view" style="display: none;">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h4 class="fw-bold text-dark mb-0"><i class="fa-solid fa-sitemap me-2 text-primary"></i> จัดการกลุ่มงาน</h4>
-                    <div><button id="btnSaveOrder-Departments" class="btn btn-warning me-2 d-none" onclick="saveDeptOrder()"><i class="fa-solid fa-save me-1"></i> บันทึกลำดับ</button><button class="btn btn-success" onclick="openDeptModal()"><i class="fa-solid fa-plus me-1"></i> เพิ่มกลุ่มงาน</button></div>
+                    <div>
+                        <button id="btnSaveOrder-Departments" class="btn btn-warning me-2 d-none" onclick="saveDeptOrder()"><i class="fa-solid fa-save me-1"></i> บันทึกลำดับ</button>
+                        <button class="btn btn-success" onclick="openDeptModal()"><i class="fa-solid fa-plus me-1"></i> เพิ่มกลุ่มงาน</button>
+                    </div>
                 </div>
-                <div class="card card-custom"><div class="card-body p-0 table-responsive"><table class="table table-hover align-middle mb-0"><thead class="table-light"><tr><th width="10%">ลำดับ</th><th width="25%">ชื่อกลุ่มงาน</th><th width="40%">รายละเอียด</th><th width="10%">สถานะ</th><th width="15%" class="text-center">จัดการ</th></tr></thead><tbody id="tbody-departments"></tbody></table></div></div>
+                <div class="card card-custom">
+                    <div class="card-body p-0 table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="10%">ลำดับ</th>
+                                    <th width="25%">ชื่อกลุ่มงาน</th>
+                                    <th width="40%">รายละเอียด</th>
+                                    <th width="10%">สถานะ</th>
+                                    <th width="15%" class="text-center">จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-departments"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
+            <!-- ================= สิ้นสุด หน้า จัดการกลุ่มงาน ================= -->
 
-            <!-- VIEW: E-Services -->
+            <!-- ================= เริ่มต้น หน้า จัดการ E-Services ================= -->
             <div id="view-eservices" class="admin-view" style="display: none;">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h4 class="fw-bold text-dark mb-0"><i class="fa-solid fa-laptop-code me-2 text-primary"></i> จัดการระบบ E-Services</h4>
-                    <div><button id="btnSaveOrder-EServices" class="btn btn-warning me-2 d-none" onclick="saveEServiceOrder()"><i class="fa-solid fa-save me-1"></i> บันทึกลำดับ</button><button class="btn btn-success" onclick="openEServiceModal()"><i class="fa-solid fa-plus me-1"></i> เพิ่มระบบใหม่</button></div>
+                    <div>
+                        <button id="btnSaveOrder-EServices" class="btn btn-warning me-2 d-none" onclick="saveEServiceOrder()"><i class="fa-solid fa-save me-1"></i> บันทึกลำดับ</button>
+                        <button class="btn btn-success" onclick="openEServiceModal()"><i class="fa-solid fa-plus me-1"></i> เพิ่มระบบใหม่</button>
+                    </div>
                 </div>
-                <div class="card card-custom"><div class="card-body p-0 table-responsive"><table class="table table-hover align-middle mb-0"><thead class="table-light"><tr><th width="10%">ลำดับ</th><th width="15%" class="text-center">ไอคอน</th><th width="25%">ชื่อระบบ</th><th width="25%">ลิงก์</th><th width="10%">สถานะ</th><th width="15%" class="text-center">จัดการ</th></tr></thead><tbody id="tbody-eservices"></tbody></table></div></div>
+                <div class="card card-custom">
+                    <div class="card-body p-0 table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="10%">ลำดับ</th>
+                                    <th width="15%" class="text-center">ไอคอน</th>
+                                    <th width="25%">ชื่อระบบ</th>
+                                    <th width="25%">ลิงก์</th>
+                                    <th width="10%">สถานะ</th>
+                                    <th width="15%" class="text-center">จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-eservices"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
+            <!-- ================= สิ้นสุด หน้า จัดการ E-Services ================= -->
 
-            <!-- VIEW: Airlines -->
+            <!-- ================= เริ่มต้น หน้า จัดการสายการบิน (Airlines) ================= -->
             <div id="view-airlines" class="admin-view" style="display: none;">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h4 class="fw-bold text-dark mb-0"><i class="fa-solid fa-plane-circle-check me-2 text-warning"></i> จัดการสายการบิน</h4>
-                    <div><button id="btnSaveOrder-Airlines" class="btn btn-warning me-2 d-none" onclick="saveAirlineOrder()"><i class="fa-solid fa-save me-1"></i> บันทึกลำดับ</button><button class="btn btn-success" onclick="openAirlineModal()"><i class="fa-solid fa-plus me-1"></i> เพิ่มสายการบิน</button></div>
+                    <div>
+                        <button id="btnSaveOrder-Airlines" class="btn btn-warning me-2 d-none" onclick="saveAirlineOrder()"><i class="fa-solid fa-save me-1"></i> บันทึกลำดับ</button>
+                        <button class="btn btn-success" onclick="openAirlineModal()"><i class="fa-solid fa-plus me-1"></i> เพิ่มสายการบิน</button>
+                    </div>
                 </div>
-                <div class="card card-custom"><div class="card-body p-0 table-responsive"><table class="table table-hover align-middle mb-0"><thead class="table-light"><tr><th width="10%">ลำดับ</th><th width="15%" class="text-center">โลโก้</th><th width="30%">ชื่อสายการบิน / เบอร์โทร</th><th width="20%">สีธีม</th><th width="10%">สถานะ</th><th width="15%" class="text-center">จัดการ</th></tr></thead><tbody id="tbody-airlines"></tbody></table></div></div>
+                <div class="card card-custom">
+                    <div class="card-body p-0 table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="10%">ลำดับ</th>
+                                    <th width="15%" class="text-center">โลโก้</th>
+                                    <th width="30%">ชื่อสายการบิน / เบอร์โทร</th>
+                                    <th width="20%">สีธีม</th>
+                                    <th width="10%">สถานะ</th>
+                                    <th width="15%" class="text-center">จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-airlines"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
+            <!-- ================= สิ้นสุด หน้า จัดการสายการบิน ================= -->
 
-            <!-- VIEW: News Categories -->
+            <!-- ================= เริ่มต้น หน้า จัดการหมวดหมู่ข่าว (News Categories) ================= -->
             <div id="view-newscategories" class="admin-view" style="display: none;">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h4 class="fw-bold text-dark mb-0"><i class="fa-solid fa-layer-group me-2 text-info"></i> จัดการหมวดหมู่ข่าวสาร</h4>
-                    <div><button id="btnSaveOrder-NewsCats" class="btn btn-warning me-2 d-none" onclick="saveNewsCatOrder()"><i class="fa-solid fa-save me-1"></i> บันทึกลำดับ</button><button class="btn btn-success" onclick="openNewsCatModal()"><i class="fa-solid fa-plus me-1"></i> เพิ่มหมวดหมู่</button></div>
+                    <div>
+                        <button id="btnSaveOrder-NewsCats" class="btn btn-warning me-2 d-none" onclick="saveNewsCatOrder()"><i class="fa-solid fa-save me-1"></i> บันทึกลำดับ</button>
+                        <button class="btn btn-success" onclick="openNewsCatModal()"><i class="fa-solid fa-plus me-1"></i> เพิ่มหมวดหมู่</button>
+                    </div>
                 </div>
-                <div class="card card-custom"><div class="card-body p-0 table-responsive"><table class="table table-hover align-middle mb-0"><thead class="table-light"><tr><th width="10%">ลำดับ</th><th width="25%">ชื่อหมวดหมู่ข่าว</th><th width="20%">เจ้าของ (กลุ่มงาน)</th><th width="20%">รูปแบบแสดงผล</th><th width="10%">สถานะ</th><th width="15%" class="text-center">จัดการ</th></tr></thead><tbody id="tbody-newscategories"></tbody></table></div></div>
+                <div class="card card-custom">
+                    <div class="card-body p-0 table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="10%">ลำดับ</th>
+                                    <th width="25%">ชื่อหมวดหมู่ข่าว</th>
+                                    <th width="20%">เจ้าของ (กลุ่มงาน)</th>
+                                    <th width="20%">รูปแบบแสดงผล</th>
+                                    <th width="10%">สถานะ</th>
+                                    <th width="15%" class="text-center">จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-newscategories"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
+            <!-- ================= สิ้นสุด หน้า จัดการหมวดหมู่ข่าว ================= -->
+
         </div>
         <div class="footer-text">&copy; 2026 ระบบจัดการหลังบ้าน - ท่าอากาศยานบุรีรัมย์</div>
     </div>
 
-    <!-- ==================== MODALS ==================== -->
-    <div class="modal fade" id="bannerModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0"><div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold" id="bannerModalTitle">เพิ่ม/แก้ไข รูปสไลด์</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><form onsubmit="saveBanner(event)"><input type="hidden" id="ban_BannerID"><div class="mb-3"><label class="form-label fw-bold">URL รูปภาพ <span class="text-danger">*</span></label><input type="url" class="form-control" id="ban_ImageURL" required></div><div class="mb-3"><label class="form-label fw-bold">หัวข้อใหญ่</label><input type="text" class="form-control" id="ban_Title"></div><div class="mb-3"><label class="form-label fw-bold">คำอธิบายย่อย</label><input type="text" class="form-control" id="ban_Description"></div><div class="row"><div class="col-12 mb-3 d-flex align-items-center pb-2"><input type="hidden" id="ban_OrderList"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="ban_IsActive" style="transform: scale(1.2);" checked><label class="form-check-label ms-2 fw-bold text-success" for="ban_IsActive">เปิดใช้งาน</label></div></div></div><button type="submit" class="btn btn-primary w-100 mt-2" id="btnSaveBanner">บันทึกข้อมูล</button></form></div></div></div></div>
-    <div class="modal fade" id="deptModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0"><div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold" id="deptModalTitle">เพิ่ม/แก้ไข กลุ่มงาน</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><form onsubmit="saveDepartment(event)"><input type="hidden" id="dep_DeptID"><div class="mb-3"><label class="form-label fw-bold">ชื่อกลุ่มงาน <span class="text-danger">*</span></label><input type="text" class="form-control" id="dep_DeptName" required></div><div class="mb-4"><label class="form-label fw-bold">รายละเอียด</label><input type="text" class="form-control" id="dep_Description"></div><div class="row"><div class="col-12 mb-3 d-flex align-items-center"><input type="hidden" id="dep_OrderList"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="dep_IsActive" style="transform: scale(1.2);" checked><label class="form-check-label ms-2 fw-bold text-success" for="dep_IsActive">เปิดใช้งาน</label></div></div></div><button type="submit" class="btn btn-primary w-100 mt-2" id="btnSaveDept">บันทึกข้อมูล</button></form></div></div></div></div>
-    <div class="modal fade" id="eserviceModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0"><div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold" id="eserviceModalTitle">เพิ่ม/แก้ไข E-Service</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><form onsubmit="saveEService(event)"><input type="hidden" id="srv_ServiceID"><input type="hidden" id="srv_OrderList"><div class="mb-3"><label class="form-label fw-bold">ชื่อระบบ <span class="text-danger">*</span></label><input type="text" class="form-control" id="srv_ServiceName" required></div><div class="mb-3"><label class="form-label fw-bold">ไอคอน (FontAwesome) <span class="text-danger">*</span></label><input type="text" class="form-control" id="srv_IconClass" required></div><div class="mb-3"><label class="form-label fw-bold">ลิงก์ระบบ <span class="text-danger">*</span></label><input type="text" class="form-control font-monospace" id="srv_URL" required></div><div class="row"><div class="col-md-6 mb-3"><label class="form-label fw-bold">การเปิดลิงก์</label><select class="form-select" id="srv_Target"><option value="_blank">แท็บใหม่</option><option value="_self">หน้าเดิม</option></select></div><div class="col-md-6 mb-3 d-flex align-items-end pb-2"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="srv_IsActive" style="transform: scale(1.2);" checked><label class="form-check-label ms-2 fw-bold text-success" for="srv_IsActive">เปิดใช้งาน</label></div></div></div><button type="submit" class="btn btn-primary w-100 mt-2" id="btnSaveEService">บันทึกข้อมูล</button></form></div></div></div></div>
-    <div class="modal fade" id="airlineModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0"><div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold" id="airlineModalTitle">เพิ่ม/แก้ไข สายการบิน</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><form onsubmit="saveAirline(event)"><input type="hidden" id="air_AirlineID"><input type="hidden" id="air_OrderList"><div class="mb-3"><label class="form-label fw-bold">ชื่อสายการบิน <span class="text-danger">*</span></label><input type="text" class="form-control" id="air_AirlineName" required></div><div class="mb-3"><label class="form-label fw-bold">เบอร์โทรติดต่อ <span class="text-danger">*</span></label><input type="text" class="form-control" id="air_PhoneNumber" required></div><div class="mb-3"><label class="form-label fw-bold">URL โลโก้</label><input type="url" class="form-control" id="air_IconURL"></div><div class="row"><div class="col-6 mb-3"><label class="form-label fw-bold">สีประจำสายการบิน</label><input type="color" class="form-control form-control-color w-100" id="air_ThemeColor" value="#dc3545"></div><div class="col-6 mb-3 d-flex align-items-center"><div class="form-check form-switch mt-4"><input class="form-check-input" type="checkbox" id="air_IsActive" style="transform: scale(1.2);" checked><label class="form-check-label ms-2 fw-bold text-success" for="air_IsActive">เปิดใช้งาน</label></div></div></div><button type="submit" class="btn btn-primary w-100 mt-2" id="btnSaveAirline">บันทึกข้อมูล</button></form></div></div></div></div>
-    
-    <!-- Modal: หมวดหมู่ข่าว (แก้ Department เป็น Dropdown) -->
-    <div class="modal fade" id="newsCatModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0"><div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold" id="newsCatModalTitle">เพิ่ม/แก้ไข หมวดหมู่ข่าว</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4">
-        <form id="formNewsCat" onsubmit="saveNewsCat(event)">
-            <input type="hidden" id="ncat_CategoryID"><input type="hidden" id="ncat_OrderList">
-            <div class="mb-3"><label class="form-label fw-bold">ชื่อหมวดหมู่ <span class="text-danger">*</span></label><input type="text" class="form-control" id="ncat_CategoryName" required></div>
-            <div class="mb-3">
-                <label class="form-label fw-bold">กลุ่มงานที่รับผิดชอบ <span class="text-danger">*</span></label>
-                <!-- 🟢 เปลี่ยนจาก Input เป็น Select Dropdown -->
-                <select class="form-select" id="ncat_Department" required>
-                    <option value="">กำลังโหลดข้อมูล...</option>
-                </select>
+    <!-- ========================================================================= -->
+    <!--                                  MODALS (ป๊อปอัปฟอร์มต่างๆ)                     -->
+    <!-- ========================================================================= -->
+
+    <!-- ================= เริ่มต้น Modal: จัดการ Banners ================= -->
+    <div class="modal fade" id="bannerModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold" id="bannerModalTitle">เพิ่ม/แก้ไข รูปสไลด์</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="formBanner" onsubmit="saveBanner(event)">
+                        <input type="hidden" id="ban_BannerID">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">URL รูปภาพ <span class="text-danger">*</span></label>
+                            <input type="url" class="form-control" id="ban_ImageURL" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">หัวข้อใหญ่</label>
+                            <input type="text" class="form-control" id="ban_Title">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">คำอธิบายย่อย</label>
+                            <input type="text" class="form-control" id="ban_Description">
+                        </div>
+                        <div class="row">
+                            <div class="col-12 mb-3 d-flex align-items-center pb-2">
+                                <input type="hidden" id="ban_OrderList">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="ban_IsActive" style="transform: scale(1.2);" checked>
+                                    <label class="form-check-label ms-2 fw-bold text-success" for="ban_IsActive">เปิดใช้งาน</label>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mt-2" id="btnSaveBanner">บันทึกข้อมูล</button>
+                    </form>
+                </div>
             </div>
-            <div class="mb-3"><label class="form-label fw-bold">รูปแบบการแสดงผล</label><select class="form-select" id="ncat_LayoutType"><option value="slider">สไลด์รูปภาพ แนวนอน (Slider)</option><option value="slider-vertical">สไลด์การ์ด แนวตั้ง</option><option value="text-list">รายการข้อความ (Text List)</option></select></div>
-            <div class="row"><div class="col-6 mb-3"><label class="form-label fw-bold">สีของหมวดหมู่</label><input type="color" class="form-control form-control-color w-100" id="ncat_ThemeColor" value="#0A3161"></div><div class="col-6 mb-3 d-flex align-items-center"><div class="form-check form-switch mt-4"><input class="form-check-input" type="checkbox" id="ncat_IsActive" style="transform: scale(1.2);" checked><label class="form-check-label ms-2 fw-bold text-success" for="ncat_IsActive">เปิดใช้งาน</label></div></div></div>
-            <button type="submit" class="btn btn-primary w-100 mt-2" id="btnSaveNewsCat">บันทึกข้อมูล</button>
-        </form>
-    </div></div></div></div>
+        </div>
+    </div>
+    <!-- ================= สิ้นสุด Modal: จัดการ Banners ================= -->
+
+    <!-- ================= เริ่มต้น Modal: จัดการ Departments ================= -->
+    <div class="modal fade" id="deptModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold" id="deptModalTitle">เพิ่ม/แก้ไข กลุ่มงาน</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="formDept" onsubmit="saveDepartment(event)">
+                        <input type="hidden" id="dep_DeptID">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">ชื่อกลุ่มงาน <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="dep_DeptName" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">รายละเอียด</label>
+                            <input type="text" class="form-control" id="dep_Description">
+                        </div>
+                        <div class="row">
+                            <div class="col-12 mb-3 d-flex align-items-center">
+                                <input type="hidden" id="dep_OrderList">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="dep_IsActive" style="transform: scale(1.2);" checked>
+                                    <label class="form-check-label ms-2 fw-bold text-success" for="dep_IsActive">เปิดใช้งาน</label>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mt-2" id="btnSaveDept">บันทึกข้อมูล</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ================= สิ้นสุด Modal: จัดการ Departments ================= -->
+
+    <!-- ================= เริ่มต้น Modal: จัดการ E-Services ================= -->
+    <div class="modal fade" id="eserviceModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold" id="eserviceModalTitle">เพิ่ม/แก้ไข E-Service</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="formEService" onsubmit="saveEService(event)">
+                        <input type="hidden" id="srv_ServiceID">
+                        <input type="hidden" id="srv_OrderList">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">ชื่อระบบ <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="srv_ServiceName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">ไอคอน (FontAwesome) <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="srv_IconClass" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">ลิงก์ระบบ <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control font-monospace" id="srv_URL" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">การเปิดลิงก์</label>
+                                <select class="form-select" id="srv_Target">
+                                    <option value="_blank">แท็บใหม่</option>
+                                    <option value="_self">หน้าเดิม</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3 d-flex align-items-end pb-2">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="srv_IsActive" style="transform: scale(1.2);" checked>
+                                    <label class="form-check-label ms-2 fw-bold text-success" for="srv_IsActive">เปิดใช้งาน</label>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mt-2" id="btnSaveEService">บันทึกข้อมูล</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ================= สิ้นสุด Modal: จัดการ E-Services ================= -->
+
+    <!-- ================= เริ่มต้น Modal: จัดการ Airlines ================= -->
+    <div class="modal fade" id="airlineModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold" id="airlineModalTitle">เพิ่ม/แก้ไข สายการบิน</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="formAirline" onsubmit="saveAirline(event)">
+                        <input type="hidden" id="air_AirlineID">
+                        <input type="hidden" id="air_OrderList">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">ชื่อสายการบิน <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="air_AirlineName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">เบอร์โทรติดต่อ <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="air_PhoneNumber" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">URL โลโก้</label>
+                            <input type="url" class="form-control" id="air_IconURL">
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label fw-bold">สีประจำสายการบิน</label>
+                                <input type="color" class="form-control form-control-color w-100" id="air_ThemeColor" value="#dc3545">
+                            </div>
+                            <div class="col-6 mb-3 d-flex align-items-center">
+                                <div class="form-check form-switch mt-4">
+                                    <input class="form-check-input" type="checkbox" id="air_IsActive" style="transform: scale(1.2);" checked>
+                                    <label class="form-check-label ms-2 fw-bold text-success" for="air_IsActive">เปิดใช้งาน</label>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mt-2" id="btnSaveAirline">บันทึกข้อมูล</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ================= สิ้นสุด Modal: จัดการ Airlines ================= -->
+    
+    <!-- ================= เริ่มต้น Modal: จัดการ หมวดหมู่ข่าว ================= -->
+    <div class="modal fade" id="newsCatModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold" id="newsCatModalTitle">เพิ่ม/แก้ไข หมวดหมู่ข่าว</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="formNewsCat" onsubmit="saveNewsCat(event)">
+                        <input type="hidden" id="ncat_CategoryID">
+                        <input type="hidden" id="ncat_OrderList">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">ชื่อหมวดหมู่ <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="ncat_CategoryName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">กลุ่มงานที่รับผิดชอบ <span class="text-danger">*</span></label>
+                            <!-- 🟢 Dropdown สำหรับเลือกกลุ่มงาน -->
+                            <select class="form-select" id="ncat_Department" required>
+                                <option value="">กำลังโหลดข้อมูล...</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">รูปแบบการแสดงผล</label>
+                            <select class="form-select" id="ncat_LayoutType">
+                                <option value="slider">สไลด์รูปภาพ แนวนอน (Slider)</option>
+                                <option value="slider-vertical">สไลด์การ์ด แนวตั้ง</option>
+                                <option value="text-list">รายการข้อความ (Text List)</option>
+                            </select>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label fw-bold">สีของหมวดหมู่</label>
+                                <input type="color" class="form-control form-control-color w-100" id="ncat_ThemeColor" value="#0A3161">
+                            </div>
+                            <div class="col-6 mb-3 d-flex align-items-center">
+                                <div class="form-check form-switch mt-4">
+                                    <input class="form-check-input" type="checkbox" id="ncat_IsActive" style="transform: scale(1.2);" checked>
+                                    <label class="form-check-label ms-2 fw-bold text-success" for="ncat_IsActive">เปิดใช้งาน</label>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mt-2" id="btnSaveNewsCat">บันทึกข้อมูล</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ================= สิ้นสุด Modal: จัดการ หมวดหมู่ข่าว ================= -->
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <script>
         // 🔴 อย่าลืมนำ API URL ของคุณมาวางตรงนี้ 🔴
         const API_URL = "https://script.google.com/macros/s/AKfycbx_KEKYYe2Mu1vTORWF8GZnV4zuOku_4IqEvwhZ4q556ggVOHjy-blHKvY_IuYOfGHqaA/exec";
         
         let currentTableData = [];
 
+        // ================= เริ่มต้น ระบบโหลดค่าผู้ใช้งานเมื่อเปิดหน้าเว็บ =================
         document.addEventListener('DOMContentLoaded', () => {
             const user = JSON.parse(localStorage.getItem('userData'));
             if(user) {
                 document.getElementById('adminNameDisplay').innerText = user.fullname;
                 document.getElementById('adminRoleDisplay').innerText = user.role;
                 document.getElementById('adminDeptDisplay').innerText = user.department;
+                // ถ้าเป็น SubAdmin ให้ซ่อนเมนูตั้งค่าระบบ
                 if (user.role === 'SubAdmin') {
                     document.getElementById('adminRoleDisplay').className = "badge bg-warning text-dark ms-2";
                     document.getElementById('menuSuperAdminGroup').style.display = 'none';
@@ -238,18 +567,32 @@
             }
         });
 
+        // ฟังก์ชันออกจากระบบ
         function adminLogout() {
-            Swal.fire({ title: 'ยืนยันการออกจากระบบ?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ออกจากระบบ' }).then((result) => {
-                if (result.isConfirmed) { localStorage.removeItem('userData'); window.location.href = 'index.html'; }
+            Swal.fire({ 
+                title: 'ยืนยันการออกจากระบบ?', icon: 'warning', showCancelButton: true, 
+                confirmButtonColor: '#d33', confirmButtonText: 'ออกจากระบบ', cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) { 
+                    localStorage.removeItem('userData'); 
+                    window.location.href = 'index.html'; 
+                }
             });
         }
+        // ================= สิ้นสุด ระบบโหลดค่าผู้ใช้งาน =================
 
+        // ================= เริ่มต้น ฟังก์ชันเปลี่ยนหน้าเมนู (Switch View) =================
         function switchView(viewId, clickedMenuElement) {
+            // ซ่อนทุกหน้า
             document.querySelectorAll('.admin-view').forEach(view => view.style.display = 'none');
+            // เปิดหน้าที่เลือก
             document.getElementById('view-' + viewId).style.display = 'block';
+            
+            // เปลี่ยนสีเมนู
             document.querySelectorAll('.sidebar-menu a').forEach(menu => menu.classList.remove('active'));
             if(clickedMenuElement) clickedMenuElement.classList.add('active');
 
+            // โหลดข้อมูลตามหน้าที่เลือก
             if (viewId === 'settings') loadSettingsData();
             if (viewId === 'banners') loadTableData('Banners', renderBannersTable);
             if (viewId === 'departments') loadTableData('Departments', renderDeptsTable);
@@ -257,11 +600,22 @@
             if (viewId === 'airlines') loadTableData('Airlines', renderAirlinesTable);
             if (viewId === 'newscategories') {
                 loadTableData('NewsCategories', renderNewsCatsTable);
-                populateDeptDropdown(); // 🟢 สั่งดึงข้อมูลกลุ่มงานมาใส่ Dropdown
+                populateDeptDropdown(); // โหลดข้อมูลกลุ่มงานมาใส่ dropdown
             }
         }
+        // ================= สิ้นสุด ฟังก์ชันเปลี่ยนหน้าเมนู =================
 
-        // 🟢 ดึงกลุ่มงานมาใส่ Dropdown
+        // ================= เริ่มต้น ฟังก์ชันช่วยเหลือ (Helpers) =================
+        
+        // 1. แปลงลิงก์ Google Drive ให้แสดงผลรูปได้
+        function convertDriveImageLink(url) {
+            let id = ""; const regexView = /\/file\/d\/([a-zA-Z0-9_-]+)/; const regexId = /id=([a-zA-Z0-9_-]+)/; 
+            if (url.match(regexView)) id = url.match(regexView)[1]; else if (url.match(regexId)) id = url.match(regexId)[1];
+            if (id) return `https://drive.google.com/thumbnail?id=${id}&sz=w1000`;
+            return url; 
+        }
+
+        // 2. ดึงข้อมูลใส่ Dropdown ของกลุ่มงาน
         function populateDeptDropdown() {
             fetch(`${API_URL}?action=getTableData&sheetName=Departments`)
                 .then(res => res.json())
@@ -276,21 +630,19 @@
                 });
         }
 
-        function convertDriveImageLink(url) {
-            let id = ""; const regexView = /\/file\/d\/([a-zA-Z0-9_-]+)/; const regexId = /id=([a-zA-Z0-9_-]+)/; 
-            if (url.match(regexView)) id = url.match(regexView)[1]; else if (url.match(regexId)) id = url.match(regexId)[1];
-            if (id) return `https://drive.google.com/thumbnail?id=${id}&sz=w1000`;
-            return url; 
-        }
-
+        // 3. โหลดข้อมูลตารางใดๆ จากเซิร์ฟเวอร์
         function loadTableData(sheetName, renderFunction) {
             Swal.fire({ title: 'กำลังโหลด...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
             fetch(`${API_URL}?action=getTableData&sheetName=${sheetName}`).then(res => res.json()).then(res => {
-                Swal.close(); if (res.status === 'success') { currentTableData = res.data; renderFunction(res.data); }
+                Swal.close(); 
+                if (res.status === 'success') { 
+                    currentTableData = res.data; 
+                    renderFunction(res.data); 
+                }
             });
         }
 
-        // 🟢 แก้ไขบั๊กการลบข้อมูล (ให้สั่งรีเฟรชตารางถูกหน้า)
+        // 4. ลบข้อมูลจากตาราง (แก้บั๊กให้รีเฟรชถูกตาราง)
         function deleteRecord(sheetName, idColumn, idValue) {
             Swal.fire({ title: 'ยืนยันการลบ?', text: "หากลบแล้วจะไม่สามารถกู้คืนได้!", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ใช่, ลบทิ้ง!' }).then((result) => {
                 if (result.isConfirmed) {
@@ -311,49 +663,7 @@
             });
         }
 
-        function saveSettings() {
-            const settingsData = { SystemName: document.getElementById('set_SystemName').value, NewsLimitHome: document.getElementById('set_NewsLimitHome').value, BannerSpeed: document.getElementById('set_BannerSpeed').value, BannerEffect: document.getElementById('set_BannerEffect').value, MaintenanceMode: document.getElementById('set_MaintenanceMode').checked ? 'TRUE' : 'FALSE' };
-            Swal.fire({ title: 'กำลังบันทึก...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
-            fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveSettings', settingsJSON: JSON.stringify(settingsData) }) }).then(res => res.json()).then(res => { if (res.status === 'success') Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', showConfirmButton: false, timer: 1500 }); });
-        }
-        function loadSettingsData() {
-            Swal.fire({ title: 'กำลังดึงข้อมูล...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
-            fetch(API_URL + "?action=getSettings").then(res => res.json()).then(response => {
-                if (response.status === 'success') { const data = response.data; document.getElementById('set_SystemName').value = data.SystemName || ''; document.getElementById('set_NewsLimitHome').value = data.NewsLimitHome || ''; document.getElementById('set_FolderImageID').value = data.FolderImageID || ''; document.getElementById('set_FolderFileID').value = data.FolderFileID || ''; document.getElementById('set_BannerSpeed').value = data.BannerSpeed || '6000'; document.getElementById('set_BannerEffect').value = data.BannerEffect || 'fade'; document.getElementById('set_MaintenanceMode').checked = (data.MaintenanceMode === 'TRUE'); Swal.close(); }
-            });
-        }
-
-        function renderBannersTable(data) {
-            const tbody = document.getElementById('tbody-banners'); tbody.innerHTML = '';
-            if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4">ไม่มีข้อมูล</td></tr>'; return; }
-            data.sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList)).forEach((item, index) => {
-                let badge = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิดใช้งาน</span>' : '<span class="badge bg-secondary">ปิด</span>';
-                let imgHtml = item.ImageURL ? `<img src="${item.ImageURL}" style="height: 60px; border-radius:5px; object-fit:cover; border:1px solid #ccc;">` : '-';
-                let btnUp = index > 0 ? `<button class="btn btn-sm btn-light text-primary me-1" onclick="moveOrder('Banners', ${index}, -1, renderBannersTable)"><i class="fa-solid fa-arrow-up"></i></button>` : `<button class="btn btn-sm btn-light me-1" style="visibility:hidden;"><i class="fa-solid fa-arrow-up"></i></button>`;
-                let btnDown = index < data.length - 1 ? `<button class="btn btn-sm btn-light text-primary me-2" onclick="moveOrder('Banners', ${index}, 1, renderBannersTable)"><i class="fa-solid fa-arrow-down"></i></button>` : `<button class="btn btn-sm btn-light me-2" style="visibility:hidden;"><i class="fa-solid fa-arrow-down"></i></button>`;
-                tbody.innerHTML += `<tr><td class="fw-bold text-center h5 text-muted">${item.OrderList}</td><td>${imgHtml}</td><td><div class="fw-bold text-primary">${item.Title || '-'}</div><small class="text-muted">${item.Description || '-'}</small></td><td>${badge}</td><td class="text-center text-nowrap">${btnUp}${btnDown}<button class="btn btn-sm btn-outline-warning me-1" onclick="openBannerModal('${item.BannerID}')"><i class="fa-solid fa-pen"></i></button><button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('Banners', 'BannerID', '${item.BannerID}')"><i class="fa-solid fa-trash"></i></button></td></tr>`;
-            });
-        }
-        function openBannerModal(id = '') { document.getElementById('formBanner').reset(); document.getElementById('ban_BannerID').value = ''; document.getElementById('bannerModalTitle').innerText = 'เพิ่มรูปสไลด์ใหม่'; if (id) { document.getElementById('bannerModalTitle').innerText = 'แก้ไขรูปสไลด์'; const item = currentTableData.find(x => x.BannerID === id); document.getElementById('ban_BannerID').value = item.BannerID; document.getElementById('ban_ImageURL').value = item.ImageURL; document.getElementById('ban_Title').value = item.Title; document.getElementById('ban_Description').value = item.Description; document.getElementById('ban_OrderList').value = item.OrderList; document.getElementById('ban_IsActive').checked = (item.IsActive === 'TRUE'); } new bootstrap.Modal(document.getElementById('bannerModal')).show(); }
-        function saveBanner(e) { e.preventDefault(); const btn = document.getElementById('btnSaveBanner'); btn.innerHTML = 'กำลังบันทึก...'; btn.disabled = true; let rawUrl = document.getElementById('ban_ImageURL').value; let ord = document.getElementById('ban_OrderList').value; if (!document.getElementById('ban_BannerID').value) ord = currentTableData.length + 1; const recordData = { BannerID: document.getElementById('ban_BannerID').value, ImageURL: convertDriveImageLink(rawUrl), Title: document.getElementById('ban_Title').value, Description: document.getElementById('ban_Description').value, OrderList: ord, IsActive: document.getElementById('ban_IsActive').checked ? 'TRUE' : 'FALSE' }; fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'Banners', idColumn: 'BannerID', recordJSON: JSON.stringify(recordData) }) }).then(res => res.json()).then(res => { if (res.status === 'success') { bootstrap.Modal.getInstance(document.getElementById('bannerModal')).hide(); Swal.fire({ icon: 'success', title: res.message, showConfirmButton: false, timer: 1500 }); loadTableData('Banners', renderBannersTable); } }).finally(() => { btn.innerHTML = 'บันทึกข้อมูล'; btn.disabled = false; }); }
-
-        function renderDeptsTable(data) { const tbody = document.getElementById('tbody-departments'); tbody.innerHTML = ''; if (data.length === 0) return; data.sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList)).forEach((item, index) => { let badge = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิดใช้งาน</span>' : '<span class="badge bg-secondary">ปิด</span>'; let btnUp = index > 0 ? `<button class="btn btn-sm btn-light text-primary me-1" onclick="moveOrder('Departments', ${index}, -1, renderDeptsTable)"><i class="fa-solid fa-arrow-up"></i></button>` : `<button class="btn btn-sm btn-light me-1" style="visibility:hidden;"><i class="fa-solid fa-arrow-up"></i></button>`; let btnDown = index < data.length - 1 ? `<button class="btn btn-sm btn-light text-primary me-2" onclick="moveOrder('Departments', ${index}, 1, renderDeptsTable)"><i class="fa-solid fa-arrow-down"></i></button>` : `<button class="btn btn-sm btn-light me-2" style="visibility:hidden;"><i class="fa-solid fa-arrow-down"></i></button>`; tbody.innerHTML += `<tr><td class="fw-bold text-center h5 text-muted">${item.OrderList}</td><td class="fw-bold text-primary fs-6">${item.DeptName || '-'}</td><td class="text-muted">${item.Description || '-'}</td><td>${badge}</td><td class="text-center text-nowrap">${btnUp}${btnDown}<button class="btn btn-sm btn-outline-warning me-1" onclick="openDeptModal('${item.DeptID}')"><i class="fa-solid fa-pen"></i></button><button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('Departments', 'DeptID', '${item.DeptID}')"><i class="fa-solid fa-trash"></i></button></td></tr>`; }); }
-        function openDeptModal(id = '') { document.getElementById('formDept').reset(); document.getElementById('dep_DeptID').value = ''; if (id) { const i = currentTableData.find(x => x.DeptID === id); document.getElementById('dep_DeptID').value = i.DeptID; document.getElementById('dep_DeptName').value = i.DeptName; document.getElementById('dep_Description').value = i.Description; document.getElementById('dep_OrderList').value = i.OrderList; document.getElementById('dep_IsActive').checked = (i.IsActive === 'TRUE'); } new bootstrap.Modal(document.getElementById('deptModal')).show(); }
-        function saveDepartment(e) { e.preventDefault(); const btn = document.getElementById('btnSaveDept'); btn.disabled = true; let ord = document.getElementById('dep_OrderList').value; if (!document.getElementById('dep_DeptID').value) ord = currentTableData.length + 1; const rData = { DeptID: document.getElementById('dep_DeptID').value, DeptName: document.getElementById('dep_DeptName').value, Description: document.getElementById('dep_Description').value, OrderList: ord, IsActive: document.getElementById('dep_IsActive').checked ? 'TRUE' : 'FALSE' }; fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'Departments', idColumn: 'DeptID', recordJSON: JSON.stringify(rData) }) }).then(res=>res.json()).then(res=>{ if (res.status === 'success') { bootstrap.Modal.getInstance(document.getElementById('deptModal')).hide(); Swal.fire({ icon: 'success', showConfirmButton: false, timer: 1500 }); loadTableData('Departments', renderDeptsTable); } }).finally(() => btn.disabled = false); }
-
-        function renderEServicesTable(data) { const tbody = document.getElementById('tbody-eservices'); tbody.innerHTML = ''; if (data.length === 0) return; data.sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList)).forEach((item, index) => { let badge = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิดใช้งาน</span>' : '<span class="badge bg-secondary">ปิด</span>'; let targetBadge = item.Target === '_blank' ? '<span class="badge bg-light text-dark border">แท็บใหม่</span>' : '<span class="badge bg-light text-dark border">หน้าเดิม</span>'; let btnUp = index > 0 ? `<button class="btn btn-sm btn-light text-primary me-1" onclick="moveOrder('EServices', ${index}, -1, renderEServicesTable)"><i class="fa-solid fa-arrow-up"></i></button>` : `<button class="btn btn-sm btn-light me-1" style="visibility:hidden;"><i class="fa-solid fa-arrow-up"></i></button>`; let btnDown = index < data.length - 1 ? `<button class="btn btn-sm btn-light text-primary me-2" onclick="moveOrder('EServices', ${index}, 1, renderEServicesTable)"><i class="fa-solid fa-arrow-down"></i></button>` : `<button class="btn btn-sm btn-light me-2" style="visibility:hidden;"><i class="fa-solid fa-arrow-down"></i></button>`; tbody.innerHTML += `<tr><td class="fw-bold text-center h5 text-muted">${item.OrderList}</td><td class="text-center"><i class="fa-solid ${item.IconClass} fa-2x text-primary" style="opacity: 0.8;"></i></td><td class="fw-bold text-dark fs-6">${item.ServiceName || '-'}</td><td><div class="text-truncate text-primary" style="max-width: 250px; font-size: 0.85rem;" title="${item.URL}">${item.URL || '-'}</div>${targetBadge}</td><td>${badge}</td><td class="text-center text-nowrap">${btnUp}${btnDown}<button class="btn btn-sm btn-outline-warning me-1" onclick="openEServiceModal('${item.ServiceID}')"><i class="fa-solid fa-pen"></i></button><button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('EServices', 'ServiceID', '${item.ServiceID}')"><i class="fa-solid fa-trash"></i></button></td></tr>`; }); }
-        function openEServiceModal(id = '') { document.getElementById('formEService').reset(); document.getElementById('srv_ServiceID').value = ''; if (id) { const i = currentTableData.find(x => x.ServiceID === id); document.getElementById('srv_ServiceID').value = i.ServiceID; document.getElementById('srv_ServiceName').value = i.ServiceName; document.getElementById('srv_IconClass').value = i.IconClass; document.getElementById('srv_URL').value = i.URL; document.getElementById('srv_Target').value = i.Target; document.getElementById('srv_OrderList').value = i.OrderList; document.getElementById('srv_IsActive').checked = (i.IsActive === 'TRUE'); } new bootstrap.Modal(document.getElementById('eserviceModal')).show(); }
-        function saveEService(e) { e.preventDefault(); const btn = document.getElementById('btnSaveEService'); btn.disabled = true; let ord = document.getElementById('srv_OrderList').value; if (!document.getElementById('srv_ServiceID').value) ord = currentTableData.length + 1; const rData = { ServiceID: document.getElementById('srv_ServiceID').value, ServiceName: document.getElementById('srv_ServiceName').value, IconClass: document.getElementById('srv_IconClass').value, URL: document.getElementById('srv_URL').value, Target: document.getElementById('srv_Target').value, OrderList: ord, IsActive: document.getElementById('srv_IsActive').checked ? 'TRUE' : 'FALSE' }; fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'EServices', idColumn: 'ServiceID', recordJSON: JSON.stringify(rData) }) }).then(res=>res.json()).then(res=>{ if (res.status === 'success') { bootstrap.Modal.getInstance(document.getElementById('eserviceModal')).hide(); Swal.fire({ icon: 'success', showConfirmButton: false, timer: 1500 }); loadTableData('EServices', renderEServicesTable); } }).finally(() => btn.disabled = false); }
-
-        function renderAirlinesTable(data) { const tbody = document.getElementById('tbody-airlines'); tbody.innerHTML = ''; if (data.length === 0) return; data.sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList)).forEach((item, index) => { let badge = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิดใช้งาน</span>' : '<span class="badge bg-secondary">ปิด</span>'; let imgHtml = item.IconURL ? `<img src="${item.IconURL}" style="height: 40px; background:white; padding:2px; border-radius:5px; object-fit:contain;">` : '<i class="fa-solid fa-plane fa-2x text-muted"></i>'; let colorBox = `<div style="width: 25px; height: 25px; background-color: ${item.ThemeColor}; border-radius: 50%; border: 1px solid #ccc; display:inline-block;"></div>`; let btnUp = index > 0 ? `<button class="btn btn-sm btn-light text-primary me-1" onclick="moveOrder('Airlines', ${index}, -1, renderAirlinesTable)"><i class="fa-solid fa-arrow-up"></i></button>` : `<button class="btn btn-sm btn-light me-1" style="visibility:hidden;"><i class="fa-solid fa-arrow-up"></i></button>`; let btnDown = index < data.length - 1 ? `<button class="btn btn-sm btn-light text-primary me-2" onclick="moveOrder('Airlines', ${index}, 1, renderAirlinesTable)"><i class="fa-solid fa-arrow-down"></i></button>` : `<button class="btn btn-sm btn-light me-2" style="visibility:hidden;"><i class="fa-solid fa-arrow-down"></i></button>`; tbody.innerHTML += `<tr><td class="fw-bold text-center h5 text-muted">${item.OrderList}</td><td class="text-center">${imgHtml}</td><td><div class="fw-bold text-dark fs-6">${item.AirlineName || '-'}</div><small class="text-muted"><i class="fa-solid fa-phone fa-sm"></i> ${item.PhoneNumber || '-'}</small></td><td>${colorBox}</td><td>${badge}</td><td class="text-center text-nowrap">${btnUp}${btnDown}<button class="btn btn-sm btn-outline-warning me-1" onclick="openAirlineModal('${item.AirlineID}')"><i class="fa-solid fa-pen"></i></button><button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('Airlines', 'AirlineID', '${item.AirlineID}')"><i class="fa-solid fa-trash"></i></button></td></tr>`; }); }
-        function openAirlineModal(id = '') { document.getElementById('formAirline').reset(); document.getElementById('air_AirlineID').value = ''; if (id) { const i = currentTableData.find(x => x.AirlineID === id); document.getElementById('air_AirlineID').value = i.AirlineID; document.getElementById('air_AirlineName').value = i.AirlineName; document.getElementById('air_PhoneNumber').value = i.PhoneNumber; document.getElementById('air_IconURL').value = i.IconURL; document.getElementById('air_ThemeColor').value = i.ThemeColor; document.getElementById('air_OrderList').value = i.OrderList; document.getElementById('air_IsActive').checked = (i.IsActive === 'TRUE'); } new bootstrap.Modal(document.getElementById('airlineModal')).show(); }
-        function saveAirline(e) { e.preventDefault(); const btn = document.getElementById('btnSaveAirline'); btn.disabled = true; let ord = document.getElementById('air_OrderList').value; if (!document.getElementById('air_AirlineID').value) ord = currentTableData.length + 1; const rData = { AirlineID: document.getElementById('air_AirlineID').value, AirlineName: document.getElementById('air_AirlineName').value, IconURL: convertDriveImageLink(document.getElementById('air_IconURL').value), PhoneNumber: document.getElementById('air_PhoneNumber').value, ThemeColor: document.getElementById('air_ThemeColor').value, OrderList: ord, IsActive: document.getElementById('air_IsActive').checked ? 'TRUE' : 'FALSE' }; fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'Airlines', idColumn: 'AirlineID', recordJSON: JSON.stringify(rData) }) }).then(res=>res.json()).then(res=>{ if (res.status === 'success') { bootstrap.Modal.getInstance(document.getElementById('airlineModal')).hide(); Swal.fire({ icon: 'success', showConfirmButton: false, timer: 1500 }); loadTableData('Airlines', renderAirlinesTable); } }).finally(() => btn.disabled = false); }
-
-        function renderNewsCatsTable(data) { const tbody = document.getElementById('tbody-newscategories'); tbody.innerHTML = ''; if (data.length === 0) return; data.sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList)).forEach((item, index) => { let badge = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิดใช้งาน</span>' : '<span class="badge bg-secondary">ปิด</span>'; let layoutLabel = item.LayoutType === 'slider' ? '<i class="fa-solid fa-images text-primary"></i> สไลด์รูปภาพ' : item.LayoutType === 'slider-vertical' ? '<i class="fa-solid fa-grip-vertical text-info"></i> สไลด์แนวตั้ง' : '<i class="fa-solid fa-list text-secondary"></i> แบบรายการ (Text)'; let colorBadge = item.LayoutType === 'text-list' ? `<span class="badge text-white" style="background-color:${item.ThemeColor};">${item.ThemeColor}</span>` : '-'; let btnUp = index > 0 ? `<button class="btn btn-sm btn-light text-primary me-1" onclick="moveOrder('NewsCats', ${index}, -1, renderNewsCatsTable)"><i class="fa-solid fa-arrow-up"></i></button>` : `<button class="btn btn-sm btn-light me-1" style="visibility:hidden;"><i class="fa-solid fa-arrow-up"></i></button>`; let btnDown = index < data.length - 1 ? `<button class="btn btn-sm btn-light text-primary me-2" onclick="moveOrder('NewsCats', ${index}, 1, renderNewsCatsTable)"><i class="fa-solid fa-arrow-down"></i></button>` : `<button class="btn btn-sm btn-light me-2" style="visibility:hidden;"><i class="fa-solid fa-arrow-down"></i></button>`; tbody.innerHTML += `<tr><td class="fw-bold text-center h5 text-muted">${item.OrderList}</td><td><div class="fw-bold text-dark fs-6">${item.CategoryName || '-'}</div>${colorBadge}</td><td>${item.Department}</td><td>${layoutLabel}</td><td>${badge}</td><td class="text-center text-nowrap">${btnUp}${btnDown}<button class="btn btn-sm btn-outline-warning me-1" onclick="openNewsCatModal('${item.CategoryID}')"><i class="fa-solid fa-pen"></i></button><button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('NewsCategories', 'CategoryID', '${item.CategoryID}')"><i class="fa-solid fa-trash"></i></button></td></tr>`; }); }
-        function openNewsCatModal(id = '') { document.getElementById('formNewsCat').reset(); document.getElementById('ncat_CategoryID').value = ''; if (id) { const i = currentTableData.find(x => x.CategoryID === id); document.getElementById('ncat_CategoryID').value = i.CategoryID; document.getElementById('ncat_CategoryName').value = i.CategoryName; document.getElementById('ncat_Department').value = i.Department; document.getElementById('ncat_LayoutType').value = i.LayoutType; document.getElementById('ncat_ThemeColor').value = i.ThemeColor; document.getElementById('ncat_OrderList').value = i.OrderList; document.getElementById('ncat_IsActive').checked = (i.IsActive === 'TRUE'); } new bootstrap.Modal(document.getElementById('newsCatModal')).show(); }
-        function saveNewsCat(e) { e.preventDefault(); const btn = document.getElementById('btnSaveNewsCat'); btn.disabled = true; let ord = document.getElementById('ncat_OrderList').value; if (!document.getElementById('ncat_CategoryID').value) ord = currentTableData.length + 1; const rData = { CategoryID: document.getElementById('ncat_CategoryID').value, CategoryName: document.getElementById('ncat_CategoryName').value, Department: document.getElementById('ncat_Department').value, LayoutType: document.getElementById('ncat_LayoutType').value, ThemeColor: document.getElementById('ncat_ThemeColor').value, OrderList: ord, IsActive: document.getElementById('ncat_IsActive').checked ? 'TRUE' : 'FALSE' }; fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'NewsCategories', idColumn: 'CategoryID', recordJSON: JSON.stringify(rData) }) }).then(res=>res.json()).then(res=>{ if (res.status === 'success') { bootstrap.Modal.getInstance(document.getElementById('newsCatModal')).hide(); Swal.fire({ icon: 'success', showConfirmButton: false, timer: 1500 }); loadTableData('NewsCategories', renderNewsCatsTable); } }).finally(() => btn.disabled = false); }
-
-        // 🟢 ฟังก์ชันจัดลำดับรวม (ใช้ร่วมกันได้ทุกตาราง)
+        // 5. สลับลำดับข้อมูลหน้าจอ (อเนกประสงค์)
         function moveOrder(tableType, currentIndex, direction, renderFunc) {
             let temp = currentTableData[currentIndex];
             currentTableData[currentIndex] = currentTableData[currentIndex + direction];
@@ -362,17 +672,339 @@
             renderFunc(currentTableData);
             document.getElementById(`btnSaveOrder-${tableType}`).classList.remove('d-none');
         }
-        function saveBannerOrder() { saveOrderAPI('Banners', 'BannerID'); }
-        function saveDeptOrder() { saveOrderAPI('Departments', 'DeptID'); }
-        function saveEServiceOrder() { saveOrderAPI('EServices', 'ServiceID'); }
-        function saveAirlineOrder() { saveOrderAPI('Airlines', 'AirlineID'); }
-        function saveNewsCatOrder() { saveOrderAPI('NewsCategories', 'CategoryID'); }
-        
+
+        // 6. บันทึกลำดับทั้งหมดขึ้นเซิร์ฟเวอร์ (อเนกประสงค์)
         function saveOrderAPI(sheetName, idColumn) {
             Swal.fire({ title: 'กำลังบันทึกลำดับ...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
             const orderPayload = currentTableData.map(item => ({ id: item[idColumn], order: item.OrderList }));
-            fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'updateOrder', sheetName: sheetName, idColumn: idColumn, orderJSON: JSON.stringify(orderPayload) }) }).then(res=>res.json()).then(res=>{ if (res.status === 'success') { Swal.fire({ icon: 'success', title: 'บันทึกลำดับสำเร็จ!', showConfirmButton: false, timer: 1500 }); document.getElementById(`btnSaveOrder-${sheetName === 'NewsCategories' ? 'NewsCats' : sheetName}`).classList.add('d-none'); } });
+            fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'updateOrder', sheetName: sheetName, idColumn: idColumn, orderJSON: JSON.stringify(orderPayload) }) }).then(res=>res.json()).then(res=>{ 
+                if (res.status === 'success') { 
+                    Swal.fire({ icon: 'success', title: 'บันทึกลำดับสำเร็จ!', showConfirmButton: false, timer: 1500 }); 
+                    document.getElementById(`btnSaveOrder-${sheetName === 'NewsCategories' ? 'NewsCats' : sheetName}`).classList.add('d-none'); 
+                } 
+            });
         }
+        // ================= สิ้นสุด ฟังก์ชันช่วยเหลือ =================
+
+
+        // ================= เริ่มต้น ฟังก์ชันจัดการ ตั้งค่าเว็บไซต์ =================
+        function loadSettingsData() {
+            Swal.fire({ title: 'กำลังดึงข้อมูล...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
+            fetch(API_URL + "?action=getSettings").then(res => res.json()).then(response => {
+                if (response.status === 'success') { 
+                    const data = response.data; 
+                    document.getElementById('set_SystemName').value = data.SystemName || ''; 
+                    document.getElementById('set_NewsLimitHome').value = data.NewsLimitHome || ''; 
+                    document.getElementById('set_FolderImageID').value = data.FolderImageID || ''; 
+                    document.getElementById('set_FolderFileID').value = data.FolderFileID || ''; 
+                    document.getElementById('set_BannerSpeed').value = data.BannerSpeed || '6000'; 
+                    document.getElementById('set_BannerEffect').value = data.BannerEffect || 'fade'; 
+                    document.getElementById('set_MaintenanceMode').checked = (data.MaintenanceMode === 'TRUE'); 
+                    Swal.close(); 
+                }
+            });
+        }
+        function saveSettings() {
+            const settingsData = { 
+                SystemName: document.getElementById('set_SystemName').value, 
+                NewsLimitHome: document.getElementById('set_NewsLimitHome').value, 
+                BannerSpeed: document.getElementById('set_BannerSpeed').value, 
+                BannerEffect: document.getElementById('set_BannerEffect').value, 
+                MaintenanceMode: document.getElementById('set_MaintenanceMode').checked ? 'TRUE' : 'FALSE' 
+            };
+            Swal.fire({ title: 'กำลังบันทึก...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
+            fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveSettings', settingsJSON: JSON.stringify(settingsData) }) }).then(res => res.json()).then(res => { 
+                if (res.status === 'success') Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', showConfirmButton: false, timer: 1500 }); 
+            });
+        }
+        // ================= สิ้นสุด ฟังก์ชันจัดการ ตั้งค่าเว็บไซต์ =================
+
+
+        // ================= เริ่มต้น ฟังก์ชันจัดการ แบนเนอร์ (Banners) =================
+        function renderBannersTable(data) {
+            const tbody = document.getElementById('tbody-banners'); tbody.innerHTML = '';
+            if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4">ไม่มีข้อมูล</td></tr>'; return; }
+            data.sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList)).forEach((item, index) => {
+                let badge = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิดใช้งาน</span>' : '<span class="badge bg-secondary">ปิด</span>';
+                let imgHtml = item.ImageURL ? `<img src="${item.ImageURL}" style="height: 60px; border-radius:5px; object-fit:cover; border:1px solid #ccc;">` : '-';
+                let btnUp = index > 0 ? `<button class="btn btn-sm btn-light text-primary me-1" onclick="moveOrder('Banners', ${index}, -1, renderBannersTable)"><i class="fa-solid fa-arrow-up"></i></button>` : `<button class="btn btn-sm btn-light me-1" style="visibility:hidden;"><i class="fa-solid fa-arrow-up"></i></button>`;
+                let btnDown = index < data.length - 1 ? `<button class="btn btn-sm btn-light text-primary me-2" onclick="moveOrder('Banners', ${index}, 1, renderBannersTable)"><i class="fa-solid fa-arrow-down"></i></button>` : `<button class="btn btn-sm btn-light me-2" style="visibility:hidden;"><i class="fa-solid fa-arrow-down"></i></button>`;
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="fw-bold text-center h5 text-muted">${item.OrderList}</td>
+                        <td>${imgHtml}</td>
+                        <td><div class="fw-bold text-primary">${item.Title || '-'}</div><small class="text-muted">${item.Description || '-'}</small></td>
+                        <td>${badge}</td>
+                        <td class="text-center text-nowrap">
+                            ${btnUp}${btnDown}
+                            <button class="btn btn-sm btn-outline-warning me-1" onclick="openBannerModal('${item.BannerID}')"><i class="fa-solid fa-pen"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('Banners', 'BannerID', '${item.BannerID}')"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+        function openBannerModal(id = '') { 
+            document.getElementById('formBanner').reset(); document.getElementById('ban_BannerID').value = ''; document.getElementById('bannerModalTitle').innerText = 'เพิ่มรูปสไลด์ใหม่'; 
+            if (id) { 
+                document.getElementById('bannerModalTitle').innerText = 'แก้ไขรูปสไลด์'; 
+                const item = currentTableData.find(x => x.BannerID === id); 
+                document.getElementById('ban_BannerID').value = item.BannerID; 
+                document.getElementById('ban_ImageURL').value = item.ImageURL; 
+                document.getElementById('ban_Title').value = item.Title; 
+                document.getElementById('ban_Description').value = item.Description; 
+                document.getElementById('ban_OrderList').value = item.OrderList; 
+                document.getElementById('ban_IsActive').checked = (item.IsActive === 'TRUE'); 
+            } 
+            new bootstrap.Modal(document.getElementById('bannerModal')).show(); 
+        }
+        function saveBanner(e) { 
+            e.preventDefault(); 
+            const btn = document.getElementById('btnSaveBanner'); btn.innerHTML = 'กำลังบันทึก...'; btn.disabled = true; 
+            
+            let rawUrl = document.getElementById('ban_ImageURL').value; 
+            let ord = document.getElementById('ban_OrderList').value; 
+            if (!document.getElementById('ban_BannerID').value) ord = currentTableData.length + 1; 
+            
+            const recordData = { 
+                BannerID: document.getElementById('ban_BannerID').value, 
+                ImageURL: convertDriveImageLink(rawUrl), 
+                Title: document.getElementById('ban_Title').value, 
+                Description: document.getElementById('ban_Description').value, 
+                OrderList: ord, 
+                IsActive: document.getElementById('ban_IsActive').checked ? 'TRUE' : 'FALSE' 
+            }; 
+            
+            fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'Banners', idColumn: 'BannerID', recordJSON: JSON.stringify(recordData) }) })
+            .then(res => res.json()).then(res => { 
+                if (res.status === 'success') { 
+                    bootstrap.Modal.getInstance(document.getElementById('bannerModal')).hide(); 
+                    Swal.fire({ icon: 'success', title: res.message, showConfirmButton: false, timer: 1500 }); 
+                    loadTableData('Banners', renderBannersTable); 
+                } 
+            }).finally(() => { btn.innerHTML = 'บันทึกข้อมูล'; btn.disabled = false; }); 
+        }
+        function saveBannerOrder() { saveOrderAPI('Banners', 'BannerID'); }
+        // ================= สิ้นสุด ฟังก์ชันจัดการ แบนเนอร์ =================
+
+
+        // ================= เริ่มต้น ฟังก์ชันจัดการ กลุ่มงาน (Departments) =================
+        function renderDeptsTable(data) { 
+            const tbody = document.getElementById('tbody-departments'); tbody.innerHTML = ''; 
+            if (data.length === 0) return; 
+            data.sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList)).forEach((item, index) => { 
+                let badge = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิดใช้งาน</span>' : '<span class="badge bg-secondary">ปิด</span>'; 
+                let btnUp = index > 0 ? `<button class="btn btn-sm btn-light text-primary me-1" onclick="moveOrder('Departments', ${index}, -1, renderDeptsTable)"><i class="fa-solid fa-arrow-up"></i></button>` : `<button class="btn btn-sm btn-light me-1" style="visibility:hidden;"><i class="fa-solid fa-arrow-up"></i></button>`; 
+                let btnDown = index < data.length - 1 ? `<button class="btn btn-sm btn-light text-primary me-2" onclick="moveOrder('Departments', ${index}, 1, renderDeptsTable)"><i class="fa-solid fa-arrow-down"></i></button>` : `<button class="btn btn-sm btn-light me-2" style="visibility:hidden;"><i class="fa-solid fa-arrow-down"></i></button>`; 
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="fw-bold text-center h5 text-muted">${item.OrderList}</td>
+                        <td class="fw-bold text-primary fs-6">${item.DeptName || '-'}</td>
+                        <td class="text-muted">${item.Description || '-'}</td>
+                        <td>${badge}</td>
+                        <td class="text-center text-nowrap">
+                            ${btnUp}${btnDown}
+                            <button class="btn btn-sm btn-outline-warning me-1" onclick="openDeptModal('${item.DeptID}')"><i class="fa-solid fa-pen"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('Departments', 'DeptID', '${item.DeptID}')"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `; 
+            }); 
+        }
+        function openDeptModal(id = '') { 
+            document.getElementById('formDept').reset(); document.getElementById('dep_DeptID').value = ''; 
+            if (id) { 
+                const i = currentTableData.find(x => x.DeptID === id); 
+                document.getElementById('dep_DeptID').value = i.DeptID; 
+                document.getElementById('dep_DeptName').value = i.DeptName; 
+                document.getElementById('dep_Description').value = i.Description; 
+                document.getElementById('dep_OrderList').value = i.OrderList; 
+                document.getElementById('dep_IsActive').checked = (i.IsActive === 'TRUE'); 
+            } 
+            new bootstrap.Modal(document.getElementById('deptModal')).show(); 
+        }
+        function saveDepartment(e) { 
+            e.preventDefault(); const btn = document.getElementById('btnSaveDept'); btn.disabled = true; 
+            let ord = document.getElementById('dep_OrderList').value; if (!document.getElementById('dep_DeptID').value) ord = currentTableData.length + 1; 
+            
+            const rData = { 
+                DeptID: document.getElementById('dep_DeptID').value, 
+                DeptName: document.getElementById('dep_DeptName').value, 
+                Description: document.getElementById('dep_Description').value, 
+                OrderList: ord, 
+                IsActive: document.getElementById('dep_IsActive').checked ? 'TRUE' : 'FALSE' 
+            }; 
+            fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'Departments', idColumn: 'DeptID', recordJSON: JSON.stringify(rData) }) })
+            .then(res=>res.json()).then(res=>{ 
+                if (res.status === 'success') { bootstrap.Modal.getInstance(document.getElementById('deptModal')).hide(); Swal.fire({ icon: 'success', showConfirmButton: false, timer: 1500 }); loadTableData('Departments', renderDeptsTable); } 
+            }).finally(() => btn.disabled = false); 
+        }
+        function saveDeptOrder() { saveOrderAPI('Departments', 'DeptID'); }
+        // ================= สิ้นสุด ฟังก์ชันจัดการ กลุ่มงาน =================
+
+
+        // ================= เริ่มต้น ฟังก์ชันจัดการ E-Services =================
+        function renderEServicesTable(data) { 
+            const tbody = document.getElementById('tbody-eservices'); tbody.innerHTML = ''; 
+            if (data.length === 0) return; 
+            data.sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList)).forEach((item, index) => { 
+                let badge = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิดใช้งาน</span>' : '<span class="badge bg-secondary">ปิด</span>'; 
+                let targetBadge = item.Target === '_blank' ? '<span class="badge bg-light text-dark border">แท็บใหม่</span>' : '<span class="badge bg-light text-dark border">หน้าเดิม</span>'; 
+                let btnUp = index > 0 ? `<button class="btn btn-sm btn-light text-primary me-1" onclick="moveOrder('EServices', ${index}, -1, renderEServicesTable)"><i class="fa-solid fa-arrow-up"></i></button>` : `<button class="btn btn-sm btn-light me-1" style="visibility:hidden;"><i class="fa-solid fa-arrow-up"></i></button>`; 
+                let btnDown = index < data.length - 1 ? `<button class="btn btn-sm btn-light text-primary me-2" onclick="moveOrder('EServices', ${index}, 1, renderEServicesTable)"><i class="fa-solid fa-arrow-down"></i></button>` : `<button class="btn btn-sm btn-light me-2" style="visibility:hidden;"><i class="fa-solid fa-arrow-down"></i></button>`; 
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="fw-bold text-center h5 text-muted">${item.OrderList}</td>
+                        <td class="text-center"><i class="fa-solid ${item.IconClass} fa-2x text-primary" style="opacity: 0.8;"></i></td>
+                        <td class="fw-bold text-dark fs-6">${item.ServiceName || '-'}</td>
+                        <td><div class="text-truncate text-primary" style="max-width: 250px; font-size: 0.85rem;" title="${item.URL}">${item.URL || '-'}</div>${targetBadge}</td>
+                        <td>${badge}</td>
+                        <td class="text-center text-nowrap">
+                            ${btnUp}${btnDown}
+                            <button class="btn btn-sm btn-outline-warning me-1" onclick="openEServiceModal('${item.ServiceID}')"><i class="fa-solid fa-pen"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('EServices', 'ServiceID', '${item.ServiceID}')"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `; 
+            }); 
+        }
+        function openEServiceModal(id = '') { 
+            document.getElementById('formEService').reset(); document.getElementById('srv_ServiceID').value = ''; 
+            if (id) { 
+                const i = currentTableData.find(x => x.ServiceID === id); 
+                document.getElementById('srv_ServiceID').value = i.ServiceID; 
+                document.getElementById('srv_ServiceName').value = i.ServiceName; 
+                document.getElementById('srv_IconClass').value = i.IconClass; 
+                document.getElementById('srv_URL').value = i.URL; 
+                document.getElementById('srv_Target').value = i.Target; 
+                document.getElementById('srv_OrderList').value = i.OrderList; 
+                document.getElementById('srv_IsActive').checked = (i.IsActive === 'TRUE'); 
+            } 
+            new bootstrap.Modal(document.getElementById('eserviceModal')).show(); 
+        }
+        function saveEService(e) { 
+            e.preventDefault(); const btn = document.getElementById('btnSaveEService'); btn.disabled = true; 
+            let ord = document.getElementById('srv_OrderList').value; if (!document.getElementById('srv_ServiceID').value) ord = currentTableData.length + 1; 
+            const rData = { ServiceID: document.getElementById('srv_ServiceID').value, ServiceName: document.getElementById('srv_ServiceName').value, IconClass: document.getElementById('srv_IconClass').value, URL: document.getElementById('srv_URL').value, Target: document.getElementById('srv_Target').value, OrderList: ord, IsActive: document.getElementById('srv_IsActive').checked ? 'TRUE' : 'FALSE' }; 
+            fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'EServices', idColumn: 'ServiceID', recordJSON: JSON.stringify(rData) }) })
+            .then(res=>res.json()).then(res=>{ 
+                if (res.status === 'success') { bootstrap.Modal.getInstance(document.getElementById('eserviceModal')).hide(); Swal.fire({ icon: 'success', showConfirmButton: false, timer: 1500 }); loadTableData('EServices', renderEServicesTable); } 
+            }).finally(() => btn.disabled = false); 
+        }
+        function saveEServiceOrder() { saveOrderAPI('EServices', 'ServiceID'); }
+        // ================= สิ้นสุด ฟังก์ชันจัดการ E-Services =================
+
+
+        // ================= เริ่มต้น ฟังก์ชันจัดการ สายการบิน (Airlines) =================
+        function renderAirlinesTable(data) { 
+            const tbody = document.getElementById('tbody-airlines'); tbody.innerHTML = ''; 
+            if (data.length === 0) return; 
+            data.sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList)).forEach((item, index) => { 
+                let badge = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิดใช้งาน</span>' : '<span class="badge bg-secondary">ปิด</span>'; 
+                let imgHtml = item.IconURL ? `<img src="${item.IconURL}" style="height: 40px; background:white; padding:2px; border-radius:5px; object-fit:contain;">` : '<i class="fa-solid fa-plane fa-2x text-muted"></i>'; 
+                let colorBox = `<div style="width: 25px; height: 25px; background-color: ${item.ThemeColor}; border-radius: 50%; border: 1px solid #ccc; display:inline-block;"></div>`; 
+                let btnUp = index > 0 ? `<button class="btn btn-sm btn-light text-primary me-1" onclick="moveOrder('Airlines', ${index}, -1, renderAirlinesTable)"><i class="fa-solid fa-arrow-up"></i></button>` : `<button class="btn btn-sm btn-light me-1" style="visibility:hidden;"><i class="fa-solid fa-arrow-up"></i></button>`; 
+                let btnDown = index < data.length - 1 ? `<button class="btn btn-sm btn-light text-primary me-2" onclick="moveOrder('Airlines', ${index}, 1, renderAirlinesTable)"><i class="fa-solid fa-arrow-down"></i></button>` : `<button class="btn btn-sm btn-light me-2" style="visibility:hidden;"><i class="fa-solid fa-arrow-down"></i></button>`; 
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="fw-bold text-center h5 text-muted">${item.OrderList}</td>
+                        <td class="text-center">${imgHtml}</td>
+                        <td><div class="fw-bold text-dark fs-6">${item.AirlineName || '-'}</div><small class="text-muted"><i class="fa-solid fa-phone fa-sm"></i> ${item.PhoneNumber || '-'}</small></td>
+                        <td>${colorBox}</td>
+                        <td>${badge}</td>
+                        <td class="text-center text-nowrap">
+                            ${btnUp}${btnDown}
+                            <button class="btn btn-sm btn-outline-warning me-1" onclick="openAirlineModal('${item.AirlineID}')"><i class="fa-solid fa-pen"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('Airlines', 'AirlineID', '${item.AirlineID}')"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `; 
+            }); 
+        }
+        function openAirlineModal(id = '') { 
+            document.getElementById('formAirline').reset(); document.getElementById('air_AirlineID').value = ''; 
+            if (id) { 
+                const i = currentTableData.find(x => x.AirlineID === id); 
+                document.getElementById('air_AirlineID').value = i.AirlineID; 
+                document.getElementById('air_AirlineName').value = i.AirlineName; 
+                document.getElementById('air_PhoneNumber').value = i.PhoneNumber; 
+                document.getElementById('air_IconURL').value = i.IconURL; 
+                document.getElementById('air_ThemeColor').value = i.ThemeColor; 
+                document.getElementById('air_OrderList').value = i.OrderList; 
+                document.getElementById('air_IsActive').checked = (i.IsActive === 'TRUE'); 
+            } 
+            new bootstrap.Modal(document.getElementById('airlineModal')).show(); 
+        }
+        function saveAirline(e) { 
+            e.preventDefault(); const btn = document.getElementById('btnSaveAirline'); btn.disabled = true; 
+            let ord = document.getElementById('air_OrderList').value; if (!document.getElementById('air_AirlineID').value) ord = currentTableData.length + 1; 
+            const rData = { AirlineID: document.getElementById('air_AirlineID').value, AirlineName: document.getElementById('air_AirlineName').value, IconURL: convertDriveImageLink(document.getElementById('air_IconURL').value), PhoneNumber: document.getElementById('air_PhoneNumber').value, ThemeColor: document.getElementById('air_ThemeColor').value, OrderList: ord, IsActive: document.getElementById('air_IsActive').checked ? 'TRUE' : 'FALSE' }; 
+            fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'Airlines', idColumn: 'AirlineID', recordJSON: JSON.stringify(rData) }) })
+            .then(res=>res.json()).then(res=>{ 
+                if (res.status === 'success') { bootstrap.Modal.getInstance(document.getElementById('airlineModal')).hide(); Swal.fire({ icon: 'success', showConfirmButton: false, timer: 1500 }); loadTableData('Airlines', renderAirlinesTable); } 
+            }).finally(() => btn.disabled = false); 
+        }
+        function saveAirlineOrder() { saveOrderAPI('Airlines', 'AirlineID'); }
+        // ================= สิ้นสุด ฟังก์ชันจัดการ สายการบิน =================
+
+
+        // ================= เริ่มต้น ฟังก์ชันจัดการ หมวดหมู่ข่าว (News Categories) =================
+        function renderNewsCatsTable(data) { 
+            const tbody = document.getElementById('tbody-newscategories'); tbody.innerHTML = ''; 
+            if (data.length === 0) return; 
+            data.sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList)).forEach((item, index) => { 
+                let badge = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิดใช้งาน</span>' : '<span class="badge bg-secondary">ปิด</span>'; 
+                let layoutLabel = item.LayoutType === 'slider' ? '<i class="fa-solid fa-images text-primary"></i> สไลด์รูปภาพ' : item.LayoutType === 'slider-vertical' ? '<i class="fa-solid fa-grip-vertical text-info"></i> สไลด์แนวตั้ง' : '<i class="fa-solid fa-list text-secondary"></i> แบบรายการ (Text)'; 
+                let colorBadge = item.LayoutType === 'text-list' ? `<span class="badge text-white" style="background-color:${item.ThemeColor};">${item.ThemeColor}</span>` : '-'; 
+                let btnUp = index > 0 ? `<button class="btn btn-sm btn-light text-primary me-1" onclick="moveOrder('NewsCats', ${index}, -1, renderNewsCatsTable)"><i class="fa-solid fa-arrow-up"></i></button>` : `<button class="btn btn-sm btn-light me-1" style="visibility:hidden;"><i class="fa-solid fa-arrow-up"></i></button>`; 
+                let btnDown = index < data.length - 1 ? `<button class="btn btn-sm btn-light text-primary me-2" onclick="moveOrder('NewsCats', ${index}, 1, renderNewsCatsTable)"><i class="fa-solid fa-arrow-down"></i></button>` : `<button class="btn btn-sm btn-light me-2" style="visibility:hidden;"><i class="fa-solid fa-arrow-down"></i></button>`; 
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="fw-bold text-center h5 text-muted">${item.OrderList}</td>
+                        <td><div class="fw-bold text-dark fs-6">${item.CategoryName || '-'}</div>${colorBadge}</td>
+                        <td>${item.Department}</td>
+                        <td>${layoutLabel}</td>
+                        <td>${badge}</td>
+                        <td class="text-center text-nowrap">
+                            ${btnUp}${btnDown}
+                            <button class="btn btn-sm btn-outline-warning me-1" onclick="openNewsCatModal('${item.CategoryID}')"><i class="fa-solid fa-pen"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('NewsCategories', 'CategoryID', '${item.CategoryID}')"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `; 
+            }); 
+        }
+        function openNewsCatModal(id = '') { 
+            document.getElementById('formNewsCat').reset(); document.getElementById('ncat_CategoryID').value = ''; 
+            if (id) { 
+                const i = currentTableData.find(x => x.CategoryID === id); 
+                document.getElementById('ncat_CategoryID').value = i.CategoryID; 
+                document.getElementById('ncat_CategoryName').value = i.CategoryName; 
+                document.getElementById('ncat_Department').value = i.Department; 
+                document.getElementById('ncat_LayoutType').value = i.LayoutType; 
+                document.getElementById('ncat_ThemeColor').value = i.ThemeColor; 
+                document.getElementById('ncat_OrderList').value = i.OrderList; 
+                document.getElementById('ncat_IsActive').checked = (i.IsActive === 'TRUE'); 
+            } 
+            new bootstrap.Modal(document.getElementById('newsCatModal')).show(); 
+        }
+        function saveNewsCat(e) { 
+            e.preventDefault(); const btn = document.getElementById('btnSaveNewsCat'); btn.disabled = true; 
+            let ord = document.getElementById('ncat_OrderList').value; if (!document.getElementById('ncat_CategoryID').value) ord = currentTableData.length + 1; 
+            const rData = { CategoryID: document.getElementById('ncat_CategoryID').value, CategoryName: document.getElementById('ncat_CategoryName').value, Department: document.getElementById('ncat_Department').value, LayoutType: document.getElementById('ncat_LayoutType').value, ThemeColor: document.getElementById('ncat_ThemeColor').value, OrderList: ord, IsActive: document.getElementById('ncat_IsActive').checked ? 'TRUE' : 'FALSE' }; 
+            fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'NewsCategories', idColumn: 'CategoryID', recordJSON: JSON.stringify(rData) }) })
+            .then(res=>res.json()).then(res=>{ 
+                if (res.status === 'success') { bootstrap.Modal.getInstance(document.getElementById('newsCatModal')).hide(); Swal.fire({ icon: 'success', showConfirmButton: false, timer: 1500 }); loadTableData('NewsCategories', renderNewsCatsTable); } 
+            }).finally(() => btn.disabled = false); 
+        }
+        function saveNewsCatOrder() { saveOrderAPI('NewsCategories', 'CategoryID'); }
+        // ================= สิ้นสุด ฟังก์ชันจัดการ หมวดหมู่ข่าว =================
+
     </script>
 </body>
 </html>
