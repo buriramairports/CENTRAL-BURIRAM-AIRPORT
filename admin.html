@@ -143,7 +143,7 @@
         </div>
         <ul class="sidebar-menu">
             <li><a href="index.html" target="_blank" style="color: #60a5fa;"><i class="fa-solid fa-arrow-up-right-from-square"></i> เปิดดูหน้าเว็บไซต์</a></li>
-            <li><a href="#" class="active"><i class="fa-solid fa-gauge-high"></i> หน้าหลัก (Dashboard)</a></li>
+            <li><a href="#" class="active" onclick="switchView('dashboard', this)"><i class="fa-solid fa-gauge-high"></i> หน้าหลัก (Dashboard)</a></li>
             <li class="mt-4 px-3"><small class="text-uppercase fw-bold" style="color: #64748b; font-size: 0.7rem;">จัดการข้อมูลข่าวสาร</small></li>
             <li><a href="#"><i class="fa-solid fa-newspaper"></i> จัดการข่าวสาร</a></li>
 
@@ -161,7 +161,7 @@
                 <div class="mt-4 px-3"><small class="text-uppercase fw-bold" style="color: #64748b; font-size: 0.7rem;">ตั้งค่าระบบ</small></div>
                 <a href="#"><i class="fa-solid fa-sitemap"></i> กลุ่มงาน (Departments)</a>
                 <a href="#"><i class="fa-solid fa-users-gear"></i> จัดการผู้ใช้งาน</a>
-                <a href="#"><i class="fa-solid fa-gear"></i> ตั้งค่าเว็บไซต์</a>
+                <a href="#" onclick="switchView('settings', this)"><i class="fa-solid fa-gear"></i> ตั้งค่าเว็บไซต์</a>
             </li>
         </ul>
     </div>
@@ -187,60 +187,73 @@
             </div>
         </div>
 
-        <!-- เนื้อหา (เปลี่ยนไปตามเมนูที่กด) -->
+       <!-- เนื้อหา (เปลี่ยนไปตามเมนูที่กด) -->
         <div class="page-content">
             
-            <!-- Welcome Alert -->
-            <div class="alert alert-primary border-0 shadow-sm mb-4" role="alert" style="background-color: #eff6ff; color: #1e3a8a;">
-                <h5 class="alert-heading fw-bold"><i class="fa-solid fa-hand-wave me-2"></i> ยินดีต้อนรับกลับมา!</h5>
-                <p class="mb-0">นี่คือพื้นที่สำหรับจัดการข้อมูลเว็บไซต์ หากคุณมีสิทธิ์เป็น SubAdmin คุณจะเห็นเฉพาะเมนูของกลุ่มงาน <strong id="adminDeptDisplay">---</strong> เท่านั้น</p>
-            </div>
-
-            <!-- กล่องสถิติ (รอต่อกับฐานข้อมูล) -->
-            <div class="row g-4 mb-4">
-                <div class="col-md-3">
-                    <div class="stat-card border-primary">
-                        <div class="icon"><i class="fa-solid fa-newspaper"></i></div>
-                        <div>
-                            <h3 class="fw-bold mb-0 text-dark">24</h3>
-                            <div class="text-muted small">ข่าวสารทั้งหมด</div>
-                        </div>
-                    </div>
+            <!-- ================= VIEW 1: Dashboard ================= -->
+            <div id="view-dashboard" class="admin-view">
+                <div class="alert alert-primary border-0 shadow-sm mb-4" style="background-color: #eff6ff; color: #1e3a8a;">
+                    <h5 class="alert-heading fw-bold"><i class="fa-solid fa-hand-wave me-2"></i> ยินดีต้อนรับกลับมา!</h5>
+                    <p class="mb-0">นี่คือพื้นที่สำหรับจัดการข้อมูลเว็บไซต์ หากคุณมีสิทธิ์เป็น SubAdmin คุณจะเห็นเฉพาะเมนูของกลุ่มงาน <strong id="adminDeptDisplay">---</strong> เท่านั้น</p>
                 </div>
-                <div class="col-md-3">
-                    <div class="stat-card" style="border-left-color: #22c55e;">
-                        <div class="icon" style="background: #dcfce7; color: #22c55e;"><i class="fa-solid fa-users"></i></div>
-                        <div>
-                            <h3 class="fw-bold mb-0 text-dark">1,204</h3>
-                            <div class="text-muted small">ผู้ใช้งานระบบ</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stat-card" style="border-left-color: #f59e0b;">
-                        <div class="icon" style="background: #fef3c7; color: #f59e0b;"><i class="fa-solid fa-laptop-code"></i></div>
-                        <div>
-                            <h3 class="fw-bold mb-0 text-dark">5</h3>
-                            <div class="text-muted small">E-Services ที่เปิดใช้งาน</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stat-card" style="border-left-color: #8b5cf6;">
-                        <div class="icon" style="background: #ede9fe; color: #8b5cf6;"><i class="fa-solid fa-plane-up"></i></div>
-                        <div>
-                            <h3 class="fw-bold mb-0 text-dark">18</h3>
-                            <div class="text-muted small">เที่ยวบินเดือนนี้</div>
-                        </div>
-                    </div>
+                <!-- กล่องสถิติ -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-3"><div class="stat-card border-primary"><div class="icon"><i class="fa-solid fa-newspaper"></i></div><div><h3 class="fw-bold mb-0 text-dark">24</h3><div class="text-muted small">ข่าวสารทั้งหมด</div></div></div></div>
+                    <div class="col-md-3"><div class="stat-card" style="border-left-color: #22c55e;"><div class="icon" style="background: #dcfce7; color: #22c55e;"><i class="fa-solid fa-users"></i></div><div><h3 class="fw-bold mb-0 text-dark">1,204</h3><div class="text-muted small">ผู้ใช้งานระบบ</div></div></div></div>
+                    <div class="col-md-3"><div class="stat-card" style="border-left-color: #f59e0b;"><div class="icon" style="background: #fef3c7; color: #f59e0b;"><i class="fa-solid fa-laptop-code"></i></div><div><h3 class="fw-bold mb-0 text-dark">5</h3><div class="text-muted small">E-Services</div></div></div></div>
+                    <div class="col-md-3"><div class="stat-card" style="border-left-color: #8b5cf6;"><div class="icon" style="background: #ede9fe; color: #8b5cf6;"><i class="fa-solid fa-plane-up"></i></div><div><h3 class="fw-bold mb-0 text-dark">18</h3><div class="text-muted small">เที่ยวบินเดือนนี้</div></div></div></div>
                 </div>
             </div>
 
-            <!-- พื้นที่รอทำระบบตารางจัดการข้อมูลใน Step ถัดไป -->
-            <div class="card card-custom p-4 text-center text-muted mt-5">
-                <i class="fa-solid fa-screwdriver-wrench fa-3x mb-3 opacity-25"></i>
-                <h5>พื้นที่สำหรับแสดงตารางข้อมูล</h5>
-                <p>เราจะเริ่มเขียนโค้ดดึงข้อมูลจาก Google Sheet มาแสดงตรงนี้ใน Step ถัดไปครับ</p>
+            <!-- ================= VIEW 2: Settings (ตั้งค่าเว็บไซต์) ================= -->
+            <div id="view-settings" class="admin-view" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold text-dark mb-0"><i class="fa-solid fa-gear me-2 text-secondary"></i> ตั้งค่าเว็บไซต์ (System Settings)</h4>
+                    <button class="btn btn-primary px-4"><i class="fa-solid fa-save me-2"></i> บันทึกการตั้งค่า</button>
+                </div>
+
+                <div class="card card-custom p-4">
+                    <form id="formSettings">
+                        <div class="row mb-4">
+                            <div class="col-md-3 fw-bold text-secondary">ข้อมูลทั่วไป</div>
+                            <div class="col-md-9">
+                                <div class="mb-3">
+                                    <label class="form-label">ชื่อเว็บไซต์ (System Name)</label>
+                                    <input type="text" class="form-control" id="set_SystemName">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">จำนวนข่าวสูงสุดในหน้าแรก (โควตา)</label>
+                                    <input type="number" class="form-control" id="set_NewsLimitHome" style="max-width: 150px;">
+                                </div>
+                            </div>
+                        </div>
+                        <hr class="text-muted">
+                        <div class="row mb-4">
+                            <div class="col-md-3 fw-bold text-secondary">Google Drive IDs <br><small class="fw-normal text-danger">(ระวัง: ห้ามแก้ไขหากไม่จำเป็น)</small></div>
+                            <div class="col-md-9">
+                                <div class="mb-3">
+                                    <label class="form-label">Folder ID สำหรับเก็บรูปภาพหน้าปกข่าว</label>
+                                    <input type="text" class="form-control font-monospace" id="set_FolderImageID" readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Folder ID สำหรับเก็บไฟล์เอกสารแนบ (PDF)</label>
+                                    <input type="text" class="form-control font-monospace" id="set_FolderFileID" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <hr class="text-muted">
+                        <div class="row mb-3">
+                            <div class="col-md-3 fw-bold text-secondary">สถานะระบบ</div>
+                            <div class="col-md-9">
+                                <div class="form-check form-switch mt-2">
+                                    <input class="form-check-input" type="checkbox" id="set_MaintenanceMode" style="transform: scale(1.3); margin-right: 10px;">
+                                    <label class="form-check-label text-danger fw-bold" for="set_MaintenanceMode">เปิดโหมดซ่อมบำรุง (Maintenance Mode)</label>
+                                    <div class="form-text mt-2">หากเปิดโหมดนี้ ผู้ใช้งานทั่วไปจะไม่สามารถเข้าดูเว็บไซต์ได้</div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
 
         </div>
@@ -290,6 +303,65 @@
                     window.location.href = 'index.html'; // เตะกลับไปหน้าแรก
                 }
             });
+        }
+        // 🔴 อย่าลืมใส่ API_URL ของคุณตรงนี้นะครับ
+        const API_URL = "https://script.google.com/macros/s/AKfycbx_KEKYYe2Mu1vTORWF8GZnV4zuOku_4IqEvwhZ4q556ggVOHjy-blHKvY_IuYOfGHqaA/exec";
+
+        // ==========================================
+        // ระบบนำทาง (Navigation/Menu Switching)
+        // ==========================================
+        function switchView(viewId, clickedMenuElement) {
+            // ซ่อนทุกหน้า (views)
+            document.querySelectorAll('.admin-view').forEach(view => {
+                view.style.display = 'none';
+            });
+            // โชว์หน้าที่ต้องการ
+            document.getElementById('view-' + viewId).style.display = 'block';
+
+            // เคลียร์ปุ่ม Active ออกจากเมนูเดิม และไฮไลต์เมนูใหม่
+            document.querySelectorAll('.sidebar-menu a').forEach(menu => {
+                menu.classList.remove('active');
+            });
+            if(clickedMenuElement) {
+                clickedMenuElement.classList.add('active');
+            }
+
+            // ถ้ากดเข้าหน้า Settings ให้โหลดข้อมูลจาก Google Sheet
+            if (viewId === 'settings') {
+                loadSettingsData();
+            }
+        }
+
+        // ==========================================
+        // ระบบดึงข้อมูลการตั้งค่า (Settings)
+        // ==========================================
+        function loadSettingsData() {
+            // ป๊อปอัปแจ้งว่ากำลังโหลดข้อมูล
+            Swal.fire({ title: 'กำลังดึงข้อมูล...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
+
+            fetch(API_URL + "?action=getSettings")
+                .then(res => res.json())
+                .then(response => {
+                    if (response.status === 'success') {
+                        const data = response.data;
+                        // นำข้อมูลที่ได้จาก Sheet มายัดใส่ในช่อง Input
+                        document.getElementById('set_SystemName').value = data.SystemName || '';
+                        document.getElementById('set_NewsLimitHome').value = data.NewsLimitHome || '';
+                        document.getElementById('set_FolderImageID').value = data.FolderImageID || '';
+                        document.getElementById('set_FolderFileID').value = data.FolderFileID || '';
+                        
+                        // จัดการปุ่มเปิด-ปิด (สวิตช์) โหมดซ่อมบำรุง
+                        document.getElementById('set_MaintenanceMode').checked = (data.MaintenanceMode === 'TRUE');
+                        
+                        Swal.close(); // ปิดป๊อปอัปโหลด
+                    } else {
+                        Swal.fire('ผิดพลาด', 'ไม่สามารถดึงข้อมูลได้', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                    Swal.fire('ผิดพลาด', 'การเชื่อมต่อขัดข้อง', 'error');
+                });
         }
     </script>
 </body>
