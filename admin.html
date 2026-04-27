@@ -51,7 +51,7 @@
             
             <li class="mt-4 px-3"><small class="text-uppercase fw-bold" style="color: #64748b; font-size: 0.7rem;">จัดการข้อมูลเที่ยวบิน/ผู้โดยสาร</small></li>
             <li><a href="#"><i class="fa-solid fa-plane-arrival"></i> ตารางเที่ยวบิน</a></li>
-            <li><a href="#"><i class="fa-solid fa-users-line"></i> สถิติผู้โดยสาร</a></li>
+            <li><a href="#" onclick="switchView('passengerstats', this)"><i class="fa-solid fa-users-line"></i> สถิติผู้โดยสาร</a></li>
             
             <li class="mt-4 px-3"><small class="text-uppercase fw-bold" style="color: #64748b; font-size: 0.7rem;">จัดการข้อมูลพื้นฐาน</small></li>
             <li><a href="#" onclick="switchView('eservices', this)"><i class="fa-solid fa-laptop-code"></i> ระบบ E-Services</a></li>
@@ -317,6 +317,51 @@
             </div>
             <!-- ================= สิ้นสุด หน้า จัดการหมวดหมู่ข่าว ================= -->
 
+            <!-- ================= เริ่มต้น หน้า สถิติผู้โดยสาร (Passenger Stats) ================= -->
+            <div id="view-passengerstats" class="admin-view" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold text-dark mb-0"><i class="fa-solid fa-users-line me-2 text-info"></i> จัดการสถิติผู้โดยสาร</h4>
+                    <div>
+                        <!-- กล่องแสดงยอดรวม (ซ่อนไว้ก่อนให้ JS คำนวณ) -->
+                        <span class="badge bg-primary fs-6 me-3 px-3 py-2 shadow-sm d-none" id="totalPassengerBadge">
+                            <i class="fa-solid fa-calculator me-1"></i> ยอดรวม: <span id="totalPassengerNum">0</span> คน
+                        </span>
+                        <button class="btn btn-success" onclick="openStatModal()"><i class="fa-solid fa-plus me-1"></i> เพิ่มข้อมูลสถิติ</button>
+                    </div>
+                </div>
+
+                <!-- ตัวกรองข้อมูล (Filter) เลือกดูตามปี -->
+                <div class="card card-custom mb-3 bg-light">
+                    <div class="card-body p-3 d-flex align-items-center">
+                        <i class="fa-solid fa-filter me-3 text-muted"></i>
+                        <label class="fw-bold me-2 mb-0">เลือกปี พ.ศ. ที่ต้องการแสดง:</label>
+                        <select class="form-select w-auto" id="filterStatYear" onchange="filterStatsTable()">
+                            <!-- JS จะเติมปีที่มีในระบบให้ที่นี่ -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="card card-custom">
+                    <div class="card-body p-0 table-responsive">
+                        <table class="table table-hover align-middle text-center mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="15%">ปี พ.ศ.</th>
+                                    <th width="20%">เดือน</th>
+                                    <th width="25%">จำนวนผู้โดยสาร (คน)</th>
+                                    <th width="25%" class="text-start">หมายเหตุ</th>
+                                    <th width="15%">จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-passengerstats">
+                                <tr><td colspan="5" class="py-4">กำลังโหลดข้อมูล...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- ================= สิ้นสุด หน้า สถิติผู้โดยสาร ================= -->
+
         </div>
         <div class="footer-text">&copy; 2026 ระบบจัดการหลังบ้าน - ท่าอากาศยานบุรีรัมย์</div>
     </div>
@@ -560,6 +605,55 @@
     </div>
     <!-- ================= สิ้นสุด Modal: จัดการ หมวดหมู่ข่าว ================= -->
 
+    <!-- ================= เริ่มต้น Modal: สถิติผู้โดยสาร ================= -->
+    <div class="modal fade" id="statModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold" id="statModalTitle">เพิ่ม/แก้ไข สถิติผู้โดยสาร</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="formStat" onsubmit="savePassengerStat(event)">
+                        <input type="hidden" id="stat_StatID">
+                        
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">ปี พ.ศ. <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="stat_Year" placeholder="เช่น 2569" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">เดือน <span class="text-danger">*</span></label>
+                                <select class="form-select" id="stat_Month" required>
+                                    <option value="">-- เลือกเดือน --</option>
+                                    <option value="01">มกราคม</option><option value="02">กุมภาพันธ์</option>
+                                    <option value="03">มีนาคม</option><option value="04">เมษายน</option>
+                                    <option value="05">พฤษภาคม</option><option value="06">มิถุนายน</option>
+                                    <option value="07">กรกฎาคม</option><option value="08">สิงหาคม</option>
+                                    <option value="09">กันยายน</option><option value="10">ตุลาคม</option>
+                                    <option value="11">พฤศจิกายน</option><option value="12">ธันวาคม</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-success">จำนวนผู้โดยสาร (คน) <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control fs-5 fw-bold text-success" id="stat_PassengerCount" placeholder="ใส่เฉพาะตัวเลข" required>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">หมายเหตุ (ถ้ามี)</label>
+                            <input type="text" class="form-control" id="stat_Remark" placeholder="เช่น ช่วงเทศกาลสงกรานต์">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100" id="btnSaveStat">บันทึกข้อมูลสถิติ</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ================= สิ้นสุด Modal: สถิติผู้โดยสาร ================= -->
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
@@ -619,6 +713,7 @@
                 loadTableData('NewsCategories', renderNewsCatsTable);
                 populateDeptDropdown(); // โหลดข้อมูลกลุ่มงานมาใส่ dropdown
             }
+            if (viewId === 'passengerstats') loadTableData('PassengerStats', renderPassengerStatsTable);
         }
         // ================= สิ้นสุด ฟังก์ชันเปลี่ยนหน้าเมนู =================
 
@@ -1021,7 +1116,137 @@
         }
         function saveNewsCatOrder() { saveOrderAPI('NewsCategories', 'CategoryID'); }
         // ================= สิ้นสุด ฟังก์ชันจัดการ หมวดหมู่ข่าว =================
+        
+        // ==========================================
+        // 📊 ระบบจัดการ สถิติผู้โดยสาร (Passenger Stats)
+        // ==========================================
 
+        const monthNames = { "01": "มกราคม", "02": "กุมภาพันธ์", "03": "มีนาคม", "04": "เมษายน", "05": "พฤษภาคม", "06": "มิถุนายน", "07": "กรกฎาคม", "08": "สิงหาคม", "09": "กันยายน", "10": "ตุลาคม", "11": "พฤศจิกายน", "12": "ธันวาคม" };
+
+        function renderPassengerStatsTable(data) {
+            const tbody = document.getElementById('tbody-passengerstats');
+            tbody.innerHTML = '';
+            
+            // 1. อัปเดต Dropdown เลือกปี (หาปีที่ไม่มีซ้ำกันมาใส่)
+            const yearSelect = document.getElementById('filterStatYear');
+            let currentSelectedYear = yearSelect.value; // จำปีที่เลือกไว้
+            
+            let uniqueYears = [...new Set(data.map(item => item.Year))].filter(y => y).sort().reverse();
+            
+            // ถ้าตารางว่างเปล่า ให้ใส่ปีปัจจุบันไว้ให้ก่อน
+            if (uniqueYears.length === 0) {
+                let thisYear = new Date().getFullYear() + 543;
+                uniqueYears = [thisYear.toString()];
+            }
+
+            yearSelect.innerHTML = uniqueYears.map(y => `<option value="${y}">${y}</option>`).join('');
+            
+            // ถ้าเพิ่งเซฟหรือลบข้อมูล ให้คงปีเดิมที่เลือกไว้
+            if(uniqueYears.includes(currentSelectedYear)) {
+                yearSelect.value = currentSelectedYear;
+            }
+
+            // 2. สั่งให้วาดตารางตามปีที่เลือก
+            filterStatsTable();
+        }
+
+        // ฟังก์ชันวาดตารางหลังจากเลือก "ปี"
+        function filterStatsTable() {
+            const tbody = document.getElementById('tbody-passengerstats');
+            tbody.innerHTML = '';
+            
+            const selectedYear = document.getElementById('filterStatYear').value;
+            
+            // กรองเอาเฉพาะข้อมูลของปีที่เลือก
+            let filteredData = currentTableData.filter(item => item.Year === selectedYear);
+            
+            if (filteredData.length === 0) { 
+                tbody.innerHTML = '<tr><td colspan="5" class="py-4 text-muted">ไม่มีข้อมูลของปีนี้</td></tr>';
+                document.getElementById('totalPassengerBadge').classList.add('d-none');
+                return; 
+            }
+
+            let totalPassengers = 0; // ตัวแปรเก็บยอดรวมสะสม
+
+            // เรียงลำดับจาก เดือน 12 ไป เดือน 1 (เดือนล่าสุดอยู่บน)
+            filteredData.sort((a,b) => parseInt(b.Month) - parseInt(a.Month)).forEach((item) => {
+                let passCount = parseInt(item.PassengerCount) || 0;
+                totalPassengers += passCount; // บวกยอดรวม
+                
+                // แปลงตัวเลข 10000 ให้เป็น 10,000 มีลูกน้ำสวยๆ
+                let formattedCount = passCount.toLocaleString('th-TH');
+                let monthNameText = monthNames[item.Month] || item.Month;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="fw-bold">${item.Year}</td>
+                        <td class="fw-bold text-primary">${monthNameText}</td>
+                        <td class="fs-5 fw-bold text-success">${formattedCount}</td>
+                        <td class="text-start text-muted small">${item.Remark || '-'}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-warning me-1" onclick="openStatModal('${item.StatID}')"><i class="fa-solid fa-pen"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('PassengerStats', 'StatID', '${item.StatID}')"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            // แสดงป้ายยอดรวมมุมขวาบน
+            document.getElementById('totalPassengerNum').innerText = totalPassengers.toLocaleString('th-TH');
+            document.getElementById('totalPassengerBadge').classList.remove('d-none');
+        }
+
+        // เปิดป๊อปอัปเพิ่ม/แก้สถิติ
+        function openStatModal(id = '') {
+            document.getElementById('formStat').reset();
+            document.getElementById('stat_StatID').value = '';
+            document.getElementById('statModalTitle').innerText = 'เพิ่มข้อมูลสถิติใหม่';
+            
+            // ดึงค่า "ปี" จากหน้า Filter มาใส่ให้เลยอัตโนมัติ จะได้ไม่ต้องพิมพ์ใหม่
+            document.getElementById('stat_Year').value = document.getElementById('filterStatYear').value;
+
+            if (id) {
+                document.getElementById('statModalTitle').innerText = 'แก้ไขข้อมูลสถิติ';
+                const item = currentTableData.find(x => x.StatID === id);
+                document.getElementById('stat_StatID').value = item.StatID;
+                document.getElementById('stat_Year').value = item.Year;
+                document.getElementById('stat_Month').value = item.Month;
+                document.getElementById('stat_PassengerCount').value = item.PassengerCount;
+                document.getElementById('stat_Remark').value = item.Remark;
+            }
+            new bootstrap.Modal(document.getElementById('statModal')).show();
+        }
+
+        // บันทึกข้อมูลสถิติ
+        function savePassengerStat(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSaveStat');
+            btn.innerHTML = 'กำลังบันทึก...'; btn.disabled = true;
+
+            const recordData = {
+                StatID: document.getElementById('stat_StatID').value, // ปล่อยว่างไว้เดี๋ยว Backend สร้างใหม่ให้เอง
+                Year: document.getElementById('stat_Year').value,
+                Month: document.getElementById('stat_Month').value,
+                PassengerCount: document.getElementById('stat_PassengerCount').value,
+                Remark: document.getElementById('stat_Remark').value
+            };
+
+            const formData = new URLSearchParams({ action: 'saveRecord', sheetName: 'PassengerStats', idColumn: 'StatID', recordJSON: JSON.stringify(recordData) });
+
+            fetch(API_URL, { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.status === 'success') {
+                        bootstrap.Modal.getInstance(document.getElementById('statModal')).hide();
+                        Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', showConfirmButton: false, timer: 1500 });
+                        loadTableData('PassengerStats', renderPassengerStatsTable);
+                    } else {
+                        Swal.fire('ผิดพลาด', res.message, 'error');
+                    }
+                }).finally(() => { btn.innerHTML = 'บันทึกข้อมูลสถิติ'; btn.disabled = false; });
+        }
+
+        // =======================สิ้นสุด ฟังก์ชันจัดการ สถิติผู้โดยสาร =================
     </script>
 </body>
 </html>
