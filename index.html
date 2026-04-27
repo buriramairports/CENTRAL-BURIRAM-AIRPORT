@@ -488,8 +488,9 @@
             <div class="modal-content auth-modal-content mt-5">
                 <div class="modal-body">
                     <div class="auth-logo-wrapper">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/DOA_Thailand_logo.svg/1200px-DOA_Thailand_logo.svg.png" alt="Logo">
-                    </div>
+    <!-- เปลี่ยนจาก img เป็นไอคอนเครื่องบินสีน้ำเงิน -->
+    <i class="fa-solid fa-plane-departure fa-3x" style="color: var(--primary-blue);"></i>
+</div>
                     <h3 class="auth-title">สมัครสมาชิกใหม่</h3>
                     <p class="auth-subtitle">เพื่อเข้าใช้งานระบบบริการอิเล็กทรอนิกส์ ท่าอากาศยานบุรีรัมย์</p>
 
@@ -955,46 +956,53 @@
         }
 
          // ==================== ส่งข้อมูล Register ====================
-        function submitRegister(e) {
-            e.preventDefault();
-            const btn = document.getElementById('btnRegBtn');
-            const form = document.getElementById('formRegister');
-            
-            // 🟢 1. ล็อกช่องกรอกข้อมูลทั้งหมดในฟอร์มสมัคร
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึกข้อมูล...';
-            btn.disabled = true;
-            Array.from(form.elements).forEach(inp => inp.disabled = true);
+       function submitRegister(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btnRegBtn');
+    const form = document.getElementById('formRegister'); // ดึงฟอร์มมา
+    
+    // 1. ล็อกปุ่มและช่องกรอกข้อมูลทั้งหมด
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึกข้อมูล...';
+    btn.disabled = true;
+    
+    // ล็อกทุกอย่างที่อยู่ในฟอร์ม (Input, Select, Checkbox)
+    const inputs = form.querySelectorAll('input, button, select');
+    inputs.forEach(input => input.disabled = true);
 
-            const formData = new URLSearchParams();
-            formData.append('action', 'register');
-            formData.append('fname', document.getElementById('regFname').value);
-            formData.append('lname', document.getElementById('regLname').value);
-            formData.append('phone', document.getElementById('regPhone').value);
-            formData.append('email', document.getElementById('regEmail').value);
-            formData.append('org', document.getElementById('regOrg').value);
-            formData.append('username', document.getElementById('regUsername').value);
-            formData.append('password', document.getElementById('regPassword').value);
-            formData.append('pdpa', document.getElementById('regPdpa').checked);
+    const formData = new URLSearchParams();
+    formData.append('action', 'register');
+    formData.append('fname', document.getElementById('regFname').value);
+    formData.append('lname', document.getElementById('regLname').value);
+    formData.append('phone', document.getElementById('regPhone').value);
+    formData.append('email', document.getElementById('regEmail').value);
+    formData.append('org', document.getElementById('regOrg').value);
+    formData.append('username', document.getElementById('regUsername').value);
+    formData.append('password', document.getElementById('regPassword').value);
+    formData.append('pdpa', document.getElementById('regPdpa').checked);
 
-            fetch(API_URL, { method: 'POST', body: formData })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        Swal.fire({ icon: 'success', title: data.message, confirmButtonColor: '#16a34a' })
-                            .then(() => switchToLogin());
-                        form.reset(); // ล้างฟอร์ม
-                    } else {
-                        Swal.fire({ icon: 'error', title: 'ไม่สามารถสมัครได้', text: data.message });
-                    }
-                })
-                .catch(error => Swal.fire({ icon: 'error', title: 'การเชื่อมต่อขัดข้อง', text: 'โปรดลองใหม่อีกครั้ง' }))
-                .finally(() => { 
-                    // 🟢 2. ปลดล็อกช่องกรอกข้อมูลทั้งหมด
-                    btn.innerHTML = 'สมัครสมาชิก'; 
-                    btn.disabled = false; 
-                    Array.from(form.elements).forEach(inp => inp.disabled = false);
-                });
-        }
+    fetch(API_URL, { method: 'POST', body: formData })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                Swal.fire({ icon: 'success', title: data.message, confirmButtonColor: '#16a34a' })
+                    .then(() => {
+                        form.reset(); // ล้างข้อมูลในฟอร์ม
+                        switchToLogin();
+                    });
+            } else {
+                Swal.fire({ icon: 'error', title: 'ไม่สามารถสมัครได้', text: data.message });
+            }
+        })
+        .catch(error => {
+            Swal.fire({ icon: 'error', title: 'การเชื่อมต่อขัดข้อง', text: 'โปรดลองใหม่อีกครั้ง' });
+        })
+        .finally(() => { 
+            // 2. ปลดล็อกทุกอย่างกลับมา (กรณีเกิด Error จะได้แก้ไขได้)
+            btn.innerHTML = 'สมัครสมาชิก'; 
+            btn.disabled = false; 
+            inputs.forEach(input => input.disabled = false);
+        });
+}
 
         // ฟังก์ชันออกจากระบบ
        // ==================== ออกจากระบบ ====================
