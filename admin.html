@@ -165,8 +165,9 @@
             <!-- เมนูนี้จะโชว์เฉพาะ SuperAdmin (เดี๋ยวเราใช้ JS ซ่อน/แสดง) -->
             <li id="menuSuperAdminGroup">
                 <div class="mt-4 px-3"><small class="text-uppercase fw-bold" style="color: #64748b; font-size: 0.7rem;">ตั้งค่าระบบ</small></div>
-                <a href="#"><i class="fa-solid fa-sitemap"></i> กลุ่มงาน (Departments)</a>
                 <a href="#"><i class="fa-solid fa-users-gear"></i> จัดการผู้ใช้งาน</a>
+                <a href="#" onclick="switchView('banners', this)"><i class="fa-regular fa-images"></i> จัดการแบนเนอร์สไลด์</a>
+                <a href="#" onclick="switchView('departments', this)"><i class="fa-solid fa-sitemap"></i> กลุ่มงาน (Departments)</a>
                 <a href="#" onclick="switchView('settings', this)"><i class="fa-solid fa-gear"></i> ตั้งค่าเว็บไซต์</a>
             </li>
         </ul>
@@ -262,13 +263,101 @@
                 </div>
             </div>
 
+            <!-- ================= VIEW 3: Banners ================= -->
+            <div id="view-banners" class="admin-view" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold text-dark mb-0"><i class="fa-regular fa-images me-2 text-primary"></i> จัดการแบนเนอร์สไลด์หน้าแรก</h4>
+                    <button class="btn btn-success" onclick="openBannerModal()"><i class="fa-solid fa-plus me-1"></i> เพิ่มรูปสไลด์</button>
+                </div>
+                <div class="card card-custom">
+                    <div class="card-body p-0 table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="10%">ลำดับ</th>
+                                    <th width="20%">รูปภาพ</th>
+                                    <th width="35%">หัวข้อสไลด์</th>
+                                    <th width="15%">สถานะ</th>
+                                    <th width="20%" class="text-center">จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-banners">
+                                <!-- ข้อมูลจะถูกวาดที่นี่ -->
+                                <tr><td colspan="5" class="text-center py-4">กำลังโหลดข้อมูล...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= VIEW 4: Departments ================= -->
+            <div id="view-departments" class="admin-view" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold text-dark mb-0"><i class="fa-solid fa-sitemap me-2 text-primary"></i> จัดการกลุ่มงาน</h4>
+                    <button class="btn btn-success" onclick="openDeptModal()"><i class="fa-solid fa-plus me-1"></i> เพิ่มกลุ่มงาน</button>
+                </div>
+                <div class="card card-custom">
+                    <div class="card-body p-0 table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr><th width="10%">ลำดับ</th><th width="30%">ชื่อกลุ่มงาน</th><th width="35%">รายละเอียด</th><th width="10%">สถานะ</th><th width="15%" class="text-center">จัดการ</th></tr>
+                            </thead>
+                            <tbody id="tbody-departments"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <div class="footer-text">
             &copy; 2026 ระบบจัดการหลังบ้าน - ท่าอากาศยานบุรีรัมย์
         </div>
     </div>
-
+    <!-- Modal: จัดการต่างๆ -->
+    <!-- Modal: จัดการ Banners -->
+    <div class="modal fade" id="bannerModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold" id="bannerModalTitle">เพิ่ม/แก้ไข รูปสไลด์</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="formBanner" onsubmit="saveBanner(event)">
+                        <input type="hidden" id="ban_BannerID"> <!-- ซ่อน ID ไว้สำหรับ Update -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">URL รูปภาพ <span class="text-danger">*</span></label>
+                            <input type="url" class="form-control" id="ban_ImageURL" placeholder="https://..." required>
+                            <div class="form-text">สามารถนำลิงก์รูปจากเน็ต หรือ Google Drive มาวางได้</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">หัวข้อใหญ่ (Title)</label>
+                            <input type="text" class="form-control" id="ban_Title">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">คำอธิบายย่อย (Description)</label>
+                            <input type="text" class="form-control" id="ban_Description">
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label fw-bold">ลำดับการแสดงผล</label>
+                                <input type="number" class="form-control" id="ban_OrderList" value="1" required>
+                            </div>
+                            <div class="col-6 mb-3 d-flex align-items-end pb-2">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="ban_IsActive" style="transform: scale(1.2);" checked>
+                                    <label class="form-check-label ms-2 fw-bold text-success" for="ban_IsActive">เปิดใช้งาน</label>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mt-2" id="btnSaveBanner">บันทึกข้อมูล</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- สิ้นสุดModal: จัดการต่างๆ -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -401,6 +490,152 @@
                     Swal.fire('ผิดพลาด', 'การเชื่อมต่อขัดข้อง', 'error');
                 });
         }
+
+        ////////////////////////////////////////////////
+// อัปเดตฟังก์ชัน switchView ให้โหลดตารางเมื่อกดเมนู
+        function switchView(viewId, clickedMenuElement) {
+            document.querySelectorAll('.admin-view').forEach(view => view.style.display = 'none');
+            document.getElementById('view-' + viewId).style.display = 'block';
+            document.querySelectorAll('.sidebar-menu a').forEach(menu => menu.classList.remove('active'));
+            if(clickedMenuElement) clickedMenuElement.classList.add('active');
+
+            if (viewId === 'settings') loadSettingsData();
+            if (viewId === 'banners') loadTableData('Banners', renderBannersTable);
+            if (viewId === 'departments') loadTableData('Departments', renderDeptsTable);
+        }
+
+        // ==========================================
+        // ระบบตาราง (CRUD System)
+        // ==========================================
+        let currentTableData = []; // เก็บข้อมูลตารางปัจจุบันไว้ชั่วคราว
+
+        // ฟังก์ชันกลาง สำหรับโหลดตารางใดๆ
+        function loadTableData(sheetName, renderFunction) {
+            Swal.fire({ title: 'กำลังโหลด...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            fetch(`${API_URL}?action=getTableData&sheetName=${sheetName}`)
+                .then(res => res.json())
+                .then(res => {
+                    Swal.close();
+                    if (res.status === 'success') {
+                        currentTableData = res.data;
+                        renderFunction(res.data);
+                    }
+                });
+        }
+
+        // ฟังก์ชันวาดตาราง Banners
+        function renderBannersTable(data) {
+            const tbody = document.getElementById('tbody-banners');
+            tbody.innerHTML = '';
+            if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4">ไม่มีข้อมูล</td></tr>'; return; }
+            
+            // เรียงลำดับตาม OrderList
+            data.sort((a,b) => a.OrderList - b.OrderList).forEach(item => {
+                let badge = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิดใช้งาน</span>' : '<span class="badge bg-secondary">ปิด</span>';
+                let imgHtml = item.ImageURL ? `<img src="${item.ImageURL}" style="height: 50px; border-radius:5px; object-fit:cover;">` : '-';
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>${item.OrderList}</b></td>
+                        <td>${imgHtml}</td>
+                        <td><div class="fw-bold text-primary">${item.Title || '-'}</div><small class="text-muted">${item.Description || '-'}</small></td>
+                        <td>${badge}</td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-outline-warning me-1" onclick="openBannerModal('${item.BannerID}')"><i class="fa-solid fa-pen"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('Banners', 'BannerID', '${item.BannerID}')"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // เปิด Modal Banners (เพิ่ม/แก้ไข)
+        function openBannerModal(id = '') {
+            const form = document.getElementById('formBanner');
+            form.reset();
+            document.getElementById('ban_BannerID').value = '';
+            document.getElementById('bannerModalTitle').innerText = 'เพิ่มรูปสไลด์ใหม่';
+
+            if (id) {
+                // โหมดแก้ไข: ดึงข้อมูลเก่ามาใส่
+                document.getElementById('bannerModalTitle').innerText = 'แก้ไขรูปสไลด์';
+                const item = currentTableData.find(x => x.BannerID === id);
+                document.getElementById('ban_BannerID').value = item.BannerID;
+                document.getElementById('ban_ImageURL').value = item.ImageURL;
+                document.getElementById('ban_Title').value = item.Title;
+                document.getElementById('ban_Description').value = item.Description;
+                document.getElementById('ban_OrderList').value = item.OrderList;
+                document.getElementById('ban_IsActive').checked = (item.IsActive === 'TRUE');
+            }
+            new bootstrap.Modal(document.getElementById('bannerModal')).show();
+        }
+
+        // เซฟข้อมูล Banners
+        function saveBanner(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSaveBanner');
+            btn.innerHTML = 'กำลังบันทึก...'; btn.disabled = true;
+
+            const recordData = {
+                BannerID: document.getElementById('ban_BannerID').value, // ถ้าว่าง Backend จะสร้างใหม่
+                ImageURL: document.getElementById('ban_ImageURL').value,
+                Title: document.getElementById('ban_Title').value,
+                Description: document.getElementById('ban_Description').value,
+                OrderList: document.getElementById('ban_OrderList').value,
+                IsActive: document.getElementById('ban_IsActive').checked ? 'TRUE' : 'FALSE'
+            };
+
+            const formData = new URLSearchParams();
+            formData.append('action', 'saveRecord');
+            formData.append('sheetName', 'Banners');
+            formData.append('idColumn', 'BannerID');
+            formData.append('recordJSON', JSON.stringify(recordData));
+
+            fetch(API_URL, { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.status === 'success') {
+                        bootstrap.Modal.getInstance(document.getElementById('bannerModal')).hide();
+                        Swal.fire({ icon: 'success', title: res.message, showConfirmButton: false, timer: 1500 });
+                        loadTableData('Banners', renderBannersTable); // โหลดตารางใหม่
+                    } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
+                }).finally(() => { btn.innerHTML = 'บันทึกข้อมูล'; btn.disabled = false; });
+        }
+
+        // ฟังก์ชันลบข้อมูล (ใช้ซ้ำได้ทุกตาราง)
+        function deleteRecord(sheetName, idColumn, idValue) {
+            Swal.fire({
+                title: 'ยืนยันการลบ?',
+                text: "หากลบแล้วจะไม่สามารถกู้คืนได้!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'ใช่, ลบทิ้ง!',
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({ title: 'กำลังลบ...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                    const formData = new URLSearchParams();
+                    formData.append('action', 'deleteRecord');
+                    formData.append('sheetName', sheetName);
+                    formData.append('idColumn', idColumn);
+                    formData.append('idValue', idValue);
+
+                    fetch(API_URL, { method: 'POST', body: formData })
+                        .then(res => res.json())
+                        .then(res => {
+                            if (res.status === 'success') {
+                                Swal.fire({ icon: 'success', title: 'ลบสำเร็จ', showConfirmButton: false, timer: 1500 });
+                                // สั่งโหลดตารางหน้านั้นใหม่
+                                if(sheetName === 'Banners') loadTableData('Banners', renderBannersTable);
+                                if(sheetName === 'Departments') loadTableData('Departments', renderDeptsTable);
+                            }
+                        });
+                }
+            });
+        }
+        ///////////////////////////////////////////////
     </script>
 </body>
 </html>
