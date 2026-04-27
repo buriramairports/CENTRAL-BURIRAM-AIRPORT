@@ -33,7 +33,7 @@
         html { scroll-behavior: smooth; }
         .scroll-offset { scroll-margin-top: 80px; }
 
-        /* เมนูลอยด้านขวา */
+        /* เมนูลอยด้านขวา (อัปเดตใหม่ ลดปุ่ม เพิ่มแชทบอท) */
         .floating-menu {
             position: fixed; right: 0; top: 50%; transform: translateY(-50%);
             background: white; box-shadow: -2px 0 10px rgba(0,0,0,0.1);
@@ -46,15 +46,17 @@
         .floating-menu a:hover { background: var(--light-bg); color: var(--secondary-blue); }
 
         /* สไลด์หลัก */
+        .hero-carousel { overflow: hidden; }
         .hero-carousel .carousel-item { height: 450px; background-color: #333; }
         .hero-carousel .carousel-item img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; }
         .carousel-indicators [data-bs-target] { width: 20px; height: 5px; background-color: white; border: none; }
-
-        /* เมนูไอคอนลัด */
-        .icon-menu-section { background: white; padding: 20px 0; border-bottom: 1px solid #ddd; }
-        .icon-box { text-align: center; text-decoration: none; color: #333; transition: transform 0.2s; display: block; }
-        .icon-box:hover { transform: translateY(-5px); color: var(--primary-blue); }
-        .icon-box i { font-size: 35px; color: var(--primary-blue); margin-bottom: 10px; }
+        
+        @keyframes slowZoom { 0% { transform: scale(1); } 100% { transform: scale(1.15); } }
+        .hero-carousel .carousel-item.active img { animation: slowZoom 6s linear forwards; }
+        @keyframes fadeInUp { 0% { opacity: 0; transform: translateY(40px); } 100% { opacity: 1; transform: translateY(0); } }
+        .hero-carousel .carousel-item .animate-title, .hero-carousel .carousel-item .animate-desc { opacity: 0; }
+        .hero-carousel .carousel-item.active .animate-title { animation: fadeInUp 0.8s ease-out forwards; animation-delay: 0.3s; }
+        .hero-carousel .carousel-item.active .animate-desc { animation: fadeInUp 0.8s ease-out forwards; animation-delay: 0.6s; }
 
         /* การ์ดทั่วไป */
         .card-header-custom {
@@ -64,6 +66,17 @@
         .card-header-custom h5 { color: var(--secondary-blue); font-weight: 600; margin: 0; }
         .btn-view-all { background-color: #8CA8C4; color: white; border-radius: 20px; font-size: 0.85rem; transition: 0.3s; }
         .btn-view-all:hover { background-color: var(--primary-blue); color: white; }
+
+        /* สไตล์สำหรับกล่องข่าวแบบ List */
+        .card-header-solid { color: white; padding: 12px 20px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+        .text-list-container { padding: 0 15px; }
+        .text-list-item { display: flex; align-items: flex-start; padding: 15px 0; border-bottom: 1px dashed #ccc; text-decoration: none; color: #444; transition: 0.2s; }
+        .text-list-item:hover { background-color: #f8f9fa; transform: translateX(5px); }
+        .text-list-item:last-child { border-bottom: none; }
+        .text-list-icon { margin-right: 12px; margin-top: 3px; }
+        .text-list-title { font-size: 0.9rem; line-height: 1.4; margin-bottom: 5px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
+        .text-list-date { font-size: 0.8rem; color: #888; }
+        .dept-badge { font-size: 0.7rem; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; margin-left: 10px; font-weight: normal; }
 
         /* Swiper สไตล์ */
         .swiper { width: 100%; height: 100%; }
@@ -79,96 +92,22 @@
         .e-service-card:hover { background-color: var(--primary-blue); color: white !important; }
         .e-service-card:hover i, .e-service-card:hover small { color: white !important; }
 
-        /* =========================================
-           สไตล์สำหรับกล่องข่าวแบบ List (จัดซื้อจัดจ้าง/สมัครงาน)
-           ========================================= */
-        .card-header-solid {
-            color: white;
-            padding: 12px 20px;
-            font-weight: 600;
-            border-radius: 5px 5px 0 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .text-list-container {
-            padding: 0 15px;
-        }
-        .text-list-item {
-            display: flex;
-            align-items: flex-start;
-            padding: 15px 0;
-            border-bottom: 1px dashed #ccc;
-            text-decoration: none;
-            color: #444;
-            transition: 0.2s;
-        }
-        .text-list-item:hover {
-            background-color: #f8f9fa;
-            transform: translateX(5px);
-        }
-        .text-list-item:last-child {
-            border-bottom: none;
-        }
-        .text-list-icon {
-            color: #b08d6a; /* สีไอคอนเริ่มต้น */
-            margin-right: 12px;
-            margin-top: 3px;
-        }
-        .text-list-title {
-            font-size: 0.9rem;
-            line-height: 1.4;
-            margin-bottom: 5px;
-            /* ตัดคำ 3 บรรทัด */
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .text-list-date {
-            font-size: 0.8rem;
-            color: #888;
-        }
-        .dept-badge {
-            font-size: 0.7rem;
-            background: rgba(255,255,255,0.2);
-            padding: 2px 8px;
-            border-radius: 10px;
-            margin-left: 10px;
-            font-weight: normal;
-        }
-
         /* ปฏิทินกิจกรรม */
         .calendar-item { display: flex; padding: 12px 0; border-bottom: 1px solid #eee; align-items: center; cursor: pointer; transition: 0.2s;}
         .calendar-item:hover { background-color: #f8f9fa; transform: translateX(5px); }
         .calendar-date { width: 60px; text-align: center; line-height: 1; color: var(--secondary-blue); border-right: 2px solid #ddd; margin-right: 15px; padding-right: 15px;}
         .calendar-date .day { font-size: 1.8rem; font-weight: bold; }
         .calendar-date .month { font-size: 0.8rem; font-weight: 500;}
-                .calendar-desc { 
-            font-size: 0.9rem; 
-            line-height: 1.4; 
-            color: #444; 
-            
-            /* คำสั่งเพิ่มใหม่ เพื่อตัดข้อความที่ยาวเกินไป */
-            display: -webkit-box;
-            -webkit-line-clamp: 4; /* กำหนดให้แสดงสูงสุด 4 บรรทัด (แก้ตัวเลขได้) */
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            word-break: break-word; /* บังคับตัดคำที่พิมพ์ติดกันยาวๆ */
-            width: 100%;
-        }
+        .calendar-desc { font-size: 0.9rem; line-height: 1.4; color: #444; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; word-break: break-word; width: 100%; }
 
-        /* สไตล์ Modal ปฏิทิน (เลียนแบบในรูป) */
+        /* Modal ปฏิทิน */
         .modal-calendar-header { background-color: #213C6D; color: white; border-bottom: none; padding: 20px;}
         .modal-calendar-title-box { display: flex; align-items: flex-start; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 15px;}
         .modal-calendar-title-date { font-size: 2.5rem; font-weight: bold; line-height: 1; margin-right: 15px; text-align: center;}
         .modal-calendar-title-month { font-size: 0.8rem; font-weight: normal; }
         .modal-calendar-meta { font-size: 0.9rem; }
-        .modal-calendar-meta i { width: 20px; text-align: center; margin-right: 5px;}
 
-        /* ลิงก์หน่วยงาน 4 ช่อง */
+        /* ลิงก์หน่วยงาน 4 ช่อง (เมนูลัดใหม่) */
         .quick-link-box { background-color: #7290A8; color: white; text-align: center; padding: 25px 10px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-decoration: none; height: 100%; transition: 0.3s; border: 1px solid rgba(255,255,255,0.2); }
         .quick-link-box:hover { background-color: var(--primary-blue); color: white; transform: scale(1.02); z-index: 2;}
         .quick-link-box i { font-size: 2rem; margin-bottom: 10px; }
@@ -180,29 +119,23 @@
         .footer-main { background-color: var(--primary-blue); color: white; padding: 40px 0 20px; font-size: 0.9rem; }
         .footer-main .icon-circle { width: 40px; height: 40px; border-radius: 50%; border: 1px solid white; display: inline-flex; justify-content: center; align-items: center; margin: 0 5px; color: white; text-decoration: none;}
         .footer-main .icon-circle:hover { background: white; color: var(--primary-blue); }
-        
         .footer-sitemap { background-color: #E9ECEF; padding: 40px 0 20px; font-size: 0.85rem; }
         .footer-sitemap h6 { font-weight: 600; color: var(--primary-blue); margin-bottom: 15px; border-bottom: 2px solid #ccc; padding-bottom: 10px; display: inline-block;}
         .footer-sitemap ul { list-style: none; padding: 0; }
         .footer-sitemap ul li { margin-bottom: 8px; }
         .footer-sitemap a { color: #555; text-decoration: none; transition: 0.2s; }
         .footer-sitemap a:hover { color: var(--primary-blue); padding-left: 5px;}
-        
-        /* ปุ่มซ่อน Footer */
         .toggle-sitemap-btn { background-color: #E9ECEF; border: none; width: 100%; padding: 10px; color: var(--primary-blue); font-weight: 600; border-top: 1px solid #ccc; transition: 0.2s;}
         .toggle-sitemap-btn:hover { background-color: #d1d5da; }
     </style>
 </head>
 <body>
 
-    <!-- เมนูลอยด้านขวา -->
+    <!-- เมนูลอยด้านขวา (เหลือ Facebook, Youtube, Chatbot) -->
     <div class="floating-menu shadow-lg">
         <a href="https://www.facebook.com/buriramairportfanpage" target="_blank" rel="noopener noreferrer" title="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-        <a href="#" target="_blank" rel="noopener noreferrer" title="Twitter(X)"><i class="fa-brands fa-x-twitter"></i></a>
         <a href="youtube.com/channel/UCPj_1hr8AaR2PTmp55t8jRQ/" target="_blank" rel="noopener noreferrer" title="YouTube"><i class="fa-brands fa-youtube" style="color: #c4302b;"></i></a>
-        <a href="#" target="_blank" rel="noopener noreferrer" title="Messenger"><i class="fa-brands fa-facebook-messenger" style="color: #0084ff;"></i></a>
-        <a href="#" target="_blank" rel="noopener noreferrer" title="การเข้าถึง"><i class="fa-solid fa-universal-access" style="color: #2e7d32;"></i></a>
-        <a href="#" target="_blank" rel="noopener noreferrer" style="background-color: var(--primary-blue); color: white;" title="เขียนข้อร้องเรียน"><i class="fa-solid fa-pen-to-square"></i></a>
+        <a href="javascript:void(0)" onclick="toggleChatbot()" style="background-color: var(--primary-blue); color: white;" title="ติดต่อแชทบอท (Chatbot)"><i class="fa-solid fa-comments"></i></a>
     </div>
 
     <!-- แถบเมนูด้านบน -->
@@ -223,44 +156,20 @@
                 </ul>
                 <div id="userMenu">
                     <button class="btn btn-outline-light rounded-pill px-4" onclick="showAuthModal()">
-                        <i class="fa-solid fa-user me-2"></i>เข้าสู่ระบบ E-Service
+                        <i class="fa-solid fa-user me-2"></i> เข้าสู่ระบบ
                     </button>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- สไลด์หลัก >
-    <div id="heroCarousel" class="carousel slide hero-carousel" data-bs-ride="carousel">
-        <div class="carousel-indicators">
-            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
-            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
-        </div>
-        <div class="carousel-inner">
-            <div class="carousel-item active">
-                <a href="#">
-                    <img src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=2074&auto=format&fit=crop" class="d-block w-100" alt="Banner 1">
-                    <div class="carousel-caption d-none d-md-block text-start">
-                        <h1 class="fw-bold" style="text-shadow: 2px 2px 4px #000;">ท่าอากาศยานบุรีรัมย์</h1>
-                        <p style="text-shadow: 1px 1px 2px #000;">ประตูสู่อารยธรรมอีสานใต้</p>
-                    </div>
-                </a>
-            </div>
-            <div class="carousel-item">
-                <a href="#">
-                    <img src="https://images.unsplash.com/photo-1542296332-2e4473faf563?q=80&w=2070&auto=format&fit=crop" class="d-block w-100" alt="Banner 2">
-                </a>
-            </div>
-        </div>
-</div-->
-<!-- สไลด์หลัก (อัปเดตเอฟเฟกต์ Fade) -->
+    <!-- สไลด์หลัก -->
     <div id="heroCarousel" class="carousel slide carousel-fade hero-carousel" data-bs-ride="carousel" data-bs-interval="6000">
         <div class="carousel-indicators">
             <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
             <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
         </div>
         <div class="carousel-inner">
-            <!-- สไลด์ที่ 1 -->
             <div class="carousel-item active">
                 <a href="#">
                     <img src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=2074&auto=format&fit=crop" class="d-block w-100" alt="Banner 1">
@@ -270,7 +179,6 @@
                     </div>
                 </a>
             </div>
-            <!-- สไลด์ที่ 2 -->
             <div class="carousel-item">
                 <a href="#">
                     <img src="https://images.unsplash.com/photo-1542296332-2e4473faf563?q=80&w=2070&auto=format&fit=crop" class="d-block w-100" alt="Banner 2">
@@ -282,73 +190,46 @@
             </div>
         </div>
     </div>
-    <!-- เมนูไอคอนลัด -->
-    <div class="icon-menu-section shadow-sm">
-        <div class="container">
-            <div class="row justify-content-center g-3">
-                <div class="col-md-2 col-4"><a href="#eservices-section" class="icon-box"><i class="fa-solid fa-desktop"></i><div style="font-size: 14px;">บริการประชาชน</div></a></div>
-                <div class="col-md-2 col-4"><a href="#" class="icon-box"><i class="fa-solid fa-users-gear"></i><div style="font-size: 14px;">บริการเจ้าหน้าที่</div></a></div>
-                <div class="col-md-2 col-4"><a href="#" class="icon-box"><i class="fa-solid fa-folder-open"></i><div style="font-size: 14px;">สารสนเทศกรมฯ</div></a></div>
-                <div class="col-md-2 col-4"><a href="#" class="icon-box"><i class="fa-solid fa-mobile-screen"></i><div style="font-size: 14px;">Mobile App</div></a></div>
-            </div>
-        </div>
-    </div>
 
-    <!-- ส่วนเนื้อหาหลัก -->
+    <!-- ส่วนเนื้อหาหลัก (จัด Layout ใหม่) -->
     <div class="container mt-5 mb-5">
         
-        <!-- แถวที่ 1: ระบบ E-Services -->
+        <!-- ============================================== -->
+        <!-- 1. โซน E-Services (ย้ายมาบนสุด) -->
+        <!-- ============================================== -->
         <div id="eservices-section" class="scroll-offset mb-5">
-            <h4 class="fw-bold mb-4" style="color: var(--primary-blue);">
-                <i class="fa-solid fa-laptop-code"></i> ระบบบริการอิเล็กทรอนิกส์ (E-Services)
-            </h4>
+            <div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-2 border-primary">
+                <h4 class="fw-bold mb-0" style="color: var(--primary-blue);">
+                    <i class="fa-solid fa-laptop-code"></i> ระบบบริการอิเล็กทรอนิกส์ (E-Services)
+                </h4>
+                <!-- ปุ่มดูทั้งหมด จะโชว์ขึ้นมาอัตโนมัติถ้ามีระบบมากกว่า 4 อัน -->
+                <button id="btnViewAllEServices" class="btn btn-outline-primary btn-sm d-none" onclick="showAllEServicesModal()">
+                    ดูระบบทั้งหมด <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
             <div class="row g-3" id="eservice-container">
-                <!-- ข้อมูลถูก Render โดย JS -->
+                <!-- ข้อมูลถูก Render โดย JS (สูงสุด 4 อัน) -->
             </div>
         </div>
 
-        <!-- แถวที่ 2: ข่าวเด่น & แวดวงข่าว -->
-       <!-- โซนข่าวสารแบบไดนามิก (ข้อมูลถูกสร้างโดย JS) -->
-        <div class="row g-4 mb-5" id="dynamic-news-container">
-            <!-- รอรับ HTML จาก JavaScript -->
-        </div>
-
-        <!-- แถวที่ 3: ปฏิทิน | มัลติมีเดีย | ลิงก์หน่วยงาน -->
-        <div class="row g-4 mb-4">
-            
-            <!-- 3.1 ปฏิทินกิจกรรม (เพิ่ม onClick) -->
+        <!-- ============================================== -->
+        <!-- 2. โซน ปฏิทิน | มัลติมีเดีย | บริการและสารสนเทศ (ย้ายมาตรงกลาง) -->
+        <!-- ============================================== -->
+        <div class="row g-4 mb-5">
+            <!-- 2.1 ปฏิทินกิจกรรม -->
             <div class="col-lg-4">
                 <div class="card shadow-sm h-100 border-0">
                     <div class="card-header-custom bg-white">
-                        <h5 style="color: #555;">ปฏิทินกิจกรรม</h5>
+                        <h5 style="color: #555;"><i class="fa-regular fa-calendar-check text-primary"></i> ปฏิทินกิจกรรม</h5>
                     </div>
                     <div class="card-body pt-0">
                         <div class="calendar-item" onclick="showCalendarDetail('28', 'เม.ย. 69', 'ประชุมคณะกรรมการระดับชาติ ...', '08.30-16.30 น.', 'ห้องประชุม 1003 ชั้น 10', 'สำนักงานนโยบายและแผนฯ')">
-                            <div class="calendar-date">
-                                <div class="day">28</div>
-                                <div class="month">เม.ย. 69</div>
-                            </div>
-                            <div class="calendar-desc">
-                                ทดสอบชื่อยาว...ประชุมคณะกรรมการระดับชาติประชุมคณะกรรมการระดับชาติประชุมคณะกรรมการระดับชาติ ประชุมคณะกรรมการระดับชาติประชุมคณะกรรมการระดับชาติประชุมคณะกรรมการระดับชาติ ...
-                            </div>
+                            <div class="calendar-date"><div class="day">28</div><div class="month">เม.ย. 69</div></div>
+                            <div class="calendar-desc">การประชุมคณะกรรมการประเมินผลการปฏิบัติราชการ ครั้งที่ 1/2569...</div>
                         </div>
-                        <div class="calendar-item" onclick="showCalendarDetail('23', 'เม.ย. 69', 'บรรยายพิเศษสัมมนา...', '09.00-12.00 น.', 'ห้องประชุมใหญ่', 'สำนักงานสิ่งแวดล้อมฯ')">
-                            <div class="calendar-date">
-                                <div class="day">23</div>
-                                <div class="month">เม.ย. 69</div>
-                            </div>
-                            <div class="calendar-desc">
-                                บรรยายพิเศษสัมมนา...
-                            </div>
-                        </div>
-                        <div class="calendar-item border-0" onclick="showCalendarDetail('21', 'เม.ย. 69', 'พิธีเปิดโครงการฝึกอบรม...', '13.00-16.00 น.', 'ศูนย์ฝึกอบรม', 'กรมป่าไม้')">
-                            <div class="calendar-date">
-                                <div class="day">21</div>
-                                <div class="month">เม.ย. 69</div>
-                            </div>
-                            <div class="calendar-desc">
-                                พิธีเปิดโครงการฝึกอบรม...
-                            </div>
+                        <div class="calendar-item border-0" onclick="showCalendarDetail('23', 'เม.ย. 69', 'บรรยายพิเศษสัมมนา...', '09.00-12.00 น.', 'ห้องประชุมใหญ่', 'สำนักงานสิ่งแวดล้อมฯ')">
+                            <div class="calendar-date"><div class="day">23</div><div class="month">เม.ย. 69</div></div>
+                            <div class="calendar-desc">โครงการฝึกอบรมเชิงปฏิบัติการ การใช้งานระบบสารสนเทศ...</div>
                         </div>
                     </div>
                     <div class="card-footer bg-white border-0 text-end pb-3">
@@ -357,15 +238,14 @@
                 </div>
             </div>
 
-            <!-- 3.2 สื่อมัลติมีเดีย (Youtube Fix แล้วใช้ลิงก์ Embed) -->
+            <!-- 2.2 สื่อมัลติมีเดีย -->
             <div class="col-lg-4">
                 <div class="card shadow-sm h-100 border-0">
                     <div class="card-header-custom bg-white">
-                        <h5 style="color: #555;">สื่อมัลติมีเดีย</h5>
+                        <h5 style="color: #555;"><i class="fa-solid fa-photo-film text-danger"></i> สื่อมัลติมีเดีย</h5>
                     </div>
                     <div class="card-body p-0 text-center bg-dark">
-                        <!-- ฝังคลิป Youtube (เปลี่ยน URL เป็นแบบ embed) -->
-                        <iframe width="100%" height="250" src="https://www.youtube.com/embed/c2hLmlUXxbs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                        <iframe width="100%" height="220" src="https://www.youtube.com/embed/c2hLmlUXxbs" frameborder="0" allowfullscreen></iframe>
                     </div>
                     <div class="card-footer bg-white border-0 d-flex justify-content-between align-items-center pb-3">
                         <span class="fw-bold small">การเตรียมความพร้อมให้บริการ...</span>
@@ -374,24 +254,52 @@
                 </div>
             </div>
 
-            <!-- 3.3 ลิงก์เว็บไซต์หน่วยงาน -->
+            <!-- 2.3 เมนูลัด : บริการและสารสนเทศ (แทนที่เมนูไอคอนเดิม) -->
             <div class="col-lg-4">
-                <div class="card shadow-sm h-100 border-0">
-                    <div class="card-header-custom bg-white">
-                        <h5 style="color: #555;">ลิงก์เว็บไซต์หน่วยงาน</h5>
+                <div class="card shadow-sm h-100 border-0 bg-light">
+                    <div class="card-header-custom bg-transparent">
+                        <h5 style="color: #555;"><i class="fa-solid fa-layer-group text-success"></i> บริการและสารสนเทศ</h5>
                     </div>
                     <div class="card-body p-0">
                         <div class="row g-0 h-100">
-                            <div class="col-6"><a href="#" class="quick-link-box" style="border-right: 2px solid white; border-bottom: 2px solid white;"><i class="fa-solid fa-users"></i><span>ส่วนกลาง</span></a></div>
-                            <div class="col-6"><a href="#" class="quick-link-box" style="border-bottom: 2px solid white;"><i class="fa-solid fa-sitemap"></i><span>ส่วนภูมิภาค</span></a></div>
-                            <div class="col-6"><a href="#" class="quick-link-box" style="border-right: 2px solid white;"><i class="fa-solid fa-handshake"></i><span style="font-size: 0.85rem;">หน่วยงานระดับกรม/<br>องค์การมหาชน</span></a></div>
-                            <div class="col-6"><a href="#" class="quick-link-box"><i class="fa-solid fa-browser"></i><span style="font-size: 0.85rem;">ระบบสำหรับ<br>บริการประชาชน</span></a></div>
+                            <div class="col-6">
+                                <!-- ปุ่มบริการประชาชน: เมื่อคลิกจะเรียกดูระบบทั้งหมด เหมือนปุ่มบน E-services -->
+                                <a href="javascript:void(0)" onclick="showAllEServicesModal()" class="quick-link-box" style="border-right: 2px solid white; border-bottom: 2px solid white;">
+                                    <i class="fa-solid fa-desktop"></i><span>บริการประชาชน</span>
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a href="#" class="quick-link-box" style="border-bottom: 2px solid white; background-color: #637F9A;">
+                                    <i class="fa-solid fa-users-gear"></i><span>บริการเจ้าหน้าที่</span>
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a href="#" class="quick-link-box" style="border-right: 2px solid white; background-color: #637F9A;">
+                                    <i class="fa-solid fa-folder-open"></i><span>สารสนเทศกรมฯ</span>
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a href="#" class="quick-link-box" style="background-color: #4C657C;">
+                                    <i class="fa-solid fa-mobile-screen"></i><span>Mobile App</span>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-        </div> <!-- End Row 3 -->
+        <!-- ============================================== -->
+        <!-- 3. โซนข่าวสารแบบไดนามิก (ย้ายมาไว้ล่างสุด) -->
+        <!-- ============================================== -->
+        <div class="d-flex align-items-center mb-3">
+            <h4 class="fw-bold mb-0 me-3" style="color: var(--primary-blue);">ข่าวสารและประชาสัมพันธ์</h4>
+            <hr class="flex-grow-1 border-primary opacity-25">
+        </div>
+        <div class="row g-4 mb-5" id="dynamic-news-container">
+            <!-- รอรับ HTML จาก JavaScript -->
+        </div>
+
     </div> <!-- End Container -->
 
     <!-- ===================================== -->
@@ -446,12 +354,11 @@
             </div>
         </div>
 
-        <!-- ปุ่มสำหรับ ซ่อน/แสดง Sitemap -->
-        <button class="toggle-sitemap-btn" type="button" data-bs-toggle="collapse" data-bs-target="#footerSitemapContainer" aria-expanded="false" aria-controls="footerSitemapContainer">
+        <button class="toggle-sitemap-btn" type="button" data-bs-toggle="collapse" data-bs-target="#footerSitemapContainer">
             <i class="fa-solid fa-chevron-down me-2"></i> แสดง/ซ่อน แผนผังเว็บไซต์
         </button>
 
-        <!-- 3. Sitemap (ใส่ Collapse ซ่อนไว้เป็นค่าเริ่มต้น) -->
+        <!-- 3. Sitemap -->
         <div class="collapse" id="footerSitemapContainer">
             <div class="footer-sitemap">
                 <div class="container">
@@ -462,45 +369,21 @@
                             <a href="#" class="text-muted small mx-3">นโยบายความปลอดภัย</a>
                         </div>
                         <div class="col-md-3 col-6">
-                            <h6>ข่าวสารกรมฯ</h6>
-                            <ul>
-                                <li><a href="#">ข่าวเด่น DOA</a></li>
-                                <li><a href="#">แวดวงข่าว</a></li>
-                                <li><a href="#">ข่าวจัดซื้อ/จัดจ้าง</a></li>
-                                <li><a href="#">ประกาศรับสมัครงาน</a></li>
-                            </ul>
+                            <h6>ข่าวสารกรมฯ</h6><ul><li><a href="#">ข่าวเด่น DOA</a></li><li><a href="#">แวดวงข่าว</a></li></ul>
                         </div>
                         <div class="col-md-3 col-6">
-                            <h6>บริการประชาชน</h6>
-                            <ul>
-                                <li><a href="#">ข้อมูลเปิดภาครัฐ (Open Data)</a></li>
-                                <li><a href="#">คู่มือการปฏิบัติงาน/การให้บริการ</a></li>
-                                <li><a href="#">รายงานการดำเนินงาน (Annual Report)</a></li>
-                                <li><a href="#">ระบบ E-Services</a></li>
-                            </ul>
+                            <h6>บริการประชาชน</h6><ul><li><a href="#">ข้อมูลเปิดภาครัฐ</a></li><li><a href="#">ระบบ E-Services</a></li></ul>
                         </div>
                         <div class="col-md-3 col-6">
-                            <h6>สารสนเทศกรมฯ</h6>
-                            <ul>
-                                <li><a href="#">กฎ ระเบียบ ข้อบังคับ</a></li>
-                                <li><a href="#">งบประมาณประจำปี</a></li>
-                                <li><a href="#">แบบฟอร์มให้บริการ</a></li>
-                                <li><a href="#">e-Books</a></li>
-                            </ul>
+                            <h6>สารสนเทศกรมฯ</h6><ul><li><a href="#">กฎ ระเบียบ</a></li><li><a href="#">แบบฟอร์ม</a></li></ul>
                         </div>
                         <div class="col-md-3 col-6">
-                            <h6>เว็บไซต์ที่น่าสนใจ</h6>
-                            <ul>
-                                <li><a href="#">กระทรวงคมนาคม</a></li>
-                                <li><a href="#">กรมการบินพลเรือน</a></li>
-                                <li><a href="#">บริษัท ท่าอากาศยานไทย จำกัด</a></li>
-                            </ul>
+                            <h6>เว็บไซต์ที่น่าสนใจ</h6><ul><li><a href="#">กระทรวงคมนาคม</a></li><li><a href="#">กรมการบินพลเรือน</a></li></ul>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- ส่วนล่างสุด -->
         <div class="text-center py-3 border-top border-secondary small text-white" style="background-color: #213C6D;">
             © 2567 สงวนลิขสิทธิ์ตามพระราชบัญญัติลิขสิทธิ์โดย ท่าอากาศยานบุรีรัมย์<br>
             รองรับการแสดงผลบนเบราว์เซอร์ Chrome, Firefox, Safari, Edge
@@ -511,7 +394,7 @@
     <!-- MODAL ต่างๆ -->
     <!-- ===================================== -->
     
-    <!-- Modal เข้าสู่ระบบ -->
+    <!-- 1. Modal เข้าสู่ระบบ -->
     <div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -530,24 +413,16 @@
         </div>
     </div>
 
-    <!-- Modal ปฏิทินกิจกรรม (แบบในรูปตัวอย่าง) -->
+    <!-- 2. Modal ปฏิทินกิจกรรม -->
     <div class="modal fade" id="calendarModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content border-0">
-                <!-- ส่วนหัว สีน้ำเงินเข้ม แบบในรูป -->
                 <div class="modal-header modal-calendar-header flex-column align-items-stretch">
                     <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal"></button>
-                    
                     <div class="modal-calendar-title-box">
-                        <div class="modal-calendar-title-date">
-                            <div id="modalCalDay">28</div>
-                            <div id="modalCalMonth" class="modal-calendar-title-month">เม.ย. 69</div>
-                        </div>
-                        <div>
-                            <h5 id="modalCalTitle" class="mb-0 fw-bold" style="line-height: 1.5;">ชื่อกิจกรรม</h5>
-                        </div>
+                        <div class="modal-calendar-title-date"><div id="modalCalDay">28</div><div id="modalCalMonth" class="modal-calendar-title-month">เม.ย. 69</div></div>
+                        <div><h5 id="modalCalTitle" class="mb-0 fw-bold" style="line-height: 1.5;">ชื่อกิจกรรม</h5></div>
                     </div>
-
                     <div class="row modal-calendar-meta g-2">
                         <div class="col-md-6"><i class="fa-regular fa-calendar-days"></i> วันที่: <span id="modalCalDateFull"></span></div>
                         <div class="col-md-6"><i class="fa-solid fa-location-dot"></i> สถานที่: <span id="modalCalLocation"></span></div>
@@ -555,18 +430,29 @@
                         <div class="col-md-6"><i class="fa-regular fa-building"></i> หน่วยงาน: <span id="modalCalDept"></span></div>
                     </div>
                 </div>
-                <!-- ส่วนรายละเอียด -->
                 <div class="modal-body p-4">
                     <h5 class="fw-bold mb-3" style="color: var(--primary-blue);" id="modalCalTitleBody">ชื่อกิจกรรม</h5>
-                    <div class="text-center mb-4 bg-light p-4 rounded">
-                        <i class="fa-solid fa-image fa-4x text-muted opacity-25"></i>
-                        <p class="text-muted mt-2 small">รูปภาพประกอบ (ถ้ามี)</p>
-                    </div>
+                    <div class="text-center mb-4 bg-light p-4 rounded"><i class="fa-solid fa-image fa-4x text-muted opacity-25"></i></div>
                     <div class="d-flex justify-content-between text-muted small border-top pt-3">
                         <span><span id="modalCalDateBottom"></span> | อ่าน 0 ครั้ง</span>
                         <button class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-print"></i> Print</button>
                     </div>
-                    <div class="mt-3 text-muted">ประเภท: ประชุม</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Modal รวมระบบ E-Services ทั้งหมด -->
+    <div class="modal fade" id="allEServicesModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 bg-light">
+                <div class="modal-header text-white" style="background-color: var(--primary-blue);">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-laptop-code"></i> ระบบบริการอิเล็กทรอนิกส์ทั้งหมด</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <!-- ข้อมูล E-services ทั้งหมดจะถูกวาดลงที่นี่ -->
+                    <div class="row g-3" id="all-eservice-container"></div>
                 </div>
             </div>
         </div>
@@ -578,82 +464,95 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        // 1. ตั้งค่า Swiper ให้เลื่อนออโต้
-       // new Swiper('.swiper-horizontal', { loop: true, autoplay: { delay: 4000 }, pagination: { el: '.swiper-pagination', clickable: true }});
-       // new Swiper('.swiper-vertical-card', { loop: true, autoplay: { delay: 5000 }, pagination: { el: '.swiper-pagination', clickable: true }});
-// ==========================================
-        // ระบบจัดการข่าวสารแบบไดนามิก (Dynamic News System)
         // ==========================================
+        // 1. ระบบ E-Services
+        // ==========================================
+        // เพิ่ม Dummy ข้อมูลให้เกิน 4 อัน เพื่อทดสอบระบบ "ดูทั้งหมด"
+        const eServicesData = [
+            { id: 'tour', name: 'ระบบจองวันทัศนศึกษา', icon: 'fa-bus', desc: 'สำหรับหน่วยงานภายนอก' },
+            { id: 'vip', name: 'ระบบจองห้องรับรอง (VIP)', icon: 'fa-crown', desc: 'สำหรับผู้บริหาร/แขก' },
+            { id: 'car', name: 'ระบบจองรถยนต์ส่วนกลาง', icon: 'fa-car', desc: 'สำหรับเจ้าหน้าที่' },
+            { id: 'meeting', name: 'ระบบจองห้องประชุม', icon: 'fa-people-roof', desc: 'จองห้องประชุมออนไลน์' },
+            { id: 'it', name: 'ระบบแจ้งซ่อม IT', icon: 'fa-computer', desc: 'สำหรับเจ้าหน้าที่ภายใน' }, // อันที่ 5
+            { id: 'leave', name: 'ระบบลาออนไลน์', icon: 'fa-file-signature', desc: 'ลางาน/ขออนุมัติ' }  // อันที่ 6
+        ];
 
-        // 1. จำลองข้อมูลที่ได้จาก Google Sheet (ตั้งค่า เปิด/ปิด จัดลำดับ ได้ที่นี่)
+        function renderEServices() {
+            const mainContainer = document.getElementById('eservice-container');
+            const modalContainer = document.getElementById('all-eservice-container');
+            mainContainer.innerHTML = '';
+            modalContainer.innerHTML = '';
+
+            // สร้างการ์ด (ฟังก์ชันนำกลับมาใช้ซ้ำได้)
+            const createCardHTML = (service, colSize) => `
+                <div class="${colSize}">
+                    <div class="card h-100 p-3 shadow-sm e-service-card" onclick="handleServiceClick('${service.id}', '${service.name}')">
+                        <div class="card-body text-center p-0 pt-2">
+                            <i class="fa-solid ${service.icon} mb-2" style="font-size: 30px; color: var(--secondary-blue);"></i>
+                            <h6 class="fw-bold mb-1">${service.name}</h6>
+                            <small class="text-muted" style="font-size: 11px;">${service.desc}</small>
+                        </div>
+                    </div>
+                </div>`;
+
+            // วาดลงหน้าหลัก (แสดงสูงสุดแค่ 4)
+            const maxDisplay = 4;
+            const displayItems = eServicesData.slice(0, maxDisplay);
+            displayItems.forEach(service => {
+                mainContainer.innerHTML += createCardHTML(service, 'col-md-3 col-6');
+            });
+
+            // เช็คว่าถ้ามีเกิน 4 ให้โชว์ปุ่ม "ดูระบบทั้งหมด"
+            if (eServicesData.length > maxDisplay) {
+                document.getElementById('btnViewAllEServices').classList.remove('d-none');
+            }
+
+            // วาดลงใน Modal (แสดงทั้งหมดที่มี)
+            eServicesData.forEach(service => {
+                modalContainer.innerHTML += createCardHTML(service, 'col-md-3 col-6');
+            });
+        }
+        renderEServices(); // สั่งรัน
+
+        // ฟังก์ชันเปิด Modal รวม E-Service
+        function showAllEServicesModal() {
+            new bootstrap.Modal(document.getElementById('allEServicesModal')).show();
+        }
+
+        // ==========================================
+        // 2. ระบบ Dynamic News (สร้างกล่องข่าวอัตโนมัติ)
+        // ==========================================
         const newsCategories = [
             {
-                id: 'main-news',
-                title: 'ข่าวเด่น ท่าอากาศยานบุรีรัมย์',
-                department: 'กลุ่มงานบริหาร',
-                isActive: true,       // true = แสดง, false = ซ่อน
-                order: 1,             // ลำดับการแสดงผล
-                layoutType: 'slider', // รูปแบบ: slider (มีรูป)
-                colSize: 'col-lg-7',  // ขนาดกล่อง (7 ส่วน จาก 12)
-                themeColor: 'transparent',
+                id: 'main-news', title: 'ข่าวเด่น ท่าอากาศยานบุรีรัมย์', department: 'กลุ่มงานบริหาร', isActive: true, order: 1, layoutType: 'slider', colSize: 'col-lg-7', themeColor: 'transparent',
                 items: [
                     { title: "อธิบดีฯ ลงพื้นที่ตรวจเยี่ยมท่าอากาศยานภูมิภาค", desc: "เน้นย้ำมาตรฐานความปลอดภัยและการอำนวยความสะดวก...", date: "20 เม.ย. 69", img: "https://images.unsplash.com/photo-1517400508447-f8dd518b86db?w=500" },
                     { title: "การซ้อมแผนฉุกเฉินท่าอากาศยานเต็มรูปแบบ", desc: "เพื่อเตรียมความพร้อมรับมือสถานการณ์ฉุกเฉินทุกรูปแบบ...", date: "18 เม.ย. 69", img: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=500" }
                 ]
             },
             {
-                id: 'general-news',
-                title: 'แวดวงข่าว',
-                department: 'ทั้งหมด',
-                isActive: true,
-                order: 2,
-                layoutType: 'slider-vertical', // รูปแบบ: slider แบบรูปอยู่บน ข้อความอยู่ล่าง
-                colSize: 'col-lg-5',           // ขนาดกล่อง (5 ส่วน จาก 12)
-                themeColor: 'transparent',
+                id: 'general-news', title: 'แวดวงข่าว', department: 'ทั้งหมด', isActive: true, order: 2, layoutType: 'slider-vertical', colSize: 'col-lg-5', themeColor: 'transparent',
                 items: [
                     { title: "โครงการอบรมให้ความรู้ด้านการดับเพลิงเบื้องต้น", date: "12 เม.ย. 69", img: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=500" },
                     { title: "ประกาศผู้ชนะการเสนอราคา โครงการปรับปรุงอาคาร", date: "5 เม.ย. 69", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500" }
                 ]
             },
             {
-                id: 'procurement',
-                title: 'จัดซื้อ/จัดจ้าง',
-                department: 'กลุ่มงานบริหาร',
-                isActive: true,
-                order: 3,
-                layoutType: 'text-list', // รูปแบบ: ข้อความลิสต์รายการ (ไม่มีรูป)
-                colSize: 'col-lg-4',     // ขนาดกล่อง 3 คอลัมน์ (4 ส่วน จาก 12)
-                themeColor: '#C08B73',   // สีหัวข้อแบบในรูปตัวอย่าง
+                id: 'procurement', title: 'จัดซื้อ/จัดจ้าง', department: 'กลุ่มงานบริหาร', isActive: true, order: 3, layoutType: 'text-list', colSize: 'col-lg-4', themeColor: '#C08B73',
                 items: [
                     { title: "(ประกาศเชิญชวน) ประกวดราคาจ้างก่อสร้างโครงการก่อสร้างลานจอดรถ...", date: "21 เม.ย. 69" },
-                    { title: "(ประกาศรับฟังคำวิจารณ์) ประกวดราคาจ้างก่อสร้างโครงการปรับปรุง...", date: "8 เม.ย. 69" },
-                    { title: "(ประกาศเชิญชวน) ประกวดราคาจ้างโครงการพัฒนาระบบประเมิน...", date: "8 เม.ย. 69" }
+                    { title: "(ประกาศรับฟังคำวิจารณ์) ประกวดราคาจ้างก่อสร้างโครงการปรับปรุง...", date: "8 เม.ย. 69" }
                 ]
             },
             {
-                id: 'jobs',
-                title: 'สมัครงาน',
-                department: 'กลุ่มงานบริหาร',
-                isActive: true,
-                order: 4,
-                layoutType: 'text-list',
-                colSize: 'col-lg-4',
-                themeColor: '#7C8C64', // สีเขียวตุ่นแบบในรูปตัวอย่าง
+                id: 'jobs', title: 'สมัครงาน', department: 'กลุ่มงานบริหาร', isActive: true, order: 4, layoutType: 'text-list', colSize: 'col-lg-4', themeColor: '#7C8C64',
                 items: [
                     { title: "รับสมัครบุคคลภายนอกปฏิบัติงานในส่วนราชการ ตำแหน่งพนักงานขับรถ", date: "21 เม.ย. 69" },
-                    { title: "รายละเอียดการเรียกตัวผู้สอบแข่งขันได้เพื่อบรรจุเข้ารับราชการ (เรียกตัว 8 เม.ย. 69)", date: "2 เม.ย. 69" },
-                    { title: "รายละเอียดการเรียกตัวผู้สอบแข่งขันได้เพื่อบรรจุเข้ารับราชการ (เรียกตัว 24 มี.ค. 69)", date: "20 มี.ค. 69" }
+                    { title: "รายละเอียดการเรียกตัวผู้สอบแข่งขันได้เพื่อบรรจุเข้ารับราชการ...", date: "2 เม.ย. 69" }
                 ]
             },
             {
-                id: 'flight-ops',
-                title: 'ข่าวพิธีการบิน',
-                department: 'กลุ่มพิธีการบิน',
-                isActive: true, // ลองเปลี่ยนเป็น false กล่องนี้จะหายไปครับ
-                order: 5,
-                layoutType: 'text-list',
-                colSize: 'col-lg-4',
-                themeColor: '#537b98', // สีฟ้าอมเทา
+                id: 'flight-ops', title: 'ข่าวพิธีการบิน', department: 'กลุ่มพิธีการบิน', isActive: true, order: 5, layoutType: 'text-list', colSize: 'col-lg-4', themeColor: '#537b98',
                 items: [
                     { title: "แจ้งปรับเปลี่ยนตารางการบินประจำฤดูหนาว (Winter Schedule)", date: "1 เม.ย. 69" },
                     { title: "ข้อปฏิบัติสำหรับสายการบินเช่าเหมาลำ (Charter Flight)", date: "15 มี.ค. 69" }
@@ -661,143 +560,56 @@
             }
         ];
 
-        // 2. ฟังก์ชันสร้าง HTML ลงในหน้าเว็บ
         function renderDynamicNews() {
             const container = document.getElementById('dynamic-news-container');
-            container.innerHTML = ''; // ล้างของเก่า
+            container.innerHTML = '';
+            const activeCategories = newsCategories.filter(cat => cat.isActive).sort((a, b) => a.order - b.order);
 
-            // กรองเอาเฉพาะที่ Active และเรียงตาม Order
-            const activeCategories = newsCategories
-                .filter(cat => cat.isActive)
-                .sort((a, b) => a.order - b.order);
-
-            // วนลูปสร้างกล่องข่าว
             activeCategories.forEach(cat => {
                 let cardHTML = '';
-
-                // --- กรณีเป็น Layout แบบสไลด์ (มีรูป) ---
                 if (cat.layoutType === 'slider' || cat.layoutType === 'slider-vertical') {
                     const isHorizontal = cat.layoutType === 'slider';
                     let slidesHTML = '';
-
                     cat.items.forEach(item => {
                         if (isHorizontal) {
-                            slidesHTML += `
-                                <div class="swiper-slide" onclick="window.location.href='#'">
-                                    <div class="news-horizontal">
-                                        <img src="${item.img}" alt="news">
-                                        <div class="content">
-                                            <h6 class="fw-bold">${item.title}</h6>
-                                            <p class="text-muted small mb-1">${item.desc || ''}</p>
-                                            <small class="text-secondary"><i class="fa-regular fa-calendar"></i> ${item.date}</small>
-                                        </div>
-                                    </div>
-                                </div>`;
+                            slidesHTML += `<div class="swiper-slide" onclick="window.location.href='#'"><div class="news-horizontal"><img src="${item.img}" alt="news"><div class="content"><h6 class="fw-bold">${item.title}</h6><p class="text-muted small mb-1">${item.desc || ''}</p><small class="text-secondary"><i class="fa-regular fa-calendar"></i> ${item.date}</small></div></div></div>`;
                         } else {
-                            slidesHTML += `
-                                <div class="swiper-slide" onclick="window.location.href='#'">
-                                    <img src="${item.img}" class="news-img-top" alt="news">
-                                    <div class="p-3">
-                                        <h6 class="fw-bold">${item.title}</h6>
-                                        <small class="text-secondary"><i class="fa-regular fa-calendar"></i> ${item.date}</small>
-                                    </div>
-                                </div>`;
+                            slidesHTML += `<div class="swiper-slide" onclick="window.location.href='#'"><img src="${item.img}" class="news-img-top" alt="news"><div class="p-3"><h6 class="fw-bold">${item.title}</h6><small class="text-secondary"><i class="fa-regular fa-calendar"></i> ${item.date}</small></div></div>`;
                         }
                     });
-
-                    cardHTML = `
-                        <div class="${cat.colSize} mb-4">
-                            <div class="card shadow-sm h-100 border-0">
-                                <div class="card-header-custom">
-                                    <h5>${cat.title} <span class="dept-badge text-muted" style="background:#eee;">${cat.department}</span></h5>
-                                    <button class="btn btn-view-all btn-sm">ดูทั้งหมด</button>
-                                </div>
-                                <div class="card-body p-0 pb-4">
-                                    <div class="swiper swiper-dynamic-${cat.id}">
-                                        <div class="swiper-wrapper">${slidesHTML}</div>
-                                        <div class="swiper-pagination"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>`;
+                    cardHTML = `<div class="${cat.colSize} mb-4"><div class="card shadow-sm h-100 border-0"><div class="card-header-custom"><h5>${cat.title} <span class="dept-badge text-muted" style="background:#eee;">${cat.department}</span></h5><button class="btn btn-view-all btn-sm">ดูทั้งหมด</button></div><div class="card-body p-0 pb-4"><div class="swiper swiper-dynamic-${cat.id}"><div class="swiper-wrapper">${slidesHTML}</div><div class="swiper-pagination"></div></div></div></div></div>`;
                 } 
-                // --- กรณีเป็น Layout แบบ List ข้อความ (ไม่มีรูป) ---
                 else if (cat.layoutType === 'text-list') {
                     let listHTML = '';
                     cat.items.forEach(item => {
-                        listHTML += `
-                            <a href="#" class="text-list-item">
-                                <i class="fa-solid fa-circle-info text-list-icon" style="color: ${cat.themeColor}"></i>
-                                <div>
-                                    <div class="text-list-title">${item.title}</div>
-                                    <div class="text-list-date"><i class="fa-regular fa-calendar"></i> ${item.date}</div>
-                                </div>
-                            </a>`;
+                        listHTML += `<a href="#" class="text-list-item"><i class="fa-solid fa-circle-info text-list-icon" style="color: ${cat.themeColor}"></i><div><div class="text-list-title">${item.title}</div><div class="text-list-date"><i class="fa-regular fa-calendar"></i> ${item.date}</div></div></a>`;
                     });
-
-                    cardHTML = `
-                        <div class="${cat.colSize} mb-4">
-        <div class="card shadow-sm h-100 border-0 overflow-hidden">
-            <div class="card-header-solid" style="background-color: ${cat.themeColor}; border-radius: 0;">
-                <div class="mb-0 fs-5">${cat.title} <span class="dept-badge">${cat.department}</span></div>
-            </div>
-                                <div class="card-body text-list-container pb-4 pt-2">
-                                    ${listHTML}
-                                </div>
-                                <div class="card-footer bg-white border-0 text-end pb-3">
-                                    <button class="btn btn-sm text-white" style="background-color: ${cat.themeColor}; border-radius: 20px;">ดูทั้งหมด</button>
-                                </div>
-                            </div>
-                        </div>`;
+                    // แก้ไข Border ซ้อนกันแล้ว (ใส่ overflow-hidden ให้ card หลัก และลบ border-top ออกจากหัวข้อ)
+                    cardHTML = `<div class="${cat.colSize} mb-4"><div class="card shadow-sm h-100 border-0 overflow-hidden"><div class="card-header-solid" style="background-color: ${cat.themeColor}; border-radius: 0;"><div class="mb-0 fs-5">${cat.title} <span class="dept-badge">${cat.department}</span></div></div><div class="card-body text-list-container pb-4 pt-2">${listHTML}</div><div class="card-footer bg-white border-0 text-end pb-3"><button class="btn btn-sm text-white" style="background-color: ${cat.themeColor}; border-radius: 20px;">ดูทั้งหมด</button></div></div></div>`;
                 }
-
                 container.innerHTML += cardHTML;
             });
 
-            // 3. หลังจากสร้าง HTML เสร็จ ต้องมาสั่งรัน Swiper Slider ใหม่
             activeCategories.forEach(cat => {
                 if (cat.layoutType === 'slider' || cat.layoutType === 'slider-vertical') {
-                    new Swiper(`.swiper-dynamic-${cat.id}`, {
-                        loop: true,
-                        autoplay: { delay: 4000 + (Math.random() * 1000) }, // สุ่ม delay เล็กน้อยไม่ให้เลื่อนพร้อมกันเป๊ะ
-                        pagination: { el: '.swiper-pagination', clickable: true }
-                    });
+                    new Swiper(`.swiper-dynamic-${cat.id}`, { loop: true, autoplay: { delay: 4000 + (Math.random() * 1000) }, pagination: { el: '.swiper-pagination', clickable: true } });
                 }
             });
         }
-
-        // สั่งให้ระบบสร้างกล่องข่าวเมื่อโหลดหน้าเว็บ
         renderDynamicNews();
 
         // ==========================================
-        // สคริปต์ส่วนที่เหลือ (E-Service, Modal Login ฯลฯ ไว้เหมือนเดิมด้านล่างนี้ได้เลย)
+        // 3. ฟังก์ชันอื่นๆ (Chatbot, ปฏิทิน, Login)
         // ==========================================
-        // 2. สร้างการ์ด E-Service
-        const eServicesData = [
-            { id: 'tour', name: 'ระบบจองวันทัศนศึกษา', icon: 'fa-bus', desc: 'สำหรับหน่วยงานภายนอก' },
-            { id: 'vip', name: 'ระบบจองห้องรับรอง (VIP)', icon: 'fa-crown', desc: 'สำหรับผู้บริหาร/แขก' },
-            { id: 'car', name: 'ระบบจองรถยนต์ส่วนกลาง', icon: 'fa-car', desc: 'สำหรับเจ้าหน้าที่' },
-            { id: 'meeting', name: 'ระบบจองห้องประชุม', icon: 'fa-people-roof', desc: 'จองห้องประชุมออนไลน์' }
-        ];
-
-        function renderEServices() {
-            const container = document.getElementById('eservice-container');
-            eServicesData.forEach(service => {
-                container.innerHTML += `
-                    <div class="col-md-3 col-6">
-                        <div class="card h-100 p-3 shadow-sm e-service-card" onclick="handleServiceClick('${service.id}', '${service.name}')">
-                            <div class="card-body text-center p-0 pt-2">
-                                <i class="fa-solid ${service.icon} mb-2" style="font-size: 30px; color: var(--secondary-blue);"></i>
-                                <h6 class="fw-bold mb-1">${service.name}</h6>
-                                <small class="text-muted" style="font-size: 11px;">${service.desc}</small>
-                            </div>
-                        </div>
-                    </div>`;
+        function toggleChatbot() {
+            Swal.fire({
+                icon: 'info',
+                title: 'ระบบแชทบอท',
+                text: 'กำลังอยู่ในช่วงพัฒนา จะเปิดให้บริการเร็วๆ นี้ครับ',
+                confirmButtonColor: '#0A3161'
             });
         }
-        renderEServices();
 
-        // 3. ฟังก์ชันเปิด Modal ปฏิทินและส่งค่าไปแสดง
         function showCalendarDetail(day, month, title, time, location, dept) {
             document.getElementById('modalCalDay').innerText = day;
             document.getElementById('modalCalMonth').innerText = month;
@@ -808,19 +620,24 @@
             document.getElementById('modalCalTime').innerText = time;
             document.getElementById('modalCalLocation').innerText = location;
             document.getElementById('modalCalDept').innerText = dept;
-
             new bootstrap.Modal(document.getElementById('calendarModal')).show();
         }
 
-        // 4. ระบบ Login จำลอง
         let isLoggedIn = false; 
-        function showAuthModal() { new bootstrap.Modal(document.getElementById('authModal')).show(); }
+        function showAuthModal() { 
+            // ซ่อน Modal รวม E-Service ก่อน (ถ้าเปิดอยู่) แล้วค่อยโชว์หน้า Login ป้องกัน Modal ซ้อนกัน
+            const allEserviceModalEl = document.getElementById('allEServicesModal');
+            const allEserviceModal = bootstrap.Modal.getInstance(allEserviceModalEl);
+            if(allEserviceModal) allEserviceModal.hide();
+
+            new bootstrap.Modal(document.getElementById('authModal')).show(); 
+        }
 
         function handleServiceClick(serviceId, serviceName) {
             if (!isLoggedIn) {
                 Swal.fire({ icon: 'warning', title: 'กรุณาเข้าสู่ระบบ', text: 'เพื่อใช้งาน ' + serviceName, confirmButtonColor: '#0A3161' }).then(() => showAuthModal());
             } else {
-                Swal.fire({ icon: 'success', title: 'เข้าสู่ระบบ: ' + serviceName, showConfirmButton: false, timer: 1500 });
+                Swal.fire({ icon: 'success', title: 'กำลังพาไปที่', text: serviceName, showConfirmButton: false, timer: 1500 });
             }
         }
 
@@ -833,10 +650,8 @@
 
         function mockLogout() {
             isLoggedIn = false;
-            document.getElementById('userMenu').innerHTML = `<button class="btn btn-outline-light rounded-pill px-4" onclick="showAuthModal()"><i class="fa-solid fa-user me-2"></i>เข้าสู่ระบบ E-Service</button>`;
+            document.getElementById('userMenu').innerHTML = `<button class="btn btn-outline-light rounded-pill px-4" onclick="showAuthModal()"><i class="fa-solid fa-user me-2"></i> เข้าสู่ระบบ</button>`;
         }
-
-        
     </script>
 </body>
 </html>
