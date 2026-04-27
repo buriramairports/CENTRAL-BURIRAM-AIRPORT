@@ -158,7 +158,7 @@
             <li><a href="#"><i class="fa-solid fa-users-line"></i> สถิติผู้โดยสาร</a></li>
             
             <li class="mt-4 px-3"><small class="text-uppercase fw-bold" style="color: #64748b; font-size: 0.7rem;">จัดการข้อมูลพื้นฐาน</small></li>
-            <li><a href="#"><i class="fa-solid fa-laptop-code"></i> ระบบ E-Services</a></li>
+            <li><a href="#" onclick="switchView('eservices', this)"><i class="fa-solid fa-laptop-code"></i> ระบบ E-Services</a></li>
             <li><a href="#"><i class="fa-solid fa-plane-circle-check"></i> สายการบิน</a></li>
             <li><a href="#"><i class="fa-solid fa-layer-group"></i> หมวดหมู่ข่าว</a></li>
             
@@ -337,6 +337,90 @@
                 </div>
             </div>
 
+            <!-- ================= VIEW 5: E-Services ================= -->
+            <div id="view-eservices" class="admin-view" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold text-dark mb-0"><i class="fa-solid fa-laptop-code me-2 text-primary"></i> จัดการระบบ E-Services</h4>
+                    <div>
+                        <button id="btnSaveOrder-EServices" class="btn btn-warning me-2 d-none" onclick="saveEServiceOrder()"><i class="fa-solid fa-save me-1"></i> บันทึกลำดับ</button>
+                        <button class="btn btn-success" onclick="openEServiceModal()"><i class="fa-solid fa-plus me-1"></i> เพิ่มระบบใหม่</button>
+                    </div>
+                </div>
+                <div class="card card-custom">
+                    <div class="card-body p-0 table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="10%">ลำดับ</th>
+                                    <th width="15%" class="text-center">ไอคอน</th>
+                                    <th width="25%">ชื่อระบบ (ServiceName)</th>
+                                    <th width="25%">ลิงก์ (URL)</th>
+                                    <th width="10%">สถานะ</th>
+                                    <th width="15%" class="text-center">จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-eservices">
+                                <tr><td colspan="6" class="text-center py-4">กำลังโหลดข้อมูล...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+    <!-- Modal: จัดการ E-Services (วางไว้ก่อนแท็ก </body>) -->
+    <div class="modal fade" id="eserviceModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold" id="eserviceModalTitle">เพิ่ม/แก้ไข ระบบ E-Service</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="formEService" onsubmit="saveEService(event)">
+                        <input type="hidden" id="srv_ServiceID">
+                        <input type="hidden" id="srv_OrderList">
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">ชื่อระบบ <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="srv_ServiceName" placeholder="เช่น ระบบจองห้องประชุม" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">ไอคอน (FontAwesome Class) <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fa-solid fa-icons"></i></span>
+                                <input type="text" class="form-control" id="srv_IconClass" placeholder="เช่น fa-bus, fa-car" required>
+                            </div>
+                            <div class="form-text"><a href="https://fontawesome.com/search?o=r&m=free" target="_blank">คลิกที่นี่เพื่อดูชื่อไอคอนฟรี</a> (ใส่เฉพาะชื่อ เช่น fa-car)</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">ลิงก์ระบบ (URL) <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control text-primary font-monospace" id="srv_URL" placeholder="https://..." required>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">การเปิดลิงก์</label>
+                                <select class="form-select" id="srv_Target">
+                                    <option value="_blank">เปิดแท็บใหม่ (_blank)</option>
+                                    <option value="_self">เปิดในหน้าเดิม (_self)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3 d-flex align-items-end pb-2">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="srv_IsActive" style="transform: scale(1.2);" checked>
+                                    <label class="form-check-label ms-2 fw-bold text-success" for="srv_IsActive">เปิดใช้งาน</label>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mt-2" id="btnSaveEService">บันทึกข้อมูล</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
         </div>
 
         <div class="footer-text">
@@ -486,6 +570,7 @@
             if (viewId === 'settings') {
                 loadSettingsData();
             }
+            if (viewId === 'eservices') loadTableData('EServices', renderEServicesTable);
         }
 
         // ==========================================
@@ -882,6 +967,125 @@
                 }).finally(() => { btn.innerHTML = 'บันทึกข้อมูล'; btn.disabled = false; });
         }
         ///////////////////////END DEPARTMENT/////////////////////////////////
+        // ==========================================
+        // 💻 ระบบจัดการ E-Services
+        // ==========================================
+
+        function renderEServicesTable(data) {
+            const tbody = document.getElementById('tbody-eservices');
+            tbody.innerHTML = '';
+            if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4">ไม่มีข้อมูล</td></tr>'; return; }
+            
+            data.sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList));
+            
+            data.forEach((item, index) => {
+                let badge = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิดใช้งาน</span>' : '<span class="badge bg-secondary">ปิด</span>';
+                let iconHtml = `<i class="fa-solid ${item.IconClass} fa-2x text-primary" style="opacity: 0.8;"></i>`;
+                let targetBadge = item.Target === '_blank' ? '<span class="badge bg-light text-dark border">แท็บใหม่</span>' : '<span class="badge bg-light text-dark border">หน้าเดิม</span>';
+                
+                let btnUp = index > 0 ? `<button class="btn btn-sm btn-light text-primary me-1" onclick="moveEServiceOrder(${index}, -1)" title="เลื่อนขึ้น"><i class="fa-solid fa-arrow-up"></i></button>` : `<button class="btn btn-sm btn-light me-1" style="visibility:hidden;"><i class="fa-solid fa-arrow-up"></i></button>`;
+                let btnDown = index < data.length - 1 ? `<button class="btn btn-sm btn-light text-primary me-2" onclick="moveEServiceOrder(${index}, 1)" title="เลื่อนลง"><i class="fa-solid fa-arrow-down"></i></button>` : `<button class="btn btn-sm btn-light me-2" style="visibility:hidden;"><i class="fa-solid fa-arrow-down"></i></button>`;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="fw-bold text-center h5 text-muted">${item.OrderList}</td>
+                        <td class="text-center">${iconHtml}</td>
+                        <td class="fw-bold text-dark fs-6">${item.ServiceName || '-'}</td>
+                        <td>
+                            <div class="text-truncate text-primary" style="max-width: 250px; font-size: 0.85rem;" title="${item.URL}">${item.URL || '-'}</div>
+                            ${targetBadge}
+                        </td>
+                        <td>${badge}</td>
+                        <td class="text-center text-nowrap">
+                            ${btnUp}${btnDown}
+                            <button class="btn btn-sm btn-outline-warning me-1" onclick="openEServiceModal('${item.ServiceID}')"><i class="fa-solid fa-pen"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('EServices', 'ServiceID', '${item.ServiceID}')"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // สลับลำดับ E-Service
+        function moveEServiceOrder(currentIndex, direction) {
+            let temp = currentTableData[currentIndex];
+            currentTableData[currentIndex] = currentTableData[currentIndex + direction];
+            currentTableData[currentIndex + direction] = temp;
+            currentTableData.forEach((item, idx) => { item.OrderList = idx + 1; });
+            
+            renderEServicesTable(currentTableData);
+            document.getElementById('btnSaveOrder-EServices').classList.remove('d-none');
+        }
+
+        // เซฟลำดับ E-Service
+        function saveEServiceOrder() {
+            Swal.fire({ title: 'กำลังบันทึกลำดับ...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            const orderPayload = currentTableData.map(item => { return { id: item.ServiceID, order: item.OrderList }; });
+            const formData = new URLSearchParams({ action: 'updateOrder', sheetName: 'EServices', idColumn: 'ServiceID', orderJSON: JSON.stringify(orderPayload) });
+
+            fetch(API_URL, { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.status === 'success') {
+                        Swal.fire({ icon: 'success', title: 'บันทึกลำดับสำเร็จ!', showConfirmButton: false, timer: 1500 });
+                        document.getElementById('btnSaveOrder-EServices').classList.add('d-none');
+                    }
+                });
+        }
+
+        // เปิดป๊อปอัปเพิ่ม/แก้
+        function openEServiceModal(id = '') {
+            const form = document.getElementById('formEService');
+            form.reset();
+            document.getElementById('srv_ServiceID').value = '';
+            document.getElementById('eserviceModalTitle').innerText = 'เพิ่มระบบ E-Service ใหม่';
+
+            if (id) {
+                document.getElementById('eserviceModalTitle').innerText = 'แก้ไขระบบ E-Service';
+                const item = currentTableData.find(x => x.ServiceID === id);
+                document.getElementById('srv_ServiceID').value = item.ServiceID;
+                document.getElementById('srv_ServiceName').value = item.ServiceName;
+                document.getElementById('srv_IconClass').value = item.IconClass;
+                document.getElementById('srv_URL').value = item.URL;
+                document.getElementById('srv_Target').value = item.Target;
+                document.getElementById('srv_OrderList').value = item.OrderList;
+                document.getElementById('srv_IsActive').checked = (item.IsActive === 'TRUE');
+            }
+            new bootstrap.Modal(document.getElementById('eserviceModal')).show();
+        }
+
+        // บันทึกข้อมูล E-Service
+        function saveEService(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSaveEService');
+            btn.innerHTML = 'กำลังบันทึก...'; btn.disabled = true;
+
+            let orderToSave = document.getElementById('srv_OrderList').value;
+            if (!document.getElementById('srv_ServiceID').value) orderToSave = currentTableData.length + 1;
+
+            const recordData = {
+                ServiceID: document.getElementById('srv_ServiceID').value, 
+                ServiceName: document.getElementById('srv_ServiceName').value,
+                IconClass: document.getElementById('srv_IconClass').value,
+                URL: document.getElementById('srv_URL').value,
+                Target: document.getElementById('srv_Target').value,
+                OrderList: orderToSave,
+                IsActive: document.getElementById('srv_IsActive').checked ? 'TRUE' : 'FALSE'
+            };
+
+            const formData = new URLSearchParams({ action: 'saveRecord', sheetName: 'EServices', idColumn: 'ServiceID', recordJSON: JSON.stringify(recordData) });
+
+            fetch(API_URL, { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.status === 'success') {
+                        bootstrap.Modal.getInstance(document.getElementById('eserviceModal')).hide();
+                        Swal.fire({ icon: 'success', title: res.message, showConfirmButton: false, timer: 1500 });
+                        loadTableData('EServices', renderEServicesTable);
+                    } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
+                }).finally(() => { btn.innerHTML = 'บันทึกข้อมูล'; btn.disabled = false; });
+        }
+        //////////////////////////END E-SERVICE//////////////////////////////
     </script>
 </body>
 </html>
