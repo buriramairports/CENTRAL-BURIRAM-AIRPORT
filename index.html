@@ -682,25 +682,36 @@
             fetch(API_URL, { method: 'POST', body: formData })
                 .then(res => res.json())
                 .then(data => {
-                    if (data.status === 'success') {
+                   if (data.status === 'success') {
                         isLoggedIn = true;
                         bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
-                        Swal.fire({ icon: 'success', title: data.message, showConfirmButton: false, timer: 1500 });
+                        Swal.fire({ icon: 'success', title: data.message, showConfirmButton: false, timer: 1000 });
                         
                         document.getElementById('formLogin').reset(); 
                         
-                        document.getElementById('userMenu').innerHTML = `
-                            <div class="dropdown">
-                                <button class="btn btn-light rounded-pill px-4 dropdown-toggle" data-bs-toggle="dropdown">
-                                    <i class="fa-solid fa-circle-user text-primary"></i> ${data.user.fullname}
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end shadow">
-                                    <li><a class="dropdown-item" href="#"><i class="fa-regular fa-id-card me-2"></i>โปรไฟล์</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item text-danger" href="#" onclick="mockLogout()"><i class="fa-solid fa-right-from-bracket me-2"></i>ออกจากระบบ</a></li>
-                                </ul>
-                            </div>
-                        `;
+                        // 🟢 บันทึกข้อมูลลงในเบราว์เซอร์ เพื่อให้หน้า admin.html ดึงไปเช็คสิทธิ์ได้
+                        localStorage.setItem('userData', JSON.stringify(data.user));
+
+                        // 🟢 เช็ค Role: ถ้าเป็น Admin ให้เด้งไปหน้า admin.html
+                        if (data.user.role === 'SuperAdmin' || data.user.role === 'SubAdmin') {
+                            setTimeout(() => {
+                                window.location.href = 'admin.html'; // ลิงก์ไปหน้าแอดมิน
+                            }, 1000);
+                        } else {
+                            // ถ้าเป็น User ธรรมดา ให้เปลี่ยนปุ่มเมนูมุมขวาบนปกติ
+                            document.getElementById('userMenu').innerHTML = `
+                                <div class="dropdown">
+                                    <button class="btn btn-light rounded-pill px-4 dropdown-toggle" data-bs-toggle="dropdown">
+                                        <i class="fa-solid fa-circle-user text-primary"></i> ${data.user.fullname}
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow">
+                                        <li><a class="dropdown-item" href="#"><i class="fa-regular fa-id-card me-2"></i>โปรไฟล์</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item text-danger" href="#" onclick="mockLogout()"><i class="fa-solid fa-right-from-bracket me-2"></i>ออกจากระบบ</a></li>
+                                    </ul>
+                                </div>
+                            `;
+                        }
                     } else {
                         Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: data.message });
                     }
@@ -760,6 +771,7 @@
             isLoggedIn = false; 
             document.getElementById('formLogin').reset(); 
             document.getElementById('userMenu').innerHTML = `<button class="btn btn-outline-light rounded-pill px-4" onclick="showAuthModal()"><i class="fa-solid fa-user me-2"></i> เข้าสู่ระบบ</button>`; 
+            localStorage.removeItem('userData');
             Swal.fire({ icon: 'info', title: 'ออกจากระบบแล้ว', showConfirmButton: false, timer: 1000 });
         }
     </script>
