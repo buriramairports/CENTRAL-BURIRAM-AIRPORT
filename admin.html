@@ -235,6 +235,25 @@
                             </div>
                         </div>
                         <hr class="text-muted">
+                        <!-- 🟢 ส่วนที่เพิ่มใหม่: ตั้งค่าแบนเนอร์ -->
+                        <div class="row mb-4">
+                            <div class="col-md-3 fw-bold text-secondary">ตั้งค่าแบนเนอร์หน้าแรก</div>
+                            <div class="col-md-9">
+                                <div class="mb-3">
+                                    <label class="form-label">ระยะเวลาเปลี่ยนภาพ (มิลลิวินาที)</label>
+                                    <input type="number" class="form-control" id="set_BannerSpeed" style="max-width: 150px;" placeholder="เช่น 6000">
+                                    <div class="form-text">1000 มิลลิวินาที = 1 วินาที (แนะนำ 5000 - 6000)</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">เอฟเฟกต์การเปลี่ยนภาพ (Transition)</label>
+                                    <select class="form-select" id="set_BannerEffect" style="max-width: 250px;">
+                                        <option value="slide">เลื่อนด้านข้าง (Slide)</option>
+                                        <option value="fade">ค่อยๆ จางหาย (Fade)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <hr class="text-muted">
                         <div class="row mb-4">
                             <div class="col-md-3 fw-bold text-secondary">Google Drive IDs <br><small class="fw-normal text-danger">(ระวัง: ห้ามแก้ไขหากไม่จำเป็น)</small></div>
                             <div class="col-md-9">
@@ -340,14 +359,11 @@
                             <input type="text" class="form-control" id="ban_Description">
                         </div>
                         <div class="row">
-                            <div class="col-6 mb-3">
-                                <label class="form-label fw-bold">ลำดับการแสดงผล</label>
-                                <input type="number" class="form-control" id="ban_OrderList" value="1" required>
-                            </div>
-                            <div class="col-6 mb-3 d-flex align-items-end pb-2">
+                            <div class="col-12 mb-3 d-flex align-items-center pb-2">
+                                <input type="hidden" id="ban_OrderList"> <!-- 🟢 ซ่อนช่องลำดับไว้ -->
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" id="ban_IsActive" style="transform: scale(1.2);" checked>
-                                    <label class="form-check-label ms-2 fw-bold text-success" for="ban_IsActive">เปิดใช้งาน</label>
+                                    <label class="form-check-label ms-2 fw-bold text-success" for="ban_IsActive">เปิดใช้งานแบนเนอร์นี้</label>
                                 </div>
                             </div>
                         </div>
@@ -430,65 +446,64 @@
         // ==========================================
         // ระบบดึงข้อมูลการตั้งค่า (Settings)
         // ==========================================
-        function loadSettingsData() {
-            // ป๊อปอัปแจ้งว่ากำลังโหลดข้อมูล
+         function loadSettingsData() {
             Swal.fire({ title: 'กำลังดึงข้อมูล...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
-
             fetch(API_URL + "?action=getSettings")
                 .then(res => res.json())
                 .then(response => {
                     if (response.status === 'success') {
                         const data = response.data;
-                        // นำข้อมูลที่ได้จาก Sheet มายัดใส่ในช่อง Input
                         document.getElementById('set_SystemName').value = data.SystemName || '';
                         document.getElementById('set_NewsLimitHome').value = data.NewsLimitHome || '';
                         document.getElementById('set_FolderImageID').value = data.FolderImageID || '';
                         document.getElementById('set_FolderFileID').value = data.FolderFileID || '';
                         
-                        // จัดการปุ่มเปิด-ปิด (สวิตช์) โหมดซ่อมบำรุง
-                        document.getElementById('set_MaintenanceMode').checked = (data.MaintenanceMode === 'TRUE');
+                        // 🟢 ดึงค่าแบนเนอร์มาแสดง
+                        document.getElementById('set_BannerSpeed').value = data.BannerSpeed || '6000';
+                        document.getElementById('set_BannerEffect').value = data.BannerEffect || 'fade';
                         
-                        Swal.close(); // ปิดป๊อปอัปโหลด
-                    } else {
-                        Swal.fire('ผิดพลาด', 'ไม่สามารถดึงข้อมูลได้', 'error');
+                        document.getElementById('set_MaintenanceMode').checked = (data.MaintenanceMode === 'TRUE');
+                        Swal.close(); 
                     }
-                })
-                .catch(error => {
-                    console.error(error);
-                    Swal.fire('ผิดพลาด', 'การเชื่อมต่อขัดข้อง', 'error');
                 });
         }
         // ==========================================
         // ระบบบันทึกข้อมูลการตั้งค่า (Save Settings)
         // ==========================================
-        function saveSettings() {
-            // ดึงค่าจากช่อง Input ทั้งหมด
+       function saveSettings() {
             const settingsData = {
                 SystemName: document.getElementById('set_SystemName').value,
                 NewsLimitHome: document.getElementById('set_NewsLimitHome').value,
+                BannerSpeed: document.getElementById('set_BannerSpeed').value, // 🟢 ส่งค่าเวลา
+                BannerEffect: document.getElementById('set_BannerEffect').value, // 🟢 ส่งค่าเอฟเฟกต์
                 MaintenanceMode: document.getElementById('set_MaintenanceMode').checked ? 'TRUE' : 'FALSE'
-                // Folder ID เราจะไม่ส่งไปบันทึกทับ เพื่อป้องกันแอดมินเผลอแก้จนพัง (ล็อคไว้)
             };
-
             Swal.fire({ title: 'กำลังบันทึก...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
-
             const formData = new URLSearchParams();
             formData.append('action', 'saveSettings');
             formData.append('settingsJSON', JSON.stringify(settingsData));
-
             fetch(API_URL, { method: 'POST', body: formData })
                 .then(res => res.json())
-                .then(response => {
-                    if (response.status === 'success') {
-                        Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', text: response.message, timer: 1500, showConfirmButton: false });
-                    } else {
-                        Swal.fire('ผิดพลาด', response.message, 'error');
-                    }
-                })
-                .catch(error => {
-                    console.error(error);
-                    Swal.fire('ผิดพลาด', 'การเชื่อมต่อขัดข้อง', 'error');
+                .then(res => {
+                    if (res.status === 'success') Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', showConfirmButton: false, timer: 1500 });
                 });
+        }
+
+         // ==========================================
+        // 🖼️ อัปเดต: ระบบ Banners (มีปุ่ม ⬆️⬇️ และแปลงลิงก์ Drive)
+        // ==========================================
+        
+        // 🟢 ฟังก์ชันวิเศษ: แปลงลิงก์ Google Drive อัตโนมัติ
+        function convertDriveImageLink(url) {
+            let id = "";
+            const regexView = /\/file\/d\/([a-zA-Z0-9_-]+)/; // จับลิงก์แบบ view
+            const regexId = /id=([a-zA-Z0-9_-]+)/; // จับลิงก์แบบ open?id=
+            
+            if (url.match(regexView)) id = url.match(regexView)[1];
+            else if (url.match(regexId)) id = url.match(regexId)[1];
+            
+            if (id) return `https://drive.google.com/uc?export=view&id=${id}`;
+            return url; // ถ้าไม่ใช่ลิงก์ Drive ก็คืนค่าเดิมไป
         }
 
         ////////////////////////////////////////////////
@@ -524,28 +539,62 @@
         }
 
         // ฟังก์ชันวาดตาราง Banners
-        function renderBannersTable(data) {
+          function renderBannersTable(data) {
             const tbody = document.getElementById('tbody-banners');
             tbody.innerHTML = '';
             if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4">ไม่มีข้อมูล</td></tr>'; return; }
             
-            // เรียงลำดับตาม OrderList
-            data.sort((a,b) => a.OrderList - b.OrderList).forEach(item => {
+            // เรียงลำดับจาก OrderList
+            data.sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList));
+            
+            data.forEach((item, index) => {
                 let badge = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิดใช้งาน</span>' : '<span class="badge bg-secondary">ปิด</span>';
-                let imgHtml = item.ImageURL ? `<img src="${item.ImageURL}" style="height: 50px; border-radius:5px; object-fit:cover;">` : '-';
+                let imgHtml = item.ImageURL ? `<img src="${item.ImageURL}" style="height: 60px; border-radius:5px; object-fit:cover; border:1px solid #ccc;">` : '-';
                 
+                // 🟢 กำหนดปุ่ม ขึ้น/ลง (ซ่อนปุ่มขึ้นในแถวแรก ซ่อนปุ่มลงในแถวสุดท้าย)
+                let btnUp = index > 0 ? `<button class="btn btn-sm btn-light text-primary me-1" onclick="moveBannerOrder(${index}, -1)" title="เลื่อนขึ้น"><i class="fa-solid fa-arrow-up"></i></button>` : `<button class="btn btn-sm btn-light me-1" style="visibility:hidden;"><i class="fa-solid fa-arrow-up"></i></button>`;
+                let btnDown = index < data.length - 1 ? `<button class="btn btn-sm btn-light text-primary me-2" onclick="moveBannerOrder(${index}, 1)" title="เลื่อนลง"><i class="fa-solid fa-arrow-down"></i></button>` : `<button class="btn btn-sm btn-light me-2" style="visibility:hidden;"><i class="fa-solid fa-arrow-down"></i></button>`;
+
                 tbody.innerHTML += `
                     <tr>
-                        <td><b>${item.OrderList}</b></td>
+                        <td class="fw-bold text-center h5 text-muted">${item.OrderList}</td>
                         <td>${imgHtml}</td>
                         <td><div class="fw-bold text-primary">${item.Title || '-'}</div><small class="text-muted">${item.Description || '-'}</small></td>
                         <td>${badge}</td>
-                        <td class="text-center">
+                        <td class="text-center text-nowrap">
+                            ${btnUp}${btnDown}
                             <button class="btn btn-sm btn-outline-warning me-1" onclick="openBannerModal('${item.BannerID}')"><i class="fa-solid fa-pen"></i></button>
                             <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('Banners', 'BannerID', '${item.BannerID}')"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
                 `;
+            });
+        }
+
+        // 🟢 ฟังก์ชันใหม่: สลับลำดับแบนเนอร์
+        function moveBannerOrder(currentIndex, direction) {
+            // หา object ของตัวปัจจุบัน และตัวเป้าหมายที่จะสลับที่
+            let sortedData = [...currentTableData].sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList));
+            let currentItem = sortedData[currentIndex];
+            let targetItem = sortedData[currentIndex + direction];
+
+            // สลับเลข OrderList กัน
+            let tempOrder = currentItem.OrderList;
+            currentItem.OrderList = targetItem.OrderList;
+            targetItem.OrderList = tempOrder;
+
+            Swal.fire({ title: 'กำลังสลับตำแหน่ง...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            // ใช้การยิง API 2 ครั้งติดกัน (บันทึกตัวที่ 1 และ 2)
+            const req1 = new URLSearchParams({ action: 'saveRecord', sheetName: 'Banners', idColumn: 'BannerID', recordJSON: JSON.stringify(currentItem) });
+            const req2 = new URLSearchParams({ action: 'saveRecord', sheetName: 'Banners', idColumn: 'BannerID', recordJSON: JSON.stringify(targetItem) });
+
+            Promise.all([
+                fetch(API_URL, { method: 'POST', body: req1 }),
+                fetch(API_URL, { method: 'POST', body: req2 })
+            ]).then(() => {
+                Swal.close();
+                loadTableData('Banners', renderBannersTable); // โหลดตารางใหม่
             });
         }
 
@@ -571,17 +620,28 @@
         }
 
         // เซฟข้อมูล Banners
-        function saveBanner(e) {
+       function saveBanner(e) {
             e.preventDefault();
             const btn = document.getElementById('btnSaveBanner');
             btn.innerHTML = 'กำลังบันทึก...'; btn.disabled = true;
 
+            // 🟢 แปลงลิงก์ก่อนบันทึก
+            let rawUrl = document.getElementById('ban_ImageURL').value;
+            let finalUrl = convertDriveImageLink(rawUrl);
+
+            // 🟢 คำนวณลำดับอัตโนมัติ ถ้าเป็นการเพิ่มใหม่
+            let orderToSave = document.getElementById('ban_OrderList').value;
+            if (!document.getElementById('ban_BannerID').value) {
+                // ถ้าเพิ่มใหม่ ให้เอาจำนวนข้อมูล + 1
+                orderToSave = currentTableData.length + 1;
+            }
+
             const recordData = {
-                BannerID: document.getElementById('ban_BannerID').value, // ถ้าว่าง Backend จะสร้างใหม่
-                ImageURL: document.getElementById('ban_ImageURL').value,
+                BannerID: document.getElementById('ban_BannerID').value, 
+                ImageURL: finalUrl, // ใช้ลิงก์ที่แปลงแล้ว
                 Title: document.getElementById('ban_Title').value,
                 Description: document.getElementById('ban_Description').value,
-                OrderList: document.getElementById('ban_OrderList').value,
+                OrderList: orderToSave, // ใช้ลำดับที่คำนวณมา
                 IsActive: document.getElementById('ban_IsActive').checked ? 'TRUE' : 'FALSE'
             };
 
@@ -597,7 +657,7 @@
                     if (res.status === 'success') {
                         bootstrap.Modal.getInstance(document.getElementById('bannerModal')).hide();
                         Swal.fire({ icon: 'success', title: res.message, showConfirmButton: false, timer: 1500 });
-                        loadTableData('Banners', renderBannersTable); // โหลดตารางใหม่
+                        loadTableData('Banners', renderBannersTable);
                     } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
                 }).finally(() => { btn.innerHTML = 'บันทึกข้อมูล'; btn.disabled = false; });
         }
