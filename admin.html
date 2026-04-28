@@ -1970,83 +1970,75 @@
 // ==========================================
         // 🚀 ฟังก์ชันอัปโหลดไฟล์แบบทีละไฟล์ (Sequential Upload)
         // ==========================================
-        
-        // 1. ฟังก์ชันส่งไฟล์ไป API ทีละ 1 ไฟล์
         async function uploadSingleFile(file, fileType) {
             try {
                 const base64 = await getBase64(file);
                 const formData = new URLSearchParams();
                 formData.append('action', 'uploadFile');
                 formData.append('name', file.name);
-                formData.append('fileType', fileType); // 'image' หรือ 'document'
+                formData.append('fileType', fileType); 
                 formData.append('base64', base64);
                 
                 const response = await fetch(API_URL, { method: 'POST', body: formData });
                 const result = await response.json();
                 
-                if (result.status === 'success') {
-                    return result.url; // สำเร็จ คืนค่าลิงก์ Google Drive
-                } else {
-                    throw new Error('Upload failed on server');
-                }
+                if (result.status === 'success') return result.url;
+                throw new Error('Upload failed');
             } catch (err) {
                 console.error('File Upload Error:', err);
-                return null; // ล้มเหลว คืนค่า null
+                return null;
             }
         }
 
-        // 2. ฟังก์ชันหลักสำหรับบันทึกข่าว (ปรับให้ทนทานขึ้น)
+        // 🟢 อัปเดต: ฟังก์ชันบันทึกข่าว (แยกอัปโหลดไฟล์ให้เสร็จก่อน แล้วค่อยเซฟข้อความ)
         async function saveNewsRecord(e) {
             e.preventDefault();
             const btn = document.getElementById('btnSaveNews');
             
-            // ดึงข้อความ HTML จาก Editor
             const htmlContent = quillEditor.root.innerHTML;
-            if (quillEditor.getText().trim().length === 0) { 
-                Swal.fire('ข้อผิดพลาด', 'กรุณาใส่เนื้อหาข่าว', 'warning'); return; 
-            }
+            if (quillEditor.getText().trim().length === 0) { Swal.fire('ข้อผิดพลาด', 'กรุณาใส่เนื้อหาข่าว', 'warning'); return; }
 
-            // ล็อกปุ่มกันกดซ้ำ และโชว์สถานะ
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังอัปโหลดไฟล์... (ห้ามปิดหน้าจอ)'; 
+            // ล็อกปุ่ม
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังอัปโหลดไฟล์ (ห้ามปิดหน้าจอ)...'; 
             btn.disabled = true;
 
             try {
-                // เก็บ URL เดิมไว้ (เผื่อไม่มีการอัปโหลดใหม่)
+                // เก็บ URL เดิมไว้ 
                 let finalCoverUrl = document.getElementById('news_ExistingCoverURL').value;
                 let finalFilesUrls = document.getElementById('news_ExistingFileURL').value ? document.getElementById('news_ExistingFileURL').value.split(', ') : [];
                 let finalGalleryUrls = document.getElementById('news_ExistingGalleryURL').value ? document.getElementById('news_ExistingGalleryURL').value.split(', ') : [];
 
-                // 🟢 กระบวนการที่ 1: อัปโหลดรูปหน้าปก (1 รูป)
+                // 1. อัปโหลดรูปหน้าปก (1 รูป)
                 const coverInput = document.getElementById('news_UploadCover');
                 if (coverInput.files.length > 0) {
-                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังอัปโหลดรูปหน้าปก...';
-                    let uploadedUrl = await uploadSingleFile(coverInput.files[0], 'image');
-                    if (uploadedUrl) finalCoverUrl = uploadedUrl;
+                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> อัปโหลดรูปหน้าปก...';
+                    let url = await uploadSingleFile(coverInput.files[0], 'image');
+                    if (url) finalCoverUrl = url;
                 }
 
-                // 🟢 กระบวนการที่ 2: อัปโหลดไฟล์แนบ (หลายไฟล์ - อัปโหลดทีละอัน)
+                // 2. อัปโหลดไฟล์แนบเอกสาร (หลายไฟล์)
                 const docInput = document.getElementById('news_UploadFile');
                 if (docInput.files.length > 0) {
                     for (let i = 0; i < docInput.files.length; i++) {
-                        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังอัปโหลดเอกสารแนบ (${i+1}/${docInput.files.length})...`;
-                        let uploadedUrl = await uploadSingleFile(docInput.files[i], 'document');
-                        if (uploadedUrl) finalFilesUrls.push(uploadedUrl);
+                        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin me-2"></i> อัปโหลดเอกสารแนบ (${i+1}/${docInput.files.length})...`;
+                        let url = await uploadSingleFile(docInput.files[i], 'document');
+                        if (url) finalFilesUrls.push(url);
                     }
                 }
 
-                // 🟢 กระบวนการที่ 3: อัปโหลดแกลลอรีรูปภาพ (หลายรูป - อัปโหลดทีละอัน)
+                // 3. อัปโหลดแกลลอรี (หลายรูป)
                 const galInput = document.getElementById('news_UploadGallery');
                 if (galInput.files.length > 0) {
                     for (let i = 0; i < galInput.files.length; i++) {
-                        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังอัปโหลดรูปแกลลอรี (${i+1}/${galInput.files.length})...`;
-                        let uploadedUrl = await uploadSingleFile(galInput.files[i], 'image');
-                        if (uploadedUrl) finalGalleryUrls.push(uploadedUrl);
+                        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin me-2"></i> อัปโหลดแกลลอรี (${i+1}/${galInput.files.length})...`;
+                        let url = await uploadSingleFile(galInput.files[i], 'image');
+                        if (url) finalGalleryUrls.push(url);
                     }
                 }
 
-                // 🟢 กระบวนการที่ 4: บันทึกข้อมูลทั้งหมดลง Google Sheet
-                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังบันทึกข้อมูลลงฐานข้อมูล...';
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังบันทึกลงฐานข้อมูล...';
 
+                // นำ URL ทั้งหมดมายัดใส่ Object
                 const recordData = {
                     NewsID: document.getElementById('news_NewsID').value,
                     Title: document.getElementById('news_Title').value,
@@ -2072,23 +2064,23 @@
 
                 if (result.status === 'success') {
                     bootstrap.Modal.getInstance(document.getElementById('newsModal')).hide();
-                    Swal.fire({ icon: 'success', title: 'สำเร็จ', text: 'ข้อมูลถูกบันทึกและอัปโหลดสมบูรณ์', showConfirmButton: false, timer: 2000 });
-                    loadTableData('News', renderNewsTable); // โหลดตารางใหม่
+                    Swal.fire({ icon: 'success', title: 'สำเร็จ', text: 'บันทึกข้อมูลเรียบร้อย', showConfirmButton: false, timer: 2000 });
+                    loadTableData('News', renderNewsTable);
                 } else {
                     Swal.fire('ผิดพลาด', result.message, 'error');
                 }
 
             } catch (error) {
                 console.error(error);
-                Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง', 'error');
+                Swal.fire('ข้อผิดพลาด', 'ไม่สามารถบันทึกข้อมูลได้', 'error');
             } finally {
-                // คืนค่าปุ่มให้กลับมาเหมือนเดิม
                 btn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i> บันทึกข่าวสาร'; 
                 btn.disabled = false; 
             }
         }
-// =======================สิ้นสุด ฟังก์ชันจัดการ ข่าว =================
-// ==========================================
+        // ======================= สิ้นสุด ฟังก์ชันบันทึกข่าว =================
+
+        // ==========================================
         // 🖼️ ฟังก์ชันเปิดดูเอกสารแนบ และแกลลอรี
         // ==========================================
         function openFilesModal(newsId) {
@@ -2099,7 +2091,6 @@
             if (item && item.FilesURL) {
                 let files = item.FilesURL.split(', ');
                 files.forEach((url, idx) => {
-                    // 🟢 เปลี่ยนลิงก์ให้เป็นแบบพรีวิวเอกสารบนเบราว์เซอร์
                     let viewUrl = url.replace('?usp=sharing', '');
                     container.innerHTML += `
                         <a href="${viewUrl}" target="_blank" class="btn btn-outline-danger">
@@ -2119,7 +2110,6 @@
             if (item && item.GalleryURLs) {
                 let images = item.GalleryURLs.split(', ');
                 images.forEach((url) => {
-                    // แปลงลิงก์ให้อ่านภาพได้ชัดๆ ด้วย thumbnail API ของเรา
                     let displayUrl = convertDriveImageLink(url);
                     wrapper.innerHTML += `
                         <div class="swiper-slide d-flex justify-content-center align-items-center">
@@ -2131,7 +2121,6 @@
 
             new bootstrap.Modal(document.getElementById('viewGalleryModal')).show();
             
-            // เรียกใช้งาน Swiper สำหรับสไลด์โชว์แกลลอรี
             new Swiper('.swiper-gallery', {
                 navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
                 pagination: { el: '.swiper-pagination', clickable: true },
