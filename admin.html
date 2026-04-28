@@ -1968,74 +1968,108 @@
         }
 
  // 🟢 ฟังก์ชันแปลงหลายไฟล์พร้อมกัน
-        async function getMultipleBase64(fileInput) {
+    /*    async function getMultipleBase64(fileInput) {
             let results = [];
             for (let file of fileInput.files) {
                 let b64 = await getBase64(file);
                 results.push({ name: file.name, b64: b64 });
             }
             return JSON.stringify(results);
+        }*/
+
+        // 🟢 ฟังก์ชันช่วยอัปโหลดไฟล์ไปที่ API (ทีละไฟล์)
+        async function uploadFileToAPI(file, fileType) {
+            const base64 = await getBase64(file);
+            const formData = new URLSearchParams();
+            formData.append('action', 'uploadFile');
+            formData.append('name', file.name);
+            formData.append('fileType', fileType); // 'image' หรือ 'document'
+            formData.append('base64', base64);
+            
+            const response = await fetch(API_URL, { method: 'POST', body: formData });
+            const result = await response.json();
+            if (result.status === 'success') return result.url;
+            throw new Error('Upload failed');
         }
 
+        // 🟢 ฟังก์ชันบันทึกข่าว (แยกอัปโหลดไฟล์ก่อน แล้วค่อยบันทึกข้อความลง Sheet)
         async function saveNewsRecord(e) {
-            e.preventDefault(); const btn = document.getElementById('btnSaveNews');
-            
+            e.preventDefault();
+            const btn = document.getElementById('btnSaveNews');
             const htmlContent = quillEditor.root.innerHTML;
             if (quillEditor.getText().trim().length === 0) { Swal.fire('ข้อผิดพลาด', 'กรุณาใส่เนื้อหาข่าว', 'warning'); return; }
 
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังบันทึกและอัปโหลดไฟล์...'; 
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังอัปโหลดไฟล์ กรุณารอสักครู่...'; 
             btn.disabled = true;
 
-            const recordData = {
-                NewsID: document.getElementById('news_NewsID').value,
-                Title: document.getElementById('news_Title').value,
-                Content: htmlContent, 
-                CategoryID: document.getElementById('news_CategoryID').value,
-                Status: document.getElementById('news_Status').value,
-                CreateDate: document.getElementById('news_CreateDate').value,
-                Author: document.getElementById('news_Author').value,
-                ViewCount: document.getElementById('news_ViewCount').value,
-                CoverImageURL: document.getElementById('news_ExistingCoverURL').value,
-                FilesURL: document.getElementById('news_ExistingFileURL').value,
-                GalleryURLs: document.getElementById('news_ExistingGalleryURL').value
-            };
+            try {
+                // 1. เตรียม URL เดิม (เผื่อไม่ได้อัปไฟล์ใหม่)
+                let coverUrl = document.getElementById('news_ExistingCoverURL').value;
+                let filesUrls = document.getElementById('news_ExistingFileURL').value ? document.getElementById('news_ExistingFileURL').value.split(', ') : [];
+                let galleryUrls = document.getElementById('news_ExistingGalleryURL').value ? document.getElementById('news_ExistingGalleryURL').value.split(', ') : [];
 
-            const formData = new URLSearchParams();
-            formData.append('action', 'saveRecord');
-            formData.append('sheetName', 'News');
-            formData.append('idColumn', 'NewsID');
-            
-            // 1. อัปโหลดหน้าปก
-            const coverInput = document.getElementById('news_UploadCover');
-            if (coverInput.files.length > 0) {
-                formData.append('coverImageBase64', await getBase64(coverInput.files[0]));
-                formData.append('coverImageName', coverInput.files[0].name);
-            }
+                // 2. อัปโหลดรูปหน้าปก (ถ้ามีเลือกใหม่)
+                const coverInput = document.getElementById('news_UploadCover');
+                if (coverInput.files.length > 0) {
+                    coverUrl = await uploadFileToAPI(coverInput.files[0], 'image');
+                }
 
-            // 2. อัปโหลดไฟล์แนบหลายไฟล์
-            const fileInput = document.getElementById('news_UploadFile');
-            if (fileInput.files.length > 0) {
-                formData.append('attachmentsJSON', await getMultipleBase64(fileInput));
-            }
+                // 3. อัปโหลดไฟล์แนบหลายไฟล์ (ถ้ามีเลือกใหม่ จะเอาไปต่อท้ายของเดิม)
+                const docInput = document.getElementById('news_UploadFile');
+                for (let file of docInput.files) {
+                    let url = await uploadFileToAPI(file, 'document');
+                    filesUrls.push(url);
+                }
 
-            // 3. อัปโหลดแกลลอรีหลายรูป
-            const galleryInput = document.getElementById('news_UploadGallery');
-            if (galleryInput.files.length > 0) {
-                formData.append('galleryJSON', await getMultipleBase64(galleryInput));
-            }
+                // 4. อัปโหลดแกลลอรีหลายรูป (ถ้ามีเลือกใหม่ จะเอาไปต่อท้ายของเดิม)
+                const galInput = document.getElementById('news_UploadGallery');
+                for (let file of galInput.files) {
+                    let url = await uploadFileToAPI(file, 'image');
+                    galleryUrls.push(url);
+                }
 
-            formData.append('recordJSON', JSON.stringify(recordData));
+                // 5. เมื่ออัปโหลดไฟล์ทั้งหมดเสร็จแล้ว ค่อยนำ URL มามัดรวมกับข้อความข่าว
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังบันทึกข้อมูลลงฐานข้อมูล...';
 
-            fetch(API_URL, { method: 'POST', body: formData }).then(res => res.json()).then(res => {
-                if (res.status === 'success') {
+                const recordData = {
+                    NewsID: document.getElementById('news_NewsID').value,
+                    Title: document.getElementById('news_Title').value,
+                    Content: htmlContent, 
+                    CategoryID: document.getElementById('news_CategoryID').value,
+                    Status: document.getElementById('news_Status').value,
+                    CreateDate: document.getElementById('news_CreateDate').value,
+                    Author: document.getElementById('news_Author').value,
+                    ViewCount: document.getElementById('news_ViewCount').value,
+                    CoverImageURL: coverUrl, // URL รูปปก
+                    FilesURL: filesUrls.join(', '), // URL ไฟล์แนบ (คั่นด้วย ,)
+                    GalleryURLs: galleryUrls.join(', ') // URL แกลลอรี (คั่นด้วย ,)
+                };
+
+                const formData = new URLSearchParams();
+                formData.append('action', 'saveRecord');
+                formData.append('sheetName', 'News');
+                formData.append('idColumn', 'NewsID');
+                formData.append('recordJSON', JSON.stringify(recordData));
+
+                // 6. ยิง API เซฟลง Google Sheet
+                const response = await fetch(API_URL, { method: 'POST', body: formData });
+                const result = await response.json();
+
+                if (result.status === 'success') {
                     bootstrap.Modal.getInstance(document.getElementById('newsModal')).hide();
-                    Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', text: 'ข้อมูลและไฟล์ถูกอัปโหลดเรียบร้อยแล้ว', showConfirmButton: false, timer: 2000 });
-                    loadTableData('News', renderNewsTable);
-                } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
-            }).finally(() => { 
+                    Swal.fire({ icon: 'success', title: 'สำเร็จ', text: 'ข้อมูลถูกบันทึกและอัปโหลดสมบูรณ์', showConfirmButton: false, timer: 2000 });
+                    loadTableData('News', renderNewsTable); // รีเฟรชตาราง
+                } else {
+                    throw new Error(result.message);
+                }
+
+            } catch (error) {
+                console.error(error);
+                Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง', 'error');
+            } finally {
                 btn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i> บันทึกข่าวสาร'; 
                 btn.disabled = false; 
-            });
+            }
         }
         // =======================สิ้นสุด ฟังก์ชันจัดการ ข่าว =================
 // ==========================================
@@ -2049,7 +2083,13 @@
             if (item && item.FilesURL) {
                 let files = item.FilesURL.split(', ');
                 files.forEach((url, idx) => {
-                    container.innerHTML += `<a href="${url}" target="_blank" class="btn btn-danger"><i class="fa-solid fa-download me-2"></i> ดาวน์โหลดไฟล์ที่ ${idx + 1}</a>`;
+                    // 🟢 เปลี่ยนลิงก์ให้เป็นแบบพรีวิวเอกสารบนเบราว์เซอร์
+                    let viewUrl = url.replace('?usp=sharing', '');
+                    container.innerHTML += `
+                        <a href="${viewUrl}" target="_blank" class="btn btn-outline-danger">
+                            <i class="fa-solid fa-file-pdf me-2"></i> เปิดดูไฟล์เอกสารที่ ${idx + 1}
+                        </a>
+                    `;
                 });
             }
             new bootstrap.Modal(document.getElementById('viewFilesModal')).show();
