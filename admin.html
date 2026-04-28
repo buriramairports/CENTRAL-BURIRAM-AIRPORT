@@ -883,12 +883,15 @@
                     fetch(API_URL, { method: 'POST', body: formData }).then(res => res.json()).then(res => {
                         if (res.status === 'success') {
                             Swal.fire({ icon: 'success', title: 'ลบสำเร็จ', showConfirmButton: false, timer: 1500 });
-                            // รีเฟรชตารางตามหน้าเว็บที่เปิดอยู่
+                            
+                            // 🟢 เพิ่มชื่อตารางให้ครบ เพื่อให้ระบบรีเฟรชหน้าเว็บหลังลบเสร็จ
                             if(sheetName === 'Banners') loadTableData('Banners', renderBannersTable);
                             if(sheetName === 'Departments') loadTableData('Departments', renderDeptsTable);
                             if(sheetName === 'EServices') loadTableData('EServices', renderEServicesTable);
                             if(sheetName === 'Airlines') loadTableData('Airlines', renderAirlinesTable);
                             if(sheetName === 'NewsCategories') loadTableData('NewsCategories', renderNewsCatsTable);
+                            if(sheetName === 'PassengerStats') loadTableData('PassengerStats', renderPassengerStatsTable);
+                            if(sheetName === 'Users') loadTableData('Users', renderUsersTable);
                         }
                     });
                 }
@@ -1527,11 +1530,19 @@
                 .then(res => res.json())
                 .then(res => {
                     if (res.status === 'success') {
-                        bootstrap.Modal.getInstance(document.getElementById('userModal')).show() && bootstrap.Modal.getInstance(document.getElementById('userModal')).hide();
+                        // 🟢 แก้ไขคำสั่งปิด Modal ที่ถูกต้อง
+                        bootstrap.Modal.getInstance(document.getElementById('userModal')).hide();
+                        document.getElementById('formUser').reset(); // เคลียร์ข้อมูลที่ค้างในฟอร์มทิ้ง
+                        
                         Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', showConfirmButton: false, timer: 1500 });
                         loadTableData('Users', renderUsersTable);
-                    } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
-                }).finally(() => { btn.innerHTML = 'บันทึกข้อมูลผู้ใช้งาน'; btn.disabled = false; });
+                    } else { 
+                        Swal.fire('ผิดพลาด', res.message, 'error'); 
+                    }
+                }).finally(() => { 
+                    btn.innerHTML = 'บันทึกข้อมูลผู้ใช้งาน'; 
+                    btn.disabled = false; 
+                });
         }
 
         // ฟังก์ชันช่วยหาเวลาปัจจุบัน (ใช้กับตอน Admin เพิ่มคนใหม่)
