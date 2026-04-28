@@ -945,10 +945,14 @@
                         <input type="hidden" id="news_CreateDate">
                         <input type="hidden" id="news_Author">
                         <input type="hidden" id="news_ViewCount">
+                        
+                        <!-- ตัวเก็บ URL ของเก่า -->
                         <input type="hidden" id="news_ExistingCoverURL">
                         <input type="hidden" id="news_ExistingFileURL">
+                        <input type="hidden" id="news_ExistingGalleryURL">
                         
                         <div class="row g-4">
+                            <!-- ฝั่งซ้าย: ข้อมูลหลัก -->
                             <div class="col-lg-8">
                                 <div class="card border-0 shadow-sm h-100">
                                     <div class="card-body d-flex flex-column">
@@ -957,25 +961,32 @@
                                             <input type="text" class="form-control fs-5 fw-bold text-primary" id="news_Title" required>
                                         </div>
                                         <div class="mb-2 flex-grow-1 d-flex flex-column">
-                                            <label class="form-label fw-bold">เนื้อหาข่าว (สามารถก๊อปปี้รูปภาพมาวางแทรกในข้อความได้เลย) <span class="text-danger">*</span></label>
-                                            <div id="news_Content_Editor" style="height: 350px; background: white;"></div>
+                                            <label class="form-label fw-bold">เนื้อหาข่าว <span class="text-danger">*</span></label>
+                                            <!-- 🟢 ขยายความสูงเป็น 500px -->
+                                            <div id="news_Content_Editor" style="height: 500px; background: white;"></div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             
+                            <!-- ฝั่งขวา: การตั้งค่าและไฟล์แนบ -->
                             <div class="col-lg-4">
                                 <div class="card border-0 shadow-sm mb-3">
                                     <div class="card-body">
                                         <label class="form-label fw-bold"><i class="fa-solid fa-layer-group text-info"></i> หมวดหมู่ข่าว <span class="text-danger">*</span></label>
                                         <select class="form-select mb-4" id="news_CategoryID" required></select>
 
-                                        <label class="form-label fw-bold"><i class="fa-solid fa-image text-warning"></i> อัปโหลดรูปภาพหน้าปก</label>
+                                        <label class="form-label fw-bold"><i class="fa-solid fa-image text-warning"></i> อัปโหลดรูปภาพหน้าปก (1 รูป)</label>
                                         <input type="file" class="form-control mb-1" id="news_UploadCover" accept="image/png, image/jpeg">
-                                        <div class="form-text mb-4" id="news_CoverStatus">ไม่ได้เลือกไฟล์ (ระบบจะใช้รูปโลโก้ หรือรูปเดิม)</div>
+                                        <div class="form-text mb-4" id="news_CoverStatus">ไม่ได้เลือกไฟล์</div>
 
-                                        <label class="form-label fw-bold"><i class="fa-solid fa-file-pdf text-danger"></i> อัปโหลดไฟล์เอกสารแนบ (เช่น PDF)</label>
-                                        <input type="file" class="form-control mb-1" id="news_UploadFile" accept=".pdf,.doc,.docx">
+                                        <!-- 🟢 เพิ่ม multiple ให้เลือกได้หลายไฟล์ -->
+                                        <label class="form-label fw-bold"><i class="fa-solid fa-images text-success"></i> อัปโหลดแกลลอรีรูปภาพ (เลือกได้หลายรูป)</label>
+                                        <input type="file" class="form-control mb-1" id="news_UploadGallery" accept="image/png, image/jpeg" multiple>
+                                        <div class="form-text mb-4" id="news_GalleryStatus">ไม่ได้เลือกไฟล์</div>
+
+                                        <label class="form-label fw-bold"><i class="fa-solid fa-file-pdf text-danger"></i> อัปโหลดไฟล์เอกสาร (เลือกได้หลายไฟล์)</label>
+                                        <input type="file" class="form-control mb-1" id="news_UploadFile" accept=".pdf,.doc,.docx" multiple>
                                         <div class="form-text mb-4" id="news_FileStatus">ไม่ได้เลือกไฟล์</div>
                                         
                                         <hr>
@@ -986,7 +997,7 @@
                                         </select>
                                     </div>
                                 </div>
-                                <button type="submit" class="btn btn-primary w-100 py-3 fw-bold fs-5" id="btnSaveNews"><i class="fa-solid fa-paper-plane me-2"></i> บันทึกข่าวสาร</button>
+                                <button type="submit" class="btn btn-primary w-100 py-3 fw-bold fs-5" id="btnSaveNews"><i class="fa-solid fa-paper-plane me-2"></i> บันทึกและอัปโหลด</button>
                             </div>
                         </div>
                     </form>
@@ -1033,16 +1044,17 @@
                 conjunction: ", " 
             });
 
+            // 3. เปิดใช้งาน Quill JS Editor ให้หน้า "จัดการข่าวสาร"
             quillEditor = new Quill('#news_Content_Editor', {
                 theme: 'snow',
-                placeholder: 'พิมพ์เนื้อหาข่าว หรือกด Ctrl+V เพื่อวางรูปภาพประกอบ...',
+                placeholder: 'พิมพ์เนื้อหาข่าว หรือก๊อปปี้ข้อความมาวางที่นี่...',
                 modules: {
                     toolbar: [
                         [{ 'header': [1, 2, 3, false] }],
                         ['bold', 'italic', 'underline', 'strike'],
                         [{ 'list': 'ordered'}, { 'list': 'bullet' }],
                         [{ 'align': [] }],
-                        ['link', 'image'], 
+                        ['link'], // 🟢 เอา 'image' ออก
                         ['clean']
                     ]
                 }
@@ -1825,9 +1837,10 @@
             });
         }
 
-        function renderNewsTable(data) {
+       function renderNewsTable(data) {
             const user = JSON.parse(localStorage.getItem('userData'));
-            const tbody = document.getElementById('tbody-news'); tbody.innerHTML = '';
+            const tbody = document.getElementById('tbody-news');
+            tbody.innerHTML = '';
             
             let allowedData = data;
             if (user.role === 'SubAdmin') {
@@ -1843,15 +1856,23 @@
                 let imgHtml = coverUrl ? `<img src="${coverUrl}" style="width:100px; height:60px; object-fit:cover; border-radius:5px;">` : `<div style="width:100px; height:60px; background:#e2e8f0; border-radius:5px; display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-image text-muted"></i></div>`;
                 
                 let catObj = allCategoriesData.find(c => c.CategoryID === item.CategoryID);
-                let catName = catObj ? catObj.CategoryName : 'ไม่ระบุหมวดหมู่';
-                let catColor = catObj ? catObj.ThemeColor : '#64748b';
-                let btnAttachment = item.FilesURL ? `<a href="${item.FilesURL}" target="_blank" class="btn btn-sm btn-outline-danger mt-2" title="เปิดดูไฟล์แนบ"><i class="fa-solid fa-file-pdf"></i> เอกสารแนบ</a>` : '';
+                
+                // 🟢 สร้างปุ่มแสดงไฟล์แนบ และ แกลลอรี
+                let filesArr = item.FilesURL ? item.FilesURL.split(', ') : [];
+                let galArr = item.GalleryURLs ? item.GalleryURLs.split(', ') : [];
+                
+                let btnAttachment = filesArr.length > 0 ? `<span class="badge bg-danger ms-2"><i class="fa-solid fa-file-pdf"></i> ${filesArr.length} ไฟล์</span>` : '';
+                let btnGallery = galArr.length > 0 ? `<span class="badge bg-success ms-2"><i class="fa-solid fa-images"></i> ${galArr.length} รูป</span>` : '';
 
                 tbody.innerHTML += `
                     <tr>
                         <td class="text-center">${imgHtml}</td>
-                        <td><div class="fw-bold text-dark" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${item.Title}</div>${btnAttachment}<div class="small text-muted mt-1"><i class="fa-regular fa-calendar me-1"></i> ${item.CreateDate || '-'} | <i class="fa-solid fa-pen-nib mx-1"></i> ${item.Author || '-'}</div></td>
-                        <td><span class="badge text-white" style="background-color: ${catColor};">${catName}</span></td>
+                        <td>
+                            <div class="fw-bold text-dark" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${item.Title}</div>
+                            <div class="mt-1">${btnAttachment} ${btnGallery}</div>
+                            <div class="small text-muted mt-1"><i class="fa-regular fa-calendar me-1"></i> ${item.CreateDate || '-'} | <i class="fa-solid fa-pen-nib mx-1"></i> ${item.Author || '-'}</div>
+                        </td>
+                        <td><span class="badge text-white" style="background-color: ${catObj ? catObj.ThemeColor : '#ccc'};">${catObj ? catObj.CategoryName : '-'}</span></td>
                         <td class="text-center fw-bold text-secondary">${item.ViewCount || 0}</td>
                         <td>${badge}</td>
                         <td class="text-center">
@@ -1863,42 +1884,114 @@
             });
         }
 
-        function openNewsModal(id = '') {
+         function openNewsModal(id = '') {
             document.getElementById('formNews').reset(); document.getElementById('news_NewsID').value = ''; document.getElementById('newsModalTitle').innerText = 'เขียนข่าว/ประชาสัมพันธ์ใหม่';
             quillEditor.root.innerHTML = '';
-            document.getElementById('news_CoverStatus').innerText = 'ไม่ได้เลือกไฟล์ (ระบบจะใช้รูปโลโก้แทน)'; document.getElementById('news_FileStatus').innerText = 'ไม่ได้เลือกไฟล์'; document.getElementById('news_ExistingCoverURL').value = ''; document.getElementById('news_ExistingFileURL').value = '';
+            document.getElementById('news_CoverStatus').innerText = 'ไม่ได้เลือกไฟล์'; 
+            document.getElementById('news_FileStatus').innerText = 'ไม่ได้เลือกไฟล์'; 
+            document.getElementById('news_GalleryStatus').innerText = 'ไม่ได้เลือกไฟล์'; 
+            
+            document.getElementById('news_ExistingCoverURL').value = ''; 
+            document.getElementById('news_ExistingFileURL').value = '';
+            document.getElementById('news_ExistingGalleryURL').value = '';
 
             const user = JSON.parse(localStorage.getItem('userData'));
-            document.getElementById('news_CreateDate').value = Utilities_getNow(); document.getElementById('news_Author').value = user.fullname; document.getElementById('news_ViewCount').value = '0';
+            document.getElementById('news_CreateDate').value = Utilities_getNow(); 
+            document.getElementById('news_Author').value = user.fullname; 
+            document.getElementById('news_ViewCount').value = '0';
 
             if (id) {
                 document.getElementById('newsModalTitle').innerText = 'แก้ไขข่าวสาร';
                 const item = currentTableData.find(x => x.NewsID === id);
-                document.getElementById('news_NewsID').value = item.NewsID; document.getElementById('news_Title').value = item.Title; quillEditor.root.innerHTML = item.Content || ''; document.getElementById('news_CategoryID').value = item.CategoryID; document.getElementById('news_Status').value = item.Status; document.getElementById('news_CreateDate').value = item.CreateDate; document.getElementById('news_Author').value = item.Author; document.getElementById('news_ViewCount').value = item.ViewCount;
-                document.getElementById('news_ExistingCoverURL').value = item.CoverImageURL; document.getElementById('news_ExistingFileURL').value = item.FilesURL;
-                if(item.CoverImageURL) document.getElementById('news_CoverStatus').innerHTML = `<a href="${item.CoverImageURL}" target="_blank">มีรูปภาพเดิมอยู่แล้ว</a> (หากอัปโหลดใหม่จะแทนที่เดิม)`;
-                if(item.FilesURL) document.getElementById('news_FileStatus').innerHTML = `<a href="${item.FilesURL}" target="_blank">มีไฟล์แนบเดิมอยู่แล้ว</a> (หากอัปโหลดใหม่จะแทนที่เดิม)`;
+                document.getElementById('news_NewsID').value = item.NewsID; 
+                document.getElementById('news_Title').value = item.Title; 
+                quillEditor.root.innerHTML = item.Content || ''; 
+                document.getElementById('news_CategoryID').value = item.CategoryID; 
+                document.getElementById('news_Status').value = item.Status; 
+                document.getElementById('news_CreateDate').value = item.CreateDate; 
+                document.getElementById('news_Author').value = item.Author; 
+                document.getElementById('news_ViewCount').value = item.ViewCount;
+
+                document.getElementById('news_ExistingCoverURL').value = item.CoverImageURL || ''; 
+                document.getElementById('news_ExistingFileURL').value = item.FilesURL || '';
+                document.getElementById('news_ExistingGalleryURL').value = item.GalleryURLs || '';
+                
+                if(item.CoverImageURL) document.getElementById('news_CoverStatus').innerHTML = `<a href="${item.CoverImageURL}" target="_blank">มีรูปหน้าปกเดิมอยู่แล้ว</a> (อัปโหลดใหม่เพื่อแทนที่)`;
+                if(item.FilesURL) document.getElementById('news_FileStatus').innerHTML = `มีไฟล์แนบเดิม ${item.FilesURL.split(', ').length} ไฟล์ (อัปโหลดใหม่เพื่อเพิ่มต่อท้าย)`;
+                if(item.GalleryURLs) document.getElementById('news_GalleryStatus').innerHTML = `มีรูปแกลลอรีเดิม ${item.GalleryURLs.split(', ').length} รูป (อัปโหลดใหม่เพื่อเพิ่มต่อท้าย)`;
             }
             new bootstrap.Modal(document.getElementById('newsModal')).show();
         }
 
+ // 🟢 ฟังก์ชันแปลงหลายไฟล์พร้อมกัน
+        async function getMultipleBase64(fileInput) {
+            let results = [];
+            for (let file of fileInput.files) {
+                let b64 = await getBase64(file);
+                results.push({ name: file.name, b64: b64 });
+            }
+            return JSON.stringify(results);
+        }
+
         async function saveNewsRecord(e) {
             e.preventDefault(); const btn = document.getElementById('btnSaveNews');
+            
             const htmlContent = quillEditor.root.innerHTML;
             if (quillEditor.getText().trim().length === 0) { Swal.fire('ข้อผิดพลาด', 'กรุณาใส่เนื้อหาข่าว', 'warning'); return; }
 
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังบันทึก อัปโหลดไฟล์อาจใช้เวลาสักครู่...'; btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังบันทึกและอัปโหลดไฟล์...'; 
+            btn.disabled = true;
 
-            const recordData = { NewsID: document.getElementById('news_NewsID').value, Title: document.getElementById('news_Title').value, Content: htmlContent, CategoryID: document.getElementById('news_CategoryID').value, Status: document.getElementById('news_Status').value, CreateDate: document.getElementById('news_CreateDate').value, Author: document.getElementById('news_Author').value, ViewCount: document.getElementById('news_ViewCount').value, CoverImageURL: document.getElementById('news_ExistingCoverURL').value, FilesURL: document.getElementById('news_ExistingFileURL').value };
-            const formData = new URLSearchParams(); formData.append('action', 'saveRecord'); formData.append('sheetName', 'News'); formData.append('idColumn', 'NewsID');
+            const recordData = {
+                NewsID: document.getElementById('news_NewsID').value,
+                Title: document.getElementById('news_Title').value,
+                Content: htmlContent, 
+                CategoryID: document.getElementById('news_CategoryID').value,
+                Status: document.getElementById('news_Status').value,
+                CreateDate: document.getElementById('news_CreateDate').value,
+                Author: document.getElementById('news_Author').value,
+                ViewCount: document.getElementById('news_ViewCount').value,
+                CoverImageURL: document.getElementById('news_ExistingCoverURL').value,
+                FilesURL: document.getElementById('news_ExistingFileURL').value,
+                GalleryURLs: document.getElementById('news_ExistingGalleryURL').value
+            };
+
+            const formData = new URLSearchParams();
+            formData.append('action', 'saveRecord');
+            formData.append('sheetName', 'News');
+            formData.append('idColumn', 'NewsID');
             
+            // 1. อัปโหลดหน้าปก
             const coverInput = document.getElementById('news_UploadCover');
-            if (coverInput.files.length > 0) { const coverFile = coverInput.files[0]; formData.append('coverImageBase64', await getBase64(coverFile)); formData.append('coverImageName', coverFile.name); }
+            if (coverInput.files.length > 0) {
+                formData.append('coverImageBase64', await getBase64(coverInput.files[0]));
+                formData.append('coverImageName', coverInput.files[0].name);
+            }
+
+            // 2. อัปโหลดไฟล์แนบหลายไฟล์
             const fileInput = document.getElementById('news_UploadFile');
-            if (fileInput.files.length > 0) { const docFile = fileInput.files[0]; formData.append('fileBase64', await getBase64(docFile)); formData.append('fileName', docFile.name); }
-            
+            if (fileInput.files.length > 0) {
+                formData.append('attachmentsJSON', await getMultipleBase64(fileInput));
+            }
+
+            // 3. อัปโหลดแกลลอรีหลายรูป
+            const galleryInput = document.getElementById('news_UploadGallery');
+            if (galleryInput.files.length > 0) {
+                formData.append('galleryJSON', await getMultipleBase64(galleryInput));
+            }
+
             formData.append('recordJSON', JSON.stringify(recordData));
-            fetch(API_URL, { method: 'POST', body: formData }).then(res => res.json()).then(res => { if (res.status === 'success') { bootstrap.Modal.getInstance(document.getElementById('newsModal')).hide(); Swal.fire({ icon: 'success', title: 'บันทึกข่าวและอัปโหลดไฟล์สำเร็จ', showConfirmButton: false, timer: 2000 }); loadTableData('News', renderNewsTable); } else { Swal.fire('ผิดพลาด', res.message, 'error'); } }).finally(() => { btn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i> บันทึกข่าวสาร'; btn.disabled = false; });
+
+            fetch(API_URL, { method: 'POST', body: formData }).then(res => res.json()).then(res => {
+                if (res.status === 'success') {
+                    bootstrap.Modal.getInstance(document.getElementById('newsModal')).hide();
+                    Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', text: 'ข้อมูลและไฟล์ถูกอัปโหลดเรียบร้อยแล้ว', showConfirmButton: false, timer: 2000 });
+                    loadTableData('News', renderNewsTable);
+                } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
+            }).finally(() => { 
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i> บันทึกข่าวสาร'; 
+                btn.disabled = false; 
+            });
         }
         // =======================สิ้นสุด ฟังก์ชันจัดการ ข่าว =================
 
