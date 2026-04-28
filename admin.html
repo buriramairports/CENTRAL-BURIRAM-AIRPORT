@@ -1302,7 +1302,8 @@
         }
         
         function openBannerModal(id = '') { 
-            document.getElementById('formBanner').reset(); document.getElementById('ban_BannerID').value = ''; 
+            document.getElementById('formBanner').reset(); 
+            document.getElementById('ban_BannerID').value = ''; 
             document.getElementById('bannerModalTitle').innerText = 'เพิ่มรูปสไลด์ใหม่'; 
             document.getElementById('ban_ExistingImageURL').value = '';
             document.getElementById('ban_ImageStatus').innerText = 'กรุณาเลือกไฟล์รูปภาพ (ขนาดที่แนะนำ 1920x1080 px)';
@@ -1311,13 +1312,16 @@
                 document.getElementById('bannerModalTitle').innerText = 'แก้ไขรูปสไลด์'; 
                 const item = currentTableData.find(x => x.BannerID === id); 
                 document.getElementById('ban_BannerID').value = item.BannerID; 
-                document.getElementById('ban_ExistingImageURL').value = item.ImageURL || ''; 
+                document.getElementById('ban_ExistingImageURL').value = item.ImageURL || ''; // 🟢 เก็บ URL เดิม
                 document.getElementById('ban_Title').value = item.Title; 
                 document.getElementById('ban_Description').value = item.Description; 
                 document.getElementById('ban_OrderList').value = item.OrderList; 
                 document.getElementById('ban_IsActive').checked = (item.IsActive === 'TRUE'); 
                 
-                if(item.ImageURL) document.getElementById('ban_ImageStatus').innerHTML = `<a href="${item.ImageURL}" target="_blank">มีรูปภาพเดิมอยู่แล้ว</a> (อัปโหลดใหม่เพื่อแทนที่)`;
+                if(item.ImageURL) {
+                    let displayUrl = convertDriveImageLink(item.ImageURL);
+                    document.getElementById('ban_ImageStatus').innerHTML = `<a href="${displayUrl}" target="_blank">คลิกดูรูปสไลด์เดิม</a> (อัปโหลดใหม่เพื่อแทนที่)`;
+                }
             } 
             new bootstrap.Modal(document.getElementById('bannerModal')).show(); 
         }
@@ -1499,23 +1503,28 @@
             }); 
         }
         function openAirlineModal(id = '') { 
-            document.getElementById('formAirline').reset(); document.getElementById('air_AirlineID').value = ''; 
+            document.getElementById('formAirline').reset(); 
+            document.getElementById('air_AirlineID').value = ''; 
             document.getElementById('airlineModalTitle').innerText = 'เพิ่มสายการบิน'; 
             document.getElementById('air_ExistingIconURL').value = '';
-            document.getElementById('air_IconStatus').innerText = 'ไฟล์ควรเป็นสี่เหลี่ยมจัตุรัสพื้นหลังใส (PNG)';
+            document.getElementById('air_IconStatus').innerHTML = 'ไฟล์ควรเป็นสี่เหลี่ยมจัตุรัสพื้นหลังใส (PNG)';
 
             if (id) { 
                 document.getElementById('airlineModalTitle').innerText = 'แก้ไขสายการบิน'; 
                 const item = currentTableData.find(x => x.AirlineID === id); 
                 document.getElementById('air_AirlineID').value = item.AirlineID; 
-                document.getElementById('air_ExistingIconURL').value = item.IconURL || ''; 
+                document.getElementById('air_ExistingIconURL').value = item.IconURL || ''; // 🟢 เก็บ URL เดิม
                 document.getElementById('air_AirlineName').value = item.AirlineName; 
                 document.getElementById('air_PhoneNumber').value = item.PhoneNumber; 
                 document.getElementById('air_ThemeColor').value = item.ThemeColor; 
                 document.getElementById('air_OrderList').value = item.OrderList; 
                 document.getElementById('air_IsActive').checked = (item.IsActive === 'TRUE'); 
                 
-                if(item.IconURL) document.getElementById('air_IconStatus').innerHTML = `<a href="${item.IconURL}" target="_blank">มีโลโก้เดิมอยู่แล้ว</a> (อัปโหลดใหม่เพื่อแทนที่)`;
+                // 🟢 ถัามีโลโก้เดิมอยู่แล้ว ให้โชว์ลิงก์ให้แอดมินคลิกดูได้
+                if(item.IconURL) {
+                    let displayUrl = convertDriveImageLink(item.IconURL);
+                    document.getElementById('air_IconStatus').innerHTML = `<a href="${displayUrl}" target="_blank">คลิกดูโลโก้เดิม</a> (อัปโหลดใหม่เพื่อแทนที่)`;
+                }
             } 
             new bootstrap.Modal(document.getElementById('airlineModal')).show(); 
         }
