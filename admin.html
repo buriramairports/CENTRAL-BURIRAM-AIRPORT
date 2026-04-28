@@ -1498,7 +1498,12 @@
             data.sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList)).forEach((item, index) => { 
                 let badge = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิดใช้งาน</span>' : '<span class="badge bg-secondary">ปิด</span>'; 
                 let layoutLabel = item.LayoutType === 'slider' ? '<i class="fa-solid fa-images text-primary"></i> สไลด์รูปภาพ' : item.LayoutType === 'slider-vertical' ? '<i class="fa-solid fa-grip-vertical text-info"></i> สไลด์แนวตั้ง' : '<i class="fa-solid fa-list text-secondary"></i> แบบรายการ (Text)'; 
-                let colorBadge = item.LayoutType === 'text-list' ? `<span class="badge text-white" style="background-color:${item.ThemeColor};">${item.ThemeColor}</span>` : '-'; 
+                
+                // 🟢 แก้ไข: ถ้าสีเป็น transparent ให้โชว์คำว่า (ไม่มีสี)
+                let colorBadge = item.ThemeColor === 'transparent' 
+                    ? `<span class="badge bg-secondary">ไม่มีสี (สไลด์)</span>` 
+                    : `<span class="badge text-white" style="background-color:${item.ThemeColor};">${item.ThemeColor}</span>`; 
+                
                 let btnUp = index > 0 ? `<button class="btn btn-sm btn-light text-primary me-1" onclick="moveOrder('NewsCats', ${index}, -1, renderNewsCatsTable)"><i class="fa-solid fa-arrow-up"></i></button>` : `<button class="btn btn-sm btn-light me-1" style="visibility:hidden;"><i class="fa-solid fa-arrow-up"></i></button>`; 
                 let btnDown = index < data.length - 1 ? `<button class="btn btn-sm btn-light text-primary me-2" onclick="moveOrder('NewsCats', ${index}, 1, renderNewsCatsTable)"><i class="fa-solid fa-arrow-down"></i></button>` : `<button class="btn btn-sm btn-light me-2" style="visibility:hidden;"><i class="fa-solid fa-arrow-down"></i></button>`; 
                 
@@ -1908,14 +1913,17 @@
                 let imgHtml = coverUrl ? `<img src="${coverUrl}" style="width:100px; height:60px; object-fit:cover; border-radius:5px;">` : `<div style="width:100px; height:60px; background:#e2e8f0; border-radius:5px; display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-image text-muted"></i></div>`;
                 
                 let catObj = allCategoriesData.find(c => c.CategoryID === item.CategoryID);
+                let catName = catObj ? catObj.CategoryName : 'ไม่ระบุหมวดหมู่';
                 
-                // 🟢 เปลี่ยนจากแค่โชว์ป้าย เป็นปุ่มกดเพื่อให้แสดง Modal
+                // 🟢 แก้ไข: ถ้าสีเป็น transparent ให้แสดงเป็นพื้นหลังสีเทาแทน เพื่อให้อ่านตัวหนังสือสีขาวออก
+                let catColor = (catObj && catObj.ThemeColor !== 'transparent') ? catObj.ThemeColor : '#64748b';
+
                 let filesArr = item.FilesURL ? item.FilesURL.split(', ') : [];
                 let galArr = item.GalleryURLs ? item.GalleryURLs.split(', ') : [];
                 
                 let btnAttachment = filesArr.length > 0 ? `<button class="btn btn-sm btn-outline-danger mt-2 me-1" onclick="openFilesModal('${item.NewsID}')"><i class="fa-solid fa-file-pdf"></i> ${filesArr.length} ไฟล์</button>` : '';
                 let btnGallery = galArr.length > 0 ? `<button class="btn btn-sm btn-outline-success mt-2" onclick="openGalleryModal('${item.NewsID}')"><i class="fa-solid fa-images"></i> ${galArr.length} รูป</button>` : '';
-                
+
                 tbody.innerHTML += `
                     <tr>
                         <td class="text-center">${imgHtml}</td>
@@ -1924,7 +1932,7 @@
                             <div class="mt-1">${btnAttachment} ${btnGallery}</div>
                             <div class="small text-muted mt-1"><i class="fa-regular fa-calendar me-1"></i> ${item.CreateDate || '-'} | <i class="fa-solid fa-pen-nib mx-1"></i> ${item.Author || '-'}</div>
                         </td>
-                        <td><span class="badge text-white" style="background-color: ${catObj ? catObj.ThemeColor : '#ccc'};">${catObj ? catObj.CategoryName : '-'}</span></td>
+                        <td><span class="badge text-white" style="background-color: ${catColor};">${catName}</span></td>
                         <td class="text-center fw-bold text-secondary">${item.ViewCount || 0}</td>
                         <td>${badge}</td>
                         <td class="text-center">
