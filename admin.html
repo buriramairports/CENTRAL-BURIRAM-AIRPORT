@@ -326,7 +326,6 @@
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h4 class="fw-bold text-dark mb-0"><i class="fa-solid fa-users-line me-2 text-info"></i> จัดการสถิติผู้โดยสาร</h4>
                     <div>
-                        <!-- กล่องแสดงยอดรวม (ซ่อนไว้ก่อนให้ JS คำนวณ) -->
                         <span class="badge bg-primary fs-6 me-3 px-3 py-2 shadow-sm d-none" id="totalPassengerBadge">
                             <i class="fa-solid fa-calculator me-1"></i> ยอดรวม: <span id="totalPassengerNum">0</span> คน
                         </span>
@@ -334,14 +333,11 @@
                     </div>
                 </div>
 
-                <!-- ตัวกรองข้อมูล (Filter) เลือกดูตามปี -->
                 <div class="card card-custom mb-3 bg-light">
                     <div class="card-body p-3 d-flex align-items-center">
                         <i class="fa-solid fa-filter me-3 text-muted"></i>
                         <label class="fw-bold me-2 mb-0">เลือกปี พ.ศ. ที่ต้องการแสดง:</label>
-                        <select class="form-select w-auto" id="filterStatYear" onchange="filterStatsTable()">
-                            <!-- JS จะเติมปีที่มีในระบบให้ที่นี่ -->
-                        </select>
+                        <select class="form-select w-auto" id="filterStatYear" onchange="filterStatsTable()"></select>
                     </div>
                 </div>
 
@@ -371,7 +367,6 @@
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h4 class="fw-bold text-dark mb-0"><i class="fa-solid fa-users-gear me-2 text-primary"></i> จัดการบัญชีผู้ใช้งาน</h4>
                     <div>
-                        <!-- ปุ่มรีเฟรชข้อมูล เผื่อมีคนสมัครมาใหม่ -->
                         <button class="btn btn-outline-secondary me-2" onclick="loadTableData('Users', renderUsersTable)"><i class="fa-solid fa-rotate-right"></i></button>
                         <button class="btn btn-success" onclick="openUserModal()"><i class="fa-solid fa-user-plus me-1"></i> เพิ่มผู้ใช้งาน</button>
                     </div>
@@ -643,7 +638,7 @@
     </div>
     <!-- ================= สิ้นสุด Modal: จัดการ Airlines ================= -->
     
-   <!-- ================= เริ่มต้น Modal: จัดการ หมวดหมู่ข่าว ================= -->
+    <!-- ================= เริ่มต้น Modal: จัดการ หมวดหมู่ข่าว ================= -->
     <div class="modal fade" id="newsCatModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0">
@@ -663,7 +658,6 @@
                         
                         <div class="mb-3">
                             <label class="form-label fw-bold">กลุ่มงานที่รับผิดชอบ <span class="text-danger">*</span></label>
-                            <!-- Dropdown สำหรับเลือกกลุ่มงาน -->
                             <select class="form-select" id="ncat_Department" required>
                                 <option value="">กำลังโหลดข้อมูล...</option>
                             </select>
@@ -759,7 +753,6 @@
                 <div class="modal-body p-4">
                     <form id="formUser" onsubmit="saveUserRecord(event)">
                         <input type="hidden" id="usr_UserID">
-                        <!-- ไม่แก้ RegisterDate และ PDPA ก็ซ่อนไว้ -->
                         <input type="hidden" id="usr_RegisterDate">
                         <input type="hidden" id="usr_PDPA">
                         <input type="hidden" id="usr_LastLogin">
@@ -804,10 +797,8 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">กลุ่มงาน <small class="text-muted">(เลือกเฉพาะแอดมิน)</small></label>
-                                <!-- ใช้ ID ใหม่เพื่อไม่ให้ชนกับหน้าข่าว -->
                                 <select class="form-select" id="usr_Department">
                                     <option value="">-- ไม่ระบุ (ประชาชนทั่วไป) --</option>
-                                    <!-- ตัวเลือกจะถูกสร้างด้วย JS -->
                                 </select>
                             </div>
                             <div class="col-md-6">
@@ -920,7 +911,6 @@
                 </div>
                 <div class="modal-body p-4 text-center">
                     
-                    <!-- โซนข้อมูลเที่ยวบิน -->
                     <div class="mb-4 bg-light p-3 rounded border">
                         <h4 class="fw-bold text-danger mb-2" id="viewDates_FlightNo">FD3522</h4>
                         <div class="fw-bold text-dark mb-2" id="viewDates_Airline"><i class="fa-solid fa-plane"></i> สายการบิน...</div>
@@ -932,7 +922,6 @@
 
                     <div class="text-muted small mb-2">จำนวนวันทำการบินทั้งหมด <span id="viewDates_Count" class="fw-bold fs-5 text-dark">0</span> วัน</div>
                     
-                    <!-- กล่องซ่อน Input สำหรับเรียก Flatpickr แบบฝัง (Inline) -->
                     <div class="d-flex justify-content-center">
                         <input type="text" id="viewDates_Calendar" class="d-none">
                     </div>
@@ -956,7 +945,7 @@
                         <input type="hidden" id="news_CreateDate">
                         <input type="hidden" id="news_Author">
                         <input type="hidden" id="news_ViewCount">
-                        <input type="hidden" id="news_ExistingCoverURL"> <!-- เก็บ URL เดิมกันหาย -->
+                        <input type="hidden" id="news_ExistingCoverURL">
                         <input type="hidden" id="news_ExistingFileURL">
                         
                         <div class="row g-4">
@@ -969,7 +958,6 @@
                                         </div>
                                         <div class="mb-2 flex-grow-1 d-flex flex-column">
                                             <label class="form-label fw-bold">เนื้อหาข่าว (สามารถก๊อปปี้รูปภาพมาวางแทรกในข้อความได้เลย) <span class="text-danger">*</span></label>
-                                            <!-- 🟢 จุดที่ 3 & 4: เปลี่ยน textarea เป็นกล่อง Editor -->
                                             <div id="news_Content_Editor" style="height: 350px; background: white;"></div>
                                         </div>
                                     </div>
@@ -982,12 +970,10 @@
                                         <label class="form-label fw-bold"><i class="fa-solid fa-layer-group text-info"></i> หมวดหมู่ข่าว <span class="text-danger">*</span></label>
                                         <select class="form-select mb-4" id="news_CategoryID" required></select>
 
-                                        <!-- 🟢 จุดที่ 1: ระบบอัปโหลดรูปภาพหน้าปก -->
                                         <label class="form-label fw-bold"><i class="fa-solid fa-image text-warning"></i> อัปโหลดรูปภาพหน้าปก</label>
                                         <input type="file" class="form-control mb-1" id="news_UploadCover" accept="image/png, image/jpeg">
                                         <div class="form-text mb-4" id="news_CoverStatus">ไม่ได้เลือกไฟล์ (ระบบจะใช้รูปโลโก้ หรือรูปเดิม)</div>
 
-                                        <!-- 🟢 จุดที่ 1: ระบบอัปโหลดไฟล์แนบ -->
                                         <label class="form-label fw-bold"><i class="fa-solid fa-file-pdf text-danger"></i> อัปโหลดไฟล์เอกสารแนบ (เช่น PDF)</label>
                                         <input type="file" class="form-control mb-1" id="news_UploadFile" accept=".pdf,.doc,.docx">
                                         <div class="form-text mb-4" id="news_FileStatus">ไม่ได้เลือกไฟล์</div>
@@ -1010,30 +996,25 @@
     </div>
     <!-- ================= สิ้นสุด Modal: เขียนข่าว ================= -->
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Flatpickr JS -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
     <!-- Quill JS (Rich Text Editor) -->
     <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <script>
-        // 🔴 อย่าลืมนำ API URL ของคุณมาวางตรงนี้ 🔴
+        // 🔴 นำ API URL มาวางตรงนี้
         const API_URL = "https://script.google.com/macros/s/AKfycbx_KEKYYe2Mu1vTORWF8GZnV4zuOku_4IqEvwhZ4q556ggVOHjy-blHKvY_IuYOfGHqaA/exec";
         
         let currentTableData = [];
-
-        // ================= เริ่มต้น ระบบโหลดค่าผู้ใช้งานเมื่อเปิดหน้าเว็บ =================
-        // 🟢 ประกาศตัวแปร Global ไว้ด้านบนสุดของสคริปต์
         let quillEditor;
         let flightDatepicker;
         let allAirlinesData = []; 
-        let flightDatepicker; // ตัวแปรเก็บปฏิทิน Flatpickr
-        // ================= เริ่มต้น ระบบโหลดค่าเริ่มต้นเมื่อเปิดหน้าเว็บ =================
+
+        // ================= เริ่มต้น ระบบโหลดค่าเริ่มต้น =================
         document.addEventListener('DOMContentLoaded', () => {
-            
-            // 1. โหลดข้อมูลสิทธิ์แอดมินจาก LocalStorage
             const user = JSON.parse(localStorage.getItem('userData'));
             if(user) {
                 document.getElementById('adminNameDisplay').innerText = user.fullname;
@@ -1045,15 +1026,13 @@
                 }
             }
 
-            // 2. ตั้งค่า Flatpickr ให้หน้า "ตารางเที่ยวบิน" (รองรับการเลือกหลายวัน)
             flightDatepicker = flatpickr("#flt_FlightDates", {
                 mode: "multiple",
                 dateFormat: "d/m/Y",
                 locale: "th",
-                conjunction: ", " // ตัวคั่นระหว่างวันที่
+                conjunction: ", " 
             });
 
-            // 3. เปิดใช้งาน Quill JS Editor ให้หน้า "จัดการข่าวสาร"
             quillEditor = new Quill('#news_Content_Editor', {
                 theme: 'snow',
                 placeholder: 'พิมพ์เนื้อหาข่าว หรือกด Ctrl+V เพื่อวางรูปภาพประกอบ...',
@@ -1063,58 +1042,38 @@
                         ['bold', 'italic', 'underline', 'strike'],
                         [{ 'list': 'ordered'}, { 'list': 'bullet' }],
                         [{ 'align': [] }],
-                        ['link', 'image'], // ปุ่มใส่ลิงก์ และใส่รูป
+                        ['link', 'image'], 
                         ['clean']
                     ]
                 }
             });
-            
         });
-        // ================= สิ้นสุด ระบบโหลดค่าเริ่มต้น =================
 
-        // ฟังก์ชันออกจากระบบ
         function adminLogout() {
-            Swal.fire({ 
-                title: 'ยืนยันการออกจากระบบ?', icon: 'warning', showCancelButton: true, 
-                confirmButtonColor: '#d33', confirmButtonText: 'ออกจากระบบ', cancelButtonText: 'ยกเลิก'
-            }).then((result) => {
-                if (result.isConfirmed) { 
-                    localStorage.removeItem('userData'); 
-                    window.location.href = 'index.html'; 
-                }
+            Swal.fire({ title: 'ยืนยันการออกจากระบบ?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ออกจากระบบ', cancelButtonText: 'ยกเลิก' })
+            .then((result) => {
+                if (result.isConfirmed) { localStorage.removeItem('userData'); window.location.href = 'index.html'; }
             });
         }
-        // ================= สิ้นสุด ระบบโหลดค่าผู้ใช้งาน =================
+        // ================= สิ้นสุด ระบบโหลดค่าเริ่มต้น =================
 
         // ================= เริ่มต้น ฟังก์ชันเปลี่ยนหน้าเมนู (Switch View) =================
         function switchView(viewId, clickedMenuElement) {
-            // ซ่อนทุกหน้า
             document.querySelectorAll('.admin-view').forEach(view => view.style.display = 'none');
-            // เปิดหน้าที่เลือก
             document.getElementById('view-' + viewId).style.display = 'block';
-            
-            // เปลี่ยนสีเมนู
             document.querySelectorAll('.sidebar-menu a').forEach(menu => menu.classList.remove('active'));
             if(clickedMenuElement) clickedMenuElement.classList.add('active');
 
-            // โหลดข้อมูลตามหน้าที่เลือก
             if (viewId === 'settings') loadSettingsData();
             if (viewId === 'banners') loadTableData('Banners', renderBannersTable);
             if (viewId === 'departments') loadTableData('Departments', renderDeptsTable);
             if (viewId === 'eservices') loadTableData('EServices', renderEServicesTable);
             if (viewId === 'airlines') loadTableData('Airlines', renderAirlinesTable);
-            if (viewId === 'newscategories') {
-                loadTableData('NewsCategories', renderNewsCatsTable);
-                populateDeptDropdown(); // โหลดข้อมูลกลุ่มงานมาใส่ dropdown
-            }
+            if (viewId === 'newscategories') { loadTableData('NewsCategories', renderNewsCatsTable); populateDeptDropdown(); }
             if (viewId === 'passengerstats') loadTableData('PassengerStats', renderPassengerStatsTable);
             if (viewId === 'users') { loadTableData('Users', renderUsersTable); populateUserDeptDropdown(); }
-            if (viewId === 'flightschedules') {
-                loadTableData('FlightSchedules', renderFlightsTable);
-                populateAirlineDropdown(); // โหลดสายการบินมาใส่ Dropdown
-            }
+            if (viewId === 'flightschedules') { loadTableData('FlightSchedules', renderFlightsTable); populateAirlineDropdown(); }
             if (viewId === 'news') {
-                // ต้องดึงหมวดหมู่มาก่อน เพื่อใช้อ้างอิงชื่อในตาราง และกรองสิทธิ์ SubAdmin
                 fetch(`${API_URL}?action=getTableData&sheetName=NewsCategories`).then(res=>res.json()).then(res => {
                     allCategoriesData = res.data;
                     loadTableData('News', renderNewsTable);
@@ -1125,8 +1084,6 @@
         // ================= สิ้นสุด ฟังก์ชันเปลี่ยนหน้าเมนู =================
 
         // ================= เริ่มต้น ฟังก์ชันช่วยเหลือ (Helpers) =================
-        
-        // 1. แปลงลิงก์ Google Drive ให้แสดงผลรูปได้
         function convertDriveImageLink(url) {
             let id = ""; const regexView = /\/file\/d\/([a-zA-Z0-9_-]+)/; const regexId = /id=([a-zA-Z0-9_-]+)/; 
             if (url.match(regexView)) id = url.match(regexView)[1]; else if (url.match(regexId)) id = url.match(regexId)[1];
@@ -1134,34 +1091,35 @@
             return url; 
         }
 
-        // 2. ดึงข้อมูลใส่ Dropdown ของกลุ่มงาน
         function populateDeptDropdown() {
-            fetch(`${API_URL}?action=getTableData&sheetName=Departments`)
-                .then(res => res.json())
-                .then(res => {
-                    if(res.status === 'success') {
-                        const select = document.getElementById('ncat_Department');
-                        select.innerHTML = '<option value="">-- เลือกกลุ่มงาน --</option><option value="ทั้งหมด">ทั้งหมด (แสดงทุกกลุ่มงาน)</option>';
-                        res.data.sort((a,b) => a.OrderList - b.OrderList).forEach(dept => {
-                            if(dept.IsActive === 'TRUE') select.innerHTML += `<option value="${dept.DeptName}">${dept.DeptName}</option>`;
-                        });
-                    }
-                });
-        }
-
-        // 3. โหลดข้อมูลตารางใดๆ จากเซิร์ฟเวอร์
-        function loadTableData(sheetName, renderFunction) {
-            Swal.fire({ title: 'กำลังโหลด...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-            fetch(`${API_URL}?action=getTableData&sheetName=${sheetName}`).then(res => res.json()).then(res => {
-                Swal.close(); 
-                if (res.status === 'success') { 
-                    currentTableData = res.data; 
-                    renderFunction(res.data); 
+            fetch(`${API_URL}?action=getTableData&sheetName=Departments`).then(res => res.json()).then(res => {
+                if(res.status === 'success') {
+                    const select = document.getElementById('ncat_Department');
+                    select.innerHTML = '<option value="">-- เลือกกลุ่มงาน --</option><option value="ทั้งหมด">ทั้งหมด (แสดงทุกกลุ่มงาน)</option>';
+                    res.data.sort((a,b) => a.OrderList - b.OrderList).forEach(dept => {
+                        if(dept.IsActive === 'TRUE') select.innerHTML += `<option value="${dept.DeptName}">${dept.DeptName}</option>`;
+                    });
                 }
             });
         }
 
-        // 4. ลบข้อมูลจากตาราง (แก้บั๊กให้รีเฟรชถูกตาราง)
+        function getBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result.split(',')[1]); 
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        function loadTableData(sheetName, renderFunction) {
+            Swal.fire({ title: 'กำลังโหลด...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            fetch(`${API_URL}?action=getTableData&sheetName=${sheetName}`).then(res => res.json()).then(res => {
+                Swal.close(); 
+                if (res.status === 'success') { currentTableData = res.data; renderFunction(res.data); }
+            });
+        }
+
         function deleteRecord(sheetName, idColumn, idValue) {
             Swal.fire({ title: 'ยืนยันการลบ?', text: "หากลบแล้วจะไม่สามารถกู้คืนได้!", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ใช่, ลบทิ้ง!' }).then((result) => {
                 if (result.isConfirmed) {
@@ -1170,8 +1128,6 @@
                     fetch(API_URL, { method: 'POST', body: formData }).then(res => res.json()).then(res => {
                         if (res.status === 'success') {
                             Swal.fire({ icon: 'success', title: 'ลบสำเร็จ', showConfirmButton: false, timer: 1500 });
-                            
-                            // 🟢 เพิ่มชื่อตารางให้ครบ เพื่อให้ระบบรีเฟรชหน้าเว็บหลังลบเสร็จ
                             if(sheetName === 'Banners') loadTableData('Banners', renderBannersTable);
                             if(sheetName === 'Departments') loadTableData('Departments', renderDeptsTable);
                             if(sheetName === 'EServices') loadTableData('EServices', renderEServicesTable);
@@ -1180,13 +1136,13 @@
                             if(sheetName === 'PassengerStats') loadTableData('PassengerStats', renderPassengerStatsTable);
                             if(sheetName === 'Users') loadTableData('Users', renderUsersTable);
                             if(sheetName === 'FlightSchedules') loadTableData('FlightSchedules', renderFlightsTable);
+                            if(sheetName === 'News') loadTableData('News', renderNewsTable);
                         }
                     });
                 }
             });
         }
 
-        // 5. สลับลำดับข้อมูลหน้าจอ (อเนกประสงค์)
         function moveOrder(tableType, currentIndex, direction, renderFunc) {
             let temp = currentTableData[currentIndex];
             currentTableData[currentIndex] = currentTableData[currentIndex + direction];
@@ -1196,15 +1152,11 @@
             document.getElementById(`btnSaveOrder-${tableType}`).classList.remove('d-none');
         }
 
-        // 6. บันทึกลำดับทั้งหมดขึ้นเซิร์ฟเวอร์ (อเนกประสงค์)
         function saveOrderAPI(sheetName, idColumn) {
             Swal.fire({ title: 'กำลังบันทึกลำดับ...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
             const orderPayload = currentTableData.map(item => ({ id: item[idColumn], order: item.OrderList }));
             fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'updateOrder', sheetName: sheetName, idColumn: idColumn, orderJSON: JSON.stringify(orderPayload) }) }).then(res=>res.json()).then(res=>{ 
-                if (res.status === 'success') { 
-                    Swal.fire({ icon: 'success', title: 'บันทึกลำดับสำเร็จ!', showConfirmButton: false, timer: 1500 }); 
-                    document.getElementById(`btnSaveOrder-${sheetName === 'NewsCategories' ? 'NewsCats' : sheetName}`).classList.add('d-none'); 
-                } 
+                if (res.status === 'success') { Swal.fire({ icon: 'success', title: 'บันทึกลำดับสำเร็จ!', showConfirmButton: false, timer: 1500 }); document.getElementById(`btnSaveOrder-${sheetName === 'NewsCategories' ? 'NewsCats' : sheetName}`).classList.add('d-none'); } 
             });
         }
         // ================= สิ้นสุด ฟังก์ชันช่วยเหลือ =================
@@ -1538,37 +1490,24 @@
             const tbody = document.getElementById('tbody-passengerstats');
             tbody.innerHTML = '';
             
-            // 1. อัปเดต Dropdown เลือกปี (หาปีที่ไม่มีซ้ำกันมาใส่)
             const yearSelect = document.getElementById('filterStatYear');
-            let currentSelectedYear = yearSelect.value; // จำปีที่เลือกไว้
-            
+            let currentSelectedYear = yearSelect.value; 
             let uniqueYears = [...new Set(data.map(item => item.Year))].filter(y => y).sort().reverse();
             
-            // ถ้าตารางว่างเปล่า ให้ใส่ปีปัจจุบันไว้ให้ก่อน
             if (uniqueYears.length === 0) {
                 let thisYear = new Date().getFullYear() + 543;
                 uniqueYears = [thisYear.toString()];
             }
 
             yearSelect.innerHTML = uniqueYears.map(y => `<option value="${y}">${y}</option>`).join('');
-            
-            // ถ้าเพิ่งเซฟหรือลบข้อมูล ให้คงปีเดิมที่เลือกไว้
-            if(uniqueYears.includes(currentSelectedYear)) {
-                yearSelect.value = currentSelectedYear;
-            }
+            if(uniqueYears.includes(currentSelectedYear)) yearSelect.value = currentSelectedYear;
 
-            // 2. สั่งให้วาดตารางตามปีที่เลือก
             filterStatsTable();
         }
 
-        // ฟังก์ชันวาดตารางหลังจากเลือก "ปี"
         function filterStatsTable() {
-            const tbody = document.getElementById('tbody-passengerstats');
-            tbody.innerHTML = '';
-            
+            const tbody = document.getElementById('tbody-passengerstats'); tbody.innerHTML = '';
             const selectedYear = document.getElementById('filterStatYear').value;
-            
-            // กรองเอาเฉพาะข้อมูลของปีที่เลือก
             let filteredData = currentTableData.filter(item => item.Year === selectedYear);
             
             if (filteredData.length === 0) { 
@@ -1577,14 +1516,11 @@
                 return; 
             }
 
-            let totalPassengers = 0; // ตัวแปรเก็บยอดรวมสะสม
+            let totalPassengers = 0; 
 
-            // เรียงลำดับจาก เดือน 12 ไป เดือน 1 (เดือนล่าสุดอยู่บน)
             filteredData.sort((a,b) => parseInt(b.Month) - parseInt(a.Month)).forEach((item) => {
                 let passCount = parseInt(item.PassengerCount) || 0;
-                totalPassengers += passCount; // บวกยอดรวม
-                
-                // แปลงตัวเลข 10000 ให้เป็น 10,000 มีลูกน้ำสวยๆ
+                totalPassengers += passCount; 
                 let formattedCount = passCount.toLocaleString('th-TH');
                 let monthNameText = monthNames[item.Month] || item.Month;
 
@@ -1602,18 +1538,14 @@
                 `;
             });
 
-            // แสดงป้ายยอดรวมมุมขวาบน
             document.getElementById('totalPassengerNum').innerText = totalPassengers.toLocaleString('th-TH');
             document.getElementById('totalPassengerBadge').classList.remove('d-none');
         }
 
-        // เปิดป๊อปอัปเพิ่ม/แก้สถิติ
         function openStatModal(id = '') {
             document.getElementById('formStat').reset();
             document.getElementById('stat_StatID').value = '';
             document.getElementById('statModalTitle').innerText = 'เพิ่มข้อมูลสถิติใหม่';
-            
-            // ดึงค่า "ปี" จากหน้า Filter มาใส่ให้เลยอัตโนมัติ จะได้ไม่ต้องพิมพ์ใหม่
             document.getElementById('stat_Year').value = document.getElementById('filterStatYear').value;
 
             if (id) {
@@ -1628,14 +1560,12 @@
             new bootstrap.Modal(document.getElementById('statModal')).show();
         }
 
-        // บันทึกข้อมูลสถิติ
         function savePassengerStat(e) {
             e.preventDefault();
-            const btn = document.getElementById('btnSaveStat');
-            btn.innerHTML = 'กำลังบันทึก...'; btn.disabled = true;
+            const btn = document.getElementById('btnSaveStat'); btn.innerHTML = 'กำลังบันทึก...'; btn.disabled = true;
 
             const recordData = {
-                StatID: document.getElementById('stat_StatID').value, // ปล่อยว่างไว้เดี๋ยว Backend สร้างใหม่ให้เอง
+                StatID: document.getElementById('stat_StatID').value, 
                 Year: document.getElementById('stat_Year').value,
                 Month: document.getElementById('stat_Month').value,
                 PassengerCount: document.getElementById('stat_PassengerCount').value,
@@ -1651,39 +1581,31 @@
                         bootstrap.Modal.getInstance(document.getElementById('statModal')).hide();
                         Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', showConfirmButton: false, timer: 1500 });
                         loadTableData('PassengerStats', renderPassengerStatsTable);
-                    } else {
-                        Swal.fire('ผิดพลาด', res.message, 'error');
-                    }
+                    } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
                 }).finally(() => { btn.innerHTML = 'บันทึกข้อมูลสถิติ'; btn.disabled = false; });
         }
-
         // =======================สิ้นสุด ฟังก์ชันจัดการ สถิติผู้โดยสาร =================
+
+
         // ==========================================
         // 👥 ระบบจัดการผู้ใช้งาน (User Management)
         // ==========================================
 
         function renderUsersTable(data) {
-            const tbody = document.getElementById('tbody-users');
-            tbody.innerHTML = '';
+            const tbody = document.getElementById('tbody-users'); tbody.innerHTML = '';
             if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="py-4 text-center">ไม่มีข้อมูล</td></tr>'; return; }
 
-            // เรียงให้ SuperAdmin อยู่บนสุด ตามด้วยคนสมัครใหม่ล่าสุด
             data.sort((a,b) => {
                 if (a.Role === 'SuperAdmin' && b.Role !== 'SuperAdmin') return -1;
                 if (a.Role !== 'SuperAdmin' && b.Role === 'SuperAdmin') return 1;
                 return b.UserID.localeCompare(a.UserID);
-            });
-
-            data.forEach((item) => {
-                // จัดการหน้าตาสถานะและสิทธิ์
+            }).forEach((item) => {
                 let statusBadge = item.Status === 'Active' ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">ระงับ (Inactive)</span>';
-                
                 let roleBadge = '';
                 if (item.Role === 'SuperAdmin') roleBadge = '<span class="badge bg-danger">SuperAdmin</span>';
                 else if (item.Role === 'SubAdmin') roleBadge = '<span class="badge bg-warning text-dark">SubAdmin</span>';
                 else roleBadge = '<span class="badge bg-light text-dark border">User ธรรมดา</span>';
 
-                // ข้อมูลล็อกอินล่าสุด และข้อมูลซ่อนเร้น
                 let loginInfo = item.LastLogin ? `<div class="small text-muted mt-1" style="font-size:0.75rem;"><i class="fa-solid fa-clock"></i> ล็อกอิน: ${item.LastLogin}</div>` : '';
                 let deptInfo = item.Department ? item.Department : '<span class="text-muted">-</span>';
 
@@ -1700,10 +1622,7 @@
                         </td>
                         <td class="text-center fw-bold text-secondary small">${deptInfo}</td>
                         <td class="text-center">${roleBadge}</td>
-                        <td class="text-center">
-                            ${statusBadge}
-                            ${loginInfo}
-                        </td>
+                        <td class="text-center">${statusBadge}${loginInfo}</td>
                         <td class="text-center">
                             <button class="btn btn-sm btn-outline-warning me-1" onclick="openUserModal('${item.UserID}')"><i class="fa-solid fa-user-pen"></i></button>
                             <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('Users', 'UserID', '${item.UserID}')"><i class="fa-solid fa-user-xmark"></i></button>
@@ -1713,149 +1632,78 @@
             });
         }
 
-        // ดึงรายการกลุ่มงานมาใส่ Dropdown ในหน้า User 
         function populateUserDeptDropdown() {
-            fetch(`${API_URL}?action=getTableData&sheetName=Departments`)
-                .then(res => res.json())
-                .then(res => {
-                    if(res.status === 'success') {
-                        const select = document.getElementById('usr_Department');
-                        select.innerHTML = '<option value="">-- ไม่ระบุ (ประชาชนทั่วไป) --</option><option value="ทั้งหมด">ทั้งหมด (ดูแลทุกกลุ่มงาน)</option>';
-                        res.data.sort((a,b) => a.OrderList - b.OrderList).forEach(dept => {
-                            if(dept.IsActive === 'TRUE') select.innerHTML += `<option value="${dept.DeptName}">${dept.DeptName}</option>`;
-                        });
-                    }
-                });
+            fetch(`${API_URL}?action=getTableData&sheetName=Departments`).then(res => res.json()).then(res => {
+                if(res.status === 'success') {
+                    const select = document.getElementById('usr_Department');
+                    select.innerHTML = '<option value="">-- ไม่ระบุ (ประชาชนทั่วไป) --</option><option value="ทั้งหมด">ทั้งหมด (ดูแลทุกกลุ่มงาน)</option>';
+                    res.data.sort((a,b) => a.OrderList - b.OrderList).forEach(dept => {
+                        if(dept.IsActive === 'TRUE') select.innerHTML += `<option value="${dept.DeptName}">${dept.DeptName}</option>`;
+                    });
+                }
+            });
         }
 
-        // ทำให้สวิตช์สถานะเปลี่ยนสีตามการติ๊ก (UX)
         document.getElementById('usr_Status').addEventListener('change', function() {
             let label = document.getElementById('usr_StatusLabel');
             if(this.checked) { label.innerText = 'บัญชีนี้พร้อมใช้งาน (Active)'; label.className = 'form-check-label fw-bold text-success'; }
             else { label.innerText = 'ระงับการใช้งาน (Inactive)'; label.className = 'form-check-label fw-bold text-danger'; }
         });
 
-        // เปิดป๊อปอัปจัดการ
         function openUserModal(id = '') {
-            document.getElementById('formUser').reset();
-            document.getElementById('usr_UserID').value = '';
-            document.getElementById('userModalTitle').innerText = 'เพิ่มบัญชีผู้ใช้งานใหม่';
+            document.getElementById('formUser').reset(); document.getElementById('usr_UserID').value = ''; document.getElementById('userModalTitle').innerText = 'เพิ่มบัญชีผู้ใช้งานใหม่';
             
-            // ปลดล็อกช่อง Username สำหรับการสร้างใหม่
-            const userInp = document.getElementById('usr_Username');
-            userInp.readOnly = false;
-            document.getElementById('userHelperText').style.display = 'none';
-
-            // รีเซ็ตสถานะเป็น Active เสมอ
-            document.getElementById('usr_Status').checked = true;
-            document.getElementById('usr_StatusLabel').innerText = 'บัญชีนี้พร้อมใช้งาน (Active)';
-            document.getElementById('usr_StatusLabel').className = 'form-check-label fw-bold text-success';
-
-            // ซ่อนช่องที่ไม่ได้ใช้ (เวลา PDPA) ตอนเพิ่มใหม่
-            document.getElementById('usr_RegisterDate').value = Utilities_getNow();
-            document.getElementById('usr_PDPA').value = 'Added By Admin';
-            document.getElementById('usr_LastLogin').value = '';
+            const userInp = document.getElementById('usr_Username'); userInp.readOnly = false; document.getElementById('userHelperText').style.display = 'none';
+            document.getElementById('usr_Status').checked = true; document.getElementById('usr_StatusLabel').innerText = 'บัญชีนี้พร้อมใช้งาน (Active)'; document.getElementById('usr_StatusLabel').className = 'form-check-label fw-bold text-success';
+            document.getElementById('usr_RegisterDate').value = Utilities_getNow(); document.getElementById('usr_PDPA').value = 'Added By Admin'; document.getElementById('usr_LastLogin').value = '';
 
             if (id) {
                 document.getElementById('userModalTitle').innerText = 'แก้ไขบัญชีผู้ใช้งาน';
                 const item = currentTableData.find(x => x.UserID === id);
                 
                 document.getElementById('usr_UserID').value = item.UserID;
-                document.getElementById('usr_FirstName').value = item.FirstName;
-                document.getElementById('usr_LastName').value = item.LastName;
-                document.getElementById('usr_Email').value = item.Email;
-                document.getElementById('usr_Phone').value = item.Phone;
-                document.getElementById('usr_Organization').value = item.Organization;
-                document.getElementById('usr_Position').value = item.Position;
-                document.getElementById('usr_Password').value = item.Password; // รหัสผ่านจะเห็นตรงนี้เพื่อแก้ไข
-                document.getElementById('usr_Department').value = item.Department || '';
-                document.getElementById('usr_Role').value = item.Role;
+                document.getElementById('usr_FirstName').value = item.FirstName; document.getElementById('usr_LastName').value = item.LastName;
+                document.getElementById('usr_Email').value = item.Email; document.getElementById('usr_Phone').value = item.Phone;
+                document.getElementById('usr_Organization').value = item.Organization; document.getElementById('usr_Position').value = item.Position;
+                document.getElementById('usr_Password').value = item.Password; 
+                document.getElementById('usr_Department').value = item.Department || ''; document.getElementById('usr_Role').value = item.Role;
                 
-                // ล็อกไม่ให้แก้ Username ของเก่า เพื่อป้องกันระบบเพี้ยน
-                userInp.value = item.Username;
-                userInp.readOnly = true;
-                document.getElementById('userHelperText').style.display = 'block';
-
+                userInp.value = item.Username; userInp.readOnly = true; document.getElementById('userHelperText').style.display = 'block';
                 document.getElementById('usr_Status').checked = (item.Status === 'Active');
-                // อัปเดตสีตัวหนังสือ
                 let evt = new Event("change"); document.getElementById('usr_Status').dispatchEvent(evt);
 
-                // นำข้อมูลซ่อนมาเก็บไว้เพื่ออัปเดตทับ (ป้องกันหาย)
-                document.getElementById('usr_RegisterDate').value = item.RegisterDate || '';
-                document.getElementById('usr_PDPA').value = item.pdpaConsent || '';
-                document.getElementById('usr_LastLogin').value = item.LastLogin || '';
+                document.getElementById('usr_RegisterDate').value = item.RegisterDate || ''; document.getElementById('usr_PDPA').value = item.pdpaConsent || ''; document.getElementById('usr_LastLogin').value = item.LastLogin || '';
             }
             new bootstrap.Modal(document.getElementById('userModal')).show();
         }
 
-        // บันทึกข้อมูล
         function saveUserRecord(e) {
-            e.preventDefault();
-            const btn = document.getElementById('btnSaveUser');
-            btn.innerHTML = 'กำลังบันทึก...'; btn.disabled = true;
+            e.preventDefault(); const btn = document.getElementById('btnSaveUser'); btn.innerHTML = 'กำลังบันทึก...'; btn.disabled = true;
 
             const recordData = {
-                UserID: document.getElementById('usr_UserID').value,
-                Username: document.getElementById('usr_Username').value,
-                Password: document.getElementById('usr_Password').value,
-                FirstName: document.getElementById('usr_FirstName').value,
-                LastName: document.getElementById('usr_LastName').value,
-                Email: document.getElementById('usr_Email').value,
-                Phone: document.getElementById('usr_Phone').value,
-                Organization: document.getElementById('usr_Organization').value,
-                Position: document.getElementById('usr_Position').value,
-                Department: document.getElementById('usr_Department').value,
-                Role: document.getElementById('usr_Role').value,
-                Status: document.getElementById('usr_Status').checked ? 'Active' : 'Inactive',
-                LastLogin: document.getElementById('usr_LastLogin').value,
-                pdpaConsent: document.getElementById('usr_PDPA').value,
-                RegisterDate: document.getElementById('usr_RegisterDate').value
+                UserID: document.getElementById('usr_UserID').value, Username: document.getElementById('usr_Username').value, Password: document.getElementById('usr_Password').value, FirstName: document.getElementById('usr_FirstName').value, LastName: document.getElementById('usr_LastName').value, Email: document.getElementById('usr_Email').value, Phone: document.getElementById('usr_Phone').value, Organization: document.getElementById('usr_Organization').value, Position: document.getElementById('usr_Position').value, Department: document.getElementById('usr_Department').value, Role: document.getElementById('usr_Role').value, Status: document.getElementById('usr_Status').checked ? 'Active' : 'Inactive', LastLogin: document.getElementById('usr_LastLogin').value, pdpaConsent: document.getElementById('usr_PDPA').value, RegisterDate: document.getElementById('usr_RegisterDate').value
             };
 
             const formData = new URLSearchParams({ action: 'saveRecord', sheetName: 'Users', idColumn: 'UserID', recordJSON: JSON.stringify(recordData) });
 
-            fetch(API_URL, { method: 'POST', body: formData })
-                .then(res => res.json())
-                .then(res => {
-                    if (res.status === 'success') {
-                        // 🟢 แก้ไขคำสั่งปิด Modal ที่ถูกต้อง
-                        bootstrap.Modal.getInstance(document.getElementById('userModal')).hide();
-                        document.getElementById('formUser').reset(); // เคลียร์ข้อมูลที่ค้างในฟอร์มทิ้ง
-                        
-                        Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', showConfirmButton: false, timer: 1500 });
-                        loadTableData('Users', renderUsersTable);
-                    } else { 
-                        Swal.fire('ผิดพลาด', res.message, 'error'); 
-                    }
-                }).finally(() => { 
-                    btn.innerHTML = 'บันทึกข้อมูลผู้ใช้งาน'; 
-                    btn.disabled = false; 
-                });
+            fetch(API_URL, { method: 'POST', body: formData }).then(res => res.json()).then(res => {
+                if (res.status === 'success') {
+                    bootstrap.Modal.getInstance(document.getElementById('userModal')).hide(); document.getElementById('formUser').reset(); 
+                    Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', showConfirmButton: false, timer: 1500 }); loadTableData('Users', renderUsersTable);
+                } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
+            }).finally(() => { btn.innerHTML = 'บันทึกข้อมูลผู้ใช้งาน'; btn.disabled = false; });
         }
 
-        // ฟังก์ชันช่วยหาเวลาปัจจุบัน (ใช้กับตอน Admin เพิ่มคนใหม่)
         function Utilities_getNow() {
-            const date = new Date();
-            return ("0" + date.getDate()).slice(-2) + "/" + ("0"+(date.getMonth()+1)).slice(-2) + "/" + (date.getFullYear()+543) + " " + ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2) + ":" + ("0" + date.getSeconds()).slice(-2);
+            const date = new Date(); return ("0" + date.getDate()).slice(-2) + "/" + ("0"+(date.getMonth()+1)).slice(-2) + "/" + (date.getFullYear()+543) + " " + ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2) + ":" + ("0" + date.getSeconds()).slice(-2);
         }
-            
         // =======================สิ้นสุด ฟังก์ชันจัดการ ผู้ใช้งาน =================
+
+
         // ==========================================
         // ✈️ ระบบจัดการ ตารางเที่ยวบิน (Flight Schedules) ใหม่ล่าสุด
         // ==========================================
         
-
-        // เริ่มต้นปฏิทินตอนโหลดหน้าเว็บ
-      /*  document.addEventListener('DOMContentLoaded', () => {
-            // ตั้งค่า Flatpickr ให้เลือกได้หลายวันแบบ Array (โชว์ภาษาไทย)
-            flightDatepicker = flatpickr("#flt_FlightDates", {
-                mode: "multiple",
-                dateFormat: "d/m/Y",
-                locale: "th",
-                conjunction: ", " // ตัวคั่นระหว่างวันที่
-            });
-        });*/
-
         function populateAirlineDropdown() {
             fetch(`${API_URL}?action=getTableData&sheetName=Airlines`).then(res => res.json()).then(res => {
                 if(res.status === 'success') {
@@ -1871,11 +1719,9 @@
         }
 
         function renderFlightsTable(data) {
-            const tbody = document.getElementById('tbody-flightschedules');
-            tbody.innerHTML = '';
+            const tbody = document.getElementById('tbody-flightschedules'); tbody.innerHTML = '';
             if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="py-4 text-center">ไม่มีข้อมูล</td></tr>'; return; }
 
-            // เรียงตามเวลาออก
             data.sort((a,b) => a.DepartureTime.localeCompare(b.DepartureTime)).forEach((item) => {
                 let badge = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิดบริการ</span>' : '<span class="badge bg-secondary">ยกเลิก</span>';
                 let typeBadge = item.FlightType === 'Arrival' ? '<span class="badge bg-info text-dark"><i class="fa-solid fa-plane-arrival"></i> ขาเข้า</span>' : '<span class="badge bg-warning text-dark"><i class="fa-solid fa-plane-departure"></i> ขาออก</span>';
@@ -1884,7 +1730,6 @@
                 let airlineName = airlineObj ? airlineObj.AirlineName : 'ไม่ทราบสายการบิน';
                 let airlineIcon = airlineObj && airlineObj.IconURL ? `<img src="${airlineObj.IconURL}" style="height:20px; margin-right:5px; border-radius:3px;">` : `<i class="fa-solid fa-plane me-1"></i>`;
                 
-                // 🟢 สร้างปุ่มกดดูวันที่ แทนการโชว์ข้อความยาวๆ
                 let datesArr = item.FlightDates ? item.FlightDates.split(', ') : [];
                 let btnDates = datesArr.length > 0 
                     ? `<button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="openViewDatesModal('${item.FlightNumber}', '${item.AirlineID}', '${item.Origin} - ${item.Destination}', '${item.DepartureTime}', '${item.ArrivalTime}', '${item.FlightDates}')"><i class="fa-regular fa-calendar me-1"></i> ${datesArr.length} วัน</button>`
@@ -1896,7 +1741,7 @@
                         <td class="text-center">${typeBadge}</td>
                         <td class="fw-bold text-secondary"><div>${item.Origin}</div><div><i class="fa-solid fa-arrow-down text-muted"></i></div><div>${item.Destination}</div></td>
                         <td class="text-center"><span class="fw-bold text-dark fs-5">${item.DepartureTime}</span><br><span class="small text-muted">ถึง ${item.ArrivalTime}</span></td>
-                        <td class="text-center">${btnDates}</td> <!-- 🟢 โชว์ปุ่มตรงนี้ -->
+                        <td class="text-center">${btnDates}</td>
                         <td class="text-center">${badge}</td>
                         <td class="text-center">
                             <button class="btn btn-sm btn-outline-warning mb-1" onclick="openFlightModal('${item.FlightID}')"><i class="fa-solid fa-pen"></i></button>
@@ -1908,125 +1753,64 @@
         }
 
         function openFlightModal(id = '') {
-            document.getElementById('formFlight').reset();
-            document.getElementById('flt_FlightID').value = '';
-            document.getElementById('flightModalTitle').innerText = 'เพิ่มเที่ยวบินใหม่';
-            flightDatepicker.clear(); // ล้างปฏิทิน
+            document.getElementById('formFlight').reset(); document.getElementById('flt_FlightID').value = ''; document.getElementById('flightModalTitle').innerText = 'เพิ่มเที่ยวบินใหม่';
+            flightDatepicker.clear(); 
 
             if (id) {
                 document.getElementById('flightModalTitle').innerText = 'แก้ไขเที่ยวบิน';
                 const item = currentTableData.find(x => x.FlightID === id);
-                document.getElementById('flt_FlightID').value = item.FlightID;
-                document.getElementById('flt_AirlineID').value = item.AirlineID;
-                document.getElementById('flt_FlightNumber').value = item.FlightNumber;
-                document.getElementById('flt_FlightType').value = item.FlightType;
-                document.getElementById('flt_Origin').value = item.Origin;
-                document.getElementById('flt_Destination').value = item.Destination;
-                document.getElementById('flt_DepartureTime').value = item.DepartureTime;
-                document.getElementById('flt_ArrivalTime').value = item.ArrivalTime;
-                document.getElementById('flt_IsActive').checked = (item.IsActive === 'TRUE');
-                
-                // เอาวันที่จากฐานข้อมูล ไปแสดงในปฏิทิน
-                if (item.FlightDates) {
-                    flightDatepicker.setDate(item.FlightDates.split(', '));
-                }
+                document.getElementById('flt_FlightID').value = item.FlightID; document.getElementById('flt_AirlineID').value = item.AirlineID; document.getElementById('flt_FlightNumber').value = item.FlightNumber;
+                document.getElementById('flt_FlightType').value = item.FlightType; document.getElementById('flt_Origin').value = item.Origin; document.getElementById('flt_Destination').value = item.Destination;
+                document.getElementById('flt_DepartureTime').value = item.DepartureTime; document.getElementById('flt_ArrivalTime').value = item.ArrivalTime; document.getElementById('flt_IsActive').checked = (item.IsActive === 'TRUE');
+                if (item.FlightDates) flightDatepicker.setDate(item.FlightDates.split(', '));
             }
             new bootstrap.Modal(document.getElementById('flightModal')).show();
         }
 
         function saveFlightRecord(e) {
-            e.preventDefault();
-            const datesStr = document.getElementById('flt_FlightDates').value;
+            e.preventDefault(); const datesStr = document.getElementById('flt_FlightDates').value;
             if (!datesStr) { Swal.fire('ข้อผิดพลาด', 'กรุณาคลิกเลือกวันที่ทำการบินอย่างน้อย 1 วัน', 'warning'); return; }
 
-            const btn = document.getElementById('btnSaveFlight');
-            btn.innerHTML = 'กำลังบันทึก...'; btn.disabled = true;
+            const btn = document.getElementById('btnSaveFlight'); btn.innerHTML = 'กำลังบันทึก...'; btn.disabled = true;
 
-            const recordData = {
-                FlightID: document.getElementById('flt_FlightID').value,
-                AirlineID: document.getElementById('flt_AirlineID').value,
-                FlightNumber: document.getElementById('flt_FlightNumber').value.toUpperCase(),
-                FlightType: document.getElementById('flt_FlightType').value,
-                Origin: document.getElementById('flt_Origin').value,
-                Destination: document.getElementById('flt_Destination').value,
-                DepartureTime: document.getElementById('flt_DepartureTime').value,
-                ArrivalTime: document.getElementById('flt_ArrivalTime').value,
-                FlightDates: datesStr, // วันที่คั่นด้วยลูกน้ำ
-                IsActive: document.getElementById('flt_IsActive').checked ? 'TRUE' : 'FALSE'
-            };
-
-            const formData = new URLSearchParams({ action: 'saveRecord', sheetName: 'FlightSchedules', idColumn: 'FlightID', recordJSON: JSON.stringify(recordData) });
-
-            fetch(API_URL, { method: 'POST', body: formData }).then(res => res.json()).then(res => {
-                if (res.status === 'success') {
-                    bootstrap.Modal.getInstance(document.getElementById('flightModal')).hide();
-                    Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', showConfirmButton: false, timer: 1500 });
-                    loadTableData('FlightSchedules', renderFlightsTable);
-                } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
-            }).finally(() => { btn.innerHTML = 'บันทึกเที่ยวบิน'; btn.disabled = false; });
+            const recordData = { FlightID: document.getElementById('flt_FlightID').value, AirlineID: document.getElementById('flt_AirlineID').value, FlightNumber: document.getElementById('flt_FlightNumber').value.toUpperCase(), FlightType: document.getElementById('flt_FlightType').value, Origin: document.getElementById('flt_Origin').value, Destination: document.getElementById('flt_Destination').value, DepartureTime: document.getElementById('flt_DepartureTime').value, ArrivalTime: document.getElementById('flt_ArrivalTime').value, FlightDates: datesStr, IsActive: document.getElementById('flt_IsActive').checked ? 'TRUE' : 'FALSE' };
+            fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'FlightSchedules', idColumn: 'FlightID', recordJSON: JSON.stringify(recordData) }) })
+            .then(res => res.json()).then(res => { if (res.status === 'success') { bootstrap.Modal.getInstance(document.getElementById('flightModal')).hide(); Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', showConfirmButton: false, timer: 1500 }); loadTableData('FlightSchedules', renderFlightsTable); } else { Swal.fire('ผิดพลาด', res.message, 'error'); } }).finally(() => { btn.innerHTML = 'บันทึกเที่ยวบิน'; btn.disabled = false; });
         }
 
-        // 🟢 ฟังก์ชันเปิด Modal ดูวันทำการบิน
-       // 🟢 ฟังก์ชันเปิด Modal ดูวันทำการบิน พร้อมข้อมูล
+        // 🟢 ฟังก์ชันเปิด Modal ดูวันทำการบิน พร้อมข้อมูล
         let readonlyDatepicker;
 
         function openViewDatesModal(flightNum, airlineID, route, depTime, arrTime, datesString) {
-            // 1. นำข้อมูลมาแสดงบนป๊อปอัป
             document.getElementById('viewDates_FlightNo').innerText = 'เที่ยวบิน ' + flightNum;
             document.getElementById('viewDates_Route').innerHTML = route.replace('-', '<i class="fa-solid fa-arrow-right mx-2"></i>');
             document.getElementById('viewDates_Time').innerText = depTime + ' - ' + arrTime;
             
-            // หาชื่อสายการบินจาก ID
             let airlineObj = allAirlinesData.find(a => a.AirlineID === airlineID);
             document.getElementById('viewDates_Airline').innerHTML = airlineObj ? `<i class="fa-solid fa-plane me-1"></i> ${airlineObj.AirlineName}` : 'ไม่ทราบสายการบิน';
 
-            // 2. จัดการข้อมูลวันที่
             let datesArr = datesString ? datesString.split(', ') : [];
             document.getElementById('viewDates_Count').innerText = datesArr.length;
 
-            // ทำลายปฏิทินเก่าทิ้งก่อน
-            if (readonlyDatepicker) {
-                readonlyDatepicker.destroy();
-            }
+            if (readonlyDatepicker) readonlyDatepicker.destroy();
 
-            // 3. สร้าง Flatpickr แบบฝังหน้าจอ
             readonlyDatepicker = flatpickr("#viewDates_Calendar", {
-                mode: "multiple",
-                inline: true,
-                clickOpens: false,
-                locale: "th",
-                dateFormat: "d/m/Y", // 🟢 บังคับ Format ให้อ่าน วัน/เดือน/ปี เพื่อแก้ปัญหาไฮไลต์ผิดเดือน
-                defaultDate: datesArr,
-                
+                mode: "multiple", inline: true, clickOpens: false, locale: "th", dateFormat: "d/m/Y", defaultDate: datesArr,
                 onReady: function(selectedDates, dateStr, instance) {
-                    // ถ้ามีวันที่ ให้กระโดดปฏิทินไปที่เดือนของวันแรกที่มีบิน
-                    if (selectedDates.length > 0) {
-                        instance.jumpToDate(selectedDates[0]);
-                    } else {
-                        // ถ้าไม่มีบินเลย ให้โชว์เดือนปัจจุบัน
-                        instance.jumpToDate(new Date());
-                    }
-
-                    // ซ่อนเคอร์เซอร์เพื่อให้ดูเป็นปฏิทินแสดงผล
-                    instance.calendarContainer.style.pointerEvents = 'none'; 
-                    instance.monthNav.style.pointerEvents = 'auto'; 
-                    
-                    // ปรับขนาดปฏิทินให้ใหญ่ขึ้นนิดหน่อยเพื่อให้ดูง่าย
-                    instance.calendarContainer.style.transform = 'scale(1.1)';
-                    instance.calendarContainer.style.transformOrigin = 'top center';
-                    instance.calendarContainer.style.marginBottom = '20px';
+                    if (selectedDates.length > 0) instance.jumpToDate(selectedDates[0]);
+                    else instance.jumpToDate(new Date());
+                    instance.calendarContainer.style.pointerEvents = 'none'; instance.monthNav.style.pointerEvents = 'auto'; instance.calendarContainer.style.transform = 'scale(1.1)'; instance.calendarContainer.style.transformOrigin = 'top center'; instance.calendarContainer.style.marginBottom = '20px';
                 }
             });
-
             new bootstrap.Modal(document.getElementById('viewFlightDatesModal')).show();
         }
         // =======================สิ้นสุด ฟังก์ชันจัดการ ตารางเที่ยวบิน =================
+
         // ==========================================
         // 📰 ระบบจัดการข่าวสาร (News Management) & RBAC
         // ==========================================
         let allCategoriesData = [];
 
-        // 1. ฟังก์ชันโหลดหมวดหมู่ใส่ Dropdown ตอนเขียนข่าว (กรองตามสิทธิ์)
         function populateNewsCategoryDropdown() {
             const user = JSON.parse(localStorage.getItem('userData'));
             const select = document.getElementById('news_CategoryID');
@@ -2034,7 +1818,6 @@
             
             allCategoriesData.forEach(cat => {
                 if (cat.IsActive === 'TRUE') {
-                    // 🟢 เช็คสิทธิ์: ถ้าเป็น SuperAdmin หรือ หมวดหมู่นี้เป็นของกลุ่มงานตัวเอง หรือเป็นหมวดหมู่ส่วนรวม('ทั้งหมด') ให้เลือกได้
                     if (user.role === 'SuperAdmin' || cat.Department === user.department || cat.Department === 'ทั้งหมด') {
                         select.innerHTML += `<option value="${cat.CategoryID}">${cat.CategoryName} (${cat.Department})</option>`;
                     }
@@ -2042,12 +1825,9 @@
             });
         }
 
-        // 2. วาดตารางข่าว (กรองการมองเห็นตามสิทธิ์)
-        // วาดตารางข่าว (เพิ่มปุ่มดูไฟล์แนบ)
         function renderNewsTable(data) {
             const user = JSON.parse(localStorage.getItem('userData'));
-            const tbody = document.getElementById('tbody-news');
-            tbody.innerHTML = '';
+            const tbody = document.getElementById('tbody-news'); tbody.innerHTML = '';
             
             let allowedData = data;
             if (user.role === 'SubAdmin') {
@@ -2059,26 +1839,18 @@
 
             allowedData.sort((a,b) => new Date(b.CreateDate) - new Date(a.CreateDate)).forEach((item) => {
                 let badge = item.Status === 'Publish' ? '<span class="badge bg-success">เผยแพร่แล้ว</span>' : '<span class="badge bg-warning text-dark">ฉบับร่าง</span>';
-                
-                // ดึงรูปปก ถ้ารูปปกเป็น Google Drive จะพยายามแปลงเป็น Thumbnail ให้แสดงในตารางได้
                 let coverUrl = convertDriveImageLink(item.CoverImageURL);
                 let imgHtml = coverUrl ? `<img src="${coverUrl}" style="width:100px; height:60px; object-fit:cover; border-radius:5px;">` : `<div style="width:100px; height:60px; background:#e2e8f0; border-radius:5px; display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-image text-muted"></i></div>`;
                 
                 let catObj = allCategoriesData.find(c => c.CategoryID === item.CategoryID);
                 let catName = catObj ? catObj.CategoryName : 'ไม่ระบุหมวดหมู่';
                 let catColor = catObj ? catObj.ThemeColor : '#64748b';
-
-                // 🟢 จุดที่ 2: ปุ่มดูไฟล์แนบ
                 let btnAttachment = item.FilesURL ? `<a href="${item.FilesURL}" target="_blank" class="btn btn-sm btn-outline-danger mt-2" title="เปิดดูไฟล์แนบ"><i class="fa-solid fa-file-pdf"></i> เอกสารแนบ</a>` : '';
 
                 tbody.innerHTML += `
                     <tr>
                         <td class="text-center">${imgHtml}</td>
-                        <td>
-                            <div class="fw-bold text-dark" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${item.Title}</div>
-                            ${btnAttachment}
-                            <div class="small text-muted mt-1"><i class="fa-regular fa-calendar me-1"></i> ${item.CreateDate || '-'} | <i class="fa-solid fa-pen-nib mx-1"></i> ${item.Author || '-'}</div>
-                        </td>
+                        <td><div class="fw-bold text-dark" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${item.Title}</div>${btnAttachment}<div class="small text-muted mt-1"><i class="fa-regular fa-calendar me-1"></i> ${item.CreateDate || '-'} | <i class="fa-solid fa-pen-nib mx-1"></i> ${item.Author || '-'}</div></td>
                         <td><span class="badge text-white" style="background-color: ${catColor};">${catName}</span></td>
                         <td class="text-center fw-bold text-secondary">${item.ViewCount || 0}</td>
                         <td>${badge}</td>
@@ -2091,117 +1863,45 @@
             });
         }
 
-        // 3. เปิดป๊อปอัปเขียนข่าว
-        // เปิดป๊อปอัปเขียนข่าว
         function openNewsModal(id = '') {
-            document.getElementById('formNews').reset();
-            document.getElementById('news_NewsID').value = '';
-            document.getElementById('newsModalTitle').innerText = 'เขียนข่าว/ประชาสัมพันธ์ใหม่';
-            
-            // ล้าง Editor
+            document.getElementById('formNews').reset(); document.getElementById('news_NewsID').value = ''; document.getElementById('newsModalTitle').innerText = 'เขียนข่าว/ประชาสัมพันธ์ใหม่';
             quillEditor.root.innerHTML = '';
-            
-            // ล้างสถานะไฟล์
-            document.getElementById('news_CoverStatus').innerText = 'ไม่ได้เลือกไฟล์ (ระบบจะใช้รูปโลโก้แทน)';
-            document.getElementById('news_FileStatus').innerText = 'ไม่ได้เลือกไฟล์';
-            document.getElementById('news_ExistingCoverURL').value = '';
-            document.getElementById('news_ExistingFileURL').value = '';
+            document.getElementById('news_CoverStatus').innerText = 'ไม่ได้เลือกไฟล์ (ระบบจะใช้รูปโลโก้แทน)'; document.getElementById('news_FileStatus').innerText = 'ไม่ได้เลือกไฟล์'; document.getElementById('news_ExistingCoverURL').value = ''; document.getElementById('news_ExistingFileURL').value = '';
 
             const user = JSON.parse(localStorage.getItem('userData'));
-            document.getElementById('news_CreateDate').value = Utilities_getNow();
-            document.getElementById('news_Author').value = user.fullname;
-            document.getElementById('news_ViewCount').value = '0';
+            document.getElementById('news_CreateDate').value = Utilities_getNow(); document.getElementById('news_Author').value = user.fullname; document.getElementById('news_ViewCount').value = '0';
 
             if (id) {
                 document.getElementById('newsModalTitle').innerText = 'แก้ไขข่าวสาร';
                 const item = currentTableData.find(x => x.NewsID === id);
-                document.getElementById('news_NewsID').value = item.NewsID;
-                document.getElementById('news_Title').value = item.Title;
-                
-                // โหลด HTML เข้าไปใน Editor
-                quillEditor.root.innerHTML = item.Content || '';
-                
-                document.getElementById('news_CategoryID').value = item.CategoryID;
-                document.getElementById('news_Status').value = item.Status;
-                document.getElementById('news_CreateDate').value = item.CreateDate;
-                document.getElementById('news_Author').value = item.Author;
-                document.getElementById('news_ViewCount').value = item.ViewCount;
-
-                // เก็บ URL เก่าไว้ เผื่อไม่ได้อัปโหลดไฟล์ใหม่
-                document.getElementById('news_ExistingCoverURL').value = item.CoverImageURL;
-                document.getElementById('news_ExistingFileURL').value = item.FilesURL;
-                
+                document.getElementById('news_NewsID').value = item.NewsID; document.getElementById('news_Title').value = item.Title; quillEditor.root.innerHTML = item.Content || ''; document.getElementById('news_CategoryID').value = item.CategoryID; document.getElementById('news_Status').value = item.Status; document.getElementById('news_CreateDate').value = item.CreateDate; document.getElementById('news_Author').value = item.Author; document.getElementById('news_ViewCount').value = item.ViewCount;
+                document.getElementById('news_ExistingCoverURL').value = item.CoverImageURL; document.getElementById('news_ExistingFileURL').value = item.FilesURL;
                 if(item.CoverImageURL) document.getElementById('news_CoverStatus').innerHTML = `<a href="${item.CoverImageURL}" target="_blank">มีรูปภาพเดิมอยู่แล้ว</a> (หากอัปโหลดใหม่จะแทนที่เดิม)`;
                 if(item.FilesURL) document.getElementById('news_FileStatus').innerHTML = `<a href="${item.FilesURL}" target="_blank">มีไฟล์แนบเดิมอยู่แล้ว</a> (หากอัปโหลดใหม่จะแทนที่เดิม)`;
             }
             new bootstrap.Modal(document.getElementById('newsModal')).show();
         }
 
-        // 4. บันทึกข่าวลงฐานข้อมูล
-       // 🟢 บันทึกข่าวลงฐานข้อมูล (รองรับการอัปโหลดไฟล์)
         async function saveNewsRecord(e) {
-            e.preventDefault();
-            const btn = document.getElementById('btnSaveNews');
-            
-            // ดึง HTML จาก Editor
+            e.preventDefault(); const btn = document.getElementById('btnSaveNews');
             const htmlContent = quillEditor.root.innerHTML;
-            if (quillEditor.getText().trim().length === 0) {
-                Swal.fire('ข้อผิดพลาด', 'กรุณาใส่เนื้อหาข่าว', 'warning'); return;
-            }
+            if (quillEditor.getText().trim().length === 0) { Swal.fire('ข้อผิดพลาด', 'กรุณาใส่เนื้อหาข่าว', 'warning'); return; }
 
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังบันทึก อัปโหลดไฟล์อาจใช้เวลาสักครู่...'; 
-            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังบันทึก อัปโหลดไฟล์อาจใช้เวลาสักครู่...'; btn.disabled = true;
 
-            const recordData = {
-                NewsID: document.getElementById('news_NewsID').value,
-                Title: document.getElementById('news_Title').value,
-                Content: htmlContent, // ใส่ก้อน HTML ลงชีทไปเลย
-                CategoryID: document.getElementById('news_CategoryID').value,
-                Status: document.getElementById('news_Status').value,
-                CreateDate: document.getElementById('news_CreateDate').value,
-                Author: document.getElementById('news_Author').value,
-                ViewCount: document.getElementById('news_ViewCount').value,
-                // ใส่ URL เดิมกลับไปก่อน เผื่อไม่มีการอัปโหลดทับ
-                CoverImageURL: document.getElementById('news_ExistingCoverURL').value,
-                FilesURL: document.getElementById('news_ExistingFileURL').value
-            };
-
-            const formData = new URLSearchParams();
-            formData.append('action', 'saveRecord');
-            formData.append('sheetName', 'News');
-            formData.append('idColumn', 'NewsID');
+            const recordData = { NewsID: document.getElementById('news_NewsID').value, Title: document.getElementById('news_Title').value, Content: htmlContent, CategoryID: document.getElementById('news_CategoryID').value, Status: document.getElementById('news_Status').value, CreateDate: document.getElementById('news_CreateDate').value, Author: document.getElementById('news_Author').value, ViewCount: document.getElementById('news_ViewCount').value, CoverImageURL: document.getElementById('news_ExistingCoverURL').value, FilesURL: document.getElementById('news_ExistingFileURL').value };
+            const formData = new URLSearchParams(); formData.append('action', 'saveRecord'); formData.append('sheetName', 'News'); formData.append('idColumn', 'NewsID');
             
-            // จัดการไฟล์อัปโหลด หน้าปก
             const coverInput = document.getElementById('news_UploadCover');
-            if (coverInput.files.length > 0) {
-                const coverFile = coverInput.files[0];
-                formData.append('coverImageBase64', await getBase64(coverFile));
-                formData.append('coverImageName', coverFile.name);
-            }
-
-            // จัดการไฟล์อัปโหลด เอกสารแนบ
+            if (coverInput.files.length > 0) { const coverFile = coverInput.files[0]; formData.append('coverImageBase64', await getBase64(coverFile)); formData.append('coverImageName', coverFile.name); }
             const fileInput = document.getElementById('news_UploadFile');
-            if (fileInput.files.length > 0) {
-                const docFile = fileInput.files[0];
-                formData.append('fileBase64', await getBase64(docFile));
-                formData.append('fileName', docFile.name);
-            }
-
+            if (fileInput.files.length > 0) { const docFile = fileInput.files[0]; formData.append('fileBase64', await getBase64(docFile)); formData.append('fileName', docFile.name); }
+            
             formData.append('recordJSON', JSON.stringify(recordData));
-
-            fetch(API_URL, { method: 'POST', body: formData }).then(res => res.json()).then(res => {
-                if (res.status === 'success') {
-                    bootstrap.Modal.getInstance(document.getElementById('newsModal')).hide();
-                    Swal.fire({ icon: 'success', title: 'บันทึกข่าวและอัปโหลดไฟล์สำเร็จ', showConfirmButton: false, timer: 2000 });
-                    loadTableData('News', renderNewsTable);
-                } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
-            }).finally(() => { 
-                btn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i> บันทึกข่าวสาร'; 
-                btn.disabled = false; 
-            });
+            fetch(API_URL, { method: 'POST', body: formData }).then(res => res.json()).then(res => { if (res.status === 'success') { bootstrap.Modal.getInstance(document.getElementById('newsModal')).hide(); Swal.fire({ icon: 'success', title: 'บันทึกข่าวและอัปโหลดไฟล์สำเร็จ', showConfirmButton: false, timer: 2000 }); loadTableData('News', renderNewsTable); } else { Swal.fire('ผิดพลาด', res.message, 'error'); } }).finally(() => { btn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i> บันทึกข่าวสาร'; btn.disabled = false; });
         }
+        // =======================สิ้นสุด ฟังก์ชันจัดการ ข่าว =================
 
-        // =======================สิ้นสุด ฟังก์ชันจัดการ จัดการข่าว =================
     </script>
 </body>
 </html>
