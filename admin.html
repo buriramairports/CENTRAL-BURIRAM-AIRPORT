@@ -1025,31 +1025,24 @@
     </div>
     <!-- ================= สิ้นสุด Modal: ดูไฟล์เอกสารแนบ ================= -->
 
-    <!-- ================= เริ่มต้น Modal: ดูแกลลอรีรูปภาพ (อัปเดตเป็นสไลด์เลื่อนซ้าย-ขวา) ================= -->
+    <!-- ================= เริ่มต้น Modal: ดูแกลลอรีรูปภาพ ================= -->
     <div class="modal fade" id="viewGalleryModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
             <div class="modal-content border-0 bg-dark">
-                <div class="modal-header border-secondary">
-                    <h6 class="modal-title fw-bold text-white"><i class="fa-solid fa-images text-success"></i> แกลลอรีรูปภาพ</h6>
+                <div class="modal-header border-secondary p-3">
+                    <h5 class="modal-title fw-bold text-white"><i class="fa-solid fa-images text-success me-2"></i> แกลลอรีรูปภาพ</h5>
+                    <div class="text-secondary small ms-3 mt-1"><i class="fa-solid fa-magnifying-glass-plus"></i> ดับเบิลคลิกที่รูปเพื่อซูมเข้า/ออก</div>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-0">
-                    <!-- 🟢 เปลี่ยนมาใช้ Bootstrap Carousel เพื่อให้เลื่อนซ้ายขวาได้ 100% -->
-                    <div id="galleryCarousel" class="carousel slide" data-bs-ride="carousel">
-                        <div class="carousel-indicators" id="gallery-indicators">
-                            <!-- จุดไข่ปลาด้านล่างจะมาวาดตรงนี้ -->
+                    <!-- ใช้ Swiper ทำสไลด์โชว์ (ปรับความสูงเป็น 75vh เพื่อให้ใหญ่เต็มตา) -->
+                    <div class="swiper swiper-gallery" style="width: 100%; height: 75vh;">
+                        <div class="swiper-wrapper" id="viewGallery_Wrapper">
+                            <!-- รูปภาพจะถูกวาดลงตรงนี้ -->
                         </div>
-                        <div class="carousel-inner" id="gallery-inner" style="height: 500px; background-color: #111;">
-                            <!-- รูปภาพจะถูกนำมาวาดตรงนี้ -->
-                        </div>
-                        <button class="carousel-control-prev" type="button" data-bs-target="#galleryCarousel" data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Previous</span>
-                        </button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#galleryCarousel" data-bs-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Next</span>
-                        </button>
+                        <div class="swiper-button-next text-white"></div>
+                        <div class="swiper-button-prev text-white"></div>
+                        <div class="swiper-pagination"></div>
                     </div>
                 </div>
             </div>
@@ -2151,33 +2144,45 @@
         }
 
        // 🟢 ฟังก์ชันเปิดแกลลอรี (แบบสไลด์เลื่อนซ้าย-ขวา)
-        function openGalleryModal(newsId) {
+       function openGalleryModal(newsId) {
             const item = currentTableData.find(x => x.NewsID === newsId);
-            const inner = document.getElementById('gallery-inner');
-            const indicators = document.getElementById('gallery-indicators');
-            
-            inner.innerHTML = '';
-            indicators.innerHTML = '';
+            const wrapper = document.getElementById('viewGallery_Wrapper');
+            wrapper.innerHTML = '';
 
             if (item && item.GalleryURLs) {
                 let images = item.GalleryURLs.split(', ');
-                images.forEach((url, index) => {
+                images.forEach((url) => {
+                    // แปลงลิงก์ให้อ่านภาพได้ชัดๆ ด้วย thumbnail API ของเรา
                     let displayUrl = convertDriveImageLink(url);
-                    let activeClass = index === 0 ? 'active' : ''; // ให้รูปแรกแสดงก่อน
-                    
-                    // สร้างจุดไข่ปลาด้านล่าง
-                    indicators.innerHTML += `<button type="button" data-bs-target="#galleryCarousel" data-bs-slide-to="${index}" class="${activeClass}"></button>`;
-                    
-                    // สร้างรูปภาพตรงกลาง
-                    inner.innerHTML += `
-                        <div class="carousel-item ${activeClass} h-100">
-                            <img src="${displayUrl}" class="d-block w-100 h-100" style="object-fit:contain;" alt="Gallery Image ${index+1}">
+                    // ตัด ?usp=sharing ออกเพื่อให้กลายเป็นลิงก์เปิดดูไฟล์ดิบของ Drive
+                    let rawUrl = url.replace('?usp=sharing', ''); 
+
+                    // 🟢 เพิ่มคลาส swiper-zoom-container ครอบรูปไว้ และเพิ่มปุ่มดูรูปเต็ม
+                    wrapper.innerHTML += `
+                        <div class="swiper-slide d-flex justify-content-center align-items-center">
+                            <div class="swiper-zoom-container">
+                                <img src="${displayUrl}" style="max-width:100%; max-height:100%; object-fit:contain;">
+                            </div>
+                            <div class="position-absolute bottom-0 end-0 m-4" style="z-index: 10;">
+                                <a href="${rawUrl}" target="_blank" class="btn btn-primary rounded-pill shadow">
+                                    <i class="fa-solid fa-expand me-1"></i> ดูรูปขนาดเต็ม
+                                </a>
+                            </div>
                         </div>
                     `;
                 });
             }
 
             new bootstrap.Modal(document.getElementById('viewGalleryModal')).show();
+            
+            // 🟢 เรียกใช้งาน Swiper สำหรับสไลด์โชว์แกลลอรี พร้อมเปิดโหมด Zoom!
+            new Swiper('.swiper-gallery', {
+                navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+                pagination: { el: '.swiper-pagination', clickable: true },
+                zoom: {
+                    maxRatio: 3, // ซูมได้สูงสุด 3 เท่า
+                },
+            });
         }
 
         // =======================สิ้นสุด ฟังก์ชันจัดการ เอกสารแนบ แกลลอรี่ =================
