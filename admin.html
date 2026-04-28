@@ -1967,68 +1967,84 @@
             new bootstrap.Modal(document.getElementById('newsModal')).show();
         }
 
- // 🟢 ฟังก์ชันแปลงหลายไฟล์พร้อมกัน
-    /*    async function getMultipleBase64(fileInput) {
-            let results = [];
-            for (let file of fileInput.files) {
-                let b64 = await getBase64(file);
-                results.push({ name: file.name, b64: b64 });
+// ==========================================
+        // 🚀 ฟังก์ชันอัปโหลดไฟล์แบบทีละไฟล์ (Sequential Upload)
+        // ==========================================
+        
+        // 1. ฟังก์ชันส่งไฟล์ไป API ทีละ 1 ไฟล์
+        async function uploadSingleFile(file, fileType) {
+            try {
+                const base64 = await getBase64(file);
+                const formData = new URLSearchParams();
+                formData.append('action', 'uploadFile');
+                formData.append('name', file.name);
+                formData.append('fileType', fileType); // 'image' หรือ 'document'
+                formData.append('base64', base64);
+                
+                const response = await fetch(API_URL, { method: 'POST', body: formData });
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    return result.url; // สำเร็จ คืนค่าลิงก์ Google Drive
+                } else {
+                    throw new Error('Upload failed on server');
+                }
+            } catch (err) {
+                console.error('File Upload Error:', err);
+                return null; // ล้มเหลว คืนค่า null
             }
-            return JSON.stringify(results);
-        }*/
-
-        // 🟢 ฟังก์ชันช่วยอัปโหลดไฟล์ไปที่ API (ทีละไฟล์)
-        async function uploadFileToAPI(file, fileType) {
-            const base64 = await getBase64(file);
-            const formData = new URLSearchParams();
-            formData.append('action', 'uploadFile');
-            formData.append('name', file.name);
-            formData.append('fileType', fileType); // 'image' หรือ 'document'
-            formData.append('base64', base64);
-            
-            const response = await fetch(API_URL, { method: 'POST', body: formData });
-            const result = await response.json();
-            if (result.status === 'success') return result.url;
-            throw new Error('Upload failed');
         }
 
-        // 🟢 ฟังก์ชันบันทึกข่าว (แยกอัปโหลดไฟล์ก่อน แล้วค่อยบันทึกข้อความลง Sheet)
+        // 2. ฟังก์ชันหลักสำหรับบันทึกข่าว (ปรับให้ทนทานขึ้น)
         async function saveNewsRecord(e) {
             e.preventDefault();
             const btn = document.getElementById('btnSaveNews');
+            
+            // ดึงข้อความ HTML จาก Editor
             const htmlContent = quillEditor.root.innerHTML;
-            if (quillEditor.getText().trim().length === 0) { Swal.fire('ข้อผิดพลาด', 'กรุณาใส่เนื้อหาข่าว', 'warning'); return; }
+            if (quillEditor.getText().trim().length === 0) { 
+                Swal.fire('ข้อผิดพลาด', 'กรุณาใส่เนื้อหาข่าว', 'warning'); return; 
+            }
 
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังอัปโหลดไฟล์ กรุณารอสักครู่...'; 
+            // ล็อกปุ่มกันกดซ้ำ และโชว์สถานะ
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังอัปโหลดไฟล์... (ห้ามปิดหน้าจอ)'; 
             btn.disabled = true;
 
             try {
-                // 1. เตรียม URL เดิม (เผื่อไม่ได้อัปไฟล์ใหม่)
-                let coverUrl = document.getElementById('news_ExistingCoverURL').value;
-                let filesUrls = document.getElementById('news_ExistingFileURL').value ? document.getElementById('news_ExistingFileURL').value.split(', ') : [];
-                let galleryUrls = document.getElementById('news_ExistingGalleryURL').value ? document.getElementById('news_ExistingGalleryURL').value.split(', ') : [];
+                // เก็บ URL เดิมไว้ (เผื่อไม่มีการอัปโหลดใหม่)
+                let finalCoverUrl = document.getElementById('news_ExistingCoverURL').value;
+                let finalFilesUrls = document.getElementById('news_ExistingFileURL').value ? document.getElementById('news_ExistingFileURL').value.split(', ') : [];
+                let finalGalleryUrls = document.getElementById('news_ExistingGalleryURL').value ? document.getElementById('news_ExistingGalleryURL').value.split(', ') : [];
 
-                // 2. อัปโหลดรูปหน้าปก (ถ้ามีเลือกใหม่)
+                // 🟢 กระบวนการที่ 1: อัปโหลดรูปหน้าปก (1 รูป)
                 const coverInput = document.getElementById('news_UploadCover');
                 if (coverInput.files.length > 0) {
-                    coverUrl = await uploadFileToAPI(coverInput.files[0], 'image');
+                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังอัปโหลดรูปหน้าปก...';
+                    let uploadedUrl = await uploadSingleFile(coverInput.files[0], 'image');
+                    if (uploadedUrl) finalCoverUrl = uploadedUrl;
                 }
 
-                // 3. อัปโหลดไฟล์แนบหลายไฟล์ (ถ้ามีเลือกใหม่ จะเอาไปต่อท้ายของเดิม)
+                // 🟢 กระบวนการที่ 2: อัปโหลดไฟล์แนบ (หลายไฟล์ - อัปโหลดทีละอัน)
                 const docInput = document.getElementById('news_UploadFile');
-                for (let file of docInput.files) {
-                    let url = await uploadFileToAPI(file, 'document');
-                    filesUrls.push(url);
+                if (docInput.files.length > 0) {
+                    for (let i = 0; i < docInput.files.length; i++) {
+                        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังอัปโหลดเอกสารแนบ (${i+1}/${docInput.files.length})...`;
+                        let uploadedUrl = await uploadSingleFile(docInput.files[i], 'document');
+                        if (uploadedUrl) finalFilesUrls.push(uploadedUrl);
+                    }
                 }
 
-                // 4. อัปโหลดแกลลอรีหลายรูป (ถ้ามีเลือกใหม่ จะเอาไปต่อท้ายของเดิม)
+                // 🟢 กระบวนการที่ 3: อัปโหลดแกลลอรีรูปภาพ (หลายรูป - อัปโหลดทีละอัน)
                 const galInput = document.getElementById('news_UploadGallery');
-                for (let file of galInput.files) {
-                    let url = await uploadFileToAPI(file, 'image');
-                    galleryUrls.push(url);
+                if (galInput.files.length > 0) {
+                    for (let i = 0; i < galInput.files.length; i++) {
+                        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังอัปโหลดรูปแกลลอรี (${i+1}/${galInput.files.length})...`;
+                        let uploadedUrl = await uploadSingleFile(galInput.files[i], 'image');
+                        if (uploadedUrl) finalGalleryUrls.push(uploadedUrl);
+                    }
                 }
 
-                // 5. เมื่ออัปโหลดไฟล์ทั้งหมดเสร็จแล้ว ค่อยนำ URL มามัดรวมกับข้อความข่าว
+                // 🟢 กระบวนการที่ 4: บันทึกข้อมูลทั้งหมดลง Google Sheet
                 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังบันทึกข้อมูลลงฐานข้อมูล...';
 
                 const recordData = {
@@ -2040,9 +2056,9 @@
                     CreateDate: document.getElementById('news_CreateDate').value,
                     Author: document.getElementById('news_Author').value,
                     ViewCount: document.getElementById('news_ViewCount').value,
-                    CoverImageURL: coverUrl, // URL รูปปก
-                    FilesURL: filesUrls.join(', '), // URL ไฟล์แนบ (คั่นด้วย ,)
-                    GalleryURLs: galleryUrls.join(', ') // URL แกลลอรี (คั่นด้วย ,)
+                    CoverImageURL: finalCoverUrl, 
+                    FilesURL: finalFilesUrls.join(', '), 
+                    GalleryURLs: finalGalleryUrls.join(', ')
                 };
 
                 const formData = new URLSearchParams();
@@ -2051,27 +2067,27 @@
                 formData.append('idColumn', 'NewsID');
                 formData.append('recordJSON', JSON.stringify(recordData));
 
-                // 6. ยิง API เซฟลง Google Sheet
                 const response = await fetch(API_URL, { method: 'POST', body: formData });
                 const result = await response.json();
 
                 if (result.status === 'success') {
                     bootstrap.Modal.getInstance(document.getElementById('newsModal')).hide();
                     Swal.fire({ icon: 'success', title: 'สำเร็จ', text: 'ข้อมูลถูกบันทึกและอัปโหลดสมบูรณ์', showConfirmButton: false, timer: 2000 });
-                    loadTableData('News', renderNewsTable); // รีเฟรชตาราง
+                    loadTableData('News', renderNewsTable); // โหลดตารางใหม่
                 } else {
-                    throw new Error(result.message);
+                    Swal.fire('ผิดพลาด', result.message, 'error');
                 }
 
             } catch (error) {
                 console.error(error);
                 Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง', 'error');
             } finally {
+                // คืนค่าปุ่มให้กลับมาเหมือนเดิม
                 btn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i> บันทึกข่าวสาร'; 
                 btn.disabled = false; 
             }
         }
-        // =======================สิ้นสุด ฟังก์ชันจัดการ ข่าว =================
+// =======================สิ้นสุด ฟังก์ชันจัดการ ข่าว =================
 // ==========================================
         // 🖼️ ฟังก์ชันเปิดดูเอกสารแนบ และแกลลอรี
         // ==========================================
