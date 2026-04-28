@@ -880,21 +880,21 @@
     </div>
     <!-- ================= สิ้นสุด Modal: ตารางเที่ยวบิน ================= -->
 
-    <!-- ================= เริ่มต้น Modal: ดูวันทำการบิน ================= -->
+    <!-- ================= เริ่มต้น Modal: ดูวันทำการบิน (แบบปฏิทิน) ================= -->
     <div class="modal fade" id="viewFlightDatesModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content border-0">
                 <div class="modal-header bg-light">
-                    <h6 class="modal-title fw-bold text-primary"><i class="fa-regular fa-calendar-check"></i> วันที่ทำการบินทั้งหมด</h6>
+                    <h6 class="modal-title fw-bold text-primary"><i class="fa-regular fa-calendar-check"></i> ปฏิทินวันทำการบิน</h6>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4 text-center">
                     <div class="fw-bold fs-5 text-danger mb-1" id="viewDates_FlightNo">FD3522</div>
-                    <div class="text-muted small mb-3">จำนวน <span id="viewDates_Count" class="fw-bold">0</span> วัน</div>
+                    <div class="text-muted small mb-3">จำนวนทั้งหมด <span id="viewDates_Count" class="fw-bold">0</span> วัน</div>
                     
-                    <!-- กล่องแสดงวันที่แบบ Scrollable เผื่อมีหลายวัน -->
-                    <div id="viewDates_List" class="d-flex flex-wrap gap-2 justify-content-center" style="max-height: 250px; overflow-y: auto;">
-                        <!-- วันที่จะถูกนำมาวาดใส่ตรงนี้เป็นป้าย Badge -->
+                    <!-- 🟢 กล่องซ่อน Input สำหรับเรียก Flatpickr แบบฝัง (Inline) -->
+                    <div class="d-flex justify-content-center">
+                        <input type="text" id="viewDates_Calendar" class="d-none">
                     </div>
                 </div>
             </div>
@@ -1817,25 +1817,40 @@
         }
 
         // 🟢 ฟังก์ชันเปิด Modal ดูวันทำการบิน
+        // 🟢 ตัวแปรสำหรับเก็บ ปฏิทินแสดงผล (Read-only)
+        let readonlyDatepicker;
+
         function openViewDatesModal(flightNum, datesString) {
             document.getElementById('viewDates_FlightNo').innerText = 'เที่ยวบิน ' + flightNum;
             
-            const listContainer = document.getElementById('viewDates_List');
-            listContainer.innerHTML = ''; // ล้างของเก่า
-            
-            if (datesString) {
-                // แยกวันที่ด้วย ", " แล้วเรียงลำดับใหม่ให้สวยงาม
-                let datesArr = datesString.split(', ').sort();
-                document.getElementById('viewDates_Count').innerText = datesArr.length;
-                
-                // วาดป้ายวันที่ทีละอัน
-                datesArr.forEach(date => {
-                    listContainer.innerHTML += `<span class="badge border border-primary text-primary fs-6 p-2">${date}</span>`;
-                });
-            } else {
-                document.getElementById('viewDates_Count').innerText = '0';
-                listContainer.innerHTML = '<span class="text-muted">ไม่พบข้อมูลวันทำการบิน</span>';
+            // แยกวันที่จากสตริง "28/04/2026, 29/04/2026" ให้อยู่ในรูปแบบ Array
+            let datesArr = datesString ? datesString.split(', ') : [];
+            document.getElementById('viewDates_Count').innerText = datesArr.length;
+
+            // 1. ทำลายปฏิทินเก่าทิ้ง (ถ้ามี) เพื่อสร้างใหม่ให้ตรงกับข้อมูลเที่ยวบินที่กด
+            if (readonlyDatepicker) {
+                readonlyDatepicker.destroy();
             }
+
+            // 2. สร้าง Flatpickr แบบฝังหน้าจอ (Inline) และบังคับให้แก้ไม่ได้ (Read-only)
+            readonlyDatepicker = flatpickr("#viewDates_Calendar", {
+                mode: "multiple",           // รองรับหลายวัน
+                inline: true,               // ให้แสดงปฏิทินกางออกตลอดเวลา
+                clickOpens: false,          // ปิดไม่ให้กดเลือกวันเพิ่มได้ (คลิกไม่เป็นผล)
+                locale: "th",               // ภาษาไทย
+                defaultDate: datesArr,      // โยนวันที่ที่มีบินเข้าไป เพื่อให้ระบบไฮไลต์สีฟ้า
+                
+                // 🟢 Event พิเศษ: ย้ายเดือนปัจจุบันไปที่วันที่บินวันแรก (ถ้ามี)
+                onReady: function(selectedDates, dateStr, instance) {
+                    if (selectedDates.length > 0) {
+                        instance.jumpToDate(selectedDates[0]); // เด้งไปเดือนที่มีบิน
+                    }
+                    // CSS พิเศษ ซ่อนเคอร์เซอร์เพื่อให้ดูเป็นปฏิทินแสดงผลจริงๆ
+                    instance.calendarContainer.style.pointerEvents = 'none'; 
+                    // ปลดล็อกเฉพาะปุ่มเปลี่ยนเดือนให้กดได้
+                    instance.monthNav.style.pointerEvents = 'auto'; 
+                }
+            });
 
             new bootstrap.Modal(document.getElementById('viewFlightDatesModal')).show();
         }
