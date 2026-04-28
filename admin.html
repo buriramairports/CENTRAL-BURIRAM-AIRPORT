@@ -9,6 +9,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <!-- Flatpickr CSS (สำหรับเลือกหลายวันที่) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <!-- Quill JS (Rich Text Editor) -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 
     <style>
         body { font-family: 'Kanit', sans-serif; background-color: #f1f5f9; overflow-x: hidden; }
@@ -954,40 +956,41 @@
                         <input type="hidden" id="news_CreateDate">
                         <input type="hidden" id="news_Author">
                         <input type="hidden" id="news_ViewCount">
+                        <input type="hidden" id="news_ExistingCoverURL"> <!-- เก็บ URL เดิมกันหาย -->
+                        <input type="hidden" id="news_ExistingFileURL">
                         
                         <div class="row g-4">
-                            <!-- ฝั่งซ้าย: ข้อมูลหลัก -->
                             <div class="col-lg-8">
                                 <div class="card border-0 shadow-sm h-100">
-                                    <div class="card-body">
+                                    <div class="card-body d-flex flex-column">
                                         <div class="mb-3">
                                             <label class="form-label fw-bold">หัวข้อข่าว <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control fs-5 fw-bold text-primary" id="news_Title" placeholder="ใส่หัวข้อข่าวที่น่าสนใจ..." required>
+                                            <input type="text" class="form-control fs-5 fw-bold text-primary" id="news_Title" required>
                                         </div>
-                                        <div class="mb-3">
-                                            <label class="form-label fw-bold">เนื้อหาข่าว <span class="text-danger">*</span></label>
-                                            <textarea class="form-control" id="news_Content" rows="12" placeholder="พิมพ์เนื้อหาข่าวที่นี่..." required></textarea>
+                                        <div class="mb-2 flex-grow-1 d-flex flex-column">
+                                            <label class="form-label fw-bold">เนื้อหาข่าว (สามารถก๊อปปี้รูปภาพมาวางแทรกในข้อความได้เลย) <span class="text-danger">*</span></label>
+                                            <!-- 🟢 จุดที่ 3 & 4: เปลี่ยน textarea เป็นกล่อง Editor -->
+                                            <div id="news_Content_Editor" style="height: 350px; background: white;"></div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             
-                            <!-- ฝั่งขวา: การตั้งค่าและไฟล์แนบ -->
                             <div class="col-lg-4">
                                 <div class="card border-0 shadow-sm mb-3">
                                     <div class="card-body">
                                         <label class="form-label fw-bold"><i class="fa-solid fa-layer-group text-info"></i> หมวดหมู่ข่าว <span class="text-danger">*</span></label>
-                                        <select class="form-select mb-3" id="news_CategoryID" required>
-                                            <option value="">-- โหลดหมวดหมู่ --</option>
-                                        </select>
+                                        <select class="form-select mb-4" id="news_CategoryID" required></select>
 
-                                        <label class="form-label fw-bold"><i class="fa-solid fa-image text-warning"></i> URL รูปภาพหน้าปก</label>
-                                        <input type="url" class="form-control mb-1" id="news_CoverImageURL" placeholder="ลิงก์จาก Google Drive">
-                                        <div class="form-text mb-3">หากไม่มี ระบบจะใช้รูปภาพโลโก้แทน</div>
+                                        <!-- 🟢 จุดที่ 1: ระบบอัปโหลดรูปภาพหน้าปก -->
+                                        <label class="form-label fw-bold"><i class="fa-solid fa-image text-warning"></i> อัปโหลดรูปภาพหน้าปก</label>
+                                        <input type="file" class="form-control mb-1" id="news_UploadCover" accept="image/png, image/jpeg">
+                                        <div class="form-text mb-4" id="news_CoverStatus">ไม่ได้เลือกไฟล์ (ระบบจะใช้รูปโลโก้ หรือรูปเดิม)</div>
 
-                                        <label class="form-label fw-bold"><i class="fa-solid fa-file-pdf text-danger"></i> URL ไฟล์เอกสารแนบ (เช่น PDF)</label>
-                                        <input type="url" class="form-control mb-1" id="news_FilesURL" placeholder="ลิงก์ไฟล์จาก Google Drive">
-                                        <div class="form-text mb-3">หากมีประกาศสมัครงาน หรือเอกสารประกวดราคาให้ใส่ลิงก์ที่นี่</div>
+                                        <!-- 🟢 จุดที่ 1: ระบบอัปโหลดไฟล์แนบ -->
+                                        <label class="form-label fw-bold"><i class="fa-solid fa-file-pdf text-danger"></i> อัปโหลดไฟล์เอกสารแนบ (เช่น PDF)</label>
+                                        <input type="file" class="form-control mb-1" id="news_UploadFile" accept=".pdf,.doc,.docx">
+                                        <div class="form-text mb-4" id="news_FileStatus">ไม่ได้เลือกไฟล์</div>
                                         
                                         <hr>
                                         <label class="form-label fw-bold">สถานะการเผยแพร่</label>
@@ -1012,6 +1015,8 @@
     <!-- Flatpickr JS -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
+    <!-- Quill JS (Rich Text Editor) -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
     
     <script>
         // 🔴 อย่าลืมนำ API URL ของคุณมาวางตรงนี้ 🔴
@@ -1020,19 +1025,52 @@
         let currentTableData = [];
 
         // ================= เริ่มต้น ระบบโหลดค่าผู้ใช้งานเมื่อเปิดหน้าเว็บ =================
+        // 🟢 ประกาศตัวแปร Global ไว้ด้านบนสุดของสคริปต์
+        let quillEditor;
+        let flightDatepicker;
+        let allAirlinesData = []; 
+        let flightDatepicker; // ตัวแปรเก็บปฏิทิน Flatpickr
+        // ================= เริ่มต้น ระบบโหลดค่าเริ่มต้นเมื่อเปิดหน้าเว็บ =================
         document.addEventListener('DOMContentLoaded', () => {
+            
+            // 1. โหลดข้อมูลสิทธิ์แอดมินจาก LocalStorage
             const user = JSON.parse(localStorage.getItem('userData'));
             if(user) {
                 document.getElementById('adminNameDisplay').innerText = user.fullname;
                 document.getElementById('adminRoleDisplay').innerText = user.role;
                 document.getElementById('adminDeptDisplay').innerText = user.department;
-                // ถ้าเป็น SubAdmin ให้ซ่อนเมนูตั้งค่าระบบ
                 if (user.role === 'SubAdmin') {
                     document.getElementById('adminRoleDisplay').className = "badge bg-warning text-dark ms-2";
                     document.getElementById('menuSuperAdminGroup').style.display = 'none';
                 }
             }
+
+            // 2. ตั้งค่า Flatpickr ให้หน้า "ตารางเที่ยวบิน" (รองรับการเลือกหลายวัน)
+            flightDatepicker = flatpickr("#flt_FlightDates", {
+                mode: "multiple",
+                dateFormat: "d/m/Y",
+                locale: "th",
+                conjunction: ", " // ตัวคั่นระหว่างวันที่
+            });
+
+            // 3. เปิดใช้งาน Quill JS Editor ให้หน้า "จัดการข่าวสาร"
+            quillEditor = new Quill('#news_Content_Editor', {
+                theme: 'snow',
+                placeholder: 'พิมพ์เนื้อหาข่าว หรือกด Ctrl+V เพื่อวางรูปภาพประกอบ...',
+                modules: {
+                    toolbar: [
+                        [{ 'header': [1, 2, 3, false] }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        [{ 'align': [] }],
+                        ['link', 'image'], // ปุ่มใส่ลิงก์ และใส่รูป
+                        ['clean']
+                    ]
+                }
+            });
+            
         });
+        // ================= สิ้นสุด ระบบโหลดค่าเริ่มต้น =================
 
         // ฟังก์ชันออกจากระบบ
         function adminLogout() {
@@ -1805,11 +1843,10 @@
         // ==========================================
         // ✈️ ระบบจัดการ ตารางเที่ยวบิน (Flight Schedules) ใหม่ล่าสุด
         // ==========================================
-        let allAirlinesData = []; 
-        let flightDatepicker; // ตัวแปรเก็บปฏิทิน Flatpickr
+        
 
         // เริ่มต้นปฏิทินตอนโหลดหน้าเว็บ
-        document.addEventListener('DOMContentLoaded', () => {
+      /*  document.addEventListener('DOMContentLoaded', () => {
             // ตั้งค่า Flatpickr ให้เลือกได้หลายวันแบบ Array (โชว์ภาษาไทย)
             flightDatepicker = flatpickr("#flt_FlightDates", {
                 mode: "multiple",
@@ -1817,7 +1854,7 @@
                 locale: "th",
                 conjunction: ", " // ตัวคั่นระหว่างวันที่
             });
-        });
+        });*/
 
         function populateAirlineDropdown() {
             fetch(`${API_URL}?action=getTableData&sheetName=Airlines`).then(res => res.json()).then(res => {
@@ -2006,38 +2043,40 @@
         }
 
         // 2. วาดตารางข่าว (กรองการมองเห็นตามสิทธิ์)
+        // วาดตารางข่าว (เพิ่มปุ่มดูไฟล์แนบ)
         function renderNewsTable(data) {
             const user = JSON.parse(localStorage.getItem('userData'));
             const tbody = document.getElementById('tbody-news');
             tbody.innerHTML = '';
             
-            // 🟢 กรองข้อมูลที่อนุญาตให้คนนี้เห็น
             let allowedData = data;
             if (user.role === 'SubAdmin') {
-                // หา CategoryID ทั้งหมดที่ SubAdmin คนนี้มีสิทธิ์
                 let allowedCatIDs = allCategoriesData.filter(c => c.Department === user.department || c.Department === 'ทั้งหมด').map(c => c.CategoryID);
                 allowedData = data.filter(news => allowedCatIDs.includes(news.CategoryID));
             }
 
             if (allowedData.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="py-4 text-center">ไม่มีข่าวในหมวดหมู่ของคุณ</td></tr>'; return; }
 
-            // เรียงข่าวใหม่สุดอยู่บนสุด (อิงจาก CreateDate)
             allowedData.sort((a,b) => new Date(b.CreateDate) - new Date(a.CreateDate)).forEach((item) => {
                 let badge = item.Status === 'Publish' ? '<span class="badge bg-success">เผยแพร่แล้ว</span>' : '<span class="badge bg-warning text-dark">ฉบับร่าง</span>';
-                let imgHtml = item.CoverImageURL ? `<img src="${item.CoverImageURL}" style="width:100px; height:60px; object-fit:cover; border-radius:5px;">` : `<div style="width:100px; height:60px; background:#e2e8f0; border-radius:5px; display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-image text-muted"></i></div>`;
                 
-                // หาชื่อหมวดหมู่จาก ID
+                // ดึงรูปปก ถ้ารูปปกเป็น Google Drive จะพยายามแปลงเป็น Thumbnail ให้แสดงในตารางได้
+                let coverUrl = convertDriveImageLink(item.CoverImageURL);
+                let imgHtml = coverUrl ? `<img src="${coverUrl}" style="width:100px; height:60px; object-fit:cover; border-radius:5px;">` : `<div style="width:100px; height:60px; background:#e2e8f0; border-radius:5px; display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-image text-muted"></i></div>`;
+                
                 let catObj = allCategoriesData.find(c => c.CategoryID === item.CategoryID);
                 let catName = catObj ? catObj.CategoryName : 'ไม่ระบุหมวดหมู่';
                 let catColor = catObj ? catObj.ThemeColor : '#64748b';
 
-                let fileIcon = item.FilesURL ? '<i class="fa-solid fa-paperclip text-danger ms-2" title="มีไฟล์แนบ"></i>' : '';
+                // 🟢 จุดที่ 2: ปุ่มดูไฟล์แนบ
+                let btnAttachment = item.FilesURL ? `<a href="${item.FilesURL}" target="_blank" class="btn btn-sm btn-outline-danger mt-2" title="เปิดดูไฟล์แนบ"><i class="fa-solid fa-file-pdf"></i> เอกสารแนบ</a>` : '';
 
                 tbody.innerHTML += `
                     <tr>
                         <td class="text-center">${imgHtml}</td>
                         <td>
-                            <div class="fw-bold text-dark" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${item.Title} ${fileIcon}</div>
+                            <div class="fw-bold text-dark" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${item.Title}</div>
+                            ${btnAttachment}
                             <div class="small text-muted mt-1"><i class="fa-regular fa-calendar me-1"></i> ${item.CreateDate || '-'} | <i class="fa-solid fa-pen-nib mx-1"></i> ${item.Author || '-'}</div>
                         </td>
                         <td><span class="badge text-white" style="background-color: ${catColor};">${catName}</span></td>
@@ -2053,12 +2092,21 @@
         }
 
         // 3. เปิดป๊อปอัปเขียนข่าว
+        // เปิดป๊อปอัปเขียนข่าว
         function openNewsModal(id = '') {
             document.getElementById('formNews').reset();
             document.getElementById('news_NewsID').value = '';
             document.getElementById('newsModalTitle').innerText = 'เขียนข่าว/ประชาสัมพันธ์ใหม่';
             
-            // ของใหม่: ให้เวลาปัจจุบันเป็นเวลาสร้าง และให้ชื่อคนล็อกอินเป็นผู้เขียน
+            // ล้าง Editor
+            quillEditor.root.innerHTML = '';
+            
+            // ล้างสถานะไฟล์
+            document.getElementById('news_CoverStatus').innerText = 'ไม่ได้เลือกไฟล์ (ระบบจะใช้รูปโลโก้แทน)';
+            document.getElementById('news_FileStatus').innerText = 'ไม่ได้เลือกไฟล์';
+            document.getElementById('news_ExistingCoverURL').value = '';
+            document.getElementById('news_ExistingFileURL').value = '';
+
             const user = JSON.parse(localStorage.getItem('userData'));
             document.getElementById('news_CreateDate').value = Utilities_getNow();
             document.getElementById('news_Author').value = user.fullname;
@@ -2069,47 +2117,83 @@
                 const item = currentTableData.find(x => x.NewsID === id);
                 document.getElementById('news_NewsID').value = item.NewsID;
                 document.getElementById('news_Title').value = item.Title;
-                document.getElementById('news_Content').value = item.Content;
-                document.getElementById('news_CategoryID').value = item.CategoryID;
-                document.getElementById('news_CoverImageURL').value = item.CoverImageURL;
-                document.getElementById('news_FilesURL').value = item.FilesURL;
-                document.getElementById('news_Status').value = item.Status;
                 
-                // ดึงข้อมูลที่ซ่อนอยู่กลับมา
+                // โหลด HTML เข้าไปใน Editor
+                quillEditor.root.innerHTML = item.Content || '';
+                
+                document.getElementById('news_CategoryID').value = item.CategoryID;
+                document.getElementById('news_Status').value = item.Status;
                 document.getElementById('news_CreateDate').value = item.CreateDate;
                 document.getElementById('news_Author').value = item.Author;
                 document.getElementById('news_ViewCount').value = item.ViewCount;
+
+                // เก็บ URL เก่าไว้ เผื่อไม่ได้อัปโหลดไฟล์ใหม่
+                document.getElementById('news_ExistingCoverURL').value = item.CoverImageURL;
+                document.getElementById('news_ExistingFileURL').value = item.FilesURL;
+                
+                if(item.CoverImageURL) document.getElementById('news_CoverStatus').innerHTML = `<a href="${item.CoverImageURL}" target="_blank">มีรูปภาพเดิมอยู่แล้ว</a> (หากอัปโหลดใหม่จะแทนที่เดิม)`;
+                if(item.FilesURL) document.getElementById('news_FileStatus').innerHTML = `<a href="${item.FilesURL}" target="_blank">มีไฟล์แนบเดิมอยู่แล้ว</a> (หากอัปโหลดใหม่จะแทนที่เดิม)`;
             }
             new bootstrap.Modal(document.getElementById('newsModal')).show();
         }
 
         // 4. บันทึกข่าวลงฐานข้อมูล
-        function saveNewsRecord(e) {
+       // 🟢 บันทึกข่าวลงฐานข้อมูล (รองรับการอัปโหลดไฟล์)
+        async function saveNewsRecord(e) {
             e.preventDefault();
             const btn = document.getElementById('btnSaveNews');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังบันทึก...'; 
+            
+            // ดึง HTML จาก Editor
+            const htmlContent = quillEditor.root.innerHTML;
+            if (quillEditor.getText().trim().length === 0) {
+                Swal.fire('ข้อผิดพลาด', 'กรุณาใส่เนื้อหาข่าว', 'warning'); return;
+            }
+
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังบันทึก อัปโหลดไฟล์อาจใช้เวลาสักครู่...'; 
             btn.disabled = true;
 
             const recordData = {
                 NewsID: document.getElementById('news_NewsID').value,
                 Title: document.getElementById('news_Title').value,
-                Content: document.getElementById('news_Content').value,
+                Content: htmlContent, // ใส่ก้อน HTML ลงชีทไปเลย
                 CategoryID: document.getElementById('news_CategoryID').value,
-                CoverImageURL: convertDriveImageLink(document.getElementById('news_CoverImageURL').value), // แปลงรูปลิงก์ Drive ให้ด้วย
-                FilesURL: document.getElementById('news_FilesURL').value, // ไฟล์ PDF ไม่ต้องแปลง
                 Status: document.getElementById('news_Status').value,
                 CreateDate: document.getElementById('news_CreateDate').value,
                 Author: document.getElementById('news_Author').value,
-                ViewCount: document.getElementById('news_ViewCount').value
+                ViewCount: document.getElementById('news_ViewCount').value,
+                // ใส่ URL เดิมกลับไปก่อน เผื่อไม่มีการอัปโหลดทับ
+                CoverImageURL: document.getElementById('news_ExistingCoverURL').value,
+                FilesURL: document.getElementById('news_ExistingFileURL').value
             };
 
-            const formData = new URLSearchParams({ action: 'saveRecord', sheetName: 'News', idColumn: 'NewsID', recordJSON: JSON.stringify(recordData) });
+            const formData = new URLSearchParams();
+            formData.append('action', 'saveRecord');
+            formData.append('sheetName', 'News');
+            formData.append('idColumn', 'NewsID');
+            
+            // จัดการไฟล์อัปโหลด หน้าปก
+            const coverInput = document.getElementById('news_UploadCover');
+            if (coverInput.files.length > 0) {
+                const coverFile = coverInput.files[0];
+                formData.append('coverImageBase64', await getBase64(coverFile));
+                formData.append('coverImageName', coverFile.name);
+            }
+
+            // จัดการไฟล์อัปโหลด เอกสารแนบ
+            const fileInput = document.getElementById('news_UploadFile');
+            if (fileInput.files.length > 0) {
+                const docFile = fileInput.files[0];
+                formData.append('fileBase64', await getBase64(docFile));
+                formData.append('fileName', docFile.name);
+            }
+
+            formData.append('recordJSON', JSON.stringify(recordData));
 
             fetch(API_URL, { method: 'POST', body: formData }).then(res => res.json()).then(res => {
                 if (res.status === 'success') {
                     bootstrap.Modal.getInstance(document.getElementById('newsModal')).hide();
-                    Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', showConfirmButton: false, timer: 1500 });
-                    loadTableData('News', renderNewsTable); // โหลดใหม่
+                    Swal.fire({ icon: 'success', title: 'บันทึกข่าวและอัปโหลดไฟล์สำเร็จ', showConfirmButton: false, timer: 2000 });
+                    loadTableData('News', renderNewsTable);
                 } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
             }).finally(() => { 
                 btn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i> บันทึกข่าวสาร'; 
