@@ -882,17 +882,27 @@
 
     <!-- ================= เริ่มต้น Modal: ดูวันทำการบิน (แบบปฏิทิน) ================= -->
     <div class="modal fade" id="viewFlightDatesModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-dialog modal-dialog-centered modal-md">
             <div class="modal-content border-0">
                 <div class="modal-header bg-light">
-                    <h6 class="modal-title fw-bold text-primary"><i class="fa-regular fa-calendar-check"></i> ปฏิทินวันทำการบิน</h6>
+                    <h6 class="modal-title fw-bold text-primary"><i class="fa-regular fa-calendar-check"></i> ข้อมูลวันทำการบิน</h6>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4 text-center">
-                    <div class="fw-bold fs-5 text-danger mb-1" id="viewDates_FlightNo">FD3522</div>
-                    <div class="text-muted small mb-3">จำนวนทั้งหมด <span id="viewDates_Count" class="fw-bold">0</span> วัน</div>
                     
-                    <!-- 🟢 กล่องซ่อน Input สำหรับเรียก Flatpickr แบบฝัง (Inline) -->
+                    <!-- โซนข้อมูลเที่ยวบิน -->
+                    <div class="mb-4 bg-light p-3 rounded border">
+                        <h4 class="fw-bold text-danger mb-2" id="viewDates_FlightNo">FD3522</h4>
+                        <div class="fw-bold text-dark mb-2" id="viewDates_Airline"><i class="fa-solid fa-plane"></i> สายการบิน...</div>
+                        <div class="text-secondary mb-2" id="viewDates_Route">ต้นทาง <i class="fa-solid fa-arrow-right mx-1"></i> ปลายทาง</div>
+                        <div class="text-primary fw-bold">
+                            <i class="fa-regular fa-clock me-1"></i> <span id="viewDates_Time">00:00 - 00:00</span>
+                        </div>
+                    </div>
+
+                    <div class="text-muted small mb-2">จำนวนวันทำการบินทั้งหมด <span id="viewDates_Count" class="fw-bold fs-5 text-dark">0</span> วัน</div>
+                    
+                    <!-- กล่องซ่อน Input สำหรับเรียก Flatpickr แบบฝัง (Inline) -->
                     <div class="d-flex justify-content-center">
                         <input type="text" id="viewDates_Calendar" class="d-none">
                     </div>
@@ -1737,7 +1747,7 @@
                 // 🟢 สร้างปุ่มกดดูวันที่ แทนการโชว์ข้อความยาวๆ
                 let datesArr = item.FlightDates ? item.FlightDates.split(', ') : [];
                 let btnDates = datesArr.length > 0 
-                    ? `<button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="openViewDatesModal('${item.FlightNumber}', '${item.FlightDates}')"><i class="fa-regular fa-calendar me-1"></i> ${datesArr.length} วัน</button>`
+                    ? `<button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="openViewDatesModal('${item.FlightNumber}', '${item.AirlineID}', '${item.Origin} - ${item.Destination}', '${item.DepartureTime}', '${item.ArrivalTime}', '${item.FlightDates}')"><i class="fa-regular fa-calendar me-1"></i> ${datesArr.length} วัน</button>`
                     : `<span class="text-muted small">- ไม่มีข้อมูล -</span>`;
 
                 tbody.innerHTML += `
@@ -1817,38 +1827,54 @@
         }
 
         // 🟢 ฟังก์ชันเปิด Modal ดูวันทำการบิน
-        // 🟢 ตัวแปรสำหรับเก็บ ปฏิทินแสดงผล (Read-only)
+       // 🟢 ฟังก์ชันเปิด Modal ดูวันทำการบิน พร้อมข้อมูล
         let readonlyDatepicker;
 
-        function openViewDatesModal(flightNum, datesString) {
+        function openViewDatesModal(flightNum, airlineID, route, depTime, arrTime, datesString) {
+            // 1. นำข้อมูลมาแสดงบนป๊อปอัป
             document.getElementById('viewDates_FlightNo').innerText = 'เที่ยวบิน ' + flightNum;
+            document.getElementById('viewDates_Route').innerHTML = route.replace('-', '<i class="fa-solid fa-arrow-right mx-2"></i>');
+            document.getElementById('viewDates_Time').innerText = depTime + ' - ' + arrTime;
             
-            // แยกวันที่จากสตริง "28/04/2026, 29/04/2026" ให้อยู่ในรูปแบบ Array
+            // หาชื่อสายการบินจาก ID
+            let airlineObj = allAirlinesData.find(a => a.AirlineID === airlineID);
+            document.getElementById('viewDates_Airline').innerHTML = airlineObj ? `<i class="fa-solid fa-plane me-1"></i> ${airlineObj.AirlineName}` : 'ไม่ทราบสายการบิน';
+
+            // 2. จัดการข้อมูลวันที่
             let datesArr = datesString ? datesString.split(', ') : [];
             document.getElementById('viewDates_Count').innerText = datesArr.length;
 
-            // 1. ทำลายปฏิทินเก่าทิ้ง (ถ้ามี) เพื่อสร้างใหม่ให้ตรงกับข้อมูลเที่ยวบินที่กด
+            // ทำลายปฏิทินเก่าทิ้งก่อน
             if (readonlyDatepicker) {
                 readonlyDatepicker.destroy();
             }
 
-            // 2. สร้าง Flatpickr แบบฝังหน้าจอ (Inline) และบังคับให้แก้ไม่ได้ (Read-only)
+            // 3. สร้าง Flatpickr แบบฝังหน้าจอ
             readonlyDatepicker = flatpickr("#viewDates_Calendar", {
-                mode: "multiple",           // รองรับหลายวัน
-                inline: true,               // ให้แสดงปฏิทินกางออกตลอดเวลา
-                clickOpens: false,          // ปิดไม่ให้กดเลือกวันเพิ่มได้ (คลิกไม่เป็นผล)
-                locale: "th",               // ภาษาไทย
-                defaultDate: datesArr,      // โยนวันที่ที่มีบินเข้าไป เพื่อให้ระบบไฮไลต์สีฟ้า
+                mode: "multiple",
+                inline: true,
+                clickOpens: false,
+                locale: "th",
+                dateFormat: "d/m/Y", // 🟢 บังคับ Format ให้อ่าน วัน/เดือน/ปี เพื่อแก้ปัญหาไฮไลต์ผิดเดือน
+                defaultDate: datesArr,
                 
-                // 🟢 Event พิเศษ: ย้ายเดือนปัจจุบันไปที่วันที่บินวันแรก (ถ้ามี)
                 onReady: function(selectedDates, dateStr, instance) {
+                    // ถ้ามีวันที่ ให้กระโดดปฏิทินไปที่เดือนของวันแรกที่มีบิน
                     if (selectedDates.length > 0) {
-                        instance.jumpToDate(selectedDates[0]); // เด้งไปเดือนที่มีบิน
+                        instance.jumpToDate(selectedDates[0]);
+                    } else {
+                        // ถ้าไม่มีบินเลย ให้โชว์เดือนปัจจุบัน
+                        instance.jumpToDate(new Date());
                     }
-                    // CSS พิเศษ ซ่อนเคอร์เซอร์เพื่อให้ดูเป็นปฏิทินแสดงผลจริงๆ
+
+                    // ซ่อนเคอร์เซอร์เพื่อให้ดูเป็นปฏิทินแสดงผล
                     instance.calendarContainer.style.pointerEvents = 'none'; 
-                    // ปลดล็อกเฉพาะปุ่มเปลี่ยนเดือนให้กดได้
                     instance.monthNav.style.pointerEvents = 'auto'; 
+                    
+                    // ปรับขนาดปฏิทินให้ใหญ่ขึ้นนิดหน่อยเพื่อให้ดูง่าย
+                    instance.calendarContainer.style.transform = 'scale(1.1)';
+                    instance.calendarContainer.style.transformOrigin = 'top center';
+                    instance.calendarContainer.style.marginBottom = '20px';
                 }
             });
 
