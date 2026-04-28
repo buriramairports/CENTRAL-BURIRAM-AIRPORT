@@ -470,9 +470,12 @@
                 <div class="modal-body p-4">
                     <form id="formBanner" onsubmit="saveBanner(event)">
                         <input type="hidden" id="ban_BannerID">
+                        <input type="hidden" id="ban_ExistingImageURL"> <!-- เก็บ URL เดิม -->
+                        
                         <div class="mb-3">
-                            <label class="form-label fw-bold">URL รูปภาพ <span class="text-danger">*</span></label>
-                            <input type="url" class="form-control" id="ban_ImageURL" required>
+                            <label class="form-label fw-bold"><i class="fa-solid fa-image text-warning"></i> อัปโหลดรูปแบนเนอร์สไลด์ <span class="text-danger">*</span></label>
+                            <input type="file" class="form-control" id="ban_UploadImage" accept="image/png, image/jpeg">
+                            <div class="form-text mt-2" id="ban_ImageStatus">กรุณาเลือกไฟล์รูปภาพ (ขนาดที่แนะนำ 1920x1080 px)</div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-bold">หัวข้อใหญ่</label>
@@ -606,6 +609,8 @@
                     <form id="formAirline" onsubmit="saveAirline(event)">
                         <input type="hidden" id="air_AirlineID">
                         <input type="hidden" id="air_OrderList">
+                        <input type="hidden" id="air_ExistingIconURL"> <!-- เก็บ URL เดิม -->
+                        
                         <div class="mb-3">
                             <label class="form-label fw-bold">ชื่อสายการบิน <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="air_AirlineName" required>
@@ -615,8 +620,9 @@
                             <input type="text" class="form-control" id="air_PhoneNumber" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label fw-bold">URL โลโก้</label>
-                            <input type="url" class="form-control" id="air_IconURL">
+                            <label class="form-label fw-bold"><i class="fa-solid fa-image text-warning"></i> อัปโหลดรูปโลโก้สายการบิน</label>
+                            <input type="file" class="form-control" id="air_UploadIcon" accept="image/png, image/jpeg">
+                            <div class="form-text mt-2" id="air_IconStatus">ไฟล์ควรเป็นสี่เหลี่ยมจัตุรัสพื้นหลังใส (PNG)</div>
                         </div>
                         <div class="row">
                             <div class="col-6 mb-3">
@@ -1141,12 +1147,17 @@
             if (viewId === 'users') { loadTableData('Users', renderUsersTable); populateUserDeptDropdown(); }
             if (viewId === 'flightschedules') { loadTableData('FlightSchedules', renderFlightsTable); populateAirlineDropdown(); }
             if (viewId === 'news') {
-                // 🟢 ใส่คำสั่ง Loading ทันทีที่กดเมนู ป้องกันคนใจร้อน
                 Swal.fire({ title: 'กำลังโหลด...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-                fetch(`${API_URL}?action=getTableData&sheetName=NewsCategories`).then(res=>res.json()).then(res => {
-                    allCategoriesData = res.data;
-                    loadTableData('News', renderNewsTable); // ฟังก์ชันนี้จะไปปิด Loading ให้เอง
+                
+                Promise.all([
+                    fetch(`${API_URL}?action=getTableData&sheetName=NewsCategories`).then(res=>res.json()),
+                    fetch(`${API_URL}?action=getTableData&sheetName=News`).then(res=>res.json())
+                ]).then(([catsRes, newsRes]) => {
+                    allCategoriesData = catsRes.data;
+                    currentTableData = newsRes.data;
                     populateNewsCategoryDropdown(); 
+                    renderNewsTable(currentTableData);
+                    Swal.close(); // ปิดป๊อปอัปทีเดียวตอนเสร็จหมด
                 });
             }
         }
@@ -1289,47 +1300,65 @@
                 `;
             });
         }
+        
         function openBannerModal(id = '') { 
-            document.getElementById('formBanner').reset(); document.getElementById('ban_BannerID').value = ''; document.getElementById('bannerModalTitle').innerText = 'เพิ่มรูปสไลด์ใหม่'; 
+            document.getElementById('formBanner').reset(); document.getElementById('ban_BannerID').value = ''; 
+            document.getElementById('bannerModalTitle').innerText = 'เพิ่มรูปสไลด์ใหม่'; 
+            document.getElementById('ban_ExistingImageURL').value = '';
+            document.getElementById('ban_ImageStatus').innerText = 'กรุณาเลือกไฟล์รูปภาพ (ขนาดที่แนะนำ 1920x1080 px)';
+
             if (id) { 
                 document.getElementById('bannerModalTitle').innerText = 'แก้ไขรูปสไลด์'; 
                 const item = currentTableData.find(x => x.BannerID === id); 
                 document.getElementById('ban_BannerID').value = item.BannerID; 
-                document.getElementById('ban_ImageURL').value = item.ImageURL; 
+                document.getElementById('ban_ExistingImageURL').value = item.ImageURL || ''; 
                 document.getElementById('ban_Title').value = item.Title; 
                 document.getElementById('ban_Description').value = item.Description; 
                 document.getElementById('ban_OrderList').value = item.OrderList; 
                 document.getElementById('ban_IsActive').checked = (item.IsActive === 'TRUE'); 
+                
+                if(item.ImageURL) document.getElementById('ban_ImageStatus').innerHTML = `<a href="${item.ImageURL}" target="_blank">มีรูปภาพเดิมอยู่แล้ว</a> (อัปโหลดใหม่เพื่อแทนที่)`;
             } 
             new bootstrap.Modal(document.getElementById('bannerModal')).show(); 
         }
-        function saveBanner(e) { 
+
+        async function saveBanner(e) { 
             e.preventDefault(); 
-            const btn = document.getElementById('btnSaveBanner'); btn.innerHTML = 'กำลังบันทึก...'; btn.disabled = true; 
+            const btn = document.getElementById('btnSaveBanner'); btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังอัปโหลด...'; btn.disabled = true; 
             
-            let rawUrl = document.getElementById('ban_ImageURL').value; 
-            let ord = document.getElementById('ban_OrderList').value; 
-            if (!document.getElementById('ban_BannerID').value) ord = currentTableData.length + 1; 
-            
-            const recordData = { 
-                BannerID: document.getElementById('ban_BannerID').value, 
-                ImageURL: convertDriveImageLink(rawUrl), 
-                Title: document.getElementById('ban_Title').value, 
-                Description: document.getElementById('ban_Description').value, 
-                OrderList: ord, 
-                IsActive: document.getElementById('ban_IsActive').checked ? 'TRUE' : 'FALSE' 
-            }; 
-            
-            fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'Banners', idColumn: 'BannerID', recordJSON: JSON.stringify(recordData) }) })
-            .then(res => res.json()).then(res => { 
-                if (res.status === 'success') { 
+            try {
+                let finalUrl = document.getElementById('ban_ExistingImageURL').value;
+                const fileInput = document.getElementById('ban_UploadImage');
+
+                // บังคับว่าถ้าเพิ่มใหม่ ต้องมีรูป
+                if(!document.getElementById('ban_BannerID').value && fileInput.files.length === 0) {
+                    Swal.fire('ผิดพลาด', 'กรุณาเลือกรูปภาพ', 'warning'); btn.innerHTML = 'บันทึกข้อมูล'; btn.disabled = false; return;
+                }
+
+                // อัปโหลดรูปลง Drive
+                if (fileInput.files.length > 0) {
+                    let uploadedUrl = await uploadSingleFile(fileInput.files[0], 'image');
+                    if (uploadedUrl) finalUrl = uploadedUrl;
+                }
+                
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังบันทึกข้อมูล...';
+                let ord = document.getElementById('ban_OrderList').value; 
+                if (!document.getElementById('ban_BannerID').value) ord = currentTableData.length + 1; 
+                
+                const recordData = { BannerID: document.getElementById('ban_BannerID').value, ImageURL: finalUrl, Title: document.getElementById('ban_Title').value, Description: document.getElementById('ban_Description').value, OrderList: ord, IsActive: document.getElementById('ban_IsActive').checked ? 'TRUE' : 'FALSE' }; 
+                const formData = new URLSearchParams({ action: 'saveRecord', sheetName: 'Banners', idColumn: 'BannerID', recordJSON: JSON.stringify(recordData) });
+                
+                const response = await fetch(API_URL, { method: 'POST', body: formData });
+                const result = await response.json();
+                
+                if (result.status === 'success') { 
                     bootstrap.Modal.getInstance(document.getElementById('bannerModal')).hide(); 
-                    Swal.fire({ icon: 'success', title: res.message, showConfirmButton: false, timer: 1500 }); 
+                    Swal.fire({ icon: 'success', title: 'สำเร็จ', showConfirmButton: false, timer: 1500 }); 
                     loadTableData('Banners', renderBannersTable); 
                 } 
-            }).finally(() => { btn.innerHTML = 'บันทึกข้อมูล'; btn.disabled = false; }); 
+            } catch(e) { Swal.fire('ผิดพลาด', 'เกิดปัญหาขณะบันทึก', 'error'); } 
+            finally { btn.innerHTML = 'บันทึกข้อมูล'; btn.disabled = false; }
         }
-        function saveBannerOrder() { saveOrderAPI('Banners', 'BannerID'); }
         // ================= สิ้นสุด ฟังก์ชันจัดการ แบนเนอร์ =================
 
 
@@ -1471,28 +1500,55 @@
         }
         function openAirlineModal(id = '') { 
             document.getElementById('formAirline').reset(); document.getElementById('air_AirlineID').value = ''; 
+            document.getElementById('airlineModalTitle').innerText = 'เพิ่มสายการบิน'; 
+            document.getElementById('air_ExistingIconURL').value = '';
+            document.getElementById('air_IconStatus').innerText = 'ไฟล์ควรเป็นสี่เหลี่ยมจัตุรัสพื้นหลังใส (PNG)';
+
             if (id) { 
-                const i = currentTableData.find(x => x.AirlineID === id); 
-                document.getElementById('air_AirlineID').value = i.AirlineID; 
-                document.getElementById('air_AirlineName').value = i.AirlineName; 
-                document.getElementById('air_PhoneNumber').value = i.PhoneNumber; 
-                document.getElementById('air_IconURL').value = i.IconURL; 
-                document.getElementById('air_ThemeColor').value = i.ThemeColor; 
-                document.getElementById('air_OrderList').value = i.OrderList; 
-                document.getElementById('air_IsActive').checked = (i.IsActive === 'TRUE'); 
+                document.getElementById('airlineModalTitle').innerText = 'แก้ไขสายการบิน'; 
+                const item = currentTableData.find(x => x.AirlineID === id); 
+                document.getElementById('air_AirlineID').value = item.AirlineID; 
+                document.getElementById('air_ExistingIconURL').value = item.IconURL || ''; 
+                document.getElementById('air_AirlineName').value = item.AirlineName; 
+                document.getElementById('air_PhoneNumber').value = item.PhoneNumber; 
+                document.getElementById('air_ThemeColor').value = item.ThemeColor; 
+                document.getElementById('air_OrderList').value = item.OrderList; 
+                document.getElementById('air_IsActive').checked = (item.IsActive === 'TRUE'); 
+                
+                if(item.IconURL) document.getElementById('air_IconStatus').innerHTML = `<a href="${item.IconURL}" target="_blank">มีโลโก้เดิมอยู่แล้ว</a> (อัปโหลดใหม่เพื่อแทนที่)`;
             } 
             new bootstrap.Modal(document.getElementById('airlineModal')).show(); 
         }
-        function saveAirline(e) { 
-            e.preventDefault(); const btn = document.getElementById('btnSaveAirline'); btn.disabled = true; 
-            let ord = document.getElementById('air_OrderList').value; if (!document.getElementById('air_AirlineID').value) ord = currentTableData.length + 1; 
-            const rData = { AirlineID: document.getElementById('air_AirlineID').value, AirlineName: document.getElementById('air_AirlineName').value, IconURL: convertDriveImageLink(document.getElementById('air_IconURL').value), PhoneNumber: document.getElementById('air_PhoneNumber').value, ThemeColor: document.getElementById('air_ThemeColor').value, OrderList: ord, IsActive: document.getElementById('air_IsActive').checked ? 'TRUE' : 'FALSE' }; 
-            fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'Airlines', idColumn: 'AirlineID', recordJSON: JSON.stringify(rData) }) })
-            .then(res=>res.json()).then(res=>{ 
-                if (res.status === 'success') { bootstrap.Modal.getInstance(document.getElementById('airlineModal')).hide(); Swal.fire({ icon: 'success', showConfirmButton: false, timer: 1500 }); loadTableData('Airlines', renderAirlinesTable); } 
-            }).finally(() => btn.disabled = false); 
+
+        async function saveAirline(e) { 
+            e.preventDefault(); const btn = document.getElementById('btnSaveAirline'); btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังอัปโหลด...'; btn.disabled = true; 
+            
+            try {
+                let finalUrl = document.getElementById('air_ExistingIconURL').value;
+                const fileInput = document.getElementById('air_UploadIcon');
+
+                if (fileInput.files.length > 0) {
+                    let uploadedUrl = await uploadSingleFile(fileInput.files[0], 'image');
+                    if (uploadedUrl) finalUrl = uploadedUrl;
+                }
+
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังบันทึกข้อมูล...';
+                let ord = document.getElementById('air_OrderList').value; if (!document.getElementById('air_AirlineID').value) ord = currentTableData.length + 1; 
+                
+                const recordData = { AirlineID: document.getElementById('air_AirlineID').value, AirlineName: document.getElementById('air_AirlineName').value, IconURL: finalUrl, PhoneNumber: document.getElementById('air_PhoneNumber').value, ThemeColor: document.getElementById('air_ThemeColor').value, OrderList: ord, IsActive: document.getElementById('air_IsActive').checked ? 'TRUE' : 'FALSE' }; 
+                const formData = new URLSearchParams({ action: 'saveRecord', sheetName: 'Airlines', idColumn: 'AirlineID', recordJSON: JSON.stringify(recordData) });
+
+                const response = await fetch(API_URL, { method: 'POST', body: formData });
+                const result = await response.json();
+
+                if (result.status === 'success') { 
+                    bootstrap.Modal.getInstance(document.getElementById('airlineModal')).hide(); 
+                    Swal.fire({ icon: 'success', title: 'สำเร็จ', showConfirmButton: false, timer: 1500 }); 
+                    loadTableData('Airlines', renderAirlinesTable); 
+                } 
+            } catch(e) { Swal.fire('ผิดพลาด', 'เกิดปัญหาขณะบันทึก', 'error'); } 
+            finally { btn.innerHTML = 'บันทึกข้อมูล'; btn.disabled = false; }
         }
-        function saveAirlineOrder() { saveOrderAPI('Airlines', 'AirlineID'); }
         // ================= สิ้นสุด ฟังก์ชันจัดการ สายการบิน =================
 
 
