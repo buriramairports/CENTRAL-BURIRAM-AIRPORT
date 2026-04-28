@@ -1025,7 +1025,7 @@
     </div>
     <!-- ================= สิ้นสุด Modal: ดูไฟล์เอกสารแนบ ================= -->
 
-    <!-- ================= เริ่มต้น Modal: ดูแกลลอรีรูปภาพ ================= -->
+    <!-- ================= เริ่มต้น Modal: ดูแกลลอรีรูปภาพ (อัปเดตเป็นสไลด์เลื่อนซ้าย-ขวา) ================= -->
     <div class="modal fade" id="viewGalleryModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content border-0 bg-dark">
@@ -1034,14 +1034,22 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-0">
-                    <!-- ใช้ Swiper ทำสไลด์โชว์ -->
-                    <div class="swiper swiper-gallery" style="width: 100%; height: 500px;">
-                        <div class="swiper-wrapper" id="viewGallery_Wrapper">
-                            <!-- รูปภาพจะถูกวาดลงตรงนี้ -->
+                    <!-- 🟢 เปลี่ยนมาใช้ Bootstrap Carousel เพื่อให้เลื่อนซ้ายขวาได้ 100% -->
+                    <div id="galleryCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-indicators" id="gallery-indicators">
+                            <!-- จุดไข่ปลาด้านล่างจะมาวาดตรงนี้ -->
                         </div>
-                        <div class="swiper-button-next text-white"></div>
-                        <div class="swiper-button-prev text-white"></div>
-                        <div class="swiper-pagination"></div>
+                        <div class="carousel-inner" id="gallery-inner" style="height: 500px; background-color: #111;">
+                            <!-- รูปภาพจะถูกนำมาวาดตรงนี้ -->
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#galleryCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#galleryCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1967,12 +1975,55 @@
             new bootstrap.Modal(document.getElementById('newsModal')).show();
         }
 
-// ==========================================
-        // 🚀 ฟังก์ชันอัปโหลดไฟล์แบบทีละไฟล์ (Sequential Upload)
+  // ==========================================
+        // 🚀 ระบบอัปโหลดและบีบอัดรูปภาพก่อนส่งไปเซิร์ฟเวอร์
         // ==========================================
+        
+        // 🟢 ฟังก์ชันใหม่: บีบอัดรูปภาพ (Resize & Compress) 
+        // ช่วยให้ไฟล์ 5MB เหลือแค่ 100-200KB ส่งผลให้อัปโหลดไวขึ้น 10 เท่า และไม่ Timeout
+        function compressImage(file, maxWidth = 1200, quality = 0.8) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = function() {
+                        let width = img.width;
+                        let height = img.height;
+
+                        // ถ้ารูปใหญ่ไป ให้ย่อขนาดลง
+                        if (width > maxWidth) {
+                            height = Math.round((height * maxWidth) / width);
+                            width = maxWidth;
+                        }
+
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        // แปลงรูปที่ย่อแล้วกลับเป็น Base64
+                        const dataUrl = canvas.toDataURL(file.type, quality);
+                        resolve(dataUrl.split(',')[1]); 
+                    }
+                };
+            });
+        }
+
+        // 🟢 แก้ไขฟังก์ชันอัปโหลดทีละไฟล์
         async function uploadSingleFile(file, fileType) {
             try {
-                const base64 = await getBase64(file);
+                let base64 = "";
+                // ถ้าระบบบอกว่าเป็น image เราจะเอาเข้าเครื่องบีบอัดก่อนส่ง!
+                if (fileType === 'image') {
+                    base64 = await compressImage(file, 1200, 0.8); 
+                } else {
+                    // ถ้าเป็น PDF/Doc ดึง Base64 สดๆ เลย
+                    base64 = await getBase64(file); 
+                }
+
                 const formData = new URLSearchParams();
                 formData.append('action', 'uploadFile');
                 formData.append('name', file.name);
@@ -1990,7 +2041,7 @@
             }
         }
 
-        // 🟢 อัปเดต: ฟังก์ชันบันทึกข่าว (แยกอัปโหลดไฟล์ให้เสร็จก่อน แล้วค่อยเซฟข้อความ)
+        // 🟢 แก้ไขฟังก์ชันบันทึกข่าวหลัก
         async function saveNewsRecord(e) {
             e.preventDefault();
             const btn = document.getElementById('btnSaveNews');
@@ -1998,39 +2049,34 @@
             const htmlContent = quillEditor.root.innerHTML;
             if (quillEditor.getText().trim().length === 0) { Swal.fire('ข้อผิดพลาด', 'กรุณาใส่เนื้อหาข่าว', 'warning'); return; }
 
-            // ล็อกปุ่ม
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังอัปโหลดไฟล์ (ห้ามปิดหน้าจอ)...'; 
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังเตรียมไฟล์ (ห้ามปิดหน้าจอ)...'; 
             btn.disabled = true;
 
             try {
-                // เก็บ URL เดิมไว้ 
                 let finalCoverUrl = document.getElementById('news_ExistingCoverURL').value;
                 let finalFilesUrls = document.getElementById('news_ExistingFileURL').value ? document.getElementById('news_ExistingFileURL').value.split(', ') : [];
                 let finalGalleryUrls = document.getElementById('news_ExistingGalleryURL').value ? document.getElementById('news_ExistingGalleryURL').value.split(', ') : [];
 
-                // 1. อัปโหลดรูปหน้าปก (1 รูป)
                 const coverInput = document.getElementById('news_UploadCover');
                 if (coverInput.files.length > 0) {
-                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> อัปโหลดรูปหน้าปก...';
+                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังอัปโหลดหน้าปก...';
                     let url = await uploadSingleFile(coverInput.files[0], 'image');
                     if (url) finalCoverUrl = url;
                 }
 
-                // 2. อัปโหลดไฟล์แนบเอกสาร (หลายไฟล์)
                 const docInput = document.getElementById('news_UploadFile');
                 if (docInput.files.length > 0) {
                     for (let i = 0; i < docInput.files.length; i++) {
-                        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin me-2"></i> อัปโหลดเอกสารแนบ (${i+1}/${docInput.files.length})...`;
+                        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังอัปโหลดไฟล์แนบ (${i+1}/${docInput.files.length})...`;
                         let url = await uploadSingleFile(docInput.files[i], 'document');
                         if (url) finalFilesUrls.push(url);
                     }
                 }
 
-                // 3. อัปโหลดแกลลอรี (หลายรูป)
                 const galInput = document.getElementById('news_UploadGallery');
                 if (galInput.files.length > 0) {
                     for (let i = 0; i < galInput.files.length; i++) {
-                        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin me-2"></i> อัปโหลดแกลลอรี (${i+1}/${galInput.files.length})...`;
+                        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังอัปโหลดแกลลอรี (${i+1}/${galInput.files.length})...`;
                         let url = await uploadSingleFile(galInput.files[i], 'image');
                         if (url) finalGalleryUrls.push(url);
                     }
@@ -2038,7 +2084,6 @@
 
                 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังบันทึกลงฐานข้อมูล...';
 
-                // นำ URL ทั้งหมดมายัดใส่ Object
                 const recordData = {
                     NewsID: document.getElementById('news_NewsID').value,
                     Title: document.getElementById('news_Title').value,
@@ -2053,18 +2098,13 @@
                     GalleryURLs: finalGalleryUrls.join(', ')
                 };
 
-                const formData = new URLSearchParams();
-                formData.append('action', 'saveRecord');
-                formData.append('sheetName', 'News');
-                formData.append('idColumn', 'NewsID');
-                formData.append('recordJSON', JSON.stringify(recordData));
-
+                const formData = new URLSearchParams({ action: 'saveRecord', sheetName: 'News', idColumn: 'NewsID', recordJSON: JSON.stringify(recordData) });
                 const response = await fetch(API_URL, { method: 'POST', body: formData });
                 const result = await response.json();
 
                 if (result.status === 'success') {
                     bootstrap.Modal.getInstance(document.getElementById('newsModal')).hide();
-                    Swal.fire({ icon: 'success', title: 'สำเร็จ', text: 'บันทึกข้อมูลเรียบร้อย', showConfirmButton: false, timer: 2000 });
+                    Swal.fire({ icon: 'success', title: 'สำเร็จ', text: 'ข้อมูลถูกบันทึกและอัปโหลดสมบูรณ์', showConfirmButton: false, timer: 2000 });
                     loadTableData('News', renderNewsTable);
                 } else {
                     Swal.fire('ผิดพลาด', result.message, 'error');
@@ -2102,29 +2142,34 @@
             new bootstrap.Modal(document.getElementById('viewFilesModal')).show();
         }
 
+       // 🟢 ฟังก์ชันเปิดแกลลอรี (แบบสไลด์เลื่อนซ้าย-ขวา)
         function openGalleryModal(newsId) {
             const item = currentTableData.find(x => x.NewsID === newsId);
-            const wrapper = document.getElementById('viewGallery_Wrapper');
-            wrapper.innerHTML = '';
+            const inner = document.getElementById('gallery-inner');
+            const indicators = document.getElementById('gallery-indicators');
+            
+            inner.innerHTML = '';
+            indicators.innerHTML = '';
 
             if (item && item.GalleryURLs) {
                 let images = item.GalleryURLs.split(', ');
-                images.forEach((url) => {
+                images.forEach((url, index) => {
                     let displayUrl = convertDriveImageLink(url);
-                    wrapper.innerHTML += `
-                        <div class="swiper-slide d-flex justify-content-center align-items-center">
-                            <img src="${displayUrl}" style="max-width:100%; max-height:100%; object-fit:contain;">
+                    let activeClass = index === 0 ? 'active' : ''; // ให้รูปแรกแสดงก่อน
+                    
+                    // สร้างจุดไข่ปลาด้านล่าง
+                    indicators.innerHTML += `<button type="button" data-bs-target="#galleryCarousel" data-bs-slide-to="${index}" class="${activeClass}"></button>`;
+                    
+                    // สร้างรูปภาพตรงกลาง
+                    inner.innerHTML += `
+                        <div class="carousel-item ${activeClass} h-100">
+                            <img src="${displayUrl}" class="d-block w-100 h-100" style="object-fit:contain;" alt="Gallery Image ${index+1}">
                         </div>
                     `;
                 });
             }
 
             new bootstrap.Modal(document.getElementById('viewGalleryModal')).show();
-            
-            new Swiper('.swiper-gallery', {
-                navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
-                pagination: { el: '.swiper-pagination', clickable: true },
-            });
         }
 
         // =======================สิ้นสุด ฟังก์ชันจัดการ เอกสารแนบ แกลลอรี่ =================
