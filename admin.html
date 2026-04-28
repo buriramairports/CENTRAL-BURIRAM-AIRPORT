@@ -1007,6 +1007,48 @@
     </div>
     <!-- ================= สิ้นสุด Modal: เขียนข่าว ================= -->
 
+    <!-- ================= เริ่มต้น Modal: ดูไฟล์เอกสารแนบ ================= -->
+    <div class="modal fade" id="viewFilesModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0">
+                <div class="modal-header bg-danger text-white">
+                    <h6 class="modal-title fw-bold"><i class="fa-solid fa-file-pdf"></i> ไฟล์เอกสารแนบ</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    <div id="viewFiles_List" class="d-grid gap-2">
+                        <!-- รายชื่อไฟล์จะมาวาดตรงนี้ -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ================= สิ้นสุด Modal: ดูไฟล์เอกสารแนบ ================= -->
+
+    <!-- ================= เริ่มต้น Modal: ดูแกลลอรีรูปภาพ ================= -->
+    <div class="modal fade" id="viewGalleryModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 bg-dark">
+                <div class="modal-header border-secondary">
+                    <h6 class="modal-title fw-bold text-white"><i class="fa-solid fa-images text-success"></i> แกลลอรีรูปภาพ</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <!-- ใช้ Swiper ทำสไลด์โชว์ -->
+                    <div class="swiper swiper-gallery" style="width: 100%; height: 500px;">
+                        <div class="swiper-wrapper" id="viewGallery_Wrapper">
+                            <!-- รูปภาพจะถูกวาดลงตรงนี้ -->
+                        </div>
+                        <div class="swiper-button-next text-white"></div>
+                        <div class="swiper-button-prev text-white"></div>
+                        <div class="swiper-pagination"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ================= สิ้นสุด Modal: ดูแกลลอรีรูปภาพ ================= -->
+
     <!-- Flatpickr JS -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
@@ -1086,9 +1128,11 @@
             if (viewId === 'users') { loadTableData('Users', renderUsersTable); populateUserDeptDropdown(); }
             if (viewId === 'flightschedules') { loadTableData('FlightSchedules', renderFlightsTable); populateAirlineDropdown(); }
             if (viewId === 'news') {
+                // 🟢 ใส่คำสั่ง Loading ทันทีที่กดเมนู ป้องกันคนใจร้อน
+                Swal.fire({ title: 'กำลังโหลด...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
                 fetch(`${API_URL}?action=getTableData&sheetName=NewsCategories`).then(res=>res.json()).then(res => {
                     allCategoriesData = res.data;
-                    loadTableData('News', renderNewsTable);
+                    loadTableData('News', renderNewsTable); // ฟังก์ชันนี้จะไปปิด Loading ให้เอง
                     populateNewsCategoryDropdown(); 
                 });
             }
@@ -1857,13 +1901,13 @@
                 
                 let catObj = allCategoriesData.find(c => c.CategoryID === item.CategoryID);
                 
-                // 🟢 สร้างปุ่มแสดงไฟล์แนบ และ แกลลอรี
+                // 🟢 เปลี่ยนจากแค่โชว์ป้าย เป็นปุ่มกดเพื่อให้แสดง Modal
                 let filesArr = item.FilesURL ? item.FilesURL.split(', ') : [];
                 let galArr = item.GalleryURLs ? item.GalleryURLs.split(', ') : [];
                 
-                let btnAttachment = filesArr.length > 0 ? `<span class="badge bg-danger ms-2"><i class="fa-solid fa-file-pdf"></i> ${filesArr.length} ไฟล์</span>` : '';
-                let btnGallery = galArr.length > 0 ? `<span class="badge bg-success ms-2"><i class="fa-solid fa-images"></i> ${galArr.length} รูป</span>` : '';
-
+                let btnAttachment = filesArr.length > 0 ? `<button class="btn btn-sm btn-outline-danger mt-2 me-1" onclick="openFilesModal('${item.NewsID}')"><i class="fa-solid fa-file-pdf"></i> ${filesArr.length} ไฟล์</button>` : '';
+                let btnGallery = galArr.length > 0 ? `<button class="btn btn-sm btn-outline-success mt-2" onclick="openGalleryModal('${item.NewsID}')"><i class="fa-solid fa-images"></i> ${galArr.length} รูป</button>` : '';
+                
                 tbody.innerHTML += `
                     <tr>
                         <td class="text-center">${imgHtml}</td>
@@ -1994,7 +2038,51 @@
             });
         }
         // =======================สิ้นสุด ฟังก์ชันจัดการ ข่าว =================
+// ==========================================
+        // 🖼️ ฟังก์ชันเปิดดูเอกสารแนบ และแกลลอรี
+        // ==========================================
+        function openFilesModal(newsId) {
+            const item = currentTableData.find(x => x.NewsID === newsId);
+            const container = document.getElementById('viewFiles_List');
+            container.innerHTML = '';
 
+            if (item && item.FilesURL) {
+                let files = item.FilesURL.split(', ');
+                files.forEach((url, idx) => {
+                    container.innerHTML += `<a href="${url}" target="_blank" class="btn btn-danger"><i class="fa-solid fa-download me-2"></i> ดาวน์โหลดไฟล์ที่ ${idx + 1}</a>`;
+                });
+            }
+            new bootstrap.Modal(document.getElementById('viewFilesModal')).show();
+        }
+
+        function openGalleryModal(newsId) {
+            const item = currentTableData.find(x => x.NewsID === newsId);
+            const wrapper = document.getElementById('viewGallery_Wrapper');
+            wrapper.innerHTML = '';
+
+            if (item && item.GalleryURLs) {
+                let images = item.GalleryURLs.split(', ');
+                images.forEach((url) => {
+                    // แปลงลิงก์ให้อ่านภาพได้ชัดๆ ด้วย thumbnail API ของเรา
+                    let displayUrl = convertDriveImageLink(url);
+                    wrapper.innerHTML += `
+                        <div class="swiper-slide d-flex justify-content-center align-items-center">
+                            <img src="${displayUrl}" style="max-width:100%; max-height:100%; object-fit:contain;">
+                        </div>
+                    `;
+                });
+            }
+
+            new bootstrap.Modal(document.getElementById('viewGalleryModal')).show();
+            
+            // เรียกใช้งาน Swiper สำหรับสไลด์โชว์แกลลอรี
+            new Swiper('.swiper-gallery', {
+                navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+                pagination: { el: '.swiper-pagination', clickable: true },
+            });
+        }
+
+        // =======================สิ้นสุด ฟังก์ชันจัดการ เอกสารแนบ แกลลอรี่ =================
     </script>
 </body>
 </html>
