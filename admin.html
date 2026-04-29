@@ -57,18 +57,18 @@
             <li><a href="#" class="active" onclick="switchView('dashboard', this)"><i class="fa-solid fa-gauge-high"></i> หน้าหลัก (Dashboard)</a></li>
             
             <li class="mt-4 px-3"><small class="text-uppercase fw-bold" style="color: #64748b; font-size: 0.7rem;">จัดการข้อมูลข่าวสาร</small></li>
-            <li><a href="#" onclick="switchView('news', this)"><i class="fa-solid fa-newspaper"></i> จัดการข่าวสาร</a></li>
-            <li><a href="#" onclick="switchView('newscategories', this)"><i class="fa-solid fa-layer-group"></i> หมวดหมู่ข่าว</a></li>
-            <li><a href="#" onclick="switchView('events', this)"><i class="fa-regular fa-calendar-days"></i> ปฏิทินกิจกรรม</a></li>
+            <li id="menu_news"><a href="#" onclick="switchView('news', this)"><i class="fa-solid fa-newspaper"></i> จัดการข่าวสาร</a></li>
+            <li id="menu_newscategories"><a href="#" onclick="switchView('newscategories', this)"><i class="fa-solid fa-layer-group"></i> หมวดหมู่ข่าว</a></li>
+            <li id="menu_events"><a href="#" onclick="switchView('events', this)"><i class="fa-regular fa-calendar-days"></i> ปฏิทินกิจกรรม</a></li>
             
             <li class="mt-4 px-3"><small class="text-uppercase fw-bold" style="color: #64748b; font-size: 0.7rem;">จัดการข้อมูลเที่ยวบิน/ผู้โดยสาร</small></li>
-            <li><a href="#" onclick="switchView('flightschedules', this)"><i class="fa-solid fa-plane-arrival"></i> ตารางเที่ยวบิน</a></li>
-            <li><a href="#" onclick="switchView('passengerstats', this)"><i class="fa-solid fa-users-line"></i> สถิติผู้โดยสาร</a></li>
+            <li id="menu_flightschedules"><a href="#" onclick="switchView('flightschedules', this)"><i class="fa-solid fa-plane-arrival"></i> ตารางเที่ยวบิน</a></li>
+            <li id="menu_passengerstats"><a href="#" onclick="switchView('passengerstats', this)"><i class="fa-solid fa-users-line"></i> สถิติผู้โดยสาร</a></li>
             
             <li class="mt-4 px-3"><small class="text-uppercase fw-bold" style="color: #64748b; font-size: 0.7rem;">จัดการข้อมูลพื้นฐาน</small></li>
-            <li><a href="#" onclick="switchView('eservices', this)"><i class="fa-solid fa-laptop-code"></i> ระบบ E-Services</a></li>
-            <li><a href="#" onclick="switchView('airlines', this)"><i class="fa-solid fa-plane-circle-check"></i> สายการบิน</a></li>
-            <li><a href="#" onclick="switchView('banners', this)"><i class="fa-regular fa-images"></i> แบนเนอร์สไลด์</a></li>
+            <li id="menu_eservices"><a href="#" onclick="switchView('eservices', this)"><i class="fa-solid fa-laptop-code"></i> ระบบ E-Services</a></li>
+            <li id="menu_airlines"><a href="#" onclick="switchView('airlines', this)"><i class="fa-solid fa-plane-circle-check"></i> สายการบิน</a></li>
+            <li id="menu_banners"><a href="#" onclick="switchView('banners', this)"><i class="fa-regular fa-images"></i> แบนเนอร์สไลด์</a></li>
             
             <li id="menuSuperAdminGroup">
                 <div class="mt-4 px-3"><small class="text-uppercase fw-bold" style="color: #64748b; font-size: 0.7rem;">ตั้งค่าระบบ (SuperAdmin)</small></div>
@@ -464,22 +464,69 @@
                     </div>
                 </div>
 
+                <!-- ========= เริ่ม Filter ผู้ใช้งาน ============= -->
+                <div class="card shadow-sm mb-4" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border: none;">
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold text-secondary">ค้นหาผู้ใช้</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                                    <input type="text" id="filter_UserSearch" class="form-control border-start-0" placeholder="ชื่อ, นามสกุล, Username, เบอร์โทร..." oninput="applyUserFilters()">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-bold text-secondary">กลุ่มงาน</label>
+                                <select id="filter_UserDept" class="form-select" onchange="applyUserFilters()"><option value="">ทุกกลุ่มงาน</option></select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-bold text-secondary">สิทธิ์ (Role)</label>
+                                <select id="filter_UserRole" class="form-select" onchange="applyUserFilters()">
+                                    <option value="">ทุกสิทธิ์</option>
+                                    <option value="SuperAdmin">SuperAdmin</option>
+                                    <option value="SubAdmin">SubAdmin</option>
+                                    <option value="Staff">Staff</option>
+                                    <option value="User">User (ประชาชน)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-bold text-secondary">เรียงลำดับ</label>
+                                <select id="filter_UserSort" class="form-select" onchange="applyUserFilters()">
+                                    <option value="role">ตามระดับสิทธิ์</option>
+                                    <option value="newest">สมัครล่าสุด</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-bold text-secondary">แสดงหน้าละ</label>
+                                <select id="filter_UserPageSize" class="form-select" onchange="applyUserFilters()">
+                                    <option value="10">10 แถว</option>
+                                    <option value="20">20 แถว</option>
+                                    <option value="50">50 แถว</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <nav class="d-flex justify-content-between align-items-center mb-2 px-1">
+                    <div id="user_PageInfo" class="text-muted small fw-bold">แสดง 0 ถึง 0 จากทั้งหมด 0 รายการ</div>
+                    <ul class="pagination pagination-sm mb-0 shadow-sm" id="user_PaginationControls"></ul>
+                </nav>      
+                <!-- ========= สิ้นสุด Filter ============= -->
+
                 <div class="card card-custom">
                     <div class="card-body p-0 table-responsive">
                         <table class="table table-hover align-middle mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th width="15%">ชื่อ-นามสกุล (ผู้ใช้)</th>
+                                    <th width="20%">ชื่อ-นามสกุล (ผู้ใช้)</th>
                                     <th width="25%">ข้อมูลติดต่อ / หน่วยงาน</th>
                                     <th width="15%" class="text-center">กลุ่มงาน</th>
                                     <th width="10%" class="text-center">สิทธิ์ (Role)</th>
                                     <th width="15%" class="text-center">สถานะ</th>
-                                    <th width="20%" class="text-center">จัดการ</th>
+                                    <th width="15%" class="text-center">จัดการ</th>
                                 </tr>
                             </thead>
-                            <tbody id="tbody-users">
-                                <tr><td colspan="6" class="py-4 text-center">กำลังโหลดข้อมูล...</td></tr>
-                            </tbody>
+                            <tbody id="tbody-users"></tbody>
                         </table>
                     </div>
                 </div>
@@ -998,7 +1045,7 @@
     <!-- ================= สิ้นสุด Modal: สถิติผู้โดยสาร ================= -->
 
     <!-- ================= เริ่มต้น Modal: จัดการผู้ใช้งาน (Users) ================= -->
-    <div class="modal fade" id="userModal" tabindex="-1">
+     <div class="modal fade" id="userModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content border-0">
                 <div class="modal-header bg-primary text-white">
@@ -1007,44 +1054,22 @@
                 </div>
                 <div class="modal-body p-4">
                     <form id="formUser" onsubmit="saveUserRecord(event)">
-                        <input type="hidden" id="usr_UserID">
-                        <input type="hidden" id="usr_RegisterDate">
-                        <input type="hidden" id="usr_PDPA">
-                        <input type="hidden" id="usr_LastLogin">
+                        <input type="hidden" id="usr_UserID"><input type="hidden" id="usr_RegisterDate"><input type="hidden" id="usr_PDPA"><input type="hidden" id="usr_LastLogin">
                         
                         <div class="row g-3 mb-3 border-bottom pb-3">
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">ชื่อ (FirstName) <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="usr_FirstName" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">นามสกุล (LastName) <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="usr_LastName" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">อีเมล <span class="text-danger">*</span></label>
-                                <input type="email" class="form-control" id="usr_Email" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">เบอร์โทรศัพท์ <span class="text-danger">*</span></label>
-                                <input type="tel" class="form-control" id="usr_Phone" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">สังกัด / หน่วยงาน</label>
-                                <input type="text" class="form-control" id="usr_Organization" placeholder="เช่น ท่าอากาศยานบุรีรัมย์">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">ตำแหน่ง (Position)</label>
-                                <input type="text" class="form-control" id="usr_Position">
-                            </div>
+                            <div class="col-md-6"><label class="form-label fw-bold">ชื่อ (FirstName) <span class="text-danger">*</span></label><input type="text" class="form-control" id="usr_FirstName" required></div>
+                            <div class="col-md-6"><label class="form-label fw-bold">นามสกุล (LastName) <span class="text-danger">*</span></label><input type="text" class="form-control" id="usr_LastName" required></div>
+                            <div class="col-md-6"><label class="form-label fw-bold">อีเมล <span class="text-danger">*</span></label><input type="email" class="form-control" id="usr_Email" required></div>
+                            <div class="col-md-6"><label class="form-label fw-bold">เบอร์โทรศัพท์ <span class="text-danger">*</span></label><input type="tel" class="form-control" id="usr_Phone" required></div>
+                            <div class="col-md-6"><label class="form-label fw-bold">สังกัด / หน่วยงาน</label><input type="text" class="form-control" id="usr_Organization" placeholder="เช่น ท่าอากาศยานบุรีรัมย์"></div>
+                            <div class="col-md-6"><label class="form-label fw-bold">ตำแหน่ง (Position)</label><input type="text" class="form-control" id="usr_Position"></div>
                         </div>
                         
                         <h6 class="fw-bold text-danger mb-3"><i class="fa-solid fa-key"></i> ข้อมูลเข้าสู่ระบบและสิทธิ์การใช้งาน</h6>
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">ชื่อผู้ใช้ (Username) <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control bg-light" id="usr_Username" required>
-                                <small class="text-muted" id="userHelperText">ห้ามแก้ไข Username ของคนเดิม</small>
+                                <input type="text" class="form-control bg-light" id="usr_Username" required><small class="text-muted" id="userHelperText">ห้ามแก้ไข Username ของคนเดิม</small>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">รหัสผ่าน (Password) <span class="text-danger">*</span></label>
@@ -1052,19 +1077,37 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">กลุ่มงาน <small class="text-muted">(เลือกเฉพาะแอดมิน)</small></label>
-                                <select class="form-select" id="usr_Department">
-                                    <option value="">-- ไม่ระบุ (ประชาชนทั่วไป) --</option>
-                                </select>
+                                <select class="form-select" id="usr_Department"><option value="">-- ไม่ระบุ (ประชาชนทั่วไป) --</option></select>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">สิทธิ์การใช้งาน (Role)</label>
-                                <select class="form-select text-primary fw-bold" id="usr_Role">
+                                <!-- 🟢 เมื่อเลือก SubAdmin จะไปเรียกคำสั่ง toggleAllowedMenusUI() -->
+                                <select class="form-select text-primary fw-bold" id="usr_Role" onchange="toggleAllowedMenusUI()">
                                     <option value="User">User (ประชาชนทั่วไป)</option>
                                     <option value="Staff">Staff (เจ้าหน้าที่ทั่วไป)</option>
                                     <option value="SubAdmin">SubAdmin (แอดมินกลุ่มงาน)</option>
                                     <option value="SuperAdmin">SuperAdmin (ผู้ดูแลสูงสุด)</option>
                                 </select>
                             </div>
+                            
+                            <!-- 🟢 พื้นที่สำหรับให้ SuperAdmin ติ๊กเลือกเมนูให้ SubAdmin -->
+                            <div class="col-md-12" id="usr_AllowedMenusContainer" style="display: none;">
+                                <div class="p-3 bg-light border border-warning rounded">
+                                    <label class="form-label fw-bold text-warning-emphasis"><i class="fa-solid fa-shield-halved me-1"></i> กำหนดสิทธิ์การมองเห็นเมนู (เฉพาะ SubAdmin)</label>
+                                    <div class="d-flex flex-wrap gap-3 mt-2">
+                                        <div class="form-check"><input class="form-check-input chk-menu" type="checkbox" id="chk_news" value="news"><label class="form-check-label" for="chk_news">จัดการข่าวสาร</label></div>
+                                        <div class="form-check"><input class="form-check-input chk-menu" type="checkbox" id="chk_newscategories" value="newscategories"><label class="form-check-label" for="chk_newscategories">หมวดหมู่ข่าว</label></div>
+                                        <div class="form-check"><input class="form-check-input chk-menu" type="checkbox" id="chk_events" value="events"><label class="form-check-label" for="chk_events">ปฏิทินกิจกรรม</label></div>
+                                        <div class="form-check"><input class="form-check-input chk-menu" type="checkbox" id="chk_flightschedules" value="flightschedules"><label class="form-check-label" for="chk_flightschedules">ตารางเที่ยวบิน</label></div>
+                                        <div class="form-check"><input class="form-check-input chk-menu" type="checkbox" id="chk_passengerstats" value="passengerstats"><label class="form-check-label" for="chk_passengerstats">สถิติผู้โดยสาร</label></div>
+                                        <div class="form-check"><input class="form-check-input chk-menu" type="checkbox" id="chk_eservices" value="eservices"><label class="form-check-label" for="chk_eservices">ระบบ E-Services</label></div>
+                                        <div class="form-check"><input class="form-check-input chk-menu" type="checkbox" id="chk_airlines" value="airlines"><label class="form-check-label" for="chk_airlines">สายการบิน</label></div>
+                                        <div class="form-check"><input class="form-check-input chk-menu" type="checkbox" id="chk_banners" value="banners"><label class="form-check-label" for="chk_banners">แบนเนอร์สไลด์</label></div>
+                                    </div>
+                                    <div class="text-end mt-2"><button type="button" class="btn btn-sm btn-outline-secondary" onclick="checkAllMenus(true)">เลือกทั้งหมด</button></div>
+                                </div>
+                            </div>
+
                             <div class="col-md-12 mt-3">
                                 <div class="form-check form-switch p-3 bg-light rounded border">
                                     <input class="form-check-input ms-0 me-3" type="checkbox" id="usr_Status" style="transform: scale(1.3);" checked>
@@ -1456,35 +1499,25 @@
                 document.getElementById('adminNameDisplay').innerText = user.fullname;
                 document.getElementById('adminRoleDisplay').innerText = user.role;
                 document.getElementById('adminDeptDisplay').innerText = user.department;
+                
                 if (user.role === 'SubAdmin') {
                     document.getElementById('adminRoleDisplay').className = "badge bg-warning text-dark ms-2";
-                    document.getElementById('menuSuperAdminGroup').style.display = 'none';
+                    document.getElementById('menuSuperAdminGroup').style.display = 'none'; // ซ่อนเมนูตั้งค่า
+                    
+                    // 🟢 ซ่อนเมนูย่อยตามสิทธิ์ที่ SuperAdmin กำหนดไว้
+                    let allowed = user.allowedMenus ? user.allowedMenus.split(',') : [];
+                    const menuItems = ['news', 'newscategories', 'events', 'flightschedules', 'passengerstats', 'eservices', 'airlines', 'banners'];
+                    menuItems.forEach(menu => {
+                        if (!allowed.includes(menu)) {
+                            let el = document.getElementById('menu_' + menu);
+                            if(el) el.style.display = 'none'; // ถ้าไม่มีสิทธิ์ ให้ซ่อนเมนูนั้นทิ้ง
+                        }
+                    });
                 }
             }
 
-            flightDatepicker = flatpickr("#flt_FlightDates", {
-                mode: "multiple",
-                dateFormat: "d/m/Y",
-                locale: "th",
-                conjunction: ", " 
-            });
-
-            // 3. เปิดใช้งาน Quill JS Editor ให้หน้า "จัดการข่าวสาร"
-            quillEditor = new Quill('#news_Content_Editor', {
-                theme: 'snow',
-                placeholder: 'พิมพ์เนื้อหาข่าว หรือก๊อปปี้ข้อความมาวางที่นี่...',
-                modules: {
-                    toolbar: [
-                        [{ 'header': [1, 2, 3, false] }],
-                        ['bold', 'italic', 'underline', 'strike'],
-                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                        [{ 'align': [] }],
-                        ['link'], // 🟢 เอา 'image' ออก
-                        ['clean']
-                    ]
-                }
-            });
-
+            flightDatepicker = flatpickr("#flt_FlightDates", { mode: "multiple", dateFormat: "d/m/Y", locale: "th", conjunction: ", " });
+            quillEditor = new Quill('#news_Content_Editor', { theme: 'snow', placeholder: 'พิมพ์เนื้อหาข่าว...', modules: { toolbar: [ [{ 'header': [1, 2, 3, false] }], ['bold', 'italic', 'underline', 'strike'], [{ 'list': 'ordered'}, { 'list': 'bullet' }], [{ 'align': [] }], ['link'], ['clean'] ] } });
             loadDashboardStats(); 
         });
 
@@ -2159,66 +2192,133 @@
         // ==========================================
         // 👥 ระบบจัดการผู้ใช้งาน (User Management)
         // ==========================================
+        let filteredUserData = [];
+        let currentUserPage = 1;
 
-        function renderUsersTable(data) {
-            const tbody = document.getElementById('tbody-users'); tbody.innerHTML = '';
-            if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="py-4 text-center">ไม่มีข้อมูล</td></tr>'; return; }
-
-            data.sort((a,b) => {
-                if (a.Role === 'SuperAdmin' && b.Role !== 'SuperAdmin') return -1;
-                if (a.Role !== 'SuperAdmin' && b.Role === 'SuperAdmin') return 1;
-                return b.UserID.localeCompare(a.UserID);
-            }).forEach((item) => {
-                let statusBadge = item.Status === 'Active' ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">ระงับ (Inactive)</span>';
-                let roleBadge = '';
-                if (item.Role === 'SuperAdmin') roleBadge = '<span class="badge bg-danger">SuperAdmin</span>';
-                else if (item.Role === 'SubAdmin') roleBadge = '<span class="badge bg-warning text-dark">SubAdmin</span>';
-                else if (item.Role === 'Staff') roleBadge = '<span class="badge bg-info text-dark">Staff (เจ้าหน้าที่)</span>';
-                else roleBadge = '<span class="badge bg-light text-dark border">User ธรรมดา</span>';
-
-                let loginInfo = item.LastLogin ? `<div class="small text-muted mt-1" style="font-size:0.75rem;"><i class="fa-solid fa-clock"></i> ล็อกอิน: ${item.LastLogin}</div>` : '';
-                let deptInfo = item.Department ? item.Department : '<span class="text-muted">-</span>';
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td>
-                            <div class="fw-bold text-primary">${item.FirstName} ${item.LastName}</div>
-                            <div class="small text-muted"><i class="fa-solid fa-user"></i> ${item.Username}</div>
-                        </td>
-                        <td>
-                            <div class="small fw-bold">${item.Organization || '-'}</div>
-                            <div class="small text-muted"><i class="fa-solid fa-envelope"></i> ${item.Email}</div>
-                            <div class="small text-muted"><i class="fa-solid fa-phone"></i> ${item.Phone}</div>
-                        </td>
-                        <td class="text-center fw-bold text-secondary small">${deptInfo}</td>
-                        <td class="text-center">${roleBadge}</td>
-                        <td class="text-center">${statusBadge}${loginInfo}</td>
-                        <td class="text-center">
-                            <button class="btn btn-sm btn-outline-warning me-1" onclick="openUserModal('${item.UserID}')"><i class="fa-solid fa-user-pen"></i></button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('Users', 'UserID', '${item.UserID}')"><i class="fa-solid fa-user-xmark"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
+        // ฟังก์ชันโหลดรายชื่อกลุ่มงานใส่ Dropdown ให้หน้า Users (Filter & Modal)
         function populateUserDeptDropdown() {
             fetch(`${API_URL}?action=getTableData&sheetName=Departments`).then(res => res.json()).then(res => {
                 if(res.status === 'success') {
-                    const select = document.getElementById('usr_Department');
-                    select.innerHTML = '<option value="">-- ไม่ระบุ (ประชาชนทั่วไป) --</option><option value="ทั้งหมด">ทั้งหมด (ดูแลทุกกลุ่มงาน)</option>';
+                    const filterSelect = document.getElementById('filter_UserDept');
+                    const modalSelect = document.getElementById('usr_Department');
+                    
+                    let opts = '<option value="">ทุกกลุ่มงาน</option>';
+                    let modalOpts = '<option value="">-- ไม่ระบุ (ประชาชนทั่วไป) --</option><option value="ทั้งหมด">ทั้งหมด (ดูแลทุกกลุ่มงาน)</option>';
+                    
                     res.data.sort((a,b) => a.OrderList - b.OrderList).forEach(dept => {
-                        if(dept.IsActive === 'TRUE') select.innerHTML += `<option value="${dept.DeptName}">${dept.DeptName}</option>`;
+                        if(dept.IsActive === 'TRUE') {
+                            opts += `<option value="${dept.DeptName}">${dept.DeptName}</option>`;
+                            modalOpts += `<option value="${dept.DeptName}">${dept.DeptName}</option>`;
+                        }
                     });
+                    
+                    filterSelect.innerHTML = opts;
+                    modalSelect.innerHTML = modalOpts;
+                    
+                    applyUserFilters(); // โหลดเสร็จสั่ง Filter ตาราง
                 }
             });
         }
 
-        document.getElementById('usr_Status').addEventListener('change', function() {
-            let label = document.getElementById('usr_StatusLabel');
-            if(this.checked) { label.innerText = 'บัญชีนี้พร้อมใช้งาน (Active)'; label.className = 'form-check-label fw-bold text-success'; }
-            else { label.innerText = 'ระงับการใช้งาน (Inactive)'; label.className = 'form-check-label fw-bold text-danger'; }
-        });
+        // ประมวลผล Filter และ Sorting
+        function applyUserFilters() {
+            const searchTxt = document.getElementById('filter_UserSearch').value.toLowerCase();
+            const deptVal = document.getElementById('filter_UserDept').value;
+            const roleVal = document.getElementById('filter_UserRole').value;
+            const sortVal = document.getElementById('filter_UserSort').value;
+
+            filteredUserData = currentTableData.filter(user => {
+                if (deptVal && user.Department !== deptVal) return false;
+                if (roleVal && user.Role !== roleVal) return false;
+                if (searchTxt) {
+                    let searchStr = `${user.FirstName} ${user.LastName} ${user.Username} ${user.Phone} ${user.Organization}`.toLowerCase();
+                    if (!searchStr.includes(searchTxt)) return false;
+                }
+                return true;
+            });
+
+            filteredUserData.sort((a,b) => {
+                if (sortVal === 'role') {
+                    // เรียง SuperAdmin > SubAdmin > Staff > User
+                    const roleWeight = { 'SuperAdmin': 1, 'SubAdmin': 2, 'Staff': 3, 'User': 4 };
+                    return roleWeight[a.Role] - roleWeight[b.Role];
+                } else {
+                    // ใหม่สุดไปเก่าสุด
+                    return b.UserID.localeCompare(a.UserID);
+                }
+            });
+
+            currentUserPage = 1;
+            renderUsersTable();
+        }
+
+        function changeUserPage(page) { currentUserPage = page; renderUsersTable(); }
+
+        function renderUsersTable() {
+            const tbody = document.getElementById('tbody-users'); tbody.innerHTML = '';
+            
+            const pageSize = parseInt(document.getElementById('filter_UserPageSize').value);
+            const totalItems = filteredUserData.length;
+            const totalPages = Math.ceil(totalItems / pageSize) || 1; 
+            
+            if (currentUserPage > totalPages) currentUserPage = totalPages;
+            const startIndex = (currentUserPage - 1) * pageSize;
+            const endIndex = Math.min(startIndex + pageSize, totalItems);
+
+            document.getElementById('user_PageInfo').innerText = totalItems === 0 ? `ไม่พบข้อมูล` : `แสดง ${startIndex + 1} ถึง ${endIndex} จากทั้งหมด ${totalItems} บัญชี`;
+
+            let pageData = filteredUserData.slice(startIndex, endIndex);
+
+            if (pageData.length === 0) { 
+                tbody.innerHTML = '<tr><td colspan="6" class="py-4 text-center text-muted">ไม่พบข้อมูลบัญชีที่ค้นหา</td></tr>'; 
+            } else {
+                pageData.forEach((item) => {
+                    let statusBadge = item.Status === 'Active' ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">ระงับ</span>';
+                    let roleBadge = '';
+                    if (item.Role === 'SuperAdmin') roleBadge = '<span class="badge bg-danger">SuperAdmin</span>';
+                    else if (item.Role === 'SubAdmin') roleBadge = '<span class="badge bg-warning text-dark">SubAdmin</span>';
+                    else if (item.Role === 'Staff') roleBadge = '<span class="badge bg-info text-dark">Staff</span>';
+                    else roleBadge = '<span class="badge bg-light text-dark border">User</span>';
+
+                    let loginInfo = item.LastLogin ? `<div class="small text-muted mt-1" style="font-size:0.75rem;"><i class="fa-solid fa-clock"></i> ล็อกอิน: ${item.LastLogin}</div>` : '';
+                    let deptInfo = item.Department ? item.Department : '<span class="text-muted">-</span>';
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><div class="fw-bold text-primary">${item.FirstName} ${item.LastName}</div><div class="small text-muted"><i class="fa-solid fa-user"></i> ${item.Username}</div></td>
+                            <td><div class="small fw-bold">${item.Organization || '-'}</div><div class="small text-muted"><i class="fa-solid fa-envelope"></i> ${item.Email}</div><div class="small text-muted"><i class="fa-solid fa-phone"></i> ${item.Phone}</div></td>
+                            <td class="text-center fw-bold text-secondary small">${deptInfo}</td>
+                            <td class="text-center">${roleBadge}</td>
+                            <td class="text-center">${statusBadge}${loginInfo}</td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-warning me-1" onclick="openUserModal('${item.UserID}')"><i class="fa-solid fa-user-pen"></i></button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('Users', 'UserID', '${item.UserID}')"><i class="fa-solid fa-user-xmark"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // จัดการวาดปุ่ม Pagination
+            const ul = document.getElementById('user_PaginationControls'); ul.innerHTML = '';
+            if(totalPages > 1) {
+                ul.innerHTML += `<li class="page-item ${currentUserPage === 1 ? 'disabled' : ''}"><a class="page-link" href="#" onclick="changeUserPage(${currentUserPage - 1})"><i class="fa-solid fa-chevron-left"></i></a></li>`;
+                for(let i = 1; i <= totalPages; i++) ul.innerHTML += `<li class="page-item ${i === currentUserPage ? 'active' : ''}"><a class="page-link" href="#" onclick="changeUserPage(${i})">${i}</a></li>`;
+                ul.innerHTML += `<li class="page-item ${currentUserPage === totalPages ? 'disabled' : ''}"><a class="page-link" href="#" onclick="changeUserPage(${currentUserPage + 1})"><i class="fa-solid fa-chevron-right"></i></a></li>`;
+            }
+        }
+
+        // จัดการเปิด/ปิด กล่องเลือกเมนูของ SubAdmin
+        function toggleAllowedMenusUI() {
+            const role = document.getElementById('usr_Role').value;
+            const menuContainer = document.getElementById('usr_AllowedMenusContainer');
+            if(role === 'SubAdmin') menuContainer.style.display = 'block';
+            else menuContainer.style.display = 'none';
+        }
+
+        function checkAllMenus(isChecked) {
+            document.querySelectorAll('.chk-menu').forEach(cb => cb.checked = isChecked);
+        }
 
         function openUserModal(id = '') {
             document.getElementById('formUser').reset(); document.getElementById('usr_UserID').value = ''; document.getElementById('userModalTitle').innerText = 'เพิ่มบัญชีผู้ใช้งานใหม่';
@@ -2226,6 +2326,9 @@
             const userInp = document.getElementById('usr_Username'); userInp.readOnly = false; document.getElementById('userHelperText').style.display = 'none';
             document.getElementById('usr_Status').checked = true; document.getElementById('usr_StatusLabel').innerText = 'บัญชีนี้พร้อมใช้งาน (Active)'; document.getElementById('usr_StatusLabel').className = 'form-check-label fw-bold text-success';
             document.getElementById('usr_RegisterDate').value = Utilities_getNow(); document.getElementById('usr_PDPA').value = 'Added By Admin'; document.getElementById('usr_LastLogin').value = '';
+
+            checkAllMenus(false);
+            toggleAllowedMenusUI();
 
             if (id) {
                 document.getElementById('userModalTitle').innerText = 'แก้ไขบัญชีผู้ใช้งาน';
@@ -2238,6 +2341,15 @@
                 document.getElementById('usr_Password').value = item.Password; 
                 document.getElementById('usr_Department').value = item.Department || ''; document.getElementById('usr_Role').value = item.Role;
                 
+                // ติ๊กเมนูที่อนุญาต
+                if(item.AllowedMenus) {
+                    let allowed = item.AllowedMenus.split(',');
+                    document.querySelectorAll('.chk-menu').forEach(cb => {
+                        if(allowed.includes(cb.value)) cb.checked = true;
+                    });
+                }
+                toggleAllowedMenusUI();
+
                 userInp.value = item.Username; userInp.readOnly = true; document.getElementById('userHelperText').style.display = 'block';
                 document.getElementById('usr_Status').checked = (item.Status === 'Active');
                 let evt = new Event("change"); document.getElementById('usr_Status').dispatchEvent(evt);
@@ -2250,8 +2362,22 @@
         function saveUserRecord(e) {
             e.preventDefault(); const btn = document.getElementById('btnSaveUser'); btn.innerHTML = 'กำลังบันทึก...'; btn.disabled = true;
 
+            // 🟢 จัดการสิทธิ์เมนู: รวบรวมเมนูที่ติ๊ก (ถ้าเป็น SuperAdmin ให้คำว่า all)
+            let allowedMenusStr = '';
+            let role = document.getElementById('usr_Role').value;
+            if (role === 'SuperAdmin') {
+                allowedMenusStr = 'all';
+            } else if (role === 'SubAdmin') {
+                let selectedMenus = [];
+                document.querySelectorAll('.chk-menu:checked').forEach(cb => selectedMenus.push(cb.value));
+                if(selectedMenus.length === 0) { Swal.fire('ผิดพลาด', 'กรุณาเลือกเมนูที่อนุญาตให้ใช้งานอย่างน้อย 1 เมนู', 'warning'); btn.innerHTML = 'บันทึกข้อมูลผู้ใช้งาน'; btn.disabled = false; return; }
+                allowedMenusStr = selectedMenus.join(',');
+            }
+
             const recordData = {
-                UserID: document.getElementById('usr_UserID').value, Username: document.getElementById('usr_Username').value, Password: document.getElementById('usr_Password').value, FirstName: document.getElementById('usr_FirstName').value, LastName: document.getElementById('usr_LastName').value, Email: document.getElementById('usr_Email').value, Phone: document.getElementById('usr_Phone').value, Organization: document.getElementById('usr_Organization').value, Position: document.getElementById('usr_Position').value, Department: document.getElementById('usr_Department').value, Role: document.getElementById('usr_Role').value, Status: document.getElementById('usr_Status').checked ? 'Active' : 'Inactive', LastLogin: document.getElementById('usr_LastLogin').value, pdpaConsent: document.getElementById('usr_PDPA').value, RegisterDate: document.getElementById('usr_RegisterDate').value
+                UserID: document.getElementById('usr_UserID').value, Username: document.getElementById('usr_Username').value, Password: document.getElementById('usr_Password').value, FirstName: document.getElementById('usr_FirstName').value, LastName: document.getElementById('usr_LastName').value, Email: document.getElementById('usr_Email').value, Phone: document.getElementById('usr_Phone').value, Organization: document.getElementById('usr_Organization').value, Position: document.getElementById('usr_Position').value, Department: document.getElementById('usr_Department').value, Role: role, 
+                AllowedMenus: allowedMenusStr, // 🟢 ส่งสิทธิ์เข้าเซิร์ฟเวอร์
+                Status: document.getElementById('usr_Status').checked ? 'Active' : 'Inactive', LastLogin: document.getElementById('usr_LastLogin').value, pdpaConsent: document.getElementById('usr_PDPA').value, RegisterDate: document.getElementById('usr_RegisterDate').value
             };
 
             const formData = new URLSearchParams({ action: 'saveRecord', sheetName: 'Users', idColumn: 'UserID', recordJSON: JSON.stringify(recordData) });
@@ -2264,9 +2390,6 @@
             }).finally(() => { btn.innerHTML = 'บันทึกข้อมูลผู้ใช้งาน'; btn.disabled = false; });
         }
 
-        function Utilities_getNow() {
-            const date = new Date(); return ("0" + date.getDate()).slice(-2) + "/" + ("0"+(date.getMonth()+1)).slice(-2) + "/" + (date.getFullYear()+543) + " " + ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2) + ":" + ("0" + date.getSeconds()).slice(-2);
-        }
         // =======================สิ้นสุด ฟังก์ชันจัดการ ผู้ใช้งาน =================
 
 
