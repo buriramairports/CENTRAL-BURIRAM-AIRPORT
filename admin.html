@@ -603,9 +603,56 @@
             <!-- ================= เริ่มต้น หน้า จัดการปฏิทิน (Events) ================= -->
             <div id="view-events" class="admin-view" style="display: none;">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="fw-bold text-dark"><i class="fa-regular fa-calendar-days text-primary me-2"></i> จัดการปฏิทินกิจกรรม</h4>
+                    <h4 class="fw-bold text-dark mb-0"><i class="fa-regular fa-calendar-days text-primary me-2"></i> จัดการปฏิทินกิจกรรม</h4>
                     <button class="btn btn-primary" onclick="openEventModal()"><i class="fa-solid fa-plus me-1"></i> เพิ่มกิจกรรม</button>
                 </div>
+
+                <!-- ========= เริ่ม Filter กิจกรรม ============= -->
+                <div class="card shadow-sm mb-4" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border: none;">
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold text-secondary">ค้นหากิจกรรม</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                                    <input type="text" id="filter_EventSearch" class="form-control border-start-0" placeholder="พิมพ์ชื่อกิจกรรม หรือสถานที่..." oninput="applyEventFilters()">
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold text-secondary">หน่วยงานที่รับผิดชอบ</label>
+                                <select id="filter_EventDept" class="form-select" onchange="applyEventFilters()">
+                                    <option value="">ทุกหน่วยงาน</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold text-secondary">ประเภทการแสดงผล</label>
+                                <select id="filter_EventType" class="form-select" onchange="applyEventFilters()">
+                                    <option value="">ทุกประเภท</option>
+                                    <option value="public">แสดงที่หน้าเว็บ (สาธารณะ)</option>
+                                    <option value="internal">ปฏิทินภายใน (เจ้าหน้าที่)</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-2">
+                                <label class="form-label fw-bold text-secondary">แสดงหน้าละ</label>
+                                <select id="filter_EventPageSize" class="form-select" onchange="applyEventFilters()">
+                                    <option value="10">10 แถว</option>
+                                    <option value="20">20 แถว</option>
+                                    <option value="50">50 แถว</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- ตัวบอกจำนวนหน้า -->
+                <nav class="d-flex justify-content-between align-items-center mb-2 px-1">
+                    <div id="event_PageInfo" class="text-muted small fw-bold">แสดง 0 ถึง 0 จากทั้งหมด 0 รายการ</div>
+                    <ul class="pagination pagination-sm mb-0 shadow-sm" id="event_PaginationControls"></ul>
+                </nav>      
+                <!-- ========= สิ้นสุด Filter ============= -->
 
                 <div class="card card-custom">
                     <div class="card-body p-0">
@@ -613,22 +660,24 @@
                             <table class="table table-hover align-middle mb-0">
                                 <thead class="table-light">
                                     <tr>
-                                        <th width="10%">วันที่</th>
-                                        <th width="30%">ชื่อกิจกรรม</th>
-                                        <th width="15%">หน่วยงาน</th>
-                                        <th width="15%" class="text-center">ประเภท</th>
-                                        <th width="15%" class="text-center">สถานะ</th>
-                                        <th width="15%" class="text-center">จัดการ</th>
+                                        <th width="10%">วันที่จัด</th>
+                                        <th width="25%">ชื่อกิจกรรม</th>
+                                        <th width="15%">สถานที่</th>
+                                        <th width="20%">ผู้เข้าร่วม / รับผิดชอบ</th>
+                                        <th width="10%" class="text-center">ประเภท</th>
+                                        <th width="10%" class="text-center">สถานะ</th>
+                                        <th width="10%" class="text-center">จัดการ</th>
                                     </tr>
                                 </thead>
                                 <tbody id="tbody-events">
-                                    </tbody>
+                                    <tr><td colspan="7" class="text-center py-4">กำลังโหลดข้อมูล...</td></tr>
+                                </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- ================= สิ้นสุด หน้า จัดการจัดการปฏิทิน (Events) ================= -->
+            <!-- ================= สิ้นสุด หน้า จัดการปฏิทิน (Events) ================= -->
 
         </div>
         <div class="footer-text">&copy; 2026 ระบบจัดการหลังบ้าน - ท่าอากาศยานบุรีรัมย์</div>
@@ -1463,7 +1512,15 @@
                     Swal.close(); 
                 });
             }
-            if (viewId === 'events') { loadTableData('Events', renderEventsTable); }
+            if (viewId === 'events') { 
+                Swal.fire({ title: 'กำลังโหลด...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                fetch(`${API_URL}?action=getTableData&sheetName=Events`).then(res=>res.json()).then(res => {
+                    currentTableData = res.data;
+                    initEventFilterDropdown(); // สร้าง Dropdown หน่วยงาน
+                    applyEventFilters();       // ประมวลผลและวาดตาราง
+                    Swal.close(); 
+                });
+            }
         }
         // ================= สิ้นสุด ฟังก์ชันเปลี่ยนหน้าเมนู =================
 
@@ -2957,31 +3014,132 @@
         // =======================สิ้นสุด ฟังก์ชันจัดการ Dashboard =================
         // ================= เริ่มต้น ฟังก์ชันจัดการ ปฏิทินกิจกรรม (Events) =================
         
-        function renderEventsTable(data) {
+       // ==========================================
+        // 📅 ระบบจัดการ ปฏิทินกิจกรรม (Events Management)
+        // ==========================================
+        let filteredEventData = [];
+        let currentEventPage = 1;
+
+        // 1. เติมข้อมูลลงใน Dropdown ค้นหา (ดึงรายชื่อหน่วยงานมาใส่)
+        function initEventFilterDropdown() {
+            const deptFilter = document.getElementById('filter_EventDept');
+            deptFilter.innerHTML = '<option value="">ทุกหน่วยงาน</option>';
+            
+            let uniqueDepts = [...new Set(currentTableData.map(item => item.EventDept))].filter(d => d);
+            uniqueDepts.sort().forEach(dept => {
+                deptFilter.innerHTML += `<option value="${dept}">${dept}</option>`;
+            });
+        }
+
+        // 2. ฟังก์ชันประมวลผลการค้นหา และ จัดเรียง
+        function applyEventFilters() {
+            const searchTxt = document.getElementById('filter_EventSearch').value.toLowerCase();
+            const deptVal = document.getElementById('filter_EventDept').value;
+            const typeVal = document.getElementById('filter_EventType').value;
+
+            // คัดกรองข้อมูล
+            filteredEventData = currentTableData.filter(evt => {
+                if (deptVal && evt.EventDept !== deptVal) return false;
+                if (typeVal && evt.EventType !== typeVal) return false;
+                
+                if (searchTxt) {
+                    let searchMatch = false;
+                    if (evt.EventName && evt.EventName.toLowerCase().includes(searchTxt)) searchMatch = true;
+                    if (evt.EventLocation && evt.EventLocation.toLowerCase().includes(searchTxt)) searchMatch = true;
+                    if (!searchMatch) return false;
+                }
+                return true;
+            });
+
+            // เรียงจากวันที่ใหม่สุดไปเก่าสุด
+            filteredEventData.sort((a, b) => new Date(b.EventDate) - new Date(a.EventDate));
+
+            currentEventPage = 1;
+            renderEventsTable(); 
+        }
+
+        function changeEventPage(page) {
+            currentEventPage = page;
+            renderEventsTable();
+        }
+
+        // 3. วาดปุ่มกดเปลี่ยนหน้า (Pagination Buttons)
+        function renderEventPagination(totalPages) {
+            const ul = document.getElementById('event_PaginationControls');
+            ul.innerHTML = '';
+            
+            if(totalPages <= 1) return;
+
+            let prevClass = currentEventPage === 1 ? 'disabled' : '';
+            ul.innerHTML += `<li class="page-item ${prevClass}"><a class="page-link" href="#" onclick="changeEventPage(${currentEventPage - 1})"><i class="fa-solid fa-chevron-left"></i></a></li>`;
+            
+            for(let i = 1; i <= totalPages; i++) {
+                let activeClass = i === currentEventPage ? 'active' : '';
+                ul.innerHTML += `<li class="page-item ${activeClass}"><a class="page-link" href="#" onclick="changeEventPage(${i})">${i}</a></li>`;
+            }
+
+            let nextClass = currentEventPage === totalPages ? 'disabled' : '';
+            ul.innerHTML += `<li class="page-item ${nextClass}"><a class="page-link" href="#" onclick="changeEventPage(${currentEventPage + 1})"><i class="fa-solid fa-chevron-right"></i></a></li>`;
+        }
+
+        // 4. วาดตาราง
+        function renderEventsTable() {
             const tbody = document.getElementById('tbody-events');
             tbody.innerHTML = '';
-            if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">ไม่พบข้อมูลกิจกรรม</td></tr>`;
+
+            const pageSize = parseInt(document.getElementById('filter_EventPageSize').value);
+            const totalItems = filteredEventData.length;
+            const totalPages = Math.ceil(totalItems / pageSize) || 1; 
+            
+            if (currentEventPage > totalPages) currentEventPage = totalPages;
+
+            const startIndex = (currentEventPage - 1) * pageSize;
+            const endIndex = Math.min(startIndex + pageSize, totalItems);
+
+            document.getElementById('event_PageInfo').innerText = totalItems === 0 
+                ? `ไม่พบข้อมูล` : `แสดง ${startIndex + 1} ถึง ${endIndex} จากทั้งหมด ${totalItems} รายการ`;
+
+            let pageData = filteredEventData.slice(startIndex, endIndex);
+
+            if (pageData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-5 text-muted"><i class="fa-solid fa-calendar-xmark fa-3x mb-3 opacity-25"></i><br>ไม่พบข้อมูลกิจกรรมที่ค้นหา</td></tr>`;
+                renderEventPagination(totalPages);
                 return;
             }
 
-            // เรียงจากวันที่ล่าสุดไปเก่าสุด
-            data.sort((a, b) => new Date(b.EventDate) - new Date(a.EventDate)).forEach((item) => {
+            pageData.forEach((item) => {
                 let badgeStatus = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิดแสดงผล</span>' : '<span class="badge bg-secondary">ปิด</span>';
-                let badgeType = item.EventType === 'internal' ? '<span class="badge bg-warning text-dark"><i class="fa-solid fa-lock me-1"></i> ภายใน</span>' : '<span class="badge bg-info text-dark"><i class="fa-solid fa-globe me-1"></i> หน้าเว็บ</span>';
+                let badgeType = item.EventType === 'internal' ? '<span class="badge bg-warning text-dark"><i class="fa-solid fa-lock me-1"></i> ภายใน</span>' : '<span class="badge bg-info text-dark"><i class="fa-solid fa-globe me-1"></i> สาธารณะ</span>';
                 
-                // แปลงรูปแบบวันที่ไทยอย่างง่าย
                 let d = new Date(item.EventDate);
-                let dateStr = `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()+543}`;
+                let dateStr = `${("0"+d.getDate()).slice(-2)}/${("0"+(d.getMonth()+1)).slice(-2)}/${d.getFullYear()+543}`;
+
+                // 🟢 จัดการการแสดงผลผู้เข้าร่วม
+                let participantHtml = '';
+                if (item.EventType === 'internal') {
+                    if (item.ParticipantType === 'users') {
+                        // นับจำนวนคนจากลูกน้ำ
+                        let count = item.Participants ? item.Participants.split(',').length : 0;
+                        participantHtml = `<span class="badge bg-light text-primary border border-primary"><i class="fa-solid fa-user-check me-1"></i> เฉพาะบุคคล (${count} คน)</span>`;
+                    } else {
+                        participantHtml = `<div class="text-secondary small fw-bold"><i class="fa-solid fa-users me-1"></i> ${item.Participants || '-'}</div>`;
+                    }
+                } else {
+                    participantHtml = `<span class="text-muted small">ประชาชนทั่วไป (หน้าเว็บ)</span>`;
+                }
 
                 tbody.innerHTML += `
                     <tr>
-                        <td class="text-nowrap">${dateStr}</td>
                         <td>
-                            <div class="fw-bold text-dark">${item.EventName}</div>
+                            <div class="fw-bold text-dark fs-6">${dateStr}</div>
                             <small class="text-muted"><i class="fa-regular fa-clock me-1"></i>${item.EventTime}</small>
                         </td>
-                        <td>${item.EventDept}</td>
+                        <td><div class="fw-bold text-primary" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${item.EventName}</div></td>
+                        <td class="text-muted small"><i class="fa-solid fa-location-dot me-1 text-danger"></i> ${item.EventLocation || '-'}</td>
+                        <td>
+                            <div class="mb-1">${participantHtml}</div>
+                            <small class="text-muted">จัดโดย: ${item.EventDept || '-'}</small>
+                        </td>
                         <td class="text-center">${badgeType}</td>
                         <td class="text-center">${badgeStatus}</td>
                         <td class="text-center text-nowrap">
@@ -2991,6 +3149,8 @@
                     </tr>
                 `;
             });
+
+            renderEventPagination(totalPages);
         }
 
         function openEventModal(id = '') {
