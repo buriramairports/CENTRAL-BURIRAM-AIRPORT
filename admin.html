@@ -1932,26 +1932,32 @@
         // ================= สิ้นสุด ระบบจัดการ ข่าวสาร =================
 
         // ================= เริ่มต้น ระบบจัดการ ปฏิทินกิจกรรม (Events) =================
+        // ================= เริ่มต้นฟังก์ชัน ตัวกรองและเรียงลำดับปฏิทินกิจกรรม =================
         function initEventFilterDropdown() {
             const deptFilter = document.getElementById('filter_EventDept');
-            deptFilter.innerHTML = '<option value="">ทุกหน่วยงาน</option>';
-            let uniqueDepts = [...new Set(currentTableData.map(item => item.EventDept))].filter(d => d);
-            uniqueDepts.sort().forEach(dept => { deptFilter.innerHTML += `<option value="${dept}">${dept}</option>`; });
+            // 🟢 [แก้ไข] เพิ่มเช็คว่ามีช่อง Filter กลุ่มงานใน HTML หรือไม่ ถ้าไม่มีให้ข้ามไปเลย จะได้ไม่ Error
+            if (deptFilter) {
+                deptFilter.innerHTML = '<option value="">ทุกหน่วยงาน</option>';
+                let uniqueDepts = [...new Set(currentTableData.map(item => item.EventDept))].filter(d => d);
+                uniqueDepts.sort().forEach(dept => { deptFilter.innerHTML += `<option value="${dept}">${dept}</option>`; });
+            }
         }
 
-       // ================= เริ่มต้นฟังก์ชัน ตัวกรองและเรียงลำดับปฏิทินกิจกรรม =================
-        function applyEventFilters() {
-            const searchTxt = document.getElementById('filter_EventSearch').value.toLowerCase();
-            const deptVal = document.getElementById('filter_EventDept').value;
-            const typeVal = document.getElementById('filter_EventType').value;
-            const sortVal = document.getElementById('filter_EventSort').value;
+         function applyEventFilters() {
+            const searchTxt = document.getElementById('filter_EventSearch') ? document.getElementById('filter_EventSearch').value.toLowerCase() : '';
+            
+            // 🟢 [แก้ไข] ดึงค่าอย่างปลอดภัย ป้องกัน Error กรณีหา element ไม่เจอ
+            const deptFilterEl = document.getElementById('filter_EventDept');
+            const deptVal = deptFilterEl ? deptFilterEl.value : '';
+            
+            const typeVal = document.getElementById('filter_EventType') ? document.getElementById('filter_EventType').value : '';
+            const sortVal = document.getElementById('filter_EventSort') ? document.getElementById('filter_EventSort').value : 'date_desc';
 
             filteredEventData = currentTableData.filter(evt => {
                 if (deptVal && evt.EventDept !== deptVal) return false;
                 if (typeVal && evt.EventType !== typeVal) return false;
                 if (searchTxt) {
                     let searchMatch = false;
-                    // 🟢 [ป้องกันบั๊ก] ใส่ String() ครอบเสมอ เผื่อข้อมูลใน Google Sheet ถูกพิมพ์เป็นตัวเลขล้วน
                     if (evt.EventName && String(evt.EventName).toLowerCase().includes(searchTxt)) searchMatch = true;
                     if (evt.EventLocation && String(evt.EventLocation).toLowerCase().includes(searchTxt)) searchMatch = true;
                     if (evt.EventDept && String(evt.EventDept).toLowerCase().includes(searchTxt)) searchMatch = true;
