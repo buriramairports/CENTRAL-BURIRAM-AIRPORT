@@ -615,14 +615,15 @@
                                 <label class="form-label fw-bold text-secondary">ค้นหากิจกรรม</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
-                                    <input type="text" id="filter_EventSearch" class="form-control border-start-0" placeholder="พิมพ์ชื่อกิจกรรม หรือสถานที่..." oninput="applyEventFilters()">
+                                    <input type="text" id="filter_EventSearch" class="form-control border-start-0" placeholder="พิมพ์ชื่อกิจกรรม หน่วยงาน หรือสถานที่..." oninput="applyEventFilters()">
                                 </div>
                             </div>
 
                             <div class="col-md-3">
-                                <label class="form-label fw-bold text-secondary">หน่วยงานที่รับผิดชอบ</label>
-                                <select id="filter_EventDept" class="form-select" onchange="applyEventFilters()">
-                                    <option value="">ทุกหน่วยงาน</option>
+                                <label class="form-label fw-bold text-secondary">เรียงลำดับ (Sort By)</label>
+                                <select id="filter_EventSort" class="form-select" onchange="applyEventFilters()">
+                                    <option value="date_desc">วันที่จัด: ใหม่สุด - เก่าสุด</option>
+                                    <option value="date_asc">วันที่จัด: เก่าสุด - ใหม่สุด</option>
                                 </select>
                             </div>
 
@@ -647,7 +648,6 @@
                     </div>
                 </div>
                 
-                <!-- ตัวบอกจำนวนหน้า -->
                 <nav class="d-flex justify-content-between align-items-center mb-2 px-1">
                     <div id="event_PageInfo" class="text-muted small fw-bold">แสดง 0 ถึง 0 จากทั้งหมด 0 รายการ</div>
                     <ul class="pagination pagination-sm mb-0 shadow-sm" id="event_PaginationControls"></ul>
@@ -687,6 +687,24 @@
     <!--                                  MODALS (ป๊อปอัปฟอร์มต่างๆ)                     -->
     <!-- ========================================================================= -->
 
+    <!-- ================= เริ่มต้น Modal: ดูรายชื่อผู้เข้าร่วม ================= -->
+    <div class="modal fade" id="viewParticipantsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title fw-bold text-primary"><i class="fa-solid fa-users me-2"></i> รายชื่อผู้เข้าร่วม</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <ul class="list-group list-group-flush" id="participantsListContainer">
+                        <!-- รายชื่อจะถูกวาดที่นี่ -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ================= สิ้นสุด Modal: ดูรายชื่อผู้เข้าร่วม ================= -->
+    
     <!-- ================= เริ่มต้น Modal: จัดการ Banners ================= -->
     <div class="modal fade" id="bannerModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
@@ -3013,46 +3031,48 @@
 
         // =======================สิ้นสุด ฟังก์ชันจัดการ Dashboard =================
         // ================= เริ่มต้น ฟังก์ชันจัดการ ปฏิทินกิจกรรม (Events) =================
-        
-       // ==========================================
+        // ==========================================
         // 📅 ระบบจัดการ ปฏิทินกิจกรรม (Events Management)
         // ==========================================
         let filteredEventData = [];
         let currentEventPage = 1;
 
-        // 1. เติมข้อมูลลงใน Dropdown ค้นหา (ดึงรายชื่อหน่วยงานมาใส่)
-        function initEventFilterDropdown() {
-            const deptFilter = document.getElementById('filter_EventDept');
-            deptFilter.innerHTML = '<option value="">ทุกหน่วยงาน</option>';
-            
-            let uniqueDepts = [...new Set(currentTableData.map(item => item.EventDept))].filter(d => d);
-            uniqueDepts.sort().forEach(dept => {
-                deptFilter.innerHTML += `<option value="${dept}">${dept}</option>`;
-            });
+        // ฟังก์ชันช่วยเหลือ: ดึงรายชื่อพนักงานทั้งหมดเก็บไว้ เพื่อเอาไปแมตช์หาตำแหน่ง
+        let allUsersDataForEvents = [];
+        function loadUsersForEvents() {
+            if(allUsersDataForEvents.length === 0) {
+                fetch(`${API_URL}?action=getTableData&sheetName=Users`)
+                .then(res => res.json())
+                .then(res => { if(res.status === 'success') allUsersDataForEvents = res.data; });
+            }
         }
 
-        // 2. ฟังก์ชันประมวลผลการค้นหา และ จัดเรียง
+        // ฟังก์ชันประมวลผลการค้นหา และ จัดเรียง
         function applyEventFilters() {
             const searchTxt = document.getElementById('filter_EventSearch').value.toLowerCase();
-            const deptVal = document.getElementById('filter_EventDept').value;
             const typeVal = document.getElementById('filter_EventType').value;
+            const sortVal = document.getElementById('filter_EventSort').value;
 
             // คัดกรองข้อมูล
             filteredEventData = currentTableData.filter(evt => {
-                if (deptVal && evt.EventDept !== deptVal) return false;
                 if (typeVal && evt.EventType !== typeVal) return false;
                 
                 if (searchTxt) {
                     let searchMatch = false;
                     if (evt.EventName && evt.EventName.toLowerCase().includes(searchTxt)) searchMatch = true;
                     if (evt.EventLocation && evt.EventLocation.toLowerCase().includes(searchTxt)) searchMatch = true;
+                    if (evt.EventDept && evt.EventDept.toLowerCase().includes(searchTxt)) searchMatch = true;
                     if (!searchMatch) return false;
                 }
                 return true;
             });
 
-            // เรียงจากวันที่ใหม่สุดไปเก่าสุด
-            filteredEventData.sort((a, b) => new Date(b.EventDate) - new Date(a.EventDate));
+            // 🟢 จัดเรียงตามค่าที่เลือกใน Dropdown
+            filteredEventData.sort((a, b) => {
+                let dateA = new Date(a.EventDate).getTime();
+                let dateB = new Date(b.EventDate).getTime();
+                return sortVal === 'date_desc' ? dateB - dateA : dateA - dateB;
+            });
 
             currentEventPage = 1;
             renderEventsTable(); 
@@ -3063,7 +3083,6 @@
             renderEventsTable();
         }
 
-        // 3. วาดปุ่มกดเปลี่ยนหน้า (Pagination Buttons)
         function renderEventPagination(totalPages) {
             const ul = document.getElementById('event_PaginationControls');
             ul.innerHTML = '';
@@ -3082,7 +3101,6 @@
             ul.innerHTML += `<li class="page-item ${nextClass}"><a class="page-link" href="#" onclick="changeEventPage(${currentEventPage + 1})"><i class="fa-solid fa-chevron-right"></i></a></li>`;
         }
 
-        // 4. วาดตาราง
         function renderEventsTable() {
             const tbody = document.getElementById('tbody-events');
             tbody.innerHTML = '';
@@ -3114,13 +3132,13 @@
                 let d = new Date(item.EventDate);
                 let dateStr = `${("0"+d.getDate()).slice(-2)}/${("0"+(d.getMonth()+1)).slice(-2)}/${d.getFullYear()+543}`;
 
-                // 🟢 จัดการการแสดงผลผู้เข้าร่วม
+                // 🟢 สร้างปุ่มให้กดเปิดดูรายชื่อคน (กรณีระบุรายบุคคล)
                 let participantHtml = '';
                 if (item.EventType === 'internal') {
                     if (item.ParticipantType === 'users') {
-                        // นับจำนวนคนจากลูกน้ำ
                         let count = item.Participants ? item.Participants.split(',').length : 0;
-                        participantHtml = `<span class="badge bg-light text-primary border border-primary"><i class="fa-solid fa-user-check me-1"></i> เฉพาะบุคคล (${count} คน)</span>`;
+                        let safeIds = item.Participants ? item.Participants.replace(/'/g, "\\'") : '';
+                        participantHtml = `<button class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1" onclick="openParticipantsList('${safeIds}')"><i class="fa-solid fa-user-check me-1"></i> เฉพาะบุคคล (${count} คน)</button>`;
                     } else {
                         participantHtml = `<div class="text-secondary small fw-bold"><i class="fa-solid fa-users me-1"></i> ${item.Participants || '-'}</div>`;
                     }
@@ -3152,6 +3170,37 @@
 
             renderEventPagination(totalPages);
         }
+
+        // 🟢 ฟังก์ชันแสดงป๊อปอัปรายชื่อผู้เข้าร่วม
+        function openParticipantsList(participantsString) {
+            const listContainer = document.getElementById('participantsListContainer');
+            listContainer.innerHTML = '';
+            
+            if(!participantsString) {
+                listContainer.innerHTML = '<li class="list-group-item text-center text-muted py-4">ไม่มีข้อมูลผู้เข้าร่วม</li>';
+            } else {
+                const namesArray = participantsString.split(',');
+                namesArray.forEach(name => {
+                    // พยายามแมตช์หาตำแหน่งงานจากฐานข้อมูล Users
+                    let staffObj = allUsersDataForEvents.find(u => `${u.FirstName} ${u.LastName}` === name);
+                    let positionText = staffObj ? `<small class="text-muted d-block"><i class="fa-solid fa-briefcase me-1"></i> ${staffObj.Position || 'ไม่ระบุตำแหน่ง'} | ${staffObj.Department || ''}</small>` : '';
+                    
+                    listContainer.innerHTML += `
+                        <li class="list-group-item d-flex align-items-center py-3">
+                            <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex justify-content-center align-items-center me-3" style="width: 40px; height: 40px;">
+                                <i class="fa-solid fa-user"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-dark">${name}</div>
+                                ${positionText}
+                            </div>
+                        </li>
+                    `;
+                });
+            }
+            new bootstrap.Modal(document.getElementById('viewParticipantsModal')).show();
+        }
+       
 
         function openEventModal(id = '') {
             document.getElementById('formEvent').reset();
@@ -3359,90 +3408,62 @@
         }
 
         // บันทึกข้อมูล
-        function saveEvent(e) {
-    e.preventDefault();
-    const btn = document.getElementById('btnSaveEvent');
-    btn.disabled = true;
+        function saveEvent(e) { function saveEvent(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSaveEvent');
+            btn.disabled = true;
 
-    const evtType = document.getElementById('evt_EventType').value;
-    let participantType = '';
-    let participants = '';
-    
-    if(evtType === 'internal') {
-        const isUsers = document.getElementById('ptype_users').checked;
-        if(isUsers) {
-            participantType = 'users';
-            // 🟢 แก้ไข: เปลี่ยนมาดึงข้อมูลจาก input hidden ของระบบป้ายชื่อ (Chips)
-            participants = document.getElementById('selectedStaffIds').value; 
+            const evtType = document.getElementById('evt_EventType').value;
+            let participantType = '';
+            let participants = '';
             
-            if(!participants) {
-                Swal.fire('แจ้งเตือน', 'กรุณาเลือกผู้เข้าร่วมกิจกรรมอย่างน้อย 1 คน', 'warning');
-                btn.disabled = false; return;
+            if(evtType === 'internal') {
+                const isUsers = document.getElementById('ptype_users').checked;
+                if(isUsers) {
+                    participantType = 'users';
+                    participants = document.getElementById('selectedStaffIds').value; 
+                    if(!participants) { Swal.fire('แจ้งเตือน', 'กรุณาเลือกผู้เข้าร่วมกิจกรรมอย่างน้อย 1 คน', 'warning'); btn.disabled = false; return; }
+                } else {
+                    participantType = 'group';
+                    participants = document.getElementById('evt_ParticipantsText').value;
+                    if(!participants) { Swal.fire('แจ้งเตือน', 'กรุณาระบุกลุ่มผู้เข้าร่วมกิจกรรม', 'warning'); btn.disabled = false; return; }
+                }
             }
-        } else {
-            participantType = 'group';
-            participants = document.getElementById('evt_ParticipantsText').value;
-            if(!participants) {
-                Swal.fire('แจ้งเตือน', 'กรุณาระบุกลุ่มผู้เข้าร่วมกิจกรรม', 'warning');
-                btn.disabled = false; return;
-            }
-        }
-    }
-    const now = new Date();
-    const formattedDate = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear() + 543} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')} น.`;
-    const rData = {
-        EventID: document.getElementById('evt_EventID').value,
-        EventName: document.getElementById('evt_EventName').value,
-        EventDate: document.getElementById('evt_EventDate').value,
-        EventTime: document.getElementById('evt_EventTime').value,
-        EventLocation: document.getElementById('evt_EventLocation').value,
-        EventDept: document.getElementById('evt_EventDept').value,
-        EventType: evtType,
-        ParticipantType: participantType,
-        Participants: participants,
-        // 🟢 เพิ่ม 2 บรรทัดนี้เข้าไปเพื่อให้ข้อมูลตรงกับคอลัมน์ใน Sheet
-        //CoverImage: "", // เนื่องจากใน Modal ยังไม่มีช่องให้อัปโหลดรูปภาพ จึงส่งเป็นค่าว่างไว้ก่อนครับ
-        
-        IsActive: document.getElementById('evt_IsActive').value,
-        
-        // 🟢 บันทึกวันเวลาปัจจุบันที่กด Save (ถ้าเป็นรายการใหม่) 
-        CreateDate: document.getElementById('evt_EventID').value === "" ? formattedDate : undefined 
-        // ใส่ undefined ไว้ตอนแก้ไข เพื่อให้ระบบหลังบ้านของคุณ (GAS) ไม่ทับค่า CreateDate เดิมของเก่า
-    };
+            const now = new Date();
+            const formattedDate = `${("0"+now.getDate()).slice(-2)}/${("0"+(now.getMonth()+1)).slice(-2)}/${now.getFullYear()+543} ${("0"+now.getHours()).slice(-2)}:${("0"+now.getMinutes()).slice(-2)} น.`;
+            
+            const rData = {
+                EventID: document.getElementById('evt_EventID').value,
+                EventName: document.getElementById('evt_EventName').value,
+                EventDate: document.getElementById('evt_EventDate').value,
+                EventTime: document.getElementById('evt_EventTime').value,
+                EventLocation: document.getElementById('evt_EventLocation').value,
+                EventDept: document.getElementById('evt_EventDept').value,
+                EventType: evtType,
+                ParticipantType: participantType,
+                Participants: participants,
+                IsActive: document.getElementById('evt_IsActive').value,
+                CreateDate: document.getElementById('evt_EventID').value === "" ? formattedDate : undefined 
+            };
 
-    // 🟢 เพิ่มเติม: แสดง Loading Alert ระหว่างรอเซฟข้อมูล
-    Swal.fire({
-        title: 'กำลังบันทึกข้อมูล...',
-        allowOutsideClick: false,
-        didOpen: () => {
-            Swal.showLoading();
-        }
-    });
+            Swal.fire({ title: 'กำลังบันทึกข้อมูล...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
 
-    fetch(API_URL, {
-        method: 'POST',
-        body: new URLSearchParams({
-            action: 'saveRecord',
-            sheetName: 'Events',
-            idColumn: 'EventID',
-            recordJSON: JSON.stringify(rData)
-        })
-    })
-    .then(res => res.json())
-    .then(res => {
-        if (res.status === 'success') {
-            bootstrap.Modal.getInstance(document.getElementById('eventModal')).hide();
-            Swal.fire({ icon: 'success', title: 'บันทึกข้อมูลเรียบร้อย', showConfirmButton: false, timer: 1500 });
-            loadTableData('Events', renderEventsTable); // รีโหลดตาราง
-        } else {
-            Swal.fire('ผิดพลาด', res.message, 'error');
+            fetch(API_URL, {
+                method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'Events', idColumn: 'EventID', recordJSON: JSON.stringify(rData) })
+            }).then(res => res.json()).then(res => {
+                if (res.status === 'success') {
+                    bootstrap.Modal.getInstance(document.getElementById('eventModal')).hide();
+                    Swal.fire({ icon: 'success', title: 'บันทึกข้อมูลเรียบร้อย', showConfirmButton: false, timer: 1500 });
+                    
+                    // 🟢 โหลดข้อมูลใหม่ทั้งหมดมาอัปเดตตาราง
+                    loadTableData('Events', (data) => {
+                        currentTableData = data;
+                        applyEventFilters(); 
+                    });
+                } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
+            }).catch(err => { Swal.fire('ผิดพลาด', 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้', 'error'); })
+            .finally(() => btn.disabled = false);
         }
-    })
-    .catch(err => {
-        Swal.fire('ผิดพลาด', 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้', 'error');
-    })
-    .finally(() => btn.disabled = false);
-}
         // ================= สิ้นสุด ฟังก์ชันจัดการ ปฏิทินกิจกรรม =================
     </script>
 </body>
