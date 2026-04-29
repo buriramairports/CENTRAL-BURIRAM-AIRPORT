@@ -2978,7 +2978,8 @@
             }
         }
     }
-
+    const now = new Date();
+    const formattedDate = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear() + 543} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')} น.`;
     const rData = {
         EventID: document.getElementById('evt_EventID').value,
         EventName: document.getElementById('evt_EventName').value,
@@ -2989,7 +2990,14 @@
         EventType: evtType,
         ParticipantType: participantType,
         Participants: participants,
-        IsActive: document.getElementById('evt_IsActive').value
+        // 🟢 เพิ่ม 2 บรรทัดนี้เข้าไปเพื่อให้ข้อมูลตรงกับคอลัมน์ใน Sheet
+        //CoverImage: "", // เนื่องจากใน Modal ยังไม่มีช่องให้อัปโหลดรูปภาพ จึงส่งเป็นค่าว่างไว้ก่อนครับ
+        
+        IsActive: document.getElementById('evt_IsActive').value,
+        
+        // 🟢 บันทึกวันเวลาปัจจุบันที่กด Save (ถ้าเป็นรายการใหม่) 
+        CreateDate: document.getElementById('evt_EventID').value === "" ? formattedDate : undefined 
+        // ใส่ undefined ไว้ตอนแก้ไข เพื่อให้ระบบหลังบ้านของคุณ (GAS) ไม่ทับค่า CreateDate เดิมของเก่า
     };
 
     // 🟢 เพิ่มเติม: แสดง Loading Alert ระหว่างรอเซฟข้อมูล
