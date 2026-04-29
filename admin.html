@@ -2341,9 +2341,15 @@
         let myPassengerChart; // ตัวแปรเก็บกราฟ เพื่อเอาไว้ลบทิ้งก่อนวาดใหม่
 
         function loadDashboardStats() {
-            // โชว์ Loading เล็กๆ ที่ปุ่ม
             const user = JSON.parse(localStorage.getItem('userData'));
             if(user) document.getElementById('adminDeptDisplay').innerText = user.department || 'ทั้งหมด';
+
+            // 1. เรียกใช้ป๊อปอัป Loading บล็อกหน้าจอไว้ก่อนดึงข้อมูล
+            Swal.fire({ 
+                title: 'กำลังโหลดข้อมูลสถิติ...', 
+                allowOutsideClick: false, 
+                didOpen: () => { Swal.showLoading(); } 
+            });
 
             fetch(`${API_URL}?action=getDashboardStats`)
                 .then(res => res.json())
@@ -2367,7 +2373,16 @@
 
                         // วาดกราฟเปรียบเทียบสถิติผู้โดยสาร
                         renderPassengerChart(data.passengers);
+
+                        // 2. ปิดป๊อปอัป Loading ทันทีเมื่อข้อมูลทุกอย่างพร้อมและวาดลงหน้าจอเสร็จแล้ว
+                        Swal.close();
+                    } else {
+                        Swal.fire('ผิดพลาด', 'ไม่สามารถดึงข้อมูลสถิติได้', 'error');
                     }
+                })
+                .catch(err => {
+                    console.error("Error Loading Dashboard:", err);
+                    Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'error');
                 });
         }
 
