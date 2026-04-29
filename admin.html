@@ -1609,25 +1609,55 @@
         }
 
         function deleteRecord(sheetName, idColumn, idValue) {
-            Swal.fire({ title: 'ยืนยันการลบ?', text: "หากลบแล้วจะไม่สามารถกู้คืนได้!", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ใช่, ลบทิ้ง!' }).then((result) => {
+            Swal.fire({ 
+                title: 'ยืนยันการลบ?', 
+                text: "หากลบแล้วจะไม่สามารถกู้คืนได้!", 
+                icon: 'warning', 
+                showCancelButton: true, 
+                confirmButtonColor: '#d33', 
+                confirmButtonText: 'ใช่, ลบทิ้ง!' 
+            }).then((result) => {
                 if (result.isConfirmed) {
                     Swal.fire({ title: 'กำลังลบ...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
                     const formData = new URLSearchParams({ action: 'deleteRecord', sheetName: sheetName, idColumn: idColumn, idValue: idValue });
-                    fetch(API_URL, { method: 'POST', body: formData }).then(res => res.json()).then(res => {
+                    
+                    fetch(API_URL, { method: 'POST', body: formData })
+                    .then(res => res.json())
+                    .then(res => {
                         if (res.status === 'success') {
                             Swal.fire({ icon: 'success', title: 'ลบสำเร็จ', showConfirmButton: false, timer: 1500 });
-                            const renderMap = { 'Banners': renderBannersTable, 'Departments': renderDeptsTable, 'EServices': renderEServicesTable, 'Airlines': renderAirlinesTable, 'NewsCategories': renderNewsCatsTable, 'PassengerStats': renderPassengerStatsTable, 'Users': renderUsersTable, 'FlightSchedules': renderFlightsTable };
                             
-                            // โหลดข้อมูลใหม่หลังจากลบ
+                            // โหลดข้อมูลใหม่จากชีท แล้ววาดตารางใหม่
                             loadTableData(sheetName, (data) => {
-                                currentTableData = data;
-                                if (sheetName === 'Events') applyEventFilters(); 
-                                else if (sheetName === 'News') applyNewsFilters();
-                                else if (sheetName === 'PassengerStats') filterStatsTable(); 
-                                else if (renderMap[sheetName]) renderMap[sheetName](data);
+                                currentTableData = data; // อัปเดตข้อมูลในระบบ
+                                
+                                // 🟢 เช็คว่าหน้าที่กำลังลบ มีระบบ Filter หรือไม่ ถ้ามีให้เรียกใช้ Filter แทน
+                                if (sheetName === 'Events') {
+                                    applyEventFilters(); 
+                                } else if (sheetName === 'News') {
+                                    applyNewsFilters(); // สำคัญมาก! สำหรับหน้าข่าว
+                                } else if (sheetName === 'PassengerStats') {
+                                    filterStatsTable();
+                                } else if (sheetName === 'Users') {
+                                    applyUserFilters();
+                                } else {
+                                    // สำหรับหน้าธรรมดาที่ไม่มี Filter
+                                    const renderMap = { 
+                                        'Banners': renderBannersTable, 
+                                        'Departments': renderDeptsTable, 
+                                        'EServices': renderEServicesTable, 
+                                        'Airlines': renderAirlinesTable, 
+                                        'NewsCategories': renderNewsCatsTable, 
+                                        'FlightSchedules': renderFlightsTable 
+                                    };
+                                    if (renderMap[sheetName]) renderMap[sheetName](data);
+                                }
                             });
+                        } else {
+                            Swal.fire('ผิดพลาด', res.message, 'error');
                         }
-                    });
+                    })
+                    .catch(() => Swal.fire('ผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'error'));
                 }
             });
         }
