@@ -748,9 +748,12 @@
                         
                         <div class="mb-3">
                             <label class="form-label fw-bold">กลุ่มงานที่รับผิดชอบ <span class="text-danger">*</span></label>
-                            <select class="form-select" id="ncat_Department" required>
-                                <option value="">กำลังโหลดข้อมูล...</option>
+                            <select class="form-select" id="ncat_Department" multiple size="4" required>
+                                <option value="ทั้งหมด">ทั้งหมด (ดูแลทุกกลุ่มงาน)</option>
                             </select>
+                            <div class="form-text text-primary mt-2">
+                                <i class="fa-solid fa-circle-info"></i> กดปุ่ม <b>Ctrl</b> (Windows) หรือ <b>Cmd</b> (Mac) ค้างไว้เพื่อคลิกเลือกหลายกลุ่มงาน
+                            </div>
                         </div>
                         
                         <div class="mb-3">
@@ -1265,7 +1268,7 @@
             fetch(`${API_URL}?action=getTableData&sheetName=Departments`).then(res => res.json()).then(res => {
                 if(res.status === 'success') {
                     const select = document.getElementById('ncat_Department');
-                    select.innerHTML = '<option value="">-- เลือกกลุ่มงาน --</option><option value="ทั้งหมด">ทั้งหมด (แสดงทุกกลุ่มงาน)</option>';
+                    select.innerHTML = '<option value="ทั้งหมด">ทั้งหมด (ดูแลทุกกลุ่มงาน)</option>';
                     res.data.sort((a,b) => a.OrderList - b.OrderList).forEach(dept => {
                         if(dept.IsActive === 'TRUE') select.innerHTML += `<option value="${dept.DeptName}">${dept.DeptName}</option>`;
                     });
@@ -1667,12 +1670,12 @@
             data.sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList)).forEach((item, index) => { 
                 let badge = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิดใช้งาน</span>' : '<span class="badge bg-secondary">ปิด</span>'; 
                 let layoutLabel = item.LayoutType === 'slider' ? '<i class="fa-solid fa-images text-primary"></i> สไลด์รูปภาพ' : item.LayoutType === 'slider-vertical' ? '<i class="fa-solid fa-grip-vertical text-info"></i> สไลด์แนวตั้ง' : '<i class="fa-solid fa-list text-secondary"></i> แบบรายการ (Text)'; 
+                let colorBadge = item.ThemeColor === 'transparent' ? `<span class="badge bg-secondary">ไม่มีสี (สไลด์)</span>` : `<span class="badge text-white" style="background-color:${item.ThemeColor};">${item.ThemeColor}</span>`; 
                 
-                // 🟢 แก้ไข: ถ้าสีเป็น transparent ให้โชว์คำว่า (ไม่มีสี)
-                let colorBadge = item.ThemeColor === 'transparent' 
-                    ? `<span class="badge bg-secondary">ไม่มีสี (สไลด์)</span>` 
-                    : `<span class="badge text-white" style="background-color:${item.ThemeColor};">${item.ThemeColor}</span>`; 
-                
+                // 🟢 แยกชื่อกลุ่มงานด้วยลูกน้ำ และทำเป็น Badge สวยๆ
+                let deptArray = item.Department ? item.Department.split(', ') : [];
+                let deptBadges = deptArray.map(d => `<span class="badge bg-light text-dark border border-secondary mb-1 me-1">${d}</span>`).join('');
+
                 let btnUp = index > 0 ? `<button class="btn btn-sm btn-light text-primary me-1" onclick="moveOrder('NewsCats', ${index}, -1, renderNewsCatsTable)"><i class="fa-solid fa-arrow-up"></i></button>` : `<button class="btn btn-sm btn-light me-1" style="visibility:hidden;"><i class="fa-solid fa-arrow-up"></i></button>`; 
                 let btnDown = index < data.length - 1 ? `<button class="btn btn-sm btn-light text-primary me-2" onclick="moveOrder('NewsCats', ${index}, 1, renderNewsCatsTable)"><i class="fa-solid fa-arrow-down"></i></button>` : `<button class="btn btn-sm btn-light me-2" style="visibility:hidden;"><i class="fa-solid fa-arrow-down"></i></button>`; 
                 
@@ -1680,7 +1683,7 @@
                     <tr>
                         <td class="fw-bold text-center h5 text-muted">${item.OrderList}</td>
                         <td><div class="fw-bold text-dark fs-6">${item.CategoryName || '-'}</div>${colorBadge}</td>
-                        <td>${item.Department}</td>
+                        <td>${deptBadges}</td>
                         <td>${layoutLabel}</td>
                         <td>${badge}</td>
                         <td class="text-center text-nowrap">
@@ -1692,29 +1695,50 @@
                 `; 
             }); 
         }
+
         function openNewsCatModal(id = '') { 
             document.getElementById('formNewsCat').reset(); document.getElementById('ncat_CategoryID').value = ''; 
+            let options = document.getElementById('ncat_Department').options;
+            for (let opt of options) opt.selected = false; // เคลียร์การเลือกทั้งหมด
+
             if (id) { 
                 const i = currentTableData.find(x => x.CategoryID === id); 
                 document.getElementById('ncat_CategoryID').value = i.CategoryID; 
                 document.getElementById('ncat_CategoryName').value = i.CategoryName; 
-                document.getElementById('ncat_Department').value = i.Department; 
                 document.getElementById('ncat_LayoutType').value = i.LayoutType; 
                 document.getElementById('ncat_ThemeColor').value = i.ThemeColor; 
                 document.getElementById('ncat_OrderList').value = i.OrderList; 
                 document.getElementById('ncat_IsActive').checked = (i.IsActive === 'TRUE'); 
+                
+                // 🟢 จัดการไฮไลท์กลุ่มงานหลายๆ ตัว (Multiple Select)
+                let depts = i.Department ? i.Department.split(', ') : [];
+                for (let opt of options) {
+                    opt.selected = depts.includes(opt.value);
+                }
             } 
             new bootstrap.Modal(document.getElementById('newsCatModal')).show(); 
         }
+
         function saveNewsCat(e) { 
-            e.preventDefault(); const btn = document.getElementById('btnSaveNewsCat'); btn.disabled = true; 
+            e.preventDefault(); const btn = document.getElementById('btnSaveNewsCat'); 
+            
+            // 🟢 ดึงค่ากลุ่มงานทั้งหมดที่ถูกเลือก มารวมกันด้วยลูกน้ำ
+            let selectedDepts = Array.from(document.getElementById('ncat_Department').selectedOptions).map(opt => opt.value).join(', ');
+            if(!selectedDepts) {
+                Swal.fire('แจ้งเตือน', 'กรุณาเลือกกลุ่มงานที่รับผิดชอบอย่างน้อย 1 กลุ่ม', 'warning');
+                return;
+            }
+
+            btn.disabled = true; 
             let ord = document.getElementById('ncat_OrderList').value; if (!document.getElementById('ncat_CategoryID').value) ord = currentTableData.length + 1; 
-            const rData = { CategoryID: document.getElementById('ncat_CategoryID').value, CategoryName: document.getElementById('ncat_CategoryName').value, Department: document.getElementById('ncat_Department').value, LayoutType: document.getElementById('ncat_LayoutType').value, ThemeColor: document.getElementById('ncat_ThemeColor').value, OrderList: ord, IsActive: document.getElementById('ncat_IsActive').checked ? 'TRUE' : 'FALSE' }; 
+            
+            const rData = { CategoryID: document.getElementById('ncat_CategoryID').value, CategoryName: document.getElementById('ncat_CategoryName').value, Department: selectedDepts, LayoutType: document.getElementById('ncat_LayoutType').value, ThemeColor: document.getElementById('ncat_ThemeColor').value, OrderList: ord, IsActive: document.getElementById('ncat_IsActive').checked ? 'TRUE' : 'FALSE' }; 
             fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'NewsCategories', idColumn: 'CategoryID', recordJSON: JSON.stringify(rData) }) })
             .then(res=>res.json()).then(res=>{ 
                 if (res.status === 'success') { bootstrap.Modal.getInstance(document.getElementById('newsCatModal')).hide(); Swal.fire({ icon: 'success', showConfirmButton: false, timer: 1500 }); loadTableData('NewsCategories', renderNewsCatsTable); } 
             }).finally(() => btn.disabled = false); 
         }
+
         function saveNewsCatOrder() { saveOrderAPI('NewsCategories', 'CategoryID'); }
         // ================= สิ้นสุด ฟังก์ชันจัดการ หมวดหมู่ข่าว =================
         
@@ -2057,7 +2081,9 @@
             
             allCategoriesData.forEach(cat => {
                 if (cat.IsActive === 'TRUE') {
-                    if (user.role === 'SuperAdmin' || cat.Department === user.department || cat.Department === 'ทั้งหมด') {
+                    // 🟢 เช็คว่าชื่อกลุ่มงานของ User คนนี้ มีอยู่ในรายชื่อที่หมวดหมู่นี้อนุญาตหรือไม่
+                    let allowedDepts = cat.Department ? cat.Department.split(', ') : [];
+                    if (user.role === 'SuperAdmin' || allowedDepts.includes(user.department) || allowedDepts.includes('ทั้งหมด')) {
                         select.innerHTML += `<option value="${cat.CategoryID}">${cat.CategoryName} (${cat.Department})</option>`;
                     }
                 }
@@ -2071,7 +2097,11 @@
             
             let allowedData = data;
             if (user.role === 'SubAdmin') {
-                let allowedCatIDs = allCategoriesData.filter(c => c.Department === user.department || c.Department === 'ทั้งหมด').map(c => c.CategoryID);
+                // 🟢 กรองหา ID หมวดหมู่ข่าวที่ SubAdmin คนนี้มีสิทธิ์มองเห็น
+                let allowedCatIDs = allCategoriesData.filter(c => {
+                    let catDepts = c.Department ? c.Department.split(', ') : [];
+                    return catDepts.includes(user.department) || catDepts.includes('ทั้งหมด');
+                }).map(c => c.CategoryID);
                 allowedData = data.filter(news => allowedCatIDs.includes(news.CategoryID));
             }
 
