@@ -519,6 +519,55 @@
                     <h4 class="fw-bold text-dark mb-0"><i class="fa-solid fa-newspaper me-2 text-primary"></i> จัดการข่าวสารและประชาสัมพันธ์</h4>
                     <button class="btn btn-success" onclick="openNewsModal()"><i class="fa-solid fa-plus me-1"></i> เขียนข่าวใหม่</button>
                 </div>
+                <!-- ========= เริ่มfilter ============= -->
+                <div class="card shadow-sm mb-4" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border: none;">
+  <div class="card-body">
+    <div class="row g-3">
+      <div class="col-md-4">
+        <label class="form-label fw-bold">ค้นหาข่าวสาร</label>
+        <div class="input-group">
+          <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+          <input type="text" id="searchInput" class="form-control border-start-0" placeholder="พิมพ์ชื่อข่าว หรือคำที่ต้องการ...">
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label fw-bold">หมวดข่าว</label>
+        <select id="categoryFilter" class="form-select">
+          <option value="">ทั้งหมดทุกหมวด</option>
+          <option value="กิจกรรม">กิจกรรม</option>
+          <option value="ประชาสัมพันธ์">ประชาสัมพันธ์</option>
+          <option value="ประกาศ">ประกาศ</option>
+        </select>
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label fw-bold">กลุ่มงาน</label>
+        <select id="departmentFilter" class="form-select">
+          <option value="">ทุกกลุ่มงาน</option>
+          <option value="ฝ่ายอำนวยการ">ฝ่ายอำนวยการ</option>
+          <option value="ฝ่ายปฏิบัติการ">ฝ่ายปฏิบัติการ</option>
+          <option value="ฝ่ายวิศวกรรม">ฝ่ายวิศวกรรม</option>
+        </select>
+      </div>
+
+      <div class="col-md-2">
+        <label class="form-label fw-bold">แสดงหน้าละ</label>
+        <select id="pageSize" class="form-select">
+          <option value="10">10 แถว</option>
+          <option value="20">20 แถว</option>
+          <option value="50">50 แถว</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+          <nav class="d-flex justify-content-between align-items-center mt-3">
+  <div id="pageInfo" class="text-muted small">แสดง 0 ถึง 0 จากทั้งหมด 0 รายการ</div>
+  <ul class="pagination pagination-sm mb-0" id="paginationControls">
+    </ul>
+</nav>      
+                <!-- ========= สิ้นสุด filter ============= -->
                 <div class="card card-custom">
                     <div class="card-body p-0 table-responsive">
                         <table class="table table-hover align-middle mb-0">
