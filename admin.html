@@ -504,7 +504,7 @@
         }
         // ================= สิ้นสุด ทำงานเมื่อโหลดหน้าเว็บ =================
 
-        // ================= เริ่มต้นฟังก์ชัน ระบบนำทาง (Switch View) =================
+       // ================= เริ่มต้นฟังก์ชัน ระบบนำทาง (Switch View) =================
         function switchView(viewId, clickedMenuElement) {
             try {
                 document.querySelectorAll('.admin-view').forEach(view => view.style.display = 'none');
@@ -512,12 +512,10 @@
                 const targetView = document.getElementById('view-' + viewId);
                 if(targetView) targetView.style.display = 'block';
 
-                // 🟢 แก้ไขเรื่องแถบเมนูด้านซ้ายหายเวลาโหลดข้อมูลใหม่
                 document.querySelectorAll('.sidebar-menu a').forEach(menu => menu.classList.remove('active'));
                 let targetMenu = clickedMenuElement;
                 if (!targetMenu) {
                     if (viewId === 'dashboard') {
-                        // ปรับการค้นหาให้ปลอดภัย ไม่พังเพราะเครื่องหมาย Quote
                         targetMenu = document.querySelector('.sidebar-menu a[onclick*="dashboard"]');
                     } else {
                         let liElement = document.getElementById('menu_' + viewId);
@@ -528,17 +526,16 @@
 
                 Swal.fire({ title: 'กำลังโหลดข้อมูล...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
-                // ฟังก์ชันจัดการ Error รวมศูนย์ (ป้องกันหน้าจอโหลดค้าง)
+                // 🟢 [แก้ไข] เปลี่ยนให้แสดง Error จริงบนหน้าจอ เพื่อให้รู้ว่าเกิดจากอะไร
                 const handleError = (err) => {
-                    console.error("Fetch Error:", err);
-                    Swal.fire('ข้อผิดพลาด', 'ไม่สามารถดึงข้อมูลได้ โปรดตรวจสอบการเชื่อมต่ออินเทอร์เน็ต', 'error');
+                    console.error("System Error:", err);
+                    Swal.fire('ตรวจพบข้อผิดพลาด', err.message || 'โปรดตรวจสอบข้อมูลใน Google Sheet ว่าถูกต้องหรือไม่', 'error');
                 };
 
-                // เรียกข้อมูล API พร้อมใส่ .catch() ดักทุกบรรทัด
                 if (viewId === 'dashboard') {
                     fetch(`${API_URL}?action=getDashboardStats`).then(res => res.json()).then(res => {
                         if (res.status === 'success') { renderDashboard(res.data); Swal.close(); }
-                        else { Swal.fire('ผิดพลาด', 'โหลดสถิติไม่ได้: ' + res.message, 'error'); }
+                        else { throw new Error('โหลดสถิติไม่ได้: ' + res.message); }
                     }).catch(handleError);
                 }
                 else if (viewId === 'settings') {
@@ -553,7 +550,7 @@
                             document.getElementById('set_BannerEffect').value = data.BannerEffect || 'fade'; 
                             document.getElementById('set_MaintenanceMode').checked = (data.MaintenanceMode === 'TRUE'); 
                             Swal.close(); 
-                        } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
+                        } else throw new Error(res.message);
                     }).catch(handleError);
                 }
                 else if (viewId === 'banners') {
@@ -646,18 +643,24 @@
                         fetch(`${API_URL}?action=getTableData&sheetName=Events`).then(res=>res.json()), 
                         fetch(`${API_URL}?action=getTableData&sheetName=Users`).then(res=>res.json()) 
                     ]).then(([eventsRes, usersRes]) => {
-                        if(eventsRes.status === 'success' && usersRes.status === 'success') {
+                        if(eventsRes.status === 'error') throw new Error("ตาราง Events: " + eventsRes.message);
+                        if(usersRes.status === 'error') throw new Error("ตาราง Users: " + usersRes.message);
+
+                        try {
                             currentTableData = eventsRes.data || [];
                             allUsersDataForEvents = usersRes.data || [];
                             initEventFilterDropdown();
                             applyEventFilters();  
                             Swal.close(); 
-                        } else throw new Error("Data load failed");
+                        } catch (renderErr) {
+                            console.error(renderErr);
+                            throw new Error("โครงสร้างข้อมูลในตารางปฏิทินไม่ถูกต้อง: " + renderErr.message);
+                        }
                     }).catch(handleError);
                 }
             } catch (error) {
                 console.error("Critical error in switchView:", error);
-                Swal.fire('ข้อผิดพลาดร้ายแรง', 'เกิดข้อผิดพลาดในการโหลดหน้าเว็บ โปรดรีเฟรช', 'error');
+                Swal.fire('ระบบขัดข้อง', 'โปรดรีเฟรชหน้าต่างใหม่', 'error');
             }
         }
         // ================= สิ้นสุดฟังก์ชัน ระบบนำทาง (Switch View) =================
@@ -1936,7 +1939,7 @@
             uniqueDepts.sort().forEach(dept => { deptFilter.innerHTML += `<option value="${dept}">${dept}</option>`; });
         }
 
-        // ================= เริ่มต้นฟังก์ชัน ตัวกรองและเรียงลำดับปฏิทินกิจกรรม =================
+       // ================= เริ่มต้นฟังก์ชัน ตัวกรองและเรียงลำดับปฏิทินกิจกรรม =================
         function applyEventFilters() {
             const searchTxt = document.getElementById('filter_EventSearch').value.toLowerCase();
             const deptVal = document.getElementById('filter_EventDept').value;
@@ -1948,19 +1951,19 @@
                 if (typeVal && evt.EventType !== typeVal) return false;
                 if (searchTxt) {
                     let searchMatch = false;
-                    if (evt.EventName && evt.EventName.toLowerCase().includes(searchTxt)) searchMatch = true;
-                    if (evt.EventLocation && evt.EventLocation.toLowerCase().includes(searchTxt)) searchMatch = true;
-                    if (evt.EventDept && evt.EventDept.toLowerCase().includes(searchTxt)) searchMatch = true;
+                    // 🟢 [ป้องกันบั๊ก] ใส่ String() ครอบเสมอ เผื่อข้อมูลใน Google Sheet ถูกพิมพ์เป็นตัวเลขล้วน
+                    if (evt.EventName && String(evt.EventName).toLowerCase().includes(searchTxt)) searchMatch = true;
+                    if (evt.EventLocation && String(evt.EventLocation).toLowerCase().includes(searchTxt)) searchMatch = true;
+                    if (evt.EventDept && String(evt.EventDept).toLowerCase().includes(searchTxt)) searchMatch = true;
                     if (!searchMatch) return false;
                 }
                 return true;
             });
 
-            // 🟢 ป้องกันบั๊กเวลาเรียงลำดับ แล้วมีข้อมูลวันที่แบบแปลกๆ โผล่มา
             filteredEventData.sort((a, b) => {
                 let dateA = new Date(a.EventDate).getTime(); 
                 let dateB = new Date(b.EventDate).getTime();
-                if (isNaN(dateA)) dateA = 0; // ป้องกัน NaN ทำให้ Sort พัง
+                if (isNaN(dateA)) dateA = 0; 
                 if (isNaN(dateB)) dateB = 0;
                 return sortVal === 'date_desc' ? dateB - dateA : dateA - dateB;
             });
@@ -1979,6 +1982,7 @@
             let nextClass = currentEventPage === totalPages ? 'disabled' : ''; ul.innerHTML += `<li class="page-item ${nextClass}"><a class="page-link" href="#" onclick="changeEventPage(${currentEventPage + 1})"><i class="fa-solid fa-chevron-right"></i></a></li>`;
         }
 
+        // ================= เริ่มต้นฟังก์ชัน วาดตารางปฏิทินกิจกรรม =================
         function renderEventsTable() {
             const tbody = document.getElementById('tbody-events'); tbody.innerHTML = '';
             const pageSize = parseInt(document.getElementById('filter_EventPageSize').value);
@@ -2006,8 +2010,10 @@
                 let participantHtml = '';
                 if (item.EventType === 'internal') {
                     if (item.ParticipantType === 'users') {
-                        let count = item.Participants ? item.Participants.split(',').length : 0;
-                        let safeIds = item.Participants ? item.Participants.replace(/'/g, "\\'") : '';
+                        // 🟢 [ป้องกันบั๊ก] บังคับแปลงเป็น String ก่อนใช้คำสั่ง split หรือ replace
+                        let safeParticipants = String(item.Participants || '');
+                        let count = safeParticipants ? safeParticipants.split(',').length : 0;
+                        let safeIds = safeParticipants ? safeParticipants.replace(/'/g, "\\'") : '';
                         participantHtml = `<button class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1" onclick="openParticipantsList('${safeIds}')"><i class="fa-solid fa-user-check me-1"></i> เฉพาะบุคคล (${count} คน)</button>`;
                     } else { participantHtml = `<div class="text-secondary small fw-bold"><i class="fa-solid fa-users me-1"></i> ${item.Participants || '-'}</div>`; }
                 } else { participantHtml = `<span class="text-muted small">ประชาชนทั่วไป (หน้าเว็บ)</span>`; }
@@ -2028,6 +2034,7 @@
             });
             renderEventPagination(totalPages);
         }
+        // ================= สิ้นสุดฟังก์ชัน วาดตารางปฏิทินกิจกรรม =================
 
         function openParticipantsList(participantsString) {
             const listContainer = document.getElementById('participantsListContainer'); listContainer.innerHTML = '';
