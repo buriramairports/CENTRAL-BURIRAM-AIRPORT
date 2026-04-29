@@ -109,13 +109,14 @@
 
                 <!-- 🟢 แถวที่ 1: สถิติหลัก (4 กล่องใหญ่) -->
                 <div class="row g-4 mb-4">
-                    <div class="col-md-4"><div class="stat-card" style="border-left-color: #8b5cf6;"><div class="icon" style="background: #ede9fe; color: #8b5cf6;"><i class="fa-solid fa-plane-up"></i></div><div><h3 class="fw-bold mb-0 text-dark" id="dash_totalFlights">0</h3><div class="text-muted small">ตารางเที่ยวบินที่เปิดใช้</div></div></div></div>
-                    <div class="col-md-4"><div class="stat-card" style="border-left-color: #f59e0b;"><div class="icon" style="background: #fef3c7; color: #f59e0b;"><i class="fa-solid fa-laptop-code"></i></div><div><h3 class="fw-bold mb-0 text-dark" id="dash_totalEServices">0</h3><div class="text-muted small">E-Services ในระบบ</div></div></div></div>
-                    <div class="col-md-4"><div class="stat-card" style="border-left-color: #ec4899;"><div class="icon" style="background: #fce7f3; color: #ec4899;"><i class="fa-regular fa-images"></i></div><div><h3 class="fw-bold mb-0 text-dark" id="dash_totalBanners">0</h3><div class="text-muted small">แบนเนอร์สไลด์</div></div></div></div>
+                    <div class="col-md-3"><div class="stat-card" style="border-left-color: #8b5cf6;"><div class="icon" style="background: #ede9fe; color: #8b5cf6;"><i class="fa-solid fa-plane-up"></i></div><div><h3 class="fw-bold mb-0 text-dark" id="dash_totalFlights">0</h3><div class="text-muted small">ตารางเที่ยวบินที่เปิดใช้</div></div></div></div>
+                    <div class="col-md-3"><div class="stat-card" style="border-left-color: #f59e0b;"><div class="icon" style="background: #fef3c7; color: #f59e0b;"><i class="fa-solid fa-laptop-code"></i></div><div><h3 class="fw-bold mb-0 text-dark" id="dash_totalEServices">0</h3><div class="text-muted small">E-Services ในระบบ</div></div></div></div>
+                    <div class="col-md-3"><div class="stat-card" style="border-left-color: #ec4899;"><div class="icon" style="background: #fce7f3; color: #ec4899;"><i class="fa-regular fa-images"></i></div><div><h3 class="fw-bold mb-0 text-dark" id="dash_totalBanners">0</h3><div class="text-muted small">แบนเนอร์สไลด์</div></div></div></div>
+                    <div class="col-md-3"><div class="stat-card" style="border-left-color: #06b6d4;"><div class="icon" style="background: #cffafe; color: #06b6d4;"><i class="fa-solid fa-plane-circle-check"></i></div><div><h3 class="fw-bold mb-0 text-dark" id="dash_totalAirlines">0</h3><div class="text-muted small">สายการบินในระบบ</div></div></div></div>
                 </div>
 
                 <!-- 🟢 แถวที่ 2: กราฟ และ สถิติย่อย -->
-                <div class="row g-4">
+                <div class="row g-4 mb-4">
                     <!-- กราฟเปรียบเทียบสถิติผู้โดยสาร -->
                     <div class="col-lg-8">
                         <div class="card card-custom h-100">
@@ -126,54 +127,53 @@
                         </div>
                     </div>
 
-                    <!-- สถิติข่าวสาร -->
-                    <div class="col-lg-4">
-                        
-                        <div class="card card-custom mb-4" style="border-top: 5px solid #3b82f6;">
-                            <div class="card-body p-4">
-                                <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-newspaper text-primary me-2"></i> สถิติข่าวสาร (News)</h6>
-                                <h2 class="display-6 fw-bold text-center text-primary mb-4" id="dash_newsTotalCard">0 <span class="fs-6 fw-normal text-muted">เรื่อง</span></h2>
-                                <div id="dash_newsBreakdownList" style="max-height: 250px; overflow-y: auto; padding-right: 5px;">
-                                    <div class="text-center text-muted py-3">กำลังโหลดข้อมูล...</div>
-                                </div>
-                            </div>
-                        </div>
-                    
+                   
+                                            
                     <!-- สถิติผู้ใช้งาน และ ข้อมูลอื่นๆ -->
-                    
-                        <div class="card card-custom mb-4" style="border-top: 5px solid #22c55e;">
+                    <div class="col-lg-4">
+                        <div class="card card-custom h-100" style="border-top: 5px solid #22c55e;">
                             <div class="card-body p-4">
                                 <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-users text-success me-2"></i> สถิติผู้ใช้งาน (Users)</h6>
                                 <h2 class="display-6 fw-bold text-center text-success mb-4" id="dash_usersTotal">0 <span class="fs-6 fw-normal text-muted">บัญชี</span></h2>
                                 
-                                <div class="d-flex justify-content-between mb-2 pb-2 border-bottom">
+                                <div class="d-flex justify-content-between mb-3 pb-2 border-bottom">
                                     <span class="text-muted"><i class="fa-solid fa-user-shield text-danger me-2"></i> SuperAdmin</span>
-                                    <span class="fw-bold" id="dash_usersSuper">0</span>
+                                    <span class="fw-bold fs-5" id="dash_usersSuper">0</span>
                                 </div>
-                                <div class="d-flex justify-content-between mb-2 pb-2 border-bottom">
+                                <div class="d-flex justify-content-between mb-3 pb-2 border-bottom">
                                     <span class="text-muted"><i class="fa-solid fa-user-gear text-warning me-2"></i> SubAdmin</span>
-                                    <span class="fw-bold" id="dash_usersSub">0</span>
+                                    <span class="fw-bold fs-5" id="dash_usersSub">0</span>
                                 </div>
-                                <div class="d-flex justify-content-between mb-2 pb-2 border-bottom">
+                                <div class="d-flex justify-content-between mb-3 pb-2 border-bottom">
                                     <span class="text-muted"><i class="fa-solid fa-id-badge text-info me-2"></i> Staff (เจ้าหน้าที่)</span>
-                                    <span class="fw-bold" id="dash_usersStaff">0</span>
+                                    <span class="fw-bold fs-5" id="dash_usersStaff">0</span>
                                 </div>
                                 <div class="d-flex justify-content-between">
                                     <span class="text-muted"><i class="fa-solid fa-user text-secondary me-2"></i> User (ประชาชน)</span>
-                                    <span class="fw-bold" id="dash_usersNormal">0</span>
+                                    <span class="fw-bold fs-5" id="dash_usersNormal">0</span>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+                        <!-- สถิติข่าวสาร -->
+                        <div class="row g-4 mb-4">
+                    <div class="col-12">
+                        <div class="card card-custom" style="border-top: 5px solid #3b82f6;">
+                            <div class="card-body p-4">
+                                <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                                    <h5 class="fw-bold text-dark mb-0"><i class="fa-solid fa-newspaper text-primary me-2"></i> สถิติข่าวสารและประชาสัมพันธ์</h5>
+                                    <h3 class="fw-bold text-primary mb-0" id="dash_newsTotalRow3">0 <span class="fs-6 fw-normal text-muted">เรื่องทั้งหมด</span></h3>
+                                </div>
+                                <div class="row g-4" id="dash_newsByDeptContainer">
+                                    <div class="col-12 text-center text-muted py-3">กำลังโหลดข้อมูล...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                        <div class="card card-custom" style="border-top: 5px solid #06b6d4;">
-                            <div class="card-body p-3 d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="fw-bold text-dark mb-1"><i class="fa-solid fa-plane-circle-check text-info me-2"></i> สายการบิน</h6>
-                                    <div class="text-muted small">ที่ลงทะเบียนในระบบ</div>
-                                </div>
-                                <h3 class="fw-bold mb-0 text-info" id="dash_totalAirlines">0</h3>
-                            </div>
-                        </div>
+                        
                     </div>
                 </div>
             </div>
@@ -2368,43 +2368,71 @@
                     if (res.status === 'success') {
                         const data = res.data;
                         
-                        // หยอดตัวเลขลงกล่องสถิติด้านบน
+                        // 🟢 แถวที่ 1: หยอดตัวเลขลงกล่องสถิติ
                         document.getElementById('dash_totalFlights').innerText = data.totalFlights;
                         document.getElementById('dash_totalEServices').innerText = data.totalEServices;
                         document.getElementById('dash_totalBanners').innerText = data.totalBanners;
                         document.getElementById('dash_totalAirlines').innerText = data.totalAirlines;
 
-                        // หยอดตัวเลขผู้ใช้
+                        // 🟢 แถวที่ 2: หยอดตัวเลขผู้ใช้ และ วาดกราฟ
                         document.getElementById('dash_usersTotal').innerHTML = `${data.users.Total} <span class="fs-6 fw-normal text-muted">บัญชี</span>`;
                         document.getElementById('dash_usersSuper').innerText = data.users.SuperAdmin;
                         document.getElementById('dash_usersSub').innerText = data.users.SubAdmin;
                         document.getElementById('dash_usersStaff').innerText = data.users.Staff;
                         document.getElementById('dash_usersNormal').innerText = data.users.User;
-
-                        // วาดกราฟเปรียบเทียบสถิติผู้โดยสาร
                         renderPassengerChart(data.passengers);
 
-                        // 🟢 จัดการส่วน Card ข่าวสาร (อัปเดตยอดรวม และ List หมวดหมู่)
-                        document.getElementById('dash_newsTotalCard').innerHTML = `${data.totalNews} <span class="fs-6 fw-normal text-muted">เรื่อง</span>`;
+                        // 🟢 แถวที่ 3: จัดการส่วน Card ข่าวสารเต็มหน้าจอ
+                        document.getElementById('dash_newsTotalRow3').innerHTML = `${data.totalNews} <span class="fs-6 fw-normal text-muted">เรื่องทั้งหมด</span>`;
                         
-                        const newsListContainer = document.getElementById('dash_newsBreakdownList');
-                        newsListContainer.innerHTML = '';
+                        const deptContainer = document.getElementById('dash_newsByDeptContainer');
+                        deptContainer.innerHTML = '';
                         
                         if(data.newsBreakdown && data.newsBreakdown.length > 0) {
+                            // 1. นำข้อมูลหมวดหมู่มาจัดกลุ่มตาม "กลุ่มงาน (Department)"
+                            let groupedByDept = {};
                             data.newsBreakdown.forEach(item => {
-                                let countClass = item.count > 0 ? "fw-bold text-dark" : "text-muted";
-                                newsListContainer.innerHTML += `
-                                    <div class="d-flex justify-content-between mb-3 pb-2 border-bottom">
-                                        <div>
-                                            <div class="text-secondary fw-bold" style="font-size: 0.95rem;">${item.name}</div>
-                                            <div class="text-muted mt-1" style="font-size: 0.75rem;"><i class="fa-solid fa-sitemap me-1"></i> ${item.dept}</div>
+                                let deptName = item.dept || 'ไม่ระบุกลุ่มงาน';
+                                if(!groupedByDept[deptName]) {
+                                    groupedByDept[deptName] = { total: 0, categories: [] };
+                                }
+                                groupedByDept[deptName].total += item.count;
+                                groupedByDept[deptName].categories.push(item);
+                            });
+
+                            // 2. สร้างการ์ดย่อยสำหรับแต่ละกลุ่มงาน วางเรียงกันไปทางขวา (col-md-6, col-lg)
+                            for (let dept in groupedByDept) {
+                                let deptData = groupedByDept[dept];
+                                
+                                // สร้างลิสต์หมวดหมู่ข่าวสารภายในกลุ่มงานนั้นๆ
+                                let catListHTML = '';
+                                deptData.categories.forEach(cat => {
+                                    let textClass = cat.count > 0 ? "fw-bold text-dark" : "text-muted";
+                                    catListHTML += `
+                                        <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom" style="border-color: #e2e8f0 !important;">
+                                            <span class="text-secondary small text-truncate pe-2" title="${cat.name}"><i class="fa-solid fa-caret-right text-primary me-1"></i> ${cat.name}</span>
+                                            <span class="${textClass}">${cat.count}</span>
                                         </div>
-                                        <span class="${countClass} fs-5 align-self-center">${item.count}</span>
+                                    `;
+                                });
+
+                                // col ทั่วไปจะแบ่งความกว้างอัตโนมัติ (ขยายตามจำนวนแผนก) แต่ถ้ามีหลายแผนกจะปัดลงบรรทัดใหม่สวยๆ
+                                deptContainer.innerHTML += `
+                                    <div class="col-md-6 col-xl">
+                                        <div class="p-3 bg-light rounded border h-100 shadow-sm">
+                                            <div class="d-flex justify-content-between align-items-start mb-3 pb-2 border-bottom border-secondary border-opacity-25">
+                                                <h6 class="fw-bold text-dark mb-0 lh-base"><i class="fa-solid fa-sitemap text-muted me-1"></i> ${dept}</h6>
+                                                <span class="badge bg-primary rounded-pill px-2 py-1 ms-2" style="font-size: 0.8rem;">${deptData.total} เรื่อง</span>
+                                            </div>
+                                            <div class="mt-2">
+                                                ${catListHTML}
+                                            </div>
+                                        </div>
                                     </div>
                                 `;
-                            });
+                            }
                         } else {
-                            newsListContainer.innerHTML = '<div class="text-center text-muted small py-3">ยังไม่มีหมวดหมู่ข่าวสารในระบบ</div>';
+                            deptContainer.innerHTML = '<div class="col-12 text-center text-muted py-4"><i class="fa-regular fa-folder-open fa-2x mb-2 text-light"></i><br>ยังไม่มีข่าวสารในระบบ</div>';
                         }
 
                         // ปิด Loading
