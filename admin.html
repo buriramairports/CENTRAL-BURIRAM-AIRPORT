@@ -1448,7 +1448,7 @@
                     Swal.fire({ title: 'กำลังลบ...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
                     const formData = new URLSearchParams({ action: 'deleteRecord', sheetName: sheetName, idColumn: idColumn, idValue: idValue });
                     fetch(API_URL, { method: 'POST', body: formData }).then(res => res.json()).then(res => {
-                        if (res.status === 'success') {
+                      /*  if (res.status === 'success') {
                             Swal.fire({ icon: 'success', title: 'ลบสำเร็จ', showConfirmButton: false, timer: 1500 });
                             if(sheetName === 'Banners') loadTableData('Banners', renderBannersTable);
                             if(sheetName === 'Departments') loadTableData('Departments', renderDeptsTable);
@@ -1459,7 +1459,30 @@
                             if(sheetName === 'Users') loadTableData('Users', renderUsersTable);
                             if(sheetName === 'FlightSchedules') loadTableData('FlightSchedules', renderFlightsTable);
                             if(sheetName === 'News') loadTableData('News', renderNewsTable);
+                            if(sheetName === 'Events') loadTableData('Events', renderEventsTable);
+                        }*/
+                        if (res.status === 'success') {
+                        Swal.fire({ icon: 'success', title: 'ลบสำเร็จ', showConfirmButton: false, timer: 1500 });
+
+                        // สร้างคู่มือว่า Sheet ไหน ต้องใช้ฟังก์ชัน Render ตัวไหน
+                        const renderMap = {
+                            'Banners': renderBannersTable,
+                            'Departments': renderDeptsTable,
+                            'EServices': renderEServicesTable,
+                            'Airlines': renderAirlinesTable,
+                            'NewsCategories': renderNewsCatsTable,
+                            'PassengerStats': renderPassengerStatsTable,
+                            'Users': renderUsersTable,
+                            'FlightSchedules': renderFlightsTable,
+                            'News': renderNewsTable,
+                            'Events': renderEventsTable 
+                        };
+
+                    // ถ้าชื่อ sheet ตรงกับที่มีในคู่มือ ก็สั่งโหลดข้อมูลใหม่ทันที
+                        if (renderMap[sheetName]) {
+                            loadTableData(sheetName, renderMap[sheetName]);
                         }
+                    }
                     });
                 }
             });
