@@ -1196,19 +1196,32 @@
                                     </div>
 
                                     <div id="div_ptype_users" style="display: none;">
-                                        <div class="row g-2 mb-2">
-                                            <div class="col-md-4">
-                                                <select class="form-select form-select-sm" id="evt_UserFilter" onchange="filterUsersList()">
-                                                    <option value="">-- กรองตามตำแหน่ง/กลุ่มงาน --</option>
-                                                </select>
+                                        <div class="card shadow-sm border-0 mt-2">
+                                            <div class="card-body p-2">
+                                                <div class="input-group mb-2">
+                                                    <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+                                                    <input type="text" class="form-control border-start-0 ps-0" id="searchStaffInput" placeholder="พิมพ์ค้นหา ชื่อ-นามสกุล หรือ กลุ่มงาน...">
+                                                </div>
+
+                                                <div class="border rounded mb-2" style="max-height: 180px; overflow-y: auto; background-color: #fcfcfc;">
+                                                    <div class="list-group list-group-flush" id="availableStaffList">
+                                                        </div>
+                                                </div>
+
+                                                <div class="p-2 border rounded" style="background-color: #f8fafc; min-height: 60px;">
+                                                    <div class="mb-1 fw-bold text-secondary text-uppercase" style="font-size: 0.75rem;">
+                                                        รายชื่อที่เลือกแล้ว (<span id="selectedCount">0</span>)
+                                                    </div>
+                                                    <div id="selectedStaffArea">
+                                                        <span class="text-muted small" id="emptyStateText">ยังไม่มีการเลือกผู้เข้าร่วม</span>
+                                                    </div>
+                                                </div>
+                                                
+                                                <input type="hidden" name="selected_staff_ids" id="selectedStaffIds" value="">
                                             </div>
                                         </div>
-                                        <select class="form-select" id="evt_ParticipantsUsers" multiple size="5">
-                                            <option value="">กำลังโหลดรายชื่อเจ้าหน้าที่...</option>
-                                        </select>
-                                        <div class="form-text"><i class="fa-solid fa-circle-info"></i> กด Ctrl (Windows) หรือ Cmd (Mac) ค้างไว้เพื่อเลือกหลายคน</div>
                                     </div>
-                                </div>
+                                    </div>
 
                                 <div class="mb-3">
                                     <label class="form-label fw-bold">สถานะ <span class="text-danger">*</span></label>
@@ -2686,8 +2699,7 @@
 
         // =======================สิ้นสุด ฟังก์ชันจัดการ Dashboard =================
         // ================= เริ่มต้น ฟังก์ชันจัดการ ปฏิทินกิจกรรม (Events) =================
-        let allUsersForEvents = []; // เก็บรายชื่อผู้ใช้ทั้งหมดไว้กรอง
-
+        
         function renderEventsTable(data) {
             const tbody = document.getElementById('tbody-events');
             tbody.innerHTML = '';
@@ -2729,12 +2741,15 @@
             document.getElementById('evt_EventID').value = '';
             document.getElementById('eventModalTitle').innerHTML = '<i class="fa-regular fa-calendar-plus me-2"></i> เพิ่มกิจกรรมใหม่';
             
+            // รีเซ็ตค่าการค้นหาและการเลือกพนักงาน
+            selectedStaffIds = []; 
+            document.getElementById('searchStaffInput').value = '';
+            
             // รีเซ็ตการแสดงผล
             toggleEventInternalView();
             toggleParticipantInput();
 
-            // โหลดรายชื่อผู้ใช้งานมารอไว้สำหรับเลือกเข้าร่วม
-            loadUsersForEventDropdown();
+            let existingUsersStr = ''; // ตัวแปรเก็บรายชื่อเดิมกรณีแก้ไข
 
             if (id) {
                 document.getElementById('eventModalTitle').innerHTML = '<i class="fa-regular fa-calendar-check me-2"></i> แก้ไขกิจกรรม';
@@ -2758,8 +2773,8 @@
                     if(i.EventType === 'internal') {
                         if(i.ParticipantType === 'users') {
                             document.getElementById('ptype_users').checked = true;
-                            // ข้อมูลเก่าที่เลือกรายบุคคล จะเซ็ตในฟังก์ชัน loadUsersForEventDropdown ทันทีที่โหลดเสร็จ
-                            setTimeout(() => { setUsersSelected(i.Participants); }, 800);
+                            // 🟢 เก็บรายชื่อเดิมเอาไว้ส่งให้ฟังก์ชัน loadStaffDataForChips 
+                            existingUsersStr = i.Participants || ''; 
                         } else {
                             document.getElementById('ptype_group').checked = true;
                             document.getElementById('evt_ParticipantsText').value = i.Participants || '';
@@ -2769,6 +2784,10 @@
                     toggleParticipantInput();
                 }
             }
+
+            // โหลดรายชื่อผู้ใช้งานมารอไว้สำหรับเลือกเข้าร่วม (ส่ง existingUsersStr ไปด้วยถ้าเป็นการแก้ไข)
+            loadStaffDataForChips(existingUsersStr);
+            
             new bootstrap.Modal(document.getElementById('eventModal')).show();
         }
 
@@ -2789,46 +2808,128 @@
             document.getElementById('div_ptype_users').style.display = isGroup ? 'none' : 'block';
         }
 
-        // โหลดข้อมูลรายชื่อเจ้าหน้าที่จากชีท Users
-        function loadUsersForEventDropdown() {
+        // ================= เริ่มต้น ชุดฟังก์ชันจัดการเลือกผู้เข้าร่วมแบบใหม่ (Chips UI) =================
+        let staffData = []; 
+        let selectedStaffIds = [];
+
+        // ฟังก์ชันโหลดข้อมูล และรับพารามิเตอร์ existingStr เพื่อเซ็ตค่ากรณี "แก้ไขกิจกรรม"
+        function loadStaffDataForChips(existingStr = '') {
+            document.getElementById('availableStaffList').innerHTML = '<div class="text-center p-3 text-muted"><i class="fas fa-spinner fa-spin me-2"></i>กำลังโหลดรายชื่อ...</div>';
+
             fetch(`${API_URL}?action=getTableData&sheetName=Users`)
             .then(res => res.json())
             .then(res => {
                 if(res.status === 'success') {
-                    allUsersForEvents = res.data.filter(u => u.IsActive === 'TRUE'); // เก็บเฉพาะคนที่ Active
+                    let activeUsers = res.data.filter(u => u.Status === 'Active');
                     
-                    // สกัดเอาชื่อตำแหน่ง/กลุ่มงาน ออกมาทำ Filter
-                    let depts = [...new Set(allUsersForEvents.map(item => item.Department))].filter(Boolean);
-                    let filterSelect = document.getElementById('evt_UserFilter');
-                    filterSelect.innerHTML = '<option value="">-- กรองทั้งหมด --</option>';
-                    depts.forEach(d => {
-                        filterSelect.innerHTML += `<option value="${d}">${d}</option>`;
+                    staffData = activeUsers.map(u => {
+                        let fullName = `${u.FirstName} ${u.LastName}`;
+                        return {
+                            id: fullName, 
+                            name: fullName,
+                            position: u.Department || 'ไม่ระบุ',
+                            group: u.Department || 'ไม่ระบุสังกัด'
+                        };
                     });
 
-                    renderUsersOptions(allUsersForEvents);
+                    // 🟢 ถ้ามีรายชื่อเดิมที่บันทึกไว้ (กรณีแก้ไข) ให้จับแยกมาใส่ array ที่เลือกไว้
+                    if(existingStr) {
+                        selectedStaffIds = existingStr.split(',').map(name => name.trim()).filter(name => name !== '');
+                    }
+
+                    renderAvailableStaff();
+                    renderSelectedStaff();
+                }
+            })
+            .catch(err => {
+                document.getElementById('availableStaffList').innerHTML = '<div class="text-center p-3 text-danger">เกิดข้อผิดพลาดในการดึงข้อมูล</div>';
+            });
+        }
+
+        function renderAvailableStaff(filterText = "") {
+            const listContainer = document.getElementById('availableStaffList');
+            listContainer.innerHTML = "";
+            const text = filterText.toLowerCase();
+
+            staffData.forEach(staff => {
+                if (staff.name.toLowerCase().includes(text) || 
+                    staff.position.toLowerCase().includes(text) || 
+                    staff.group.toLowerCase().includes(text)) {
+                    
+                    const isSelected = selectedStaffIds.includes(staff.id);
+                    const div = document.createElement('div');
+                    div.className = `list-group-item staff-item ${isSelected ? 'selected' : ''}`;
+                    div.onclick = () => selectStaff(staff.id);
+                    
+                    div.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="fw-bold text-dark">${staff.name}</div>
+                                <small class="text-muted"><i class="fas fa-briefcase me-1"></i>${staff.position} | <i class="fas fa-users me-1"></i>${staff.group}</small>
+                            </div>
+                            ${isSelected ? '<i class="fas fa-check-circle text-success"></i>' : '<i class="fas fa-plus-circle text-muted" style="opacity:0.3;"></i>'}
+                        </div>
+                    `;
+                    listContainer.appendChild(div);
                 }
             });
-        }
 
-        // วาดตัวเลือกบุคลากร
-        function renderUsersOptions(usersList) {
-            const select = document.getElementById('evt_ParticipantsUsers');
-            select.innerHTML = '';
-            usersList.forEach(u => {
-                select.innerHTML += `<option value="${u.Name}">${u.Name} (${u.Department})</option>`;
-            });
-        }
-
-        // กรองคนตามตำแหน่ง
-        function filterUsersList() {
-            const filterVal = document.getElementById('evt_UserFilter').value;
-            if(!filterVal) {
-                renderUsersOptions(allUsersForEvents);
-            } else {
-                const filtered = allUsersForEvents.filter(u => u.Department === filterVal);
-                renderUsersOptions(filtered);
+            if(listContainer.innerHTML === "") {
+                listContainer.innerHTML = '<div class="text-center p-3 text-muted">ไม่พบรายชื่อที่ค้นหา</div>';
             }
         }
+
+        function renderSelectedStaff() {
+            const area = document.getElementById('selectedStaffArea');
+            const emptyText = document.getElementById('emptyStateText');
+            const countSpan = document.getElementById('selectedCount');
+            const hiddenInput = document.getElementById('selectedStaffIds');
+            
+            area.innerHTML = "";
+            countSpan.innerText = selectedStaffIds.length;
+            hiddenInput.value = selectedStaffIds.join(','); // ซ่อนค่าไว้ส่งแบบฟอร์ม
+
+            if (selectedStaffIds.length === 0) {
+                area.appendChild(emptyText);
+                emptyText.style.display = "block";
+            } else {
+                emptyText.style.display = "none";
+                selectedStaffIds.forEach(id => {
+                    const staff = staffData.find(s => s.id === id);
+                    if(staff) {
+                        const chip = document.createElement('div');
+                        chip.className = 'staff-chip';
+                        chip.innerHTML = `${staff.name} <span class="remove-chip" onclick="removeStaff('${staff.id}')">&times;</span>`;
+                        area.appendChild(chip);
+                    }
+                });
+            }
+        }
+
+        function selectStaff(id) {
+            if (!selectedStaffIds.includes(id)) {
+                selectedStaffIds.push(id);
+                renderAvailableStaff(document.getElementById('searchStaffInput').value); 
+                renderSelectedStaff(); 
+            }
+        }
+
+        function removeStaff(id) {
+            selectedStaffIds = selectedStaffIds.filter(selectedId => selectedId !== id);
+            renderAvailableStaff(document.getElementById('searchStaffInput').value); 
+            renderSelectedStaff(); 
+        }
+
+        // ดักจับการพิมพ์ในช่องค้นหา (ผูก Event ทันทีที่โหลดหน้าเว็บ)
+        document.addEventListener("DOMContentLoaded", () => {
+            const searchInput = document.getElementById('searchStaffInput');
+            if(searchInput) {
+                searchInput.addEventListener('input', function(e) {
+                    renderAvailableStaff(e.target.value);
+                });
+            }
+        });
+// ================= สิ้นสุด ฟังก์ชันจัดการ ปฏิทินกิจกรรม (Events) =================
 
         // เลือก Option ของรายชื่อคนแบบ Multiple ตามข้อมูลที่ดึงมาแก้ไข
         function setUsersSelected(participantsString) {
