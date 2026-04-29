@@ -424,7 +424,7 @@
 
 
     <!-- ========================================================================= -->
-    <!--                                 JAVASCRIPT (สมบูรณ์ 100%)                   -->
+    <!--                                 JAVASCRIPT                                  -->
     <!-- ========================================================================= -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -437,13 +437,26 @@
         // 🔴 นำ API URL มาวางตรงนี้
         const API_URL = "https://script.google.com/macros/s/AKfycbx_KEKYYe2Mu1vTORWF8GZnV4zuOku_4IqEvwhZ4q556ggVOHjy-blHKvY_IuYOfGHqaA/exec";
         
+        // ================= เริ่มต้น ตัวแปร Global =================
         let currentTableData = [];
         let quillEditor;
         let flightDatepicker;
         let allAirlinesData = []; 
         let allCategoriesData = []; 
+        let allUsersDataForEvents = [];
+        let filteredUserData = [];
+        let currentUserPage = 1;
+        let isUsernameValid = true;
+        let myPassengerChart; 
+        let filteredNewsData = []; 
+        let currentNewsPage = 1; 
+        let filteredEventData = [];
+        let currentEventPage = 1;
+        let staffData = []; 
+        let selectedStaffIds = [];
+        // ================= สิ้นสุด ตัวแปร Global =================
 
-        // ================= เริ่มต้น ระบบโหลดค่าเริ่มต้น =================
+        // ================= เริ่มต้น ทำงานเมื่อโหลดหน้าเว็บ =================
         document.addEventListener('DOMContentLoaded', () => {
             const user = JSON.parse(localStorage.getItem('userData'));
             if(user) {
@@ -457,132 +470,190 @@
                     
                     let allowed = user.allowedMenus ? user.allowedMenus.split(',') : [];
                     const menuItems = ['news', 'newscategories', 'events', 'flightschedules', 'passengerstats', 'eservices', 'airlines', 'banners'];
+                    
                     menuItems.forEach(menu => {
                         if (!allowed.includes(menu)) {
                             let el = document.getElementById('menu_' + menu);
                             if(el) el.style.display = 'none';
                         }
                     });
+
+                    // ซ่อนหัวข้อใหญ่ ถ้าไม่มีเมนูย่อยให้แสดง
+                    if (!allowed.includes('news') && !allowed.includes('newscategories') && !allowed.includes('events')) {
+                        document.getElementById('header_news').style.display = 'none';
+                    }
+                    if (!allowed.includes('flightschedules') && !allowed.includes('passengerstats')) {
+                        document.getElementById('header_flights').style.display = 'none';
+                    }
+                    if (!allowed.includes('eservices') && !allowed.includes('airlines') && !allowed.includes('banners')) {
+                        document.getElementById('header_basic').style.display = 'none';
+                    }
                 }
             }
 
             try {
-                flightDatepicker = flatpickr("#flt_FlightDates", { mode: "multiple", dateFormat: "d/m/Y", locale: "th", conjunction: ", " });
-                quillEditor = new Quill('#news_Content_Editor', { 
-                    theme: 'snow', placeholder: 'พิมพ์เนื้อหาข่าว หรือกด Ctrl+V เพื่อวางรูป...', 
-                    modules: { toolbar: [ [{ 'header': [1, 2, 3, false] }], ['bold', 'italic', 'underline', 'strike'], [{ 'list': 'ordered'}, { 'list': 'bullet' }], [{ 'align': [] }], ['link'], ['clean'] ] } 
+                flightDatepicker = flatpickr("#flt_FlightDates", { 
+                    mode: "multiple", 
+                    dateFormat: "d/m/Y", 
+                    locale: "th", 
+                    conjunction: ", " 
                 });
-            } catch(e) { console.error("Editor/Datepicker load error:", e); }
+                
+                quillEditor = new Quill('#news_Content_Editor', { 
+                    theme: 'snow', 
+                    placeholder: 'พิมพ์เนื้อหาข่าว หรือกด Ctrl+V เพื่อวางรูป...', 
+                    modules: { 
+                        toolbar: [ 
+                            [{ 'header': [1, 2, 3, false] }], 
+                            ['bold', 'italic', 'underline', 'strike'], 
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }], 
+                            [{ 'align': [] }], 
+                            ['link'], 
+                            ['clean'] 
+                        ] 
+                    } 
+                });
+            } catch(e) { 
+                console.error("Plugin Init Error:", e); 
+            }
 
-            loadDashboardStats(); 
+            // เรียกโหลด Dashboard เป็นหน้าแรก
+            switchView('dashboard', document.querySelector('.sidebar-menu a.active')); 
         });
 
         function adminLogout() {
-            Swal.fire({ title: 'ยืนยันการออกจากระบบ?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ออกจากระบบ', cancelButtonText: 'ยกเลิก' })
-            .then((result) => {
-                if (result.isConfirmed) { localStorage.removeItem('userData'); window.location.href = 'index.html'; }
+            Swal.fire({ 
+                title: 'ยืนยันการออกจากระบบ?', 
+                icon: 'warning', 
+                showCancelButton: true, 
+                confirmButtonColor: '#d33', 
+                confirmButtonText: 'ออกจากระบบ', 
+                cancelButtonText: 'ยกเลิก' 
+            }).then((result) => {
+                if (result.isConfirmed) { 
+                    localStorage.removeItem('userData'); 
+                    window.location.href = 'index.html'; 
+                }
             });
         }
-        // ================= สิ้นสุด ระบบโหลดค่าเริ่มต้น =================
+        // ================= สิ้นสุด ทำงานเมื่อโหลดหน้าเว็บ =================
 
-        // ================= เริ่มต้น ฟังก์ชันเปลี่ยนหน้าเมนู (Switch View) =================
+        // ================= เริ่มต้น ระบบนำทาง (Switch View) =================
         function switchView(viewId, clickedMenuElement) {
             document.querySelectorAll('.admin-view').forEach(view => view.style.display = 'none');
             document.getElementById('view-' + viewId).style.display = 'block';
             document.querySelectorAll('.sidebar-menu a').forEach(menu => menu.classList.remove('active'));
             if(clickedMenuElement) clickedMenuElement.classList.add('active');
 
-            if (viewId === 'dashboard') loadDashboardStats();
-            if (viewId === 'settings') loadSettingsData();
-            if (viewId === 'banners') loadTableData('Banners', renderBannersTable);
-            if (viewId === 'departments') loadTableData('Departments', renderDeptsTable);
-            if (viewId === 'eservices') loadTableData('EServices', renderEServicesTable);
-            if (viewId === 'airlines') loadTableData('Airlines', renderAirlinesTable);
-            if (viewId === 'newscategories') { loadTableData('NewsCategories', renderNewsCatsTable); populateDeptDropdown(); }
-            if (viewId === 'passengerstats') loadTableData('PassengerStats', renderPassengerStatsTable);
-            if (viewId === 'users') { loadTableData('Users', renderUsersTable); populateUserDeptDropdown(); }
-            if (viewId === 'flightschedules') { loadTableData('FlightSchedules', renderFlightsTable); populateAirlineDropdown(); }
-            
-            // 🟢 แก้ไข: ใช้ .finally() ป้องกันหน้าจอค้าง
-            if (viewId === 'news') {
-                Swal.fire({ title: 'กำลังโหลด...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-                Promise.all([
-                    fetch(`${API_URL}?action=getTableData&sheetName=NewsCategories`).then(res=>res.json()),
-                    fetch(`${API_URL}?action=getTableData&sheetName=News`).then(res=>res.json())
+            Swal.fire({ title: 'กำลังโหลดข้อมูล...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            if (viewId === 'dashboard') {
+                fetch(`${API_URL}?action=getDashboardStats`).then(res => res.json()).then(res => {
+                    if (res.status === 'success') { renderDashboard(res.data); Swal.close(); }
+                    else { Swal.fire('ผิดพลาด', 'โหลดสถิติไม่ได้', 'error'); }
+                }).catch(err => Swal.fire('ข้อผิดพลาด', 'การเชื่อมต่อขัดข้อง', 'error'));
+            }
+            else if (viewId === 'settings') {
+                fetch(API_URL + "?action=getSettings").then(res => res.json()).then(res => {
+                    if (res.status === 'success') { 
+                        const data = res.data; 
+                        document.getElementById('set_SystemName').value = data.SystemName || ''; 
+                        document.getElementById('set_NewsLimitHome').value = data.NewsLimitHome || ''; 
+                        document.getElementById('set_FolderImageID').value = data.FolderImageID || ''; 
+                        document.getElementById('set_FolderFileID').value = data.FolderFileID || ''; 
+                        document.getElementById('set_BannerSpeed').value = data.BannerSpeed || '6000'; 
+                        document.getElementById('set_BannerEffect').value = data.BannerEffect || 'fade'; 
+                        document.getElementById('set_MaintenanceMode').checked = (data.MaintenanceMode === 'TRUE'); 
+                        Swal.close(); 
+                    }
+                });
+            }
+            else if (viewId === 'banners') {
+                fetch(`${API_URL}?action=getTableData&sheetName=Banners`).then(res=>res.json()).then(res => {
+                    currentTableData = res.data || []; renderBannersTable(currentTableData); Swal.close();
+                });
+            }
+            else if (viewId === 'departments') {
+                fetch(`${API_URL}?action=getTableData&sheetName=Departments`).then(res=>res.json()).then(res => {
+                    currentTableData = res.data || []; renderDeptsTable(currentTableData); Swal.close();
+                });
+            }
+            else if (viewId === 'eservices') {
+                fetch(`${API_URL}?action=getTableData&sheetName=EServices`).then(res=>res.json()).then(res => {
+                    currentTableData = res.data || []; renderEServicesTable(currentTableData); Swal.close();
+                });
+            }
+            else if (viewId === 'airlines') {
+                fetch(`${API_URL}?action=getTableData&sheetName=Airlines`).then(res=>res.json()).then(res => {
+                    currentTableData = res.data || []; renderAirlinesTable(currentTableData); Swal.close();
+                });
+            }
+            else if (viewId === 'newscategories') {
+                Promise.all([ 
+                    fetch(`${API_URL}?action=getTableData&sheetName=NewsCategories`).then(res=>res.json()), 
+                    fetch(`${API_URL}?action=getTableData&sheetName=Departments`).then(res=>res.json()) 
+                ]).then(([catsRes, deptsRes]) => {
+                    currentTableData = catsRes.data || [];
+                    populateNewsCatDeptDropdown(deptsRes.data || []); // เปลี่ยนชื่อฟังก์ชันกันสับสน
+                    renderNewsCatsTable(currentTableData);
+                    Swal.close();
+                });
+            }
+            else if (viewId === 'passengerstats') {
+                fetch(`${API_URL}?action=getTableData&sheetName=PassengerStats`).then(res=>res.json()).then(res => {
+                    currentTableData = res.data || []; renderPassengerStatsTable(currentTableData); Swal.close();
+                });
+            }
+            else if (viewId === 'users') {
+                Promise.all([ 
+                    fetch(`${API_URL}?action=getTableData&sheetName=Users`).then(res=>res.json()), 
+                    fetch(`${API_URL}?action=getTableData&sheetName=Departments`).then(res=>res.json()) 
+                ]).then(([usersRes, deptsRes]) => {
+                    currentTableData = usersRes.data || [];
+                    populateUserDeptDropdown(deptsRes.data || []);
+                    applyUserFilters();
+                    Swal.close();
+                });
+            }
+            else if (viewId === 'flightschedules') {
+                Promise.all([ 
+                    fetch(`${API_URL}?action=getTableData&sheetName=FlightSchedules`).then(res=>res.json()), 
+                    fetch(`${API_URL}?action=getTableData&sheetName=Airlines`).then(res=>res.json()) 
+                ]).then(([flightsRes, airlinesRes]) => {
+                    currentTableData = flightsRes.data || [];
+                    allAirlinesData = airlinesRes.data || [];
+                    populateAirlineDropdown();
+                    renderFlightsTable(currentTableData);
+                    Swal.close();
+                });
+            }
+            else if (viewId === 'news') {
+                Promise.all([ 
+                    fetch(`${API_URL}?action=getTableData&sheetName=NewsCategories`).then(res=>res.json()), 
+                    fetch(`${API_URL}?action=getTableData&sheetName=News`).then(res=>res.json()) 
                 ]).then(([catsRes, newsRes]) => {
                     allCategoriesData = catsRes.data || [];
                     currentTableData = newsRes.data || [];
                     populateNewsCategoryDropdown(); 
                     initNewsFilterDropdowns();      
                     applyNewsFilters();             
-                }).catch(err => console.error(err)).finally(() => Swal.close());
+                    Swal.close(); 
+                });
             }
-            if (viewId === 'events') { 
-                Swal.fire({ title: 'กำลังโหลด...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-                fetch(`${API_URL}?action=getTableData&sheetName=Events`).then(res=>res.json()).then(res => {
-                    currentTableData = res.data || [];
-                    loadUsersForEvents(); 
+            else if (viewId === 'events') { 
+                Promise.all([ 
+                    fetch(`${API_URL}?action=getTableData&sheetName=Events`).then(res=>res.json()), 
+                    fetch(`${API_URL}?action=getTableData&sheetName=Users`).then(res=>res.json()) 
+                ]).then(([eventsRes, usersRes]) => {
+                    currentTableData = eventsRes.data || [];
+                    allUsersDataForEvents = usersRes.data || [];
                     initEventFilterDropdown();
                     applyEventFilters();  
-                }).catch(err => console.error(err)).finally(() => Swal.close());
+                    Swal.close(); 
+                });
             }
         }
-        // ================= สิ้นสุด ฟังก์ชันเปลี่ยนหน้าเมนู =================
-
-        // ================= เริ่มต้น ระบบ Dashboard (เพิ่ม Loading) =================
-        function loadDashboardStats() {
-            const user = JSON.parse(localStorage.getItem('userData'));
-            if(user) document.getElementById('adminDeptDisplay').innerText = user.department || 'ทั้งหมด';
-
-            // 🟢 แก้ไข: แสดง Loading 
-            Swal.fire({ title: 'กำลังโหลดข้อมูลสถิติ...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
-
-            fetch(`${API_URL}?action=getDashboardStats`)
-                .then(res => res.json())
-                .then(res => {
-                    if (res.status === 'success') {
-                        const data = res.data;
-                        document.getElementById('dash_totalFlights').innerText = data.totalFlights;
-                        document.getElementById('dash_totalEServices').innerText = data.totalEServices;
-                        document.getElementById('dash_totalBanners').innerText = data.totalBanners;
-                        document.getElementById('dash_totalAirlines').innerText = data.totalAirlines;
-                        document.getElementById('dash_usersTotal').innerHTML = `${data.users.Total} <span class="fs-6 fw-normal text-muted">บัญชี</span>`;
-                        document.getElementById('dash_usersSuper').innerText = data.users.SuperAdmin;
-                        document.getElementById('dash_usersSub').innerText = data.users.SubAdmin;
-                        document.getElementById('dash_usersStaff').innerText = data.users.Staff;
-                        document.getElementById('dash_usersNormal').innerText = data.users.User;
-                        renderPassengerChart(data.passengers);
-                        document.getElementById('dash_newsTotalRow3').innerHTML = `${data.totalNews} <span class="fs-6 fw-normal text-muted">เรื่องทั้งหมด</span>`;
-                        
-                        const deptContainer = document.getElementById('dash_newsByDeptContainer');
-                        deptContainer.innerHTML = '';
-                        if(data.newsBreakdown && data.newsBreakdown.length > 0) {
-                            let groupedByDept = {};
-                            data.newsBreakdown.forEach(item => {
-                                let deptName = item.dept || 'ไม่ระบุกลุ่มงาน';
-                                if(!groupedByDept[deptName]) { groupedByDept[deptName] = { total: 0, categories: [] }; }
-                                groupedByDept[deptName].total += item.count;
-                                groupedByDept[deptName].categories.push(item);
-                            });
-                            for (let dept in groupedByDept) {
-                                let deptData = groupedByDept[dept];
-                                let catListHTML = '';
-                                deptData.categories.forEach(cat => {
-                                    let textClass = cat.count > 0 ? "fw-bold text-dark" : "text-muted";
-                                    catListHTML += `<div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom" style="border-color: #e2e8f0 !important;"><span class="text-secondary small text-truncate pe-2" title="${cat.name}"><i class="fa-solid fa-caret-right text-primary me-1"></i> ${cat.name}</span><span class="${textClass}">${cat.count}</span></div>`;
-                                });
-                                deptContainer.innerHTML += `<div class="col-md-6 col-xl"><div class="p-3 bg-light rounded border h-100 shadow-sm"><div class="d-flex justify-content-between align-items-start mb-3 pb-2 border-bottom border-secondary border-opacity-25"><h6 class="fw-bold text-dark mb-0 lh-base"><i class="fa-solid fa-sitemap text-muted me-1"></i> ${dept}</h6><span class="badge bg-primary rounded-pill px-2 py-1 ms-2" style="font-size: 0.8rem;">${deptData.total} เรื่อง</span></div><div class="mt-2">${catListHTML}</div></div></div>`;
-                            }
-                        } else {
-                            deptContainer.innerHTML = '<div class="col-12 text-center text-muted py-4"><i class="fa-regular fa-folder-open fa-2x mb-2 text-light"></i><br>ยังไม่มีข่าวสารในระบบ</div>';
-                        }
-                        // ปิด Loading
-                        Swal.fire({ icon: 'success', title: 'อัปเดตข้อมูลแล้ว', showConfirmButton: false, timer: 800 });
-                    } else { Swal.fire('ผิดพลาด', 'ไม่สามารถดึงข้อมูลสถิติได้', 'error'); }
-                }).catch(err => { Swal.close(); });
-        }
-        // ================= สิ้นสุด ระบบ Dashboard =================
-        
+        // ================= สิ้นสุด ระบบนำทาง =================
 
         // ================= เริ่มต้น ฟังก์ชันช่วยเหลือ (Helpers) =================
         function convertDriveImageLink(url) {
@@ -604,15 +675,18 @@
             const date = new Date(); return ("0" + date.getDate()).slice(-2) + "/" + ("0"+(date.getMonth()+1)).slice(-2) + "/" + (date.getFullYear()+543) + " " + ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2) + ":" + ("0" + date.getSeconds()).slice(-2);
         }
 
-        function loadTableData(sheetName, renderFunction) {
-            Swal.fire({ title: 'กำลังโหลด...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-            fetch(`${API_URL}?action=getTableData&sheetName=${sheetName}`).then(res => res.json()).then(res => {
-                Swal.close(); 
-                if (res.status === 'success') { currentTableData = res.data; renderFunction(res.data); }
-            });
+        function parseThaiDate(dateString) {
+            if (!dateString) return new Date(0); 
+            let parts = dateString.split(' ');
+            if (parts.length !== 2) return new Date(0);
+            let dateParts = parts[0].split('/'); let timeParts = parts[1].split(':'); 
+            if (dateParts.length !== 3) return new Date(0);
+            let day = parseInt(dateParts[0], 10); let month = parseInt(dateParts[1], 10) - 1; let year = parseInt(dateParts[2], 10) - 543; 
+            let hours = timeParts[0] ? parseInt(timeParts[0], 10) : 0; let mins = timeParts[1] ? parseInt(timeParts[1], 10) : 0; let secs = timeParts[2] ? parseInt(timeParts[2], 10) : 0;
+            return new Date(year, month, day, hours, mins, secs);
         }
 
-        // ================= เริ่มต้น ฟังก์ชันลบข้อมูล (แก้ลบ Users แล้วไม่หาย) =================
+        // ฟังก์ชันลบข้อมูล และโหลดตารางใหม่ให้ถูกต้อง
         function deleteRecord(sheetName, idColumn, idValue) {
             Swal.fire({ title: 'ยืนยันการลบ?', text: "หากลบแล้วจะไม่สามารถกู้คืนได้!", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ใช่, ลบทิ้ง!' }).then((result) => {
                 if (result.isConfirmed) {
@@ -622,24 +696,23 @@
                         if (res.status === 'success') {
                             Swal.fire({ icon: 'success', title: 'ลบสำเร็จ', showConfirmButton: false, timer: 1500 });
                             
-                            // โหลดข้อมูลใหม่แล้วประมวลผล Filter ตามตารางนั้นๆ
-                            loadTableData(sheetName, (data) => {
-                                currentTableData = data;
+                            // โหลดข้อมูลใหม่แล้วส่งไปจัดการตามระบบของแต่ละหน้า
+                            fetch(`${API_URL}?action=getTableData&sheetName=${sheetName}`).then(r => r.json()).then(dataRes => {
+                                currentTableData = dataRes.data || [];
                                 if (sheetName === 'Events') applyEventFilters(); 
                                 else if (sheetName === 'News') applyNewsFilters(); 
                                 else if (sheetName === 'PassengerStats') filterStatsTable();
-                                else if (sheetName === 'Users') applyUserFilters(); // 🟢 เพิ่มบรรทัดนี้ ให้หน้า User รีเฟรช
+                                else if (sheetName === 'Users') applyUserFilters();
                                 else {
                                     const renderMap = { 'Banners': renderBannersTable, 'Departments': renderDeptsTable, 'EServices': renderEServicesTable, 'Airlines': renderAirlinesTable, 'NewsCategories': renderNewsCatsTable, 'FlightSchedules': renderFlightsTable };
-                                    if (renderMap[sheetName]) renderMap[sheetName](data);
+                                    if (renderMap[sheetName]) renderMap[sheetName](currentTableData);
                                 }
                             });
-                        }
-                    });
+                        } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
+                    }).catch(() => Swal.fire('ผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'error'));
                 }
             });
         }
-        // ================= สิ้นสุด ฟังก์ชันลบข้อมูล =================
 
         function moveOrder(tableType, currentIndex, direction, renderFunc) {
             let temp = currentTableData[currentIndex];
@@ -654,306 +727,108 @@
             Swal.fire({ title: 'กำลังบันทึกลำดับ...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
             const orderPayload = currentTableData.map(item => ({ id: item[idColumn], order: item.OrderList }));
             fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'updateOrder', sheetName: sheetName, idColumn: idColumn, orderJSON: JSON.stringify(orderPayload) }) }).then(res=>res.json()).then(res=>{ 
-                if (res.status === 'success') { Swal.fire({ icon: 'success', title: 'บันทึกลำดับสำเร็จ!', showConfirmButton: false, timer: 1500 }); document.getElementById(`btnSaveOrder-${sheetName === 'NewsCategories' ? 'NewsCats' : sheetName}`).classList.add('d-none'); } 
+                if (res.status === 'success') { 
+                    Swal.fire({ icon: 'success', title: 'บันทึกลำดับสำเร็จ!', showConfirmButton: false, timer: 1500 }); 
+                    document.getElementById(`btnSaveOrder-${sheetName === 'NewsCategories' ? 'NewsCats' : sheetName}`).classList.add('d-none'); 
+                } 
             });
         }
         // ================= สิ้นสุด ฟังก์ชันช่วยเหลือ =================
 
-
-        // ==========================================
-        // 👥 ระบบจัดการผู้ใช้งาน (User Management)
-        // ==========================================
-        let filteredUserData = [];
-        let currentUserPage = 1;
-
-        // 🟢 ฟังก์ชันนี้หายไปในรอบที่แล้ว! สำคัญมากสำหรับเปิดปิดเมนูสิทธิ์
-        function toggleAllowedMenusUI() {
-            const role = document.getElementById('usr_Role').value;
-            const menuContainer = document.getElementById('usr_AllowedMenusContainer');
-            if(role === 'SubAdmin') menuContainer.style.display = 'block';
-            else menuContainer.style.display = 'none';
-        }
-
-        // 🟢 ฟังก์ชันนี้หายไปในรอบที่แล้ว! สำคัญมากสำหรับติ๊กเลือกเมนู
-        function checkAllMenus(isChecked) {
-            document.querySelectorAll('.chk-menu').forEach(cb => cb.checked = isChecked);
-        }
-
-        function populateUserDeptDropdown() {
-            fetch(`${API_URL}?action=getTableData&sheetName=Departments`).then(res => res.json()).then(res => {
-                if(res.status === 'success') {
-                    const filterSelect = document.getElementById('filter_UserDept');
-                    const modalSelect = document.getElementById('usr_Department');
-                    
-                    let opts = '<option value="">ทุกกลุ่มงาน</option>';
-                    let modalOpts = '<option value="">-- ไม่ระบุ (ประชาชนทั่วไป) --</option><option value="ทั้งหมด">ทั้งหมด (ดูแลทุกกลุ่มงาน)</option>';
-                    
-                    res.data.sort((a,b) => a.OrderList - b.OrderList).forEach(dept => {
-                        if(dept.IsActive === 'TRUE') {
-                            opts += `<option value="${dept.DeptName}">${dept.DeptName}</option>`;
-                            modalOpts += `<option value="${dept.DeptName}">${dept.DeptName}</option>`;
-                        }
-                    });
-                    
-                    filterSelect.innerHTML = opts;
-                    modalSelect.innerHTML = modalOpts;
-                    
-                    applyUserFilters(); // โหลดเสร็จสั่ง Filter ตาราง
-                }
-            });
-        }
-
-        // ประมวลผล Filter และ Sorting
-        function applyUserFilters() {
-            const searchTxt = document.getElementById('filter_UserSearch').value.toLowerCase();
-            const deptVal = document.getElementById('filter_UserDept').value;
-            const roleVal = document.getElementById('filter_UserRole').value;
-            const sortVal = document.getElementById('filter_UserSort').value;
-
-            filteredUserData = currentTableData.filter(user => {
-                if (deptVal && user.Department !== deptVal) return false;
-                if (roleVal && user.Role !== roleVal) return false;
-                if (searchTxt) {
-                    let searchStr = `${user.FirstName} ${user.LastName} ${user.Username} ${user.Phone} ${user.Organization}`.toLowerCase();
-                    if (!searchStr.includes(searchTxt)) return false;
-                }
-                return true;
-            });
-
-            filteredUserData.sort((a,b) => {
-                if (sortVal === 'role') {
-                    // เรียง SuperAdmin > SubAdmin > Staff > User
-                    const roleWeight = { 'SuperAdmin': 1, 'SubAdmin': 2, 'Staff': 3, 'User': 4 };
-                    return roleWeight[a.Role] - roleWeight[b.Role];
-                } else {
-                    // ใหม่สุดไปเก่าสุด
-                    return b.UserID.localeCompare(a.UserID);
-                }
-            });
-
-            currentUserPage = 1;
-            renderUsersTable();
-        }
-
-        function changeUserPage(page) { currentUserPage = page; renderUsersTable(); }
-
-        // ================= เริ่มต้น ระบบจัดการผู้ใช้งาน และ สิทธิ์ (Role) =================
-        let isUsernameValid = true; // ตัวแปรเก็บสถานะว่าชื่อผู้ใช้ซ้ำไหม
-
-        // 🟢 ฟังก์ชันเช็ค Username แบบ Real-time
-        function checkUsernameRealtime() {
-            const usernameInput = document.getElementById('usr_Username');
-            const statusMsg = document.getElementById('usernameStatusMsg');
-            const username = usernameInput.value.trim();
-
-            // ถ้ายาวไม่ถึง 4 ตัวอักษร ไม่ต้องส่งเช็ค
-            if (username.length < 4) {
-                statusMsg.innerText = "ต้องมีความยาวอย่างน้อย 4 ตัวอักษร";
-                statusMsg.className = "fw-bold mt-1 d-block text-danger";
-                isUsernameValid = false;
-                return;
-            }
-
-            statusMsg.innerText = "กำลังตรวจสอบ...";
-            statusMsg.className = "fw-bold mt-1 d-block text-muted";
-
-            fetch(`${API_URL}?action=checkUsername`, {
-                method: 'POST',
-                body: new URLSearchParams({ username: username })
-            }).then(res => res.json()).then(data => {
-                if (data.status === 'exist') {
-                    statusMsg.innerHTML = `<i class="fa-solid fa-xmark"></i> ${data.message}`;
-                    statusMsg.className = "fw-bold mt-1 d-block text-danger";
-                    isUsernameValid = false;
-                } else {
-                    statusMsg.innerHTML = `<i class="fa-solid fa-check"></i> ${data.message}`;
-                    statusMsg.className = "fw-bold mt-1 d-block text-success";
-                    isUsernameValid = true;
-                }
-            });
-        }
-
-        function renderUsersTable() {
-            const tbody = document.getElementById('tbody-users'); tbody.innerHTML = '';
-            const pageSize = parseInt(document.getElementById('filter_UserPageSize').value);
-            const totalItems = filteredUserData.length;
-            const totalPages = Math.ceil(totalItems / pageSize) || 1; 
-            
-            if (currentUserPage > totalPages) currentUserPage = totalPages;
-            const startIndex = (currentUserPage - 1) * pageSize;
-            const endIndex = Math.min(startIndex + pageSize, totalItems);
-
-            document.getElementById('user_PageInfo').innerText = totalItems === 0 ? `ไม่พบข้อมูล` : `แสดง ${startIndex + 1} ถึง ${endIndex} จากทั้งหมด ${totalItems} บัญชี`;
-
-            let pageData = filteredUserData.slice(startIndex, endIndex);
-
-            // ชื่อเมนูไทยสำหรับแสดงในตาราง
-            const menuNamesTH = { 'news':'ข่าวสาร', 'newscategories':'หมวดข่าว', 'events':'ปฏิทิน', 'flightschedules':'เที่ยวบิน', 'passengerstats':'สถิติฯ', 'eservices':'E-Services', 'airlines':'สายการบิน', 'banners':'แบนเนอร์' };
-
-            if (pageData.length === 0) { 
-                tbody.innerHTML = '<tr><td colspan="6" class="py-4 text-center text-muted">ไม่พบข้อมูลบัญชีที่ค้นหา</td></tr>'; 
-            } else {
-                pageData.forEach((item) => {
-                    let statusBadge = item.Status === 'Active' ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">ระงับ</span>';
-                    
-                    let roleBadge = '';
-                    let allowedMenusHtml = ''; // 🟢 ตัวแปรสำหรับวาด Badge เมนูที่เข้าได้
-                    
-                    if (item.Role === 'SuperAdmin') {
-                        roleBadge = '<span class="badge bg-danger">SuperAdmin</span>';
-                        allowedMenusHtml = '<div class="mt-1"><span class="badge bg-danger bg-opacity-10 text-danger border border-danger">เข้าถึงทุกเมนู</span></div>';
-                    }
-                    else if (item.Role === 'SubAdmin') {
-                        roleBadge = '<span class="badge bg-warning text-dark">SubAdmin</span>';
-                        // วาดป้ายชื่อเมนูย่อยๆ ที่ SubAdmin คนนี้เข้าได้
-                        if(item.AllowedMenus) {
-                            let menus = item.AllowedMenus.split(',');
-                            allowedMenusHtml = '<div class="mt-1 d-flex flex-wrap gap-1 justify-content-center">';
-                            menus.forEach(m => {
-                                if(menuNamesTH[m]) allowedMenusHtml += `<span class="badge bg-light text-dark border">${menuNamesTH[m]}</span>`;
-                            });
-                            allowedMenusHtml += '</div>';
-                        }
-                    }
-                    else if (item.Role === 'Staff') roleBadge = '<span class="badge bg-info text-dark">Staff</span>';
-                    else roleBadge = '<span class="badge bg-light text-dark border">User</span>';
-
-                    let loginInfo = item.LastLogin ? `<div class="small text-muted mt-1" style="font-size:0.75rem;"><i class="fa-solid fa-clock"></i> ล็อกอิน: ${item.LastLogin}</div>` : '';
-                    let deptInfo = item.Department ? item.Department : '<span class="text-muted">-</span>';
-
-                    tbody.innerHTML += `
-                        <tr>
-                            <td><div class="fw-bold text-primary">${item.FirstName} ${item.LastName}</div><div class="small text-muted"><i class="fa-solid fa-user"></i> ${item.Username}</div></td>
-                            <td><div class="small fw-bold">${item.Organization || '-'}</div><div class="small text-muted"><i class="fa-solid fa-envelope"></i> ${item.Email}</div><div class="small text-muted"><i class="fa-solid fa-phone"></i> ${item.Phone}</div></td>
-                            <td class="text-center fw-bold text-secondary small">${deptInfo}</td>
-                            <td class="text-center">${roleBadge} ${allowedMenusHtml}</td>
-                            <td class="text-center">${statusBadge}${loginInfo}</td>
-                            <td class="text-center">
-                                <button class="btn btn-sm btn-outline-warning me-1" onclick="openUserModal('${item.UserID}')"><i class="fa-solid fa-user-pen"></i></button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('Users', 'UserID', '${item.UserID}')"><i class="fa-solid fa-user-xmark"></i></button>
-                            </td>
-                        </tr>
-                    `;
-                });
-            }
-            
-            const ul = document.getElementById('user_PaginationControls'); ul.innerHTML = '';
-            if(totalPages > 1) {
-                ul.innerHTML += `<li class="page-item ${currentUserPage === 1 ? 'disabled' : ''}"><a class="page-link" href="#" onclick="changeUserPage(${currentUserPage - 1})"><i class="fa-solid fa-chevron-left"></i></a></li>`;
-                for(let i = 1; i <= totalPages; i++) ul.innerHTML += `<li class="page-item ${i === currentUserPage ? 'active' : ''}"><a class="page-link" href="#" onclick="changeUserPage(${i})">${i}</a></li>`;
-                ul.innerHTML += `<li class="page-item ${currentUserPage === totalPages ? 'disabled' : ''}"><a class="page-link" href="#" onclick="changeUserPage(${currentUserPage + 1})"><i class="fa-solid fa-chevron-right"></i></a></li>`;
-            }
-        }
-
-        function openUserModal(id = '') {
-            document.getElementById('formUser').reset(); 
-            document.getElementById('usr_UserID').value = ''; 
-            document.getElementById('userModalTitle').innerText = 'เพิ่มบัญชีผู้ใช้งานใหม่';
-            
-            const userInp = document.getElementById('usr_Username'); 
-            userInp.readOnly = false; 
-            document.getElementById('userHelperText').style.display = 'none';
-            document.getElementById('usernameStatusMsg').innerText = ''; // ล้างข้อความเตือน
-            isUsernameValid = false; // รีเซ็ตสถานะ ป้องกันกดเซฟโดยไม่กรอก
-
-            document.getElementById('usr_Status').checked = true; document.getElementById('usr_StatusLabel').innerText = 'บัญชีนี้พร้อมใช้งาน (Active)'; document.getElementById('usr_StatusLabel').className = 'form-check-label fw-bold text-success';
-            document.getElementById('usr_RegisterDate').value = Utilities_getNow(); document.getElementById('usr_PDPA').value = 'Added By Admin'; document.getElementById('usr_LastLogin').value = '';
-
-            checkAllMenus(false);
-            toggleAllowedMenusUI();
-
-            if (id) {
-                document.getElementById('userModalTitle').innerText = 'แก้ไขบัญชีผู้ใช้งาน';
-                const item = currentTableData.find(x => x.UserID === id);
-                
-                document.getElementById('usr_UserID').value = item.UserID;
-                document.getElementById('usr_FirstName').value = item.FirstName; document.getElementById('usr_LastName').value = item.LastName;
-                document.getElementById('usr_Email').value = item.Email; document.getElementById('usr_Phone').value = item.Phone;
-                document.getElementById('usr_Organization').value = item.Organization; document.getElementById('usr_Position').value = item.Position;
-                document.getElementById('usr_Password').value = item.Password; 
-                document.getElementById('usr_Department').value = item.Department || ''; document.getElementById('usr_Role').value = item.Role;
-                
-                if(item.AllowedMenus) {
-                    let allowed = item.AllowedMenus.split(',');
-                    document.querySelectorAll('.chk-menu').forEach(cb => {
-                        if(allowed.includes(cb.value)) cb.checked = true;
-                    });
-                }
-                toggleAllowedMenusUI();
-
-                userInp.value = item.Username; 
-                userInp.readOnly = true; 
-                document.getElementById('userHelperText').style.display = 'block';
-                isUsernameValid = true; // ถ้าเป็นโหมดแก้ไข ถือว่า Username ผ่านเลย (เพราะไม่ได้แก้)
-
-                document.getElementById('usr_Status').checked = (item.Status === 'Active');
-                let evt = new Event("change"); document.getElementById('usr_Status').dispatchEvent(evt);
-
-                document.getElementById('usr_RegisterDate').value = item.RegisterDate || ''; document.getElementById('usr_PDPA').value = item.pdpaConsent || ''; document.getElementById('usr_LastLogin').value = item.LastLogin || '';
-            }
-            new bootstrap.Modal(document.getElementById('userModal')).show();
-        }
-
-        function saveUserRecord(e) {
-            e.preventDefault(); 
-
-            // 🟢 ตรวจสอบว่า Username ซ้ำไหม
-            if (!isUsernameValid) {
-                Swal.fire('ข้อผิดพลาด', 'กรุณาตรวจสอบชื่อผู้ใช้งาน (Username) ใหม่อีกครั้ง', 'warning');
-                return;
-            }
-
-            const btn = document.getElementById('btnSaveUser'); 
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังบันทึก...'; btn.disabled = true;
-
-            let allowedMenusStr = '';
-            let role = document.getElementById('usr_Role').value;
-            if (role === 'SuperAdmin') {
-                allowedMenusStr = 'all';
-            } else if (role === 'SubAdmin') {
-                let selectedMenus = [];
-                document.querySelectorAll('.chk-menu:checked').forEach(cb => selectedMenus.push(cb.value));
-                if(selectedMenus.length === 0) { Swal.fire('ผิดพลาด', 'กรุณาเลือกเมนูที่อนุญาตให้ใช้งานอย่างน้อย 1 เมนู', 'warning'); btn.innerHTML = 'บันทึกข้อมูลผู้ใช้งาน'; btn.disabled = false; return; }
-                allowedMenusStr = selectedMenus.join(',');
-            }
-
-            const recordData = {
-                UserID: document.getElementById('usr_UserID').value, Username: document.getElementById('usr_Username').value, Password: document.getElementById('usr_Password').value, FirstName: document.getElementById('usr_FirstName').value, LastName: document.getElementById('usr_LastName').value, Email: document.getElementById('usr_Email').value, Phone: document.getElementById('usr_Phone').value, Organization: document.getElementById('usr_Organization').value, Position: document.getElementById('usr_Position').value, Department: document.getElementById('usr_Department').value, Role: role, 
-                AllowedMenus: allowedMenusStr, 
-                Status: document.getElementById('usr_Status').checked ? 'Active' : 'Inactive', LastLogin: document.getElementById('usr_LastLogin').value, pdpaConsent: document.getElementById('usr_PDPA').value, RegisterDate: document.getElementById('usr_RegisterDate').value
-            };
-
-            const formData = new URLSearchParams({ action: 'saveRecord', sheetName: 'Users', idColumn: 'UserID', recordJSON: JSON.stringify(recordData) });
-
-            fetch(API_URL, { method: 'POST', body: formData }).then(res => res.json()).then(res => {
+        // ================= เริ่มต้น ระบบ Dashboard =================
+        function loadDashboardStats() {
+            Swal.fire({ title: 'กำลังโหลดข้อมูลสถิติ...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            fetch(`${API_URL}?action=getDashboardStats`).then(res => res.json()).then(res => {
                 if (res.status === 'success') {
-                    bootstrap.Modal.getInstance(document.getElementById('userModal')).hide(); document.getElementById('formUser').reset(); 
-                    Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', showConfirmButton: false, timer: 1500 }); 
-                    
-                    loadTableData('Users', (data) => { currentTableData = data; applyUserFilters(); });
-                } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
-            }).finally(() => { btn.innerHTML = 'บันทึกข้อมูลผู้ใช้งาน'; btn.disabled = false; });
+                    renderDashboard(res.data);
+                    Swal.fire({ icon: 'success', title: 'อัปเดตข้อมูลแล้ว', showConfirmButton: false, timer: 800 });
+                } else { Swal.fire('ผิดพลาด', 'ไม่สามารถดึงข้อมูลสถิติได้', 'error'); }
+            }).catch(err => Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'error'));
         }
-        // ================= สิ้นสุด ระบบจัดการ ผู้ใช้งาน =================
 
+        function renderDashboard(data) {
+            document.getElementById('dash_totalFlights').innerText = data.totalFlights;
+            document.getElementById('dash_totalEServices').innerText = data.totalEServices;
+            document.getElementById('dash_totalBanners').innerText = data.totalBanners;
+            document.getElementById('dash_totalAirlines').innerText = data.totalAirlines;
 
-        // ================= เริ่มต้น ฟังก์ชันจัดการ ตั้งค่าเว็บไซต์ =================
-        function loadSettingsData() {
-            Swal.fire({ title: 'กำลังดึงข้อมูล...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
-            fetch(API_URL + "?action=getSettings").then(res => res.json()).then(response => {
-                if (response.status === 'success') { 
-                    const data = response.data; 
-                    document.getElementById('set_SystemName').value = data.SystemName || ''; 
-                    document.getElementById('set_NewsLimitHome').value = data.NewsLimitHome || ''; 
-                    document.getElementById('set_FolderImageID').value = data.FolderImageID || ''; 
-                    document.getElementById('set_FolderFileID').value = data.FolderFileID || ''; 
-                    document.getElementById('set_BannerSpeed').value = data.BannerSpeed || '6000'; 
-                    document.getElementById('set_BannerEffect').value = data.BannerEffect || 'fade'; 
-                    document.getElementById('set_MaintenanceMode').checked = (data.MaintenanceMode === 'TRUE'); 
-                    Swal.close(); 
+            document.getElementById('dash_usersTotal').innerHTML = `${data.users.Total} <span class="fs-6 fw-normal text-muted">บัญชี</span>`;
+            document.getElementById('dash_usersSuper').innerText = data.users.SuperAdmin;
+            document.getElementById('dash_usersSub').innerText = data.users.SubAdmin;
+            document.getElementById('dash_usersStaff').innerText = data.users.Staff;
+            document.getElementById('dash_usersNormal').innerText = data.users.User;
+            
+            renderPassengerChart(data.passengers);
+
+            document.getElementById('dash_newsTotalRow3').innerHTML = `${data.totalNews} <span class="fs-6 fw-normal text-muted">เรื่องทั้งหมด</span>`;
+            
+            const deptContainer = document.getElementById('dash_newsByDeptContainer');
+            deptContainer.innerHTML = '';
+            if(data.newsBreakdown && data.newsBreakdown.length > 0) {
+                let groupedByDept = {};
+                data.newsBreakdown.forEach(item => {
+                    let deptName = item.dept || 'ไม่ระบุกลุ่มงาน';
+                    if(!groupedByDept[deptName]) { groupedByDept[deptName] = { total: 0, categories: [] }; }
+                    groupedByDept[deptName].total += item.count;
+                    groupedByDept[deptName].categories.push(item);
+                });
+
+                for (let dept in groupedByDept) {
+                    let deptData = groupedByDept[dept];
+                    let catListHTML = '';
+                    deptData.categories.forEach(cat => {
+                        let textClass = cat.count > 0 ? "fw-bold text-dark" : "text-muted";
+                        catListHTML += `<div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom" style="border-color: #e2e8f0 !important;"><span class="text-secondary small text-truncate pe-2" title="${cat.name}"><i class="fa-solid fa-caret-right text-primary me-1"></i> ${cat.name}</span><span class="${textClass}">${cat.count}</span></div>`;
+                    });
+
+                    deptContainer.innerHTML += `
+                        <div class="col-md-6 col-xl">
+                            <div class="p-3 bg-light rounded border h-100 shadow-sm">
+                                <div class="d-flex justify-content-between align-items-start mb-3 pb-2 border-bottom border-secondary border-opacity-25">
+                                    <h6 class="fw-bold text-dark mb-0 lh-base"><i class="fa-solid fa-sitemap text-muted me-1"></i> ${dept}</h6>
+                                    <span class="badge bg-primary rounded-pill px-2 py-1 ms-2" style="font-size: 0.8rem;">${deptData.total} เรื่อง</span>
+                                </div>
+                                <div class="mt-2">${catListHTML}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            } else {
+                deptContainer.innerHTML = '<div class="col-12 text-center text-muted py-4"><i class="fa-regular fa-folder-open fa-2x mb-2 text-light"></i><br>ยังไม่มีข่าวสารในระบบ</div>';
+            }
+        }
+
+        function renderPassengerChart(passData) {
+            const sumThisYear = passData.thisYearData.reduce((acc, val) => acc + (Number(val) || 0), 0);
+            const sumLastYear = passData.lastYearData.reduce((acc, val) => acc + (Number(val) || 0), 0);
+
+            document.getElementById('dash_passThisYearLabel').innerText = `ปี ${passData.thisYearLabel}`;
+            document.getElementById('dash_passThisYearTotal').innerHTML = `${sumThisYear.toLocaleString('th-TH')} <span class="fs-6 fw-normal text-muted">คน</span>`;
+            document.getElementById('dash_passLastYearLabel').innerText = `ปี ${passData.lastYearLabel}`;
+            document.getElementById('dash_passLastYearTotal').innerHTML = `${sumLastYear.toLocaleString('th-TH')} <span class="fs-6 fw-normal text-muted">คน</span>`;
+
+            const ctx = document.getElementById('passengerChart').getContext('2d');
+            if (myPassengerChart) myPassengerChart.destroy();
+
+            myPassengerChart = new Chart(ctx, {
+                type: 'bar', 
+                data: {
+                    labels: ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'],
+                    datasets: [
+                        { label: `ปี ${passData.lastYearLabel}`, data: passData.lastYearData, backgroundColor: '#cbd5e1', borderRadius: 4 },
+                        { label: `ปี ${passData.thisYearLabel}`, data: passData.thisYearData, backgroundColor: '#3b82f6', borderRadius: 4 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'top', }, tooltip: { callbacks: { label: function(context) { let label = context.dataset.label || ''; if (label) label += ': '; if (context.parsed.y !== null) { label += context.parsed.y.toLocaleString('th-TH') + ' คน'; } return label; } } } },
+                    scales: { y: { beginAtZero: true } }
                 }
             });
         }
+        // ================= สิ้นสุด ระบบ Dashboard =================
+
+        // ================= เริ่มต้น ระบบตั้งค่าเว็บไซต์ =================
         function saveSettings() {
             const settingsData = { 
                 SystemName: document.getElementById('set_SystemName').value, 
@@ -967,20 +842,16 @@
                 if (res.status === 'success') Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', showConfirmButton: false, timer: 1500 }); 
             });
         }
-        // ================= สิ้นสุด ฟังก์ชันจัดการ ตั้งค่าเว็บไซต์ =================
+        // ================= สิ้นสุด ระบบตั้งค่าเว็บไซต์ =================
 
-
-        // ================= เริ่มต้น ฟังก์ชันจัดการ แบนเนอร์ (Banners) =================
-         function renderBannersTable(data) {
+        // ================= เริ่มต้น ระบบจัดการ Banners =================
+        function renderBannersTable(data) {
             const tbody = document.getElementById('tbody-banners'); tbody.innerHTML = '';
             if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4">ไม่มีข้อมูล</td></tr>'; return; }
             data.sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList)).forEach((item, index) => {
                 let badge = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิดใช้งาน</span>' : '<span class="badge bg-secondary">ปิด</span>';
-                
-                // 🟢 แก้ไข: ใช้ convertDriveImageLink ตรงนี้ครั้งเดียว เพื่อให้โชว์รูป thumbnail ได้ (ถ้าเป็นลิงก์นอกก็จะไม่พัง)
                 let displayUrl = convertDriveImageLink(item.ImageURL);
                 let imgHtml = displayUrl ? `<img src="${displayUrl}" style="height: 60px; border-radius:5px; object-fit:cover; border:1px solid #ccc;">` : '-';
-                
                 let btnUp = index > 0 ? `<button class="btn btn-sm btn-light text-primary me-1" onclick="moveOrder('Banners', ${index}, -1, renderBannersTable)"><i class="fa-solid fa-arrow-up"></i></button>` : `<button class="btn btn-sm btn-light me-1" style="visibility:hidden;"><i class="fa-solid fa-arrow-up"></i></button>`;
                 let btnDown = index < data.length - 1 ? `<button class="btn btn-sm btn-light text-primary me-2" onclick="moveOrder('Banners', ${index}, 1, renderBannersTable)"><i class="fa-solid fa-arrow-down"></i></button>` : `<button class="btn btn-sm btn-light me-2" style="visibility:hidden;"><i class="fa-solid fa-arrow-down"></i></button>`;
                 
@@ -1011,7 +882,7 @@
                 document.getElementById('bannerModalTitle').innerText = 'แก้ไขรูปสไลด์'; 
                 const item = currentTableData.find(x => x.BannerID === id); 
                 document.getElementById('ban_BannerID').value = item.BannerID; 
-                document.getElementById('ban_ExistingImageURL').value = item.ImageURL || ''; // 🟢 เก็บ URL เดิม
+                document.getElementById('ban_ExistingImageURL').value = item.ImageURL || ''; 
                 document.getElementById('ban_Title').value = item.Title; 
                 document.getElementById('ban_Description').value = item.Description; 
                 document.getElementById('ban_OrderList').value = item.OrderList; 
@@ -1033,7 +904,6 @@
                 let finalUrl = document.getElementById('ban_ExistingImageURL').value;
                 const fileInput = document.getElementById('ban_UploadImage');
 
-                // บังคับว่าถ้าเพิ่มใหม่ ต้องมีรูป
                 if(!document.getElementById('ban_BannerID').value && fileInput.files.length === 0) {
                     Swal.fire('ผิดพลาด', 'กรุณาเลือกรูปภาพ', 'warning'); btn.innerHTML = 'บันทึกข้อมูล'; btn.disabled = false; return;
                 }
@@ -1047,7 +917,6 @@
                 let ord = document.getElementById('ban_OrderList').value; 
                 if (!document.getElementById('ban_BannerID').value) ord = currentTableData.length + 1; 
                 
-                // 🟢 แก้ไข: ใช้ finalUrl เลย ไม่ต้องครอบ convertDriveImageLink แล้ว
                 const recordData = { BannerID: document.getElementById('ban_BannerID').value, ImageURL: finalUrl, Title: document.getElementById('ban_Title').value, Description: document.getElementById('ban_Description').value, OrderList: ord, IsActive: document.getElementById('ban_IsActive').checked ? 'TRUE' : 'FALSE' }; 
                 const formData = new URLSearchParams({ action: 'saveRecord', sheetName: 'Banners', idColumn: 'BannerID', recordJSON: JSON.stringify(recordData) });
                 
@@ -1057,16 +926,16 @@
                 if (result.status === 'success') { 
                     bootstrap.Modal.getInstance(document.getElementById('bannerModal')).hide(); 
                     Swal.fire({ icon: 'success', title: 'สำเร็จ', showConfirmButton: false, timer: 1500 }); 
-                    loadTableData('Banners', renderBannersTable); 
+                    switchView('banners', null);
                 } 
             } catch(e) { Swal.fire('ผิดพลาด', 'เกิดปัญหาขณะบันทึก', 'error'); } 
             finally { btn.innerHTML = 'บันทึกข้อมูล'; btn.disabled = false; }
         }
         function saveBannerOrder() { saveOrderAPI('Banners', 'BannerID'); }
-        // ================= สิ้นสุด ฟังก์ชันจัดการ แบนเนอร์ =================
+        // ================= สิ้นสุด ระบบจัดการ Banners =================
 
 
-        // ================= เริ่มต้น ฟังก์ชันจัดการ กลุ่มงาน (Departments) =================
+        // ================= เริ่มต้น ระบบจัดการ กลุ่มงาน (Departments) =================
         function renderDeptsTable(data) { 
             const tbody = document.getElementById('tbody-departments'); tbody.innerHTML = ''; 
             if (data.length === 0) return; 
@@ -1106,23 +975,17 @@
             e.preventDefault(); const btn = document.getElementById('btnSaveDept'); btn.disabled = true; 
             let ord = document.getElementById('dep_OrderList').value; if (!document.getElementById('dep_DeptID').value) ord = currentTableData.length + 1; 
             
-            const rData = { 
-                DeptID: document.getElementById('dep_DeptID').value, 
-                DeptName: document.getElementById('dep_DeptName').value, 
-                Description: document.getElementById('dep_Description').value, 
-                OrderList: ord, 
-                IsActive: document.getElementById('dep_IsActive').checked ? 'TRUE' : 'FALSE' 
-            }; 
+            const rData = { DeptID: document.getElementById('dep_DeptID').value, DeptName: document.getElementById('dep_DeptName').value, Description: document.getElementById('dep_Description').value, OrderList: ord, IsActive: document.getElementById('dep_IsActive').checked ? 'TRUE' : 'FALSE' }; 
             fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'Departments', idColumn: 'DeptID', recordJSON: JSON.stringify(rData) }) })
             .then(res=>res.json()).then(res=>{ 
-                if (res.status === 'success') { bootstrap.Modal.getInstance(document.getElementById('deptModal')).hide(); Swal.fire({ icon: 'success', showConfirmButton: false, timer: 1500 }); loadTableData('Departments', renderDeptsTable); } 
+                if (res.status === 'success') { bootstrap.Modal.getInstance(document.getElementById('deptModal')).hide(); Swal.fire({ icon: 'success', showConfirmButton: false, timer: 1500 }); switchView('departments', null); } 
             }).finally(() => btn.disabled = false); 
         }
         function saveDeptOrder() { saveOrderAPI('Departments', 'DeptID'); }
-        // ================= สิ้นสุด ฟังก์ชันจัดการ กลุ่มงาน =================
+        // ================= สิ้นสุด ระบบจัดการ กลุ่มงาน =================
 
 
-        // ================= เริ่มต้น ฟังก์ชันจัดการ E-Services =================
+        // ================= เริ่มต้น ระบบจัดการ E-Services =================
         function renderEServicesTable(data) { 
             const tbody = document.getElementById('tbody-eservices'); tbody.innerHTML = ''; 
             if (data.length === 0) return; 
@@ -1168,14 +1031,14 @@
             const rData = { ServiceID: document.getElementById('srv_ServiceID').value, ServiceName: document.getElementById('srv_ServiceName').value, IconClass: document.getElementById('srv_IconClass').value, URL: document.getElementById('srv_URL').value, Target: document.getElementById('srv_Target').value, OrderList: ord, IsActive: document.getElementById('srv_IsActive').checked ? 'TRUE' : 'FALSE' }; 
             fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'EServices', idColumn: 'ServiceID', recordJSON: JSON.stringify(rData) }) })
             .then(res=>res.json()).then(res=>{ 
-                if (res.status === 'success') { bootstrap.Modal.getInstance(document.getElementById('eserviceModal')).hide(); Swal.fire({ icon: 'success', showConfirmButton: false, timer: 1500 }); loadTableData('EServices', renderEServicesTable); } 
+                if (res.status === 'success') { bootstrap.Modal.getInstance(document.getElementById('eserviceModal')).hide(); Swal.fire({ icon: 'success', showConfirmButton: false, timer: 1500 }); switchView('eservices', null); } 
             }).finally(() => btn.disabled = false); 
         }
         function saveEServiceOrder() { saveOrderAPI('EServices', 'ServiceID'); }
-        // ================= สิ้นสุด ฟังก์ชันจัดการ E-Services =================
+        // ================= สิ้นสุด ระบบจัดการ E-Services =================
 
 
-        // ================= เริ่มต้น ฟังก์ชันจัดการ สายการบิน (Airlines) =================
+        // ================= เริ่มต้น ระบบจัดการ สายการบิน (Airlines) =================
         function renderAirlinesTable(data) { 
             const tbody = document.getElementById('tbody-airlines'); tbody.innerHTML = ''; 
             if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4">ไม่มีข้อมูล</td></tr>'; return; }
@@ -1214,14 +1077,13 @@
                 document.getElementById('airlineModalTitle').innerText = 'แก้ไขสายการบิน'; 
                 const item = currentTableData.find(x => x.AirlineID === id); 
                 document.getElementById('air_AirlineID').value = item.AirlineID; 
-                document.getElementById('air_ExistingIconURL').value = item.IconURL || ''; // 🟢 เก็บ URL เดิม
+                document.getElementById('air_ExistingIconURL').value = item.IconURL || ''; 
                 document.getElementById('air_AirlineName').value = item.AirlineName; 
                 document.getElementById('air_PhoneNumber').value = item.PhoneNumber; 
                 document.getElementById('air_ThemeColor').value = item.ThemeColor; 
                 document.getElementById('air_OrderList').value = item.OrderList; 
                 document.getElementById('air_IsActive').checked = (item.IsActive === 'TRUE'); 
                 
-                // 🟢 ถัามีโลโก้เดิมอยู่แล้ว ให้โชว์ลิงก์ให้แอดมินคลิกดูได้
                 if(item.IconURL) {
                     let displayUrl = convertDriveImageLink(item.IconURL);
                     document.getElementById('air_IconStatus').innerHTML = `<a href="${displayUrl}" target="_blank">คลิกดูโลโก้เดิม</a> (อัปโหลดใหม่เพื่อแทนที่)`;
@@ -1245,7 +1107,6 @@
                 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังบันทึกข้อมูล...';
                 let ord = document.getElementById('air_OrderList').value; if (!document.getElementById('air_AirlineID').value) ord = currentTableData.length + 1; 
                 
-                // 🟢 แก้ไข: ใช้ finalUrl แทน
                 const recordData = { AirlineID: document.getElementById('air_AirlineID').value, AirlineName: document.getElementById('air_AirlineName').value, IconURL: finalUrl, PhoneNumber: document.getElementById('air_PhoneNumber').value, ThemeColor: document.getElementById('air_ThemeColor').value, OrderList: ord, IsActive: document.getElementById('air_IsActive').checked ? 'TRUE' : 'FALSE' }; 
                 const formData = new URLSearchParams({ action: 'saveRecord', sheetName: 'Airlines', idColumn: 'AirlineID', recordJSON: JSON.stringify(recordData) });
 
@@ -1255,28 +1116,25 @@
                 if (result.status === 'success') { 
                     bootstrap.Modal.getInstance(document.getElementById('airlineModal')).hide(); 
                     Swal.fire({ icon: 'success', title: 'สำเร็จ', showConfirmButton: false, timer: 1500 }); 
-                    loadTableData('Airlines', renderAirlinesTable); 
+                    switchView('airlines', null); 
                 } 
             } catch(e) { Swal.fire('ผิดพลาด', 'เกิดปัญหาขณะบันทึก', 'error'); } 
             finally { btn.innerHTML = 'บันทึกข้อมูล'; btn.disabled = false; }
         }
         function saveAirlineOrder() { saveOrderAPI('Airlines', 'AirlineID'); }
-        // ================= สิ้นสุด ฟังก์ชันจัดการ สายการบิน =================
+        // ================= สิ้นสุด ระบบจัดการ สายการบิน =================
 
 
-        // ================= เริ่มต้น ฟังก์ชันจัดการ หมวดหมู่ข่าว (News Categories) =================
-        function populateDeptDropdown() {
-            fetch(`${API_URL}?action=getTableData&sheetName=Departments`).then(res => res.json()).then(res => {
-                if(res.status === 'success') {
-                    const select = document.getElementById('ncat_Department');
-                    select.innerHTML = '<option value="">-- กรุณาเลือกกลุ่มงาน --</option><option value="ทั้งหมด">ทั้งหมด (ดูแลทุกกลุ่มงาน)</option>';
-                    res.data.sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList)).forEach(dept => {
-                        if(dept.IsActive === 'TRUE') select.innerHTML += `<option value="${dept.DeptName}">${dept.DeptName}</option>`;
-                    });
-                }
+        // ================= เริ่มต้น ระบบจัดการ หมวดหมู่ข่าว (News Categories) =================
+        // 🟢 ฟังก์ชันดึงกลุ่มงานให้ Modal หมวดหมู่ข่าว (แยกชื่อฟังก์ชันไม่ให้ชนกับหน้า User)
+        function populateNewsCatDeptDropdown(deptData) {
+            const select = document.getElementById('ncat_Department');
+            select.innerHTML = '<option value="ทั้งหมด">ทั้งหมด (ดูแลทุกกลุ่มงาน)</option>';
+            deptData.sort((a,b) => a.OrderList - b.OrderList).forEach(dept => {
+                if(dept.IsActive === 'TRUE') select.innerHTML += `<option value="${dept.DeptName}">${dept.DeptName}</option>`;
             });
         }
-        
+
         function renderNewsCatsTable(data) { 
             const tbody = document.getElementById('tbody-newscategories'); tbody.innerHTML = ''; 
             if (data.length === 0) return; 
@@ -1285,7 +1143,6 @@
                 let layoutLabel = item.LayoutType === 'slider' ? '<i class="fa-solid fa-images text-primary"></i> สไลด์รูปภาพ' : item.LayoutType === 'slider-vertical' ? '<i class="fa-solid fa-grip-vertical text-info"></i> สไลด์แนวตั้ง' : '<i class="fa-solid fa-list text-secondary"></i> แบบรายการ (Text)'; 
                 let colorBadge = item.ThemeColor === 'transparent' ? `<span class="badge bg-secondary">ไม่มีสี (สไลด์)</span>` : `<span class="badge text-white" style="background-color:${item.ThemeColor};">${item.ThemeColor}</span>`; 
                 
-                // 🟢 แยกชื่อกลุ่มงานด้วยลูกน้ำ และทำเป็น Badge สวยๆ
                 let deptArray = item.Department ? item.Department.split(', ') : [];
                 let deptBadges = deptArray.map(d => `<span class="badge bg-light text-dark border border-secondary mb-1 me-1">${d}</span>`).join('');
 
@@ -1312,7 +1169,7 @@
         function openNewsCatModal(id = '') { 
             document.getElementById('formNewsCat').reset(); document.getElementById('ncat_CategoryID').value = ''; 
             let options = document.getElementById('ncat_Department').options;
-            for (let opt of options) opt.selected = false; // เคลียร์การเลือกทั้งหมด
+            for (let opt of options) opt.selected = false; 
 
             if (id) { 
                 const i = currentTableData.find(x => x.CategoryID === id); 
@@ -1323,11 +1180,8 @@
                 document.getElementById('ncat_OrderList').value = i.OrderList; 
                 document.getElementById('ncat_IsActive').checked = (i.IsActive === 'TRUE'); 
                 
-                // 🟢 จัดการไฮไลท์กลุ่มงานหลายๆ ตัว (Multiple Select)
                 let depts = i.Department ? i.Department.split(', ') : [];
-                for (let opt of options) {
-                    opt.selected = depts.includes(opt.value);
-                }
+                for (let opt of options) { opt.selected = depts.includes(opt.value); }
             } 
             new bootstrap.Modal(document.getElementById('newsCatModal')).show(); 
         }
@@ -1335,12 +1189,8 @@
         function saveNewsCat(e) { 
             e.preventDefault(); const btn = document.getElementById('btnSaveNewsCat'); 
             
-            // 🟢 ดึงค่ากลุ่มงานทั้งหมดที่ถูกเลือก มารวมกันด้วยลูกน้ำ
             let selectedDepts = Array.from(document.getElementById('ncat_Department').selectedOptions).map(opt => opt.value).join(', ');
-            if(!selectedDepts) {
-                Swal.fire('แจ้งเตือน', 'กรุณาเลือกกลุ่มงานที่รับผิดชอบอย่างน้อย 1 กลุ่ม', 'warning');
-                return;
-            }
+            if(!selectedDepts) { Swal.fire('แจ้งเตือน', 'กรุณาเลือกกลุ่มงานที่รับผิดชอบอย่างน้อย 1 กลุ่ม', 'warning'); return; }
 
             btn.disabled = true; 
             let ord = document.getElementById('ncat_OrderList').value; if (!document.getElementById('ncat_CategoryID').value) ord = currentTableData.length + 1; 
@@ -1348,17 +1198,14 @@
             const rData = { CategoryID: document.getElementById('ncat_CategoryID').value, CategoryName: document.getElementById('ncat_CategoryName').value, Department: selectedDepts, LayoutType: document.getElementById('ncat_LayoutType').value, ThemeColor: document.getElementById('ncat_ThemeColor').value, OrderList: ord, IsActive: document.getElementById('ncat_IsActive').checked ? 'TRUE' : 'FALSE' }; 
             fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'NewsCategories', idColumn: 'CategoryID', recordJSON: JSON.stringify(rData) }) })
             .then(res=>res.json()).then(res=>{ 
-                if (res.status === 'success') { bootstrap.Modal.getInstance(document.getElementById('newsCatModal')).hide(); Swal.fire({ icon: 'success', showConfirmButton: false, timer: 1500 }); loadTableData('NewsCategories', renderNewsCatsTable); } 
+                if (res.status === 'success') { bootstrap.Modal.getInstance(document.getElementById('newsCatModal')).hide(); Swal.fire({ icon: 'success', showConfirmButton: false, timer: 1500 }); switchView('newscategories', null); } 
             }).finally(() => btn.disabled = false); 
         }
 
         function saveNewsCatOrder() { saveOrderAPI('NewsCategories', 'CategoryID'); }
-        // ================= สิ้นสุด ฟังก์ชันจัดการ หมวดหมู่ข่าว =================
-        
-        // ==========================================
-        // 📊 ระบบจัดการ สถิติผู้โดยสาร (Passenger Stats)
-        // ==========================================
+        // ================= สิ้นสุด ระบบจัดการ หมวดหมู่ข่าว =================
 
+        // ================= เริ่มต้น ระบบจัดการ สถิติผู้โดยสาร (Passenger Stats) =================
         const monthNames = { "01": "มกราคม", "02": "กุมภาพันธ์", "03": "มีนาคม", "04": "เมษายน", "05": "พฤษภาคม", "06": "มิถุนายน", "07": "กรกฎาคม", "08": "สิงหาคม", "09": "กันยายน", "10": "ตุลาคม", "11": "พฤศจิกายน", "12": "ธันวาคม" };
 
         function renderPassengerStatsTable(data) {
@@ -1455,17 +1302,259 @@
                     if (res.status === 'success') {
                         bootstrap.Modal.getInstance(document.getElementById('statModal')).hide();
                         Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', showConfirmButton: false, timer: 1500 });
-                        loadTableData('PassengerStats', renderPassengerStatsTable);
+                        switchView('passengerstats', null);
                     } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
                 }).finally(() => { btn.innerHTML = 'บันทึกข้อมูลสถิติ'; btn.disabled = false; });
         }
-        // =======================สิ้นสุด ฟังก์ชันจัดการ สถิติผู้โดยสาร =================
+        // ================= สิ้นสุด ระบบจัดการ สถิติผู้โดยสาร =================
 
+        // ================= เริ่มต้น ระบบจัดการ ผู้ใช้งาน (User Management) =================
+        function populateUserDeptDropdown(deptData) {
+            const filterSelect = document.getElementById('filter_UserDept');
+            const modalSelect = document.getElementById('usr_Department');
+            
+            let opts = '<option value="">ทุกกลุ่มงาน</option>';
+            let modalOpts = '<option value="">-- ไม่ระบุ (ประชาชนทั่วไป) --</option><option value="ทั้งหมด">ทั้งหมด (ดูแลทุกกลุ่มงาน)</option>';
+            
+            deptData.sort((a,b) => a.OrderList - b.OrderList).forEach(dept => {
+                if(dept.IsActive === 'TRUE') {
+                    opts += `<option value="${dept.DeptName}">${dept.DeptName}</option>`;
+                    modalOpts += `<option value="${dept.DeptName}">${dept.DeptName}</option>`;
+                }
+            });
+            
+            filterSelect.innerHTML = opts;
+            modalSelect.innerHTML = modalOpts;
+        }
 
-        // ==========================================
-        // ✈️ ระบบจัดการ ตารางเที่ยวบิน (Flight Schedules) ใหม่ล่าสุด
-        // ==========================================
-        
+        function checkUsernameRealtime() {
+            const usernameInput = document.getElementById('usr_Username');
+            const statusMsg = document.getElementById('usernameStatusMsg');
+            const username = usernameInput.value.trim();
+
+            if (username.length < 4) {
+                statusMsg.innerText = "ต้องมีความยาวอย่างน้อย 4 ตัวอักษร";
+                statusMsg.className = "fw-bold mt-1 d-block text-danger";
+                isUsernameValid = false;
+                return;
+            }
+
+            statusMsg.innerText = "กำลังตรวจสอบ...";
+            statusMsg.className = "fw-bold mt-1 d-block text-muted";
+
+            fetch(`${API_URL}?action=checkUsername`, { method: 'POST', body: new URLSearchParams({ username: username }) }).then(res => res.json()).then(data => {
+                if (data.status === 'exist') {
+                    statusMsg.innerHTML = `<i class="fa-solid fa-xmark"></i> ${data.message}`;
+                    statusMsg.className = "fw-bold mt-1 d-block text-danger";
+                    isUsernameValid = false;
+                } else {
+                    statusMsg.innerHTML = `<i class="fa-solid fa-check"></i> ${data.message}`;
+                    statusMsg.className = "fw-bold mt-1 d-block text-success";
+                    isUsernameValid = true;
+                }
+            });
+        }
+
+        function applyUserFilters() {
+            const searchTxt = document.getElementById('filter_UserSearch').value.toLowerCase();
+            const deptVal = document.getElementById('filter_UserDept').value;
+            const roleVal = document.getElementById('filter_UserRole').value;
+            const sortVal = document.getElementById('filter_UserSort').value;
+
+            filteredUserData = currentTableData.filter(user => {
+                if (deptVal && user.Department !== deptVal) return false;
+                if (roleVal && user.Role !== roleVal) return false;
+                if (searchTxt) {
+                    let searchStr = `${user.FirstName} ${user.LastName} ${user.Username} ${user.Phone} ${user.Organization}`.toLowerCase();
+                    if (!searchStr.includes(searchTxt)) return false;
+                }
+                return true;
+            });
+
+            filteredUserData.sort((a,b) => {
+                if (sortVal === 'role') {
+                    const roleWeight = { 'SuperAdmin': 1, 'SubAdmin': 2, 'Staff': 3, 'User': 4 };
+                    return roleWeight[a.Role] - roleWeight[b.Role];
+                } else {
+                    return b.UserID.localeCompare(a.UserID);
+                }
+            });
+
+            currentUserPage = 1;
+            renderUsersTable();
+        }
+
+        function changeUserPage(page) { currentUserPage = page; renderUsersTable(); }
+
+        function renderUsersTable() {
+            const tbody = document.getElementById('tbody-users'); tbody.innerHTML = '';
+            
+            const pageSize = parseInt(document.getElementById('filter_UserPageSize').value);
+            const totalItems = filteredUserData.length;
+            const totalPages = Math.ceil(totalItems / pageSize) || 1; 
+            
+            if (currentUserPage > totalPages) currentUserPage = totalPages;
+            const startIndex = (currentUserPage - 1) * pageSize;
+            const endIndex = Math.min(startIndex + pageSize, totalItems);
+
+            document.getElementById('user_PageInfo').innerText = totalItems === 0 ? `ไม่พบข้อมูล` : `แสดง ${startIndex + 1} ถึง ${endIndex} จากทั้งหมด ${totalItems} บัญชี`;
+
+            let pageData = filteredUserData.slice(startIndex, endIndex);
+            const menuNamesTH = { 'news':'ข่าวสาร', 'newscategories':'หมวดข่าว', 'events':'ปฏิทิน', 'flightschedules':'เที่ยวบิน', 'passengerstats':'สถิติฯ', 'eservices':'E-Services', 'airlines':'สายการบิน', 'banners':'แบนเนอร์' };
+
+            if (pageData.length === 0) { 
+                tbody.innerHTML = '<tr><td colspan="6" class="py-4 text-center text-muted">ไม่พบข้อมูลบัญชีที่ค้นหา</td></tr>'; 
+            } else {
+                pageData.forEach((item) => {
+                    let statusBadge = item.Status === 'Active' ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">ระงับ</span>';
+                    let roleBadge = '';
+                    let allowedMenusHtml = ''; 
+                    
+                    if (item.Role === 'SuperAdmin') {
+                        roleBadge = '<span class="badge bg-danger">SuperAdmin</span>';
+                        allowedMenusHtml = '<div class="mt-1"><span class="badge bg-danger bg-opacity-10 text-danger border border-danger">เข้าถึงทุกเมนู</span></div>';
+                    } else if (item.Role === 'SubAdmin') {
+                        roleBadge = '<span class="badge bg-warning text-dark">SubAdmin</span>';
+                        if(item.AllowedMenus) {
+                            let menus = item.AllowedMenus.split(',');
+                            allowedMenusHtml = '<div class="mt-1 d-flex flex-wrap gap-1 justify-content-center">';
+                            menus.forEach(m => { if(menuNamesTH[m]) allowedMenusHtml += `<span class="badge bg-light text-dark border">${menuNamesTH[m]}</span>`; });
+                            allowedMenusHtml += '</div>';
+                        }
+                    } else if (item.Role === 'Staff') roleBadge = '<span class="badge bg-info text-dark">Staff</span>';
+                    else roleBadge = '<span class="badge bg-light text-dark border">User</span>';
+
+                    let loginInfo = item.LastLogin ? `<div class="small text-muted mt-1" style="font-size:0.75rem;"><i class="fa-solid fa-clock"></i> ล็อกอิน: ${item.LastLogin}</div>` : '';
+                    let deptInfo = item.Department ? item.Department : '<span class="text-muted">-</span>';
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><div class="fw-bold text-primary">${item.FirstName} ${item.LastName}</div><div class="small text-muted"><i class="fa-solid fa-user"></i> ${item.Username}</div></td>
+                            <td><div class="small fw-bold">${item.Organization || '-'}</div><div class="small text-muted"><i class="fa-solid fa-envelope"></i> ${item.Email}</div><div class="small text-muted"><i class="fa-solid fa-phone"></i> ${item.Phone}</div></td>
+                            <td class="text-center fw-bold text-secondary small">${deptInfo}</td>
+                            <td class="text-center">${roleBadge} ${allowedMenusHtml}</td>
+                            <td class="text-center">${statusBadge}${loginInfo}</td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-warning me-1" onclick="openUserModal('${item.UserID}')"><i class="fa-solid fa-user-pen"></i></button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('Users', 'UserID', '${item.UserID}')"><i class="fa-solid fa-user-xmark"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            const ul = document.getElementById('user_PaginationControls'); ul.innerHTML = '';
+            if(totalPages > 1) {
+                ul.innerHTML += `<li class="page-item ${currentUserPage === 1 ? 'disabled' : ''}"><a class="page-link" href="#" onclick="changeUserPage(${currentUserPage - 1})"><i class="fa-solid fa-chevron-left"></i></a></li>`;
+                for(let i = 1; i <= totalPages; i++) ul.innerHTML += `<li class="page-item ${i === currentUserPage ? 'active' : ''}"><a class="page-link" href="#" onclick="changeUserPage(${i})">${i}</a></li>`;
+                ul.innerHTML += `<li class="page-item ${currentUserPage === totalPages ? 'disabled' : ''}"><a class="page-link" href="#" onclick="changeUserPage(${currentUserPage + 1})"><i class="fa-solid fa-chevron-right"></i></a></li>`;
+            }
+        }
+
+        document.getElementById('usr_Status').addEventListener('change', function() {
+            let label = document.getElementById('usr_StatusLabel');
+            if(this.checked) { label.innerText = 'บัญชีนี้พร้อมใช้งาน (Active)'; label.className = 'form-check-label fw-bold text-success'; }
+            else { label.innerText = 'ระงับการใช้งาน (Inactive)'; label.className = 'form-check-label fw-bold text-danger'; }
+        });
+
+        function toggleAllowedMenusUI() {
+            const role = document.getElementById('usr_Role').value;
+            const menuContainer = document.getElementById('usr_AllowedMenusContainer');
+            if(role === 'SubAdmin') menuContainer.style.display = 'block';
+            else menuContainer.style.display = 'none';
+        }
+
+        function checkAllMenus(isChecked) {
+            document.querySelectorAll('.chk-menu').forEach(cb => cb.checked = isChecked);
+        }
+
+        function openUserModal(id = '') {
+            document.getElementById('formUser').reset(); 
+            document.getElementById('usr_UserID').value = ''; 
+            document.getElementById('userModalTitle').innerText = 'เพิ่มบัญชีผู้ใช้งานใหม่';
+            
+            const userInp = document.getElementById('usr_Username'); 
+            userInp.readOnly = false; 
+            document.getElementById('userHelperText').style.display = 'none';
+            document.getElementById('usernameStatusMsg').innerText = ''; 
+            isUsernameValid = false; 
+
+            document.getElementById('usr_Status').checked = true; document.getElementById('usr_StatusLabel').innerText = 'บัญชีนี้พร้อมใช้งาน (Active)'; document.getElementById('usr_StatusLabel').className = 'form-check-label fw-bold text-success';
+            document.getElementById('usr_RegisterDate').value = Utilities_getNow(); document.getElementById('usr_PDPA').value = 'Added By Admin'; document.getElementById('usr_LastLogin').value = '';
+
+            checkAllMenus(false);
+            toggleAllowedMenusUI();
+
+            if (id) {
+                document.getElementById('userModalTitle').innerText = 'แก้ไขบัญชีผู้ใช้งาน';
+                const item = currentTableData.find(x => x.UserID === id);
+                
+                document.getElementById('usr_UserID').value = item.UserID;
+                document.getElementById('usr_FirstName').value = item.FirstName; document.getElementById('usr_LastName').value = item.LastName;
+                document.getElementById('usr_Email').value = item.Email; document.getElementById('usr_Phone').value = item.Phone;
+                document.getElementById('usr_Organization').value = item.Organization; document.getElementById('usr_Position').value = item.Position;
+                document.getElementById('usr_Password').value = item.Password; 
+                document.getElementById('usr_Department').value = item.Department || ''; document.getElementById('usr_Role').value = item.Role;
+                
+                if(item.AllowedMenus) {
+                    let allowed = item.AllowedMenus.split(',');
+                    document.querySelectorAll('.chk-menu').forEach(cb => {
+                        if(allowed.includes(cb.value)) cb.checked = true;
+                    });
+                }
+                toggleAllowedMenusUI();
+
+                userInp.value = item.Username; 
+                userInp.readOnly = true; 
+                document.getElementById('userHelperText').style.display = 'block';
+                isUsernameValid = true; 
+
+                document.getElementById('usr_Status').checked = (item.Status === 'Active');
+                let evt = new Event("change"); document.getElementById('usr_Status').dispatchEvent(evt);
+
+                document.getElementById('usr_RegisterDate').value = item.RegisterDate || ''; document.getElementById('usr_PDPA').value = item.pdpaConsent || ''; document.getElementById('usr_LastLogin').value = item.LastLogin || '';
+            }
+            new bootstrap.Modal(document.getElementById('userModal')).show();
+        }
+
+        function saveUserRecord(e) {
+            e.preventDefault(); 
+            if (!isUsernameValid) { Swal.fire('ข้อผิดพลาด', 'กรุณาตรวจสอบชื่อผู้ใช้งาน (Username) ใหม่อีกครั้ง', 'warning'); return; }
+
+            const btn = document.getElementById('btnSaveUser'); 
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังบันทึก...'; btn.disabled = true;
+
+            let allowedMenusStr = '';
+            let role = document.getElementById('usr_Role').value;
+            if (role === 'SuperAdmin') {
+                allowedMenusStr = 'all';
+            } else if (role === 'SubAdmin') {
+                let selectedMenus = [];
+                document.querySelectorAll('.chk-menu:checked').forEach(cb => selectedMenus.push(cb.value));
+                if(selectedMenus.length === 0) { Swal.fire('ผิดพลาด', 'กรุณาเลือกเมนูที่อนุญาตให้ใช้งานอย่างน้อย 1 เมนู', 'warning'); btn.innerHTML = 'บันทึกข้อมูลผู้ใช้งาน'; btn.disabled = false; return; }
+                allowedMenusStr = selectedMenus.join(',');
+            }
+
+            const recordData = {
+                UserID: document.getElementById('usr_UserID').value, Username: document.getElementById('usr_Username').value, Password: document.getElementById('usr_Password').value, FirstName: document.getElementById('usr_FirstName').value, LastName: document.getElementById('usr_LastName').value, Email: document.getElementById('usr_Email').value, Phone: document.getElementById('usr_Phone').value, Organization: document.getElementById('usr_Organization').value, Position: document.getElementById('usr_Position').value, Department: document.getElementById('usr_Department').value, Role: role, 
+                AllowedMenus: allowedMenusStr, 
+                Status: document.getElementById('usr_Status').checked ? 'Active' : 'Inactive', LastLogin: document.getElementById('usr_LastLogin').value, pdpaConsent: document.getElementById('usr_PDPA').value, RegisterDate: document.getElementById('usr_RegisterDate').value
+            };
+
+            const formData = new URLSearchParams({ action: 'saveRecord', sheetName: 'Users', idColumn: 'UserID', recordJSON: JSON.stringify(recordData) });
+
+            fetch(API_URL, { method: 'POST', body: formData }).then(res => res.json()).then(res => {
+                if (res.status === 'success') {
+                    bootstrap.Modal.getInstance(document.getElementById('userModal')).hide(); 
+                    document.getElementById('formUser').reset(); 
+                    Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', showConfirmButton: false, timer: 1500 }); 
+                    switchView('users', null); 
+                } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
+            }).finally(() => { btn.innerHTML = 'บันทึกข้อมูลผู้ใช้งาน'; btn.disabled = false; });
+        }
+        // ================= สิ้นสุด ระบบจัดการ ผู้ใช้งาน =================
+
+        // ================= เริ่มต้น ระบบจัดการ ตารางเที่ยวบิน (Flight Schedules) =================
         function populateAirlineDropdown() {
             fetch(`${API_URL}?action=getTableData&sheetName=Airlines`).then(res => res.json()).then(res => {
                 if(res.status === 'success') {
@@ -1537,12 +1626,16 @@
 
             const recordData = { FlightID: document.getElementById('flt_FlightID').value, AirlineID: document.getElementById('flt_AirlineID').value, FlightNumber: document.getElementById('flt_FlightNumber').value.toUpperCase(), FlightType: document.getElementById('flt_FlightType').value, Origin: document.getElementById('flt_Origin').value, Destination: document.getElementById('flt_Destination').value, DepartureTime: document.getElementById('flt_DepartureTime').value, ArrivalTime: document.getElementById('flt_ArrivalTime').value, FlightDates: datesStr, IsActive: document.getElementById('flt_IsActive').checked ? 'TRUE' : 'FALSE' };
             fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'FlightSchedules', idColumn: 'FlightID', recordJSON: JSON.stringify(recordData) }) })
-            .then(res => res.json()).then(res => { if (res.status === 'success') { bootstrap.Modal.getInstance(document.getElementById('flightModal')).hide(); Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', showConfirmButton: false, timer: 1500 }); loadTableData('FlightSchedules', renderFlightsTable); } else { Swal.fire('ผิดพลาด', res.message, 'error'); } }).finally(() => { btn.innerHTML = 'บันทึกเที่ยวบิน'; btn.disabled = false; });
+            .then(res => res.json()).then(res => { 
+                if (res.status === 'success') { 
+                    bootstrap.Modal.getInstance(document.getElementById('flightModal')).hide(); 
+                    Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', showConfirmButton: false, timer: 1500 }); 
+                    switchView('flightschedules', null);
+                } else { Swal.fire('ผิดพลาด', res.message, 'error'); } 
+            }).finally(() => { btn.innerHTML = 'บันทึกเที่ยวบิน'; btn.disabled = false; });
         }
 
-        // 🟢 ฟังก์ชันเปิด Modal ดูวันทำการบิน พร้อมข้อมูล
         let readonlyDatepicker;
-
         function openViewDatesModal(flightNum, airlineID, route, depTime, arrTime, datesString) {
             document.getElementById('viewDates_FlightNo').innerText = 'เที่ยวบิน ' + flightNum;
             document.getElementById('viewDates_Route').innerHTML = route.replace('-', '<i class="fa-solid fa-arrow-right mx-2"></i>');
@@ -1566,13 +1659,22 @@
             });
             new bootstrap.Modal(document.getElementById('viewFlightDatesModal')).show();
         }
-        // =======================สิ้นสุด ฟังก์ชันจัดการ ตารางเที่ยวบิน =================
+        // ================= สิ้นสุด ระบบจัดการ ตารางเที่ยวบิน =================
 
-        // ==========================================
-        // 📰 ระบบจัดการข่าวสาร (News Management) & RBAC
-        // ==========================================
-        let filteredNewsData = []; 
-        let currentNewsPage = 1;  
+        // ================= เริ่มต้น ระบบจัดการ ข่าวสาร (News) =================
+        function populateNewsCategoryDropdown() {
+            const user = JSON.parse(localStorage.getItem('userData'));
+            const select = document.getElementById('news_CategoryID');
+            select.innerHTML = '<option value="">-- เลือกหมวดหมู่ --</option>';
+            allCategoriesData.forEach(cat => {
+                if (cat.IsActive === 'TRUE') {
+                    let allowedDepts = cat.Department ? cat.Department.split(', ') : [];
+                    if (user.role === 'SuperAdmin' || allowedDepts.includes(user.department) || allowedDepts.includes('ทั้งหมด')) {
+                        select.innerHTML += `<option value="${cat.CategoryID}">${cat.CategoryName} (${cat.Department})</option>`;
+                    }
+                }
+            });
+        }
 
         function initNewsFilterDropdowns() {
             const user = JSON.parse(localStorage.getItem('userData'));
@@ -1589,20 +1691,6 @@
                 }
             });
             if (user.role === 'SubAdmin') { deptFilter.value = user.department; deptFilter.disabled = true; }
-        }
-
-        function populateNewsCategoryDropdown() {
-            const user = JSON.parse(localStorage.getItem('userData'));
-            const select = document.getElementById('news_CategoryID');
-            select.innerHTML = '<option value="">-- เลือกหมวดหมู่ --</option>';
-            allCategoriesData.forEach(cat => {
-                if (cat.IsActive === 'TRUE') {
-                    let allowedDepts = cat.Department ? cat.Department.split(', ') : [];
-                    if (user.role === 'SuperAdmin' || allowedDepts.includes(user.department) || allowedDepts.includes('ทั้งหมด')) {
-                        select.innerHTML += `<option value="${cat.CategoryID}">${cat.CategoryName} (${cat.Department})</option>`;
-                    }
-                }
-            });
         }
 
         function applyNewsFilters() {
@@ -1705,7 +1793,7 @@
             ul.innerHTML += `<li class="page-item ${nextClass}"><a class="page-link" href="#" onclick="changeNewsPage(${currentNewsPage + 1})"><i class="fa-solid fa-chevron-right"></i></a></li>`;
         }
 
-         function openNewsModal(id = '') {
+        function openNewsModal(id = '') {
             document.getElementById('formNews').reset(); document.getElementById('news_NewsID').value = ''; document.getElementById('newsModalTitle').innerText = 'เขียนข่าว/ประชาสัมพันธ์ใหม่';
             quillEditor.root.innerHTML = '';
             document.getElementById('news_CoverStatus').innerText = 'ไม่ได้เลือกไฟล์'; document.getElementById('news_FileStatus').innerText = 'ไม่ได้เลือกไฟล์'; document.getElementById('news_GalleryStatus').innerText = 'ไม่ได้เลือกไฟล์'; 
@@ -1717,9 +1805,7 @@
             if (id) {
                 document.getElementById('newsModalTitle').innerText = 'แก้ไขข่าวสาร';
                 const item = currentTableData.find(x => x.NewsID === id);
-                document.getElementById('news_NewsID').value = item.NewsID; document.getElementById('news_Title').value = item.Title; 
-                quillEditor.root.innerHTML = item.Content || ''; 
-                document.getElementById('news_CategoryID').value = item.CategoryID; document.getElementById('news_Status').value = item.Status; document.getElementById('news_CreateDate').value = item.CreateDate; document.getElementById('news_Author').value = item.Author; document.getElementById('news_ViewCount').value = item.ViewCount;
+                document.getElementById('news_NewsID').value = item.NewsID; document.getElementById('news_Title').value = item.Title; quillEditor.root.innerHTML = item.Content || ''; document.getElementById('news_CategoryID').value = item.CategoryID; document.getElementById('news_Status').value = item.Status; document.getElementById('news_CreateDate').value = item.CreateDate; document.getElementById('news_Author').value = item.Author; document.getElementById('news_ViewCount').value = item.ViewCount;
 
                 document.getElementById('news_ExistingCoverURL').value = item.CoverImageURL || ''; document.getElementById('news_ExistingFileURL').value = item.FilesURL || ''; document.getElementById('news_ExistingGalleryURL').value = item.GalleryURLs || '';
                 
@@ -1751,8 +1837,7 @@
                     img.onload = function() {
                         let width = img.width; let height = img.height;
                         if (width > maxWidth) { height = Math.round((height * maxWidth) / width); width = maxWidth; }
-                        const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
-                        const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
+                        const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
                         const dataUrl = canvas.toDataURL(file.type, quality); resolve(dataUrl.split(',')[1]); 
                     }
                 };
@@ -1793,7 +1878,7 @@
                 if (result.status === 'success') {
                     bootstrap.Modal.getInstance(document.getElementById('newsModal')).hide();
                     Swal.fire({ icon: 'success', title: 'สำเร็จ', text: 'ข้อมูลถูกบันทึกสมบูรณ์', showConfirmButton: false, timer: 2000 });
-                    loadTableData('News', (data) => { currentTableData = data; applyNewsFilters(); });
+                    switchView('news', null);
                 } else { Swal.fire('ผิดพลาด', result.message, 'error'); }
             } catch (error) { console.error(error); Swal.fire('ข้อผิดพลาด', 'ไม่สามารถบันทึกข้อมูลได้', 'error'); } 
             finally { btn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i> บันทึกข่าวสาร'; btn.disabled = false; }
@@ -1812,7 +1897,7 @@
             new bootstrap.Modal(document.getElementById('viewFilesModal')).show();
         }
 
-        function openGalleryModal(newsId) {
+      function openGalleryModal(newsId) {
             const item = currentTableData.find(x => x.NewsID === newsId);
             const inner = document.getElementById('gallery-inner'); const indicators = document.getElementById('gallery-indicators');
             inner.innerHTML = ''; indicators.innerHTML = '';
@@ -1822,12 +1907,240 @@
                 images.forEach((url, index) => {
                     let displayUrl = convertDriveImageLink(url); let rawUrl = url.replace('?usp=sharing', ''); let activeClass = index === 0 ? 'active' : ''; 
                     indicators.innerHTML += `<button type="button" data-bs-target="#galleryCarousel" data-bs-slide-to="${index}" class="${activeClass}"></button>`;
-                    inner.innerHTML += `<div class="carousel-item ${activeClass} h-100 w-100"><div class="d-flex justify-content-center align-items-center h-100 w-100 p-3"><div class="swiper-zoom-container"><img src="${displayUrl}" class="img-fluid" style="max-height: 100%; max-width: 100%; object-fit: contain;"></div></div><div class="position-absolute bottom-0 end-0 m-4" style="z-index: 10;"><a href="${rawUrl}" target="_blank" class="btn btn-primary rounded-pill shadow"><i class="fa-solid fa-expand me-1"></i> ดูรูปขนาดเต็ม</a></div></div>`;
+                    inner.innerHTML += `<div class="carousel-item ${activeClass} h-100 w-100"><div class="d-flex justify-content-center align-items-center h-100 w-100 p-3"><img src="${displayUrl}" class="img-fluid" style="max-height: 100%; max-width: 100%; object-fit: contain;"></div><div class="position-absolute bottom-0 end-0 m-4" style="z-index: 10;"><a href="${rawUrl}" target="_blank" class="btn btn-primary rounded-pill shadow"><i class="fa-solid fa-expand me-1"></i> ดูรูปขนาดเต็ม</a></div></div>`;
                 });
             }
             new bootstrap.Modal(document.getElementById('viewGalleryModal')).show();
         }
-        // =======================สิ้นสุด ฟังก์ชันจัดการ ข่าวสาร =================
+        // ================= สิ้นสุด ระบบจัดการ ข่าวสาร =================
+
+        // ================= เริ่มต้น ระบบจัดการ ปฏิทินกิจกรรม (Events) =================
+        function initEventFilterDropdown() {
+            const deptFilter = document.getElementById('filter_EventDept');
+            deptFilter.innerHTML = '<option value="">ทุกหน่วยงาน</option>';
+            let uniqueDepts = [...new Set(currentTableData.map(item => item.EventDept))].filter(d => d);
+            uniqueDepts.sort().forEach(dept => { deptFilter.innerHTML += `<option value="${dept}">${dept}</option>`; });
+        }
+
+        function applyEventFilters() {
+            const searchTxt = document.getElementById('filter_EventSearch').value.toLowerCase();
+            const deptVal = document.getElementById('filter_EventDept').value;
+            const typeVal = document.getElementById('filter_EventType').value;
+            const sortVal = document.getElementById('filter_EventSort').value;
+
+            filteredEventData = currentTableData.filter(evt => {
+                if (deptVal && evt.EventDept !== deptVal) return false;
+                if (typeVal && evt.EventType !== typeVal) return false;
+                if (searchTxt) {
+                    let searchMatch = false;
+                    if (evt.EventName && evt.EventName.toLowerCase().includes(searchTxt)) searchMatch = true;
+                    if (evt.EventLocation && evt.EventLocation.toLowerCase().includes(searchTxt)) searchMatch = true;
+                    if (evt.EventDept && evt.EventDept.toLowerCase().includes(searchTxt)) searchMatch = true;
+                    if (!searchMatch) return false;
+                }
+                return true;
+            });
+
+            filteredEventData.sort((a, b) => {
+                let dateA = new Date(a.EventDate).getTime(); let dateB = new Date(b.EventDate).getTime();
+                return sortVal === 'date_desc' ? dateB - dateA : dateA - dateB;
+            });
+
+            currentEventPage = 1; renderEventsTable(); 
+        }
+
+        function changeEventPage(page) { currentEventPage = page; renderEventsTable(); }
+
+        function renderEventPagination(totalPages) {
+            const ul = document.getElementById('event_PaginationControls'); ul.innerHTML = '';
+            if(totalPages <= 1) return;
+            let prevClass = currentEventPage === 1 ? 'disabled' : ''; ul.innerHTML += `<li class="page-item ${prevClass}"><a class="page-link" href="#" onclick="changeEventPage(${currentEventPage - 1})"><i class="fa-solid fa-chevron-left"></i></a></li>`;
+            for(let i = 1; i <= totalPages; i++) { let activeClass = i === currentEventPage ? 'active' : ''; ul.innerHTML += `<li class="page-item ${activeClass}"><a class="page-link" href="#" onclick="changeEventPage(${i})">${i}</a></li>`; }
+            let nextClass = currentEventPage === totalPages ? 'disabled' : ''; ul.innerHTML += `<li class="page-item ${nextClass}"><a class="page-link" href="#" onclick="changeEventPage(${currentEventPage + 1})"><i class="fa-solid fa-chevron-right"></i></a></li>`;
+        }
+
+        function renderEventsTable() {
+            const tbody = document.getElementById('tbody-events'); tbody.innerHTML = '';
+            const pageSize = parseInt(document.getElementById('filter_EventPageSize').value);
+            const totalItems = filteredEventData.length;
+            const totalPages = Math.ceil(totalItems / pageSize) || 1; 
+            
+            if (currentEventPage > totalPages) currentEventPage = totalPages;
+            const startIndex = (currentEventPage - 1) * pageSize; const endIndex = Math.min(startIndex + pageSize, totalItems);
+
+            document.getElementById('event_PageInfo').innerText = totalItems === 0 ? `ไม่พบข้อมูล` : `แสดง ${startIndex + 1} ถึง ${endIndex} จากทั้งหมด ${totalItems} รายการ`;
+
+            let pageData = filteredEventData.slice(startIndex, endIndex);
+
+            if (pageData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-5 text-muted"><i class="fa-solid fa-calendar-xmark fa-3x mb-3 opacity-25"></i><br>ไม่พบข้อมูลกิจกรรมที่ค้นหา</td></tr>`;
+                renderEventPagination(totalPages); return;
+            }
+
+            pageData.forEach((item) => {
+                let badgeStatus = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิดแสดงผล</span>' : '<span class="badge bg-secondary">ปิด</span>';
+                let badgeType = item.EventType === 'internal' ? '<span class="badge bg-warning text-dark"><i class="fa-solid fa-lock me-1"></i> ภายใน</span>' : '<span class="badge bg-info text-dark"><i class="fa-solid fa-globe me-1"></i> สาธารณะ</span>';
+                
+                let d = new Date(item.EventDate); let dateStr = `${("0"+d.getDate()).slice(-2)}/${("0"+(d.getMonth()+1)).slice(-2)}/${d.getFullYear()+543}`;
+
+                let participantHtml = '';
+                if (item.EventType === 'internal') {
+                    if (item.ParticipantType === 'users') {
+                        let count = item.Participants ? item.Participants.split(',').length : 0;
+                        let safeIds = item.Participants ? item.Participants.replace(/'/g, "\\'") : '';
+                        participantHtml = `<button class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1" onclick="openParticipantsList('${safeIds}')"><i class="fa-solid fa-user-check me-1"></i> เฉพาะบุคคล (${count} คน)</button>`;
+                    } else { participantHtml = `<div class="text-secondary small fw-bold"><i class="fa-solid fa-users me-1"></i> ${item.Participants || '-'}</div>`; }
+                } else { participantHtml = `<span class="text-muted small">ประชาชนทั่วไป (หน้าเว็บ)</span>`; }
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><div class="fw-bold text-dark fs-6">${dateStr}</div><small class="text-muted"><i class="fa-regular fa-clock me-1"></i>${item.EventTime}</small></td>
+                        <td><div class="fw-bold text-primary" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${item.EventName}</div></td>
+                        <td class="text-muted small"><i class="fa-solid fa-location-dot me-1 text-danger"></i> ${item.EventLocation || '-'}</td>
+                        <td><div class="mb-1">${participantHtml}</div><small class="text-muted">จัดโดย: ${item.EventDept || '-'}</small></td>
+                        <td class="text-center">${badgeType}</td><td class="text-center">${badgeStatus}</td>
+                        <td class="text-center text-nowrap">
+                            <button class="btn btn-sm btn-outline-warning me-1" onclick="openEventModal('${item.EventID}')"><i class="fa-solid fa-pen"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('Events', 'EventID', '${item.EventID}')"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+            renderEventPagination(totalPages);
+        }
+
+        function openParticipantsList(participantsString) {
+            const listContainer = document.getElementById('participantsListContainer'); listContainer.innerHTML = '';
+            if(!participantsString) { listContainer.innerHTML = '<li class="list-group-item text-center text-muted py-4">ไม่มีข้อมูลผู้เข้าร่วม</li>'; } 
+            else {
+                const namesArray = participantsString.split(',');
+                namesArray.forEach(name => {
+                    let staffObj = allUsersDataForEvents.find(u => `${u.FirstName} ${u.LastName}` === name);
+                    let positionText = staffObj ? `<small class="text-muted d-block"><i class="fa-solid fa-briefcase me-1"></i> ${staffObj.Position || 'ไม่ระบุตำแหน่ง'} | ${staffObj.Department || ''}</small>` : '';
+                    listContainer.innerHTML += `<li class="list-group-item d-flex align-items-center py-3"><div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex justify-content-center align-items-center me-3" style="width: 40px; height: 40px;"><i class="fa-solid fa-user"></i></div><div><div class="fw-bold text-dark">${name}</div>${positionText}</div></li>`;
+                });
+            }
+            new bootstrap.Modal(document.getElementById('viewParticipantsModal')).show();
+        }
+
+        function openEventModal(id = '') {
+            document.getElementById('formEvent').reset(); document.getElementById('evt_EventID').value = ''; document.getElementById('eventModalTitle').innerHTML = '<i class="fa-regular fa-calendar-plus me-2"></i> เพิ่มกิจกรรมใหม่';
+            selectedStaffIds = []; document.getElementById('searchStaffInput').value = ''; toggleEventInternalView(); toggleParticipantInput();
+
+            let existingUsersStr = ''; 
+
+            if (id) {
+                document.getElementById('eventModalTitle').innerHTML = '<i class="fa-regular fa-calendar-check me-2"></i> แก้ไขกิจกรรม';
+                const i = currentTableData.find(x => x.EventID === id);
+                if(i) {
+                    document.getElementById('evt_EventID').value = i.EventID; document.getElementById('evt_EventName').value = i.EventName;
+                    if(i.EventDate) { let d = new Date(i.EventDate); document.getElementById('evt_EventDate').value = d.toISOString().split('T')[0]; }
+                    document.getElementById('evt_EventTime').value = i.EventTime; document.getElementById('evt_EventLocation').value = i.EventLocation; document.getElementById('evt_EventDept').value = i.EventDept; document.getElementById('evt_EventType').value = i.EventType; document.getElementById('evt_IsActive').value = i.IsActive;
+
+                    if(i.EventType === 'internal') {
+                        if(i.ParticipantType === 'users') { document.getElementById('ptype_users').checked = true; existingUsersStr = i.Participants || ''; } 
+                        else { document.getElementById('ptype_group').checked = true; document.getElementById('evt_ParticipantsText').value = i.Participants || ''; }
+                    }
+                    toggleEventInternalView(); toggleParticipantInput();
+                }
+            }
+            loadStaffDataForChips(existingUsersStr);
+            new bootstrap.Modal(document.getElementById('eventModal')).show();
+        }
+
+        function toggleEventInternalView() {
+            const type = document.getElementById('evt_EventType').value; const internalSec = document.getElementById('evt_InternalSection');
+            if(type === 'internal') { internalSec.style.display = 'block'; } else { internalSec.style.display = 'none'; }
+        }
+
+        function toggleParticipantInput() {
+            const isGroup = document.getElementById('ptype_group').checked;
+            document.getElementById('div_ptype_group').style.display = isGroup ? 'block' : 'none'; document.getElementById('div_ptype_users').style.display = isGroup ? 'none' : 'block';
+        }
+
+        function loadStaffDataForChips(existingStr = '') {
+            document.getElementById('availableStaffList').innerHTML = '<div class="text-center p-3 text-muted"><i class="fas fa-spinner fa-spin me-2"></i>กำลังโหลดรายชื่อ...</div>';
+            fetch(`${API_URL}?action=getTableData&sheetName=Users`).then(res => res.json()).then(res => {
+                if(res.status === 'success') {
+                    let activeUsers = res.data.filter(u => u.Status === 'Active');
+                    staffData = activeUsers.map(u => { let fullName = `${u.FirstName} ${u.LastName}`; return { id: fullName, name: fullName, position: u.Position || 'ไม่ระบุตำแหน่ง', group: u.Department || 'ไม่ระบุสังกัด' }; });
+                    if(existingStr) { selectedStaffIds = existingStr.split(',').map(name => name.trim()).filter(name => name !== ''); }
+                    renderAvailableStaff(); renderSelectedStaff();
+                }
+            }).catch(err => { document.getElementById('availableStaffList').innerHTML = '<div class="text-center p-3 text-danger">เกิดข้อผิดพลาด</div>'; });
+        }
+
+        function renderAvailableStaff(filterText = "") {
+            const listContainer = document.getElementById('availableStaffList'); listContainer.innerHTML = ""; const text = filterText.toLowerCase();
+            staffData.forEach(staff => {
+                if (staff.name.toLowerCase().includes(text) || staff.position.toLowerCase().includes(text) || staff.group.toLowerCase().includes(text)) {
+                    const isSelected = selectedStaffIds.includes(staff.id); const div = document.createElement('div');
+                    div.className = `list-group-item staff-item ${isSelected ? 'selected' : ''}`; div.onclick = () => selectStaff(staff.id);
+                    div.innerHTML = `<div class="d-flex justify-content-between align-items-center"><div><div class="fw-bold text-dark">${staff.name}</div><small class="text-muted"><i class="fas fa-briefcase me-1"></i> ${staff.position} | <i class="fas fa-users me-1"></i> ${staff.group}</small></div>${isSelected ? '<i class="fas fa-check-circle text-success"></i>' : '<i class="fas fa-plus-circle text-muted" style="opacity:0.3;"></i>'}</div>`;
+                    listContainer.appendChild(div);
+                }
+            });
+            if(listContainer.innerHTML === "") { listContainer.innerHTML = '<div class="text-center p-3 text-muted">ไม่พบรายชื่อที่ค้นหา</div>'; }
+        }
+
+        function renderSelectedStaff() {
+            const area = document.getElementById('selectedStaffArea'); const countSpan = document.getElementById('selectedCount'); const hiddenInput = document.getElementById('selectedStaffIds');
+            countSpan.innerText = selectedStaffIds.length; hiddenInput.value = selectedStaffIds.join(','); 
+            if (selectedStaffIds.length === 0) { area.innerHTML = '<span class="text-muted small" id="emptyStateText">ยังไม่มีการเลือกผู้เข้าร่วม</span>'; } 
+            else {
+                area.innerHTML = ''; 
+                selectedStaffIds.forEach(id => {
+                    const staff = staffData.find(s => s.id === id);
+                    if(staff) {
+                        const chip = document.createElement('span'); chip.className = 'staff-chip';
+                        chip.innerHTML = `${staff.name} <span class="remove-chip" onclick="removeStaff('${staff.id}')" style="cursor:pointer; margin-left:8px; color:#dc3545;">&times;</span>`;
+                        area.appendChild(chip);
+                    }
+                });
+            }
+        }
+
+        function selectStaff(id) { if (!selectedStaffIds.includes(id)) { selectedStaffIds.push(id); renderAvailableStaff(document.getElementById('searchStaffInput').value); renderSelectedStaff(); } }
+        function removeStaff(id) { selectedStaffIds = selectedStaffIds.filter(selectedId => selectedId !== id); renderAvailableStaff(document.getElementById('searchStaffInput').value); renderSelectedStaff(); }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const searchInput = document.getElementById('searchStaffInput');
+            if(searchInput) { searchInput.addEventListener('input', function(e) { renderAvailableStaff(e.target.value); }); }
+        });
+
+        function saveEvent(e) {
+            e.preventDefault(); const btn = document.getElementById('btnSaveEvent'); btn.disabled = true;
+            const evtType = document.getElementById('evt_EventType').value; let participantType = ''; let participants = '';
+            
+            if(evtType === 'internal') {
+                const isUsers = document.getElementById('ptype_users').checked;
+                if(isUsers) {
+                    participantType = 'users'; participants = document.getElementById('selectedStaffIds').value; 
+                    if(!participants) { Swal.fire('แจ้งเตือน', 'กรุณาเลือกผู้เข้าร่วมกิจกรรมอย่างน้อย 1 คน', 'warning'); btn.disabled = false; return; }
+                } else {
+                    participantType = 'group'; participants = document.getElementById('evt_ParticipantsText').value;
+                    if(!participants) { Swal.fire('แจ้งเตือน', 'กรุณาระบุกลุ่มผู้เข้าร่วมกิจกรรม', 'warning'); btn.disabled = false; return; }
+                }
+            }
+            const now = new Date(); const formattedDate = `${("0"+now.getDate()).slice(-2)}/${("0"+(now.getMonth()+1)).slice(-2)}/${now.getFullYear()+543} ${("0"+now.getHours()).slice(-2)}:${("0"+now.getMinutes()).slice(-2)} น.`;
+            
+            const rData = {
+                EventID: document.getElementById('evt_EventID').value, EventName: document.getElementById('evt_EventName').value, EventDate: document.getElementById('evt_EventDate').value, EventTime: document.getElementById('evt_EventTime').value, EventLocation: document.getElementById('evt_EventLocation').value, EventDept: document.getElementById('evt_EventDept').value, EventType: evtType, ParticipantType: participantType, Participants: participants, IsActive: document.getElementById('evt_IsActive').value,
+                CreateDate: document.getElementById('evt_EventID').value === "" ? formattedDate : undefined 
+            };
+
+            Swal.fire({ title: 'กำลังบันทึกข้อมูล...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+
+            fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'Events', idColumn: 'EventID', recordJSON: JSON.stringify(rData) }) })
+            .then(res => res.json()).then(res => {
+                if (res.status === 'success') {
+                    bootstrap.Modal.getInstance(document.getElementById('eventModal')).hide();
+                    Swal.fire({ icon: 'success', title: 'บันทึกข้อมูลเรียบร้อย', showConfirmButton: false, timer: 1500 });
+                    switchView('events', null); 
+                } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
+            }).catch(err => { Swal.fire('ผิดพลาด', 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้', 'error'); }).finally(() => btn.disabled = false);
+        }
+        // ================= สิ้นสุด ระบบจัดการ ปฏิทินกิจกรรม =================
 
     </script>
 </body>
