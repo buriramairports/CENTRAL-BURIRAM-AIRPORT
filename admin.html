@@ -538,15 +538,28 @@
         }
         // ================= สิ้นสุด ทำงานเมื่อโหลดหน้าเว็บ =================
 
-        // ================= เริ่มต้น ระบบนำทาง (Switch View) =================
+        // ================= เริ่มต้นฟังก์ชัน ระบบนำทาง (Switch View) =================
         function switchView(viewId, clickedMenuElement) {
             document.querySelectorAll('.admin-view').forEach(view => view.style.display = 'none');
             document.getElementById('view-' + viewId).style.display = 'block';
+
+            // 🟢 [แก้ไขบั๊กที่ 2]: จัดการแถบ Active เมนูให้คงอยู่แม้โหลดตารางใหม่ (เมื่อ clickedMenuElement เป็น null)
             document.querySelectorAll('.sidebar-menu a').forEach(menu => menu.classList.remove('active'));
-            if(clickedMenuElement) clickedMenuElement.classList.add('active');
+            let targetMenu = clickedMenuElement;
+            if (!targetMenu) {
+                if (viewId === 'dashboard') {
+                    targetMenu = document.querySelector('.sidebar-menu a[onclick*="switchView(\\'dashboard\\'"]');
+                } else {
+                    // ค้นหา <a> ที่อยู่ภายใต้ <li id="menu_ชื่อวิว">
+                    let liElement = document.getElementById('menu_' + viewId);
+                    if (liElement) targetMenu = liElement.querySelector('a');
+                }
+            }
+            if (targetMenu) targetMenu.classList.add('active');
 
             Swal.fire({ title: 'กำลังโหลดข้อมูล...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
+            // 🟢 [แก้ไขบั๊กที่ 1]: เพิ่ม .catch() ในทุกๆ การ fetch เพื่อป้องกันหน้าจอค้างหมุนตลอดเวลา
             if (viewId === 'dashboard') {
                 fetch(`${API_URL}?action=getDashboardStats`).then(res => res.json()).then(res => {
                     if (res.status === 'success') { renderDashboard(res.data); Swal.close(); }
@@ -566,27 +579,27 @@
                         document.getElementById('set_MaintenanceMode').checked = (data.MaintenanceMode === 'TRUE'); 
                         Swal.close(); 
                     }
-                });
+                }).catch(err => Swal.fire('ข้อผิดพลาด', 'การเชื่อมต่อขัดข้อง', 'error'));
             }
             else if (viewId === 'banners') {
                 fetch(`${API_URL}?action=getTableData&sheetName=Banners`).then(res=>res.json()).then(res => {
                     currentTableData = res.data || []; renderBannersTable(currentTableData); Swal.close();
-                });
+                }).catch(err => Swal.fire('ข้อผิดพลาด', 'การเชื่อมต่อขัดข้อง', 'error'));
             }
             else if (viewId === 'departments') {
                 fetch(`${API_URL}?action=getTableData&sheetName=Departments`).then(res=>res.json()).then(res => {
                     currentTableData = res.data || []; renderDeptsTable(currentTableData); Swal.close();
-                });
+                }).catch(err => Swal.fire('ข้อผิดพลาด', 'การเชื่อมต่อขัดข้อง', 'error'));
             }
             else if (viewId === 'eservices') {
                 fetch(`${API_URL}?action=getTableData&sheetName=EServices`).then(res=>res.json()).then(res => {
                     currentTableData = res.data || []; renderEServicesTable(currentTableData); Swal.close();
-                });
+                }).catch(err => Swal.fire('ข้อผิดพลาด', 'การเชื่อมต่อขัดข้อง', 'error'));
             }
             else if (viewId === 'airlines') {
                 fetch(`${API_URL}?action=getTableData&sheetName=Airlines`).then(res=>res.json()).then(res => {
                     currentTableData = res.data || []; renderAirlinesTable(currentTableData); Swal.close();
-                });
+                }).catch(err => Swal.fire('ข้อผิดพลาด', 'การเชื่อมต่อขัดข้อง', 'error'));
             }
             else if (viewId === 'newscategories') {
                 Promise.all([ 
@@ -594,15 +607,15 @@
                     fetch(`${API_URL}?action=getTableData&sheetName=Departments`).then(res=>res.json()) 
                 ]).then(([catsRes, deptsRes]) => {
                     currentTableData = catsRes.data || [];
-                    populateNewsCatDeptDropdown(deptsRes.data || []); // เปลี่ยนชื่อฟังก์ชันกันสับสน
+                    populateNewsCatDeptDropdown(deptsRes.data || []); 
                     renderNewsCatsTable(currentTableData);
                     Swal.close();
-                });
+                }).catch(err => Swal.fire('ข้อผิดพลาด', 'การเชื่อมต่อขัดข้อง', 'error'));
             }
             else if (viewId === 'passengerstats') {
                 fetch(`${API_URL}?action=getTableData&sheetName=PassengerStats`).then(res=>res.json()).then(res => {
                     currentTableData = res.data || []; renderPassengerStatsTable(currentTableData); Swal.close();
-                });
+                }).catch(err => Swal.fire('ข้อผิดพลาด', 'การเชื่อมต่อขัดข้อง', 'error'));
             }
             else if (viewId === 'users') {
                 Promise.all([ 
@@ -613,7 +626,7 @@
                     populateUserDeptDropdown(deptsRes.data || []);
                     applyUserFilters();
                     Swal.close();
-                });
+                }).catch(err => Swal.fire('ข้อผิดพลาด', 'การเชื่อมต่อขัดข้อง', 'error'));
             }
             else if (viewId === 'flightschedules') {
                 Promise.all([ 
@@ -625,7 +638,7 @@
                     populateAirlineDropdown();
                     renderFlightsTable(currentTableData);
                     Swal.close();
-                });
+                }).catch(err => Swal.fire('ข้อผิดพลาด', 'การเชื่อมต่อขัดข้อง', 'error'));
             }
             else if (viewId === 'news') {
                 Promise.all([ 
@@ -638,22 +651,31 @@
                     initNewsFilterDropdowns();      
                     applyNewsFilters();             
                     Swal.close(); 
-                });
+                }).catch(err => Swal.fire('ข้อผิดพลาด', 'การเชื่อมต่อขัดข้อง', 'error'));
             }
             else if (viewId === 'events') { 
                 Promise.all([ 
                     fetch(`${API_URL}?action=getTableData&sheetName=Events`).then(res=>res.json()), 
                     fetch(`${API_URL}?action=getTableData&sheetName=Users`).then(res=>res.json()) 
                 ]).then(([eventsRes, usersRes]) => {
-                    currentTableData = eventsRes.data || [];
-                    allUsersDataForEvents = usersRes.data || [];
-                    initEventFilterDropdown();
-                    applyEventFilters();  
-                    Swal.close(); 
+                    // 🟢 [ป้องกันบั๊กเพิ่มเติม] หุ้ม try-catch เผื่อข้อมูลในตารางพัง จะได้ไม่ค้าง
+                    try {
+                        currentTableData = eventsRes.data || [];
+                        allUsersDataForEvents = usersRes.data || [];
+                        initEventFilterDropdown();
+                        applyEventFilters();  
+                        Swal.close(); 
+                    } catch (renderErr) {
+                        console.error(renderErr);
+                        Swal.fire('ข้อผิดพลาด', 'ข้อมูลปฏิทินไม่สมบูรณ์', 'error');
+                    }
+                }).catch(err => {
+                    console.error(err);
+                    Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'error');
                 });
             }
         }
-        // ================= สิ้นสุด ระบบนำทาง =================
+        // ================= สิ้นสุดฟังก์ชัน ระบบนำทาง (Switch View) =================
 
         // ================= เริ่มต้น ฟังก์ชันช่วยเหลือ (Helpers) =================
         function convertDriveImageLink(url) {
@@ -1929,6 +1951,7 @@
             uniqueDepts.sort().forEach(dept => { deptFilter.innerHTML += `<option value="${dept}">${dept}</option>`; });
         }
 
+        // ================= เริ่มต้นฟังก์ชัน ตัวกรองและเรียงลำดับปฏิทินกิจกรรม =================
         function applyEventFilters() {
             const searchTxt = document.getElementById('filter_EventSearch').value.toLowerCase();
             const deptVal = document.getElementById('filter_EventDept').value;
@@ -1948,13 +1971,18 @@
                 return true;
             });
 
+            // 🟢 [ป้องกันบั๊กที่ 1]: แปลงวันที่เผื่อกรณีค่าว่าง จะได้ไม่ Error (NaN) ตอนนำไป sort
             filteredEventData.sort((a, b) => {
-                let dateA = new Date(a.EventDate).getTime(); let dateB = new Date(b.EventDate).getTime();
+                let dateA = new Date(a.EventDate).getTime(); 
+                let dateB = new Date(b.EventDate).getTime();
+                if (isNaN(dateA)) dateA = 0; // ถ้าวันที่พัง ให้ค่าเป็น 0
+                if (isNaN(dateB)) dateB = 0;
                 return sortVal === 'date_desc' ? dateB - dateA : dateA - dateB;
             });
 
             currentEventPage = 1; renderEventsTable(); 
         }
+        // ================= สิ้นสุดฟังก์ชัน ตัวกรองและเรียงลำดับปฏิทินกิจกรรม =================
 
         function changeEventPage(page) { currentEventPage = page; renderEventsTable(); }
 
