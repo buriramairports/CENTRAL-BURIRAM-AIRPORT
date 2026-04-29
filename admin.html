@@ -690,24 +690,31 @@
         function deleteRecord(sheetName, idColumn, idValue) {
             Swal.fire({ title: 'ยืนยันการลบ?', text: "หากลบแล้วจะไม่สามารถกู้คืนได้!", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ใช่, ลบทิ้ง!' }).then((result) => {
                 if (result.isConfirmed) {
-                    Swal.fire({ title: 'กำลังลบ...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                    
+                    // 🟢 เทคนิค UX: ลบข้อมูลออกจากตัวแปร currentTableData ทันที (เพื่อให้หน้าจออัปเดตก่อน ไม่ต้องรอเซิร์ฟเวอร์)
+                    let indexToDelete = currentTableData.findIndex(item => item[idColumn] === idValue);
+                    if (indexToDelete > -1) {
+                        currentTableData.splice(indexToDelete, 1);
+                        
+                        // สั่งวาดตารางใหม่ด้วยข้อมูลที่ถูกลบออกไปแล้ว
+                        if (sheetName === 'Events') applyEventFilters(); 
+                        else if (sheetName === 'News') applyNewsFilters(); 
+                        else if (sheetName === 'PassengerStats') filterStatsTable();
+                        else if (sheetName === 'Users') applyUserFilters();
+                        else {
+                            const renderMap = { 'Banners': renderBannersTable, 'Departments': renderDeptsTable, 'EServices': renderEServicesTable, 'Airlines': renderAirlinesTable, 'NewsCategories': renderNewsCatsTable, 'FlightSchedules': renderFlightsTable };
+                            if (renderMap[sheetName]) renderMap[sheetName](currentTableData);
+                        }
+                    }
+
+                    // ค่อยโชว์ป๊อปอัปโหลด แล้วส่งคำสั่งไปลบที่ฐานข้อมูลเบื้องหลัง
+                    Swal.fire({ title: 'กำลังจัดการฐานข้อมูล...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
                     const formData = new URLSearchParams({ action: 'deleteRecord', sheetName: sheetName, idColumn: idColumn, idValue: idValue });
                     fetch(API_URL, { method: 'POST', body: formData }).then(res => res.json()).then(res => {
                         if (res.status === 'success') {
-                            Swal.fire({ icon: 'success', title: 'ลบสำเร็จ', showConfirmButton: false, timer: 1500 });
+                            Swal.fire({ icon: 'success', title: 'ลบสำเร็จ', showConfirmButton: false, timer: 1000 });
                             
-                            // โหลดข้อมูลใหม่แล้วส่งไปจัดการตามระบบของแต่ละหน้า
-                            fetch(`${API_URL}?action=getTableData&sheetName=${sheetName}`).then(r => r.json()).then(dataRes => {
-                                currentTableData = dataRes.data || [];
-                                if (sheetName === 'Events') applyEventFilters(); 
-                                else if (sheetName === 'News') applyNewsFilters(); 
-                                else if (sheetName === 'PassengerStats') filterStatsTable();
-                                else if (sheetName === 'Users') applyUserFilters();
-                                else {
-                                    const renderMap = { 'Banners': renderBannersTable, 'Departments': renderDeptsTable, 'EServices': renderEServicesTable, 'Airlines': renderAirlinesTable, 'NewsCategories': renderNewsCatsTable, 'FlightSchedules': renderFlightsTable };
-                                    if (renderMap[sheetName]) renderMap[sheetName](currentTableData);
-                                }
-                            });
+                            // ไม่ต้องโหลดตารางใหม่แล้ว เพราะเราแอบลบออกจากหน้าจอไปแล้วก่อนหน้านี้
                         } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
                     }).catch(() => Swal.fire('ผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'error'));
                 }
