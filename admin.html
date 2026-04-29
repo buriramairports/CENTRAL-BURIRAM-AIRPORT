@@ -122,8 +122,22 @@
                     <div class="col-lg-8">
                         <div class="card card-custom h-100">
                             <div class="card-body p-4">
-                                <h6 class="fw-bold text-dark mb-4"><i class="fa-solid fa-chart-line text-primary me-2"></i> กราฟเปรียบเทียบสถิติผู้โดยสารรายเดือน</h6>
-                                <canvas id="passengerChart" height="100"></canvas>
+                                <div class="d-flex justify-content-between align-items-start mb-4 pb-2 border-bottom">
+                                    <h6 class="fw-bold text-dark mb-0 mt-2"><i class="fa-solid fa-chart-line text-primary me-2"></i> กราฟเปรียบเทียบสถิติผู้โดยสาร</h6>
+                                    
+                                    <div class="d-flex gap-4">
+                                        <div class="text-end">
+                                            <small class="text-muted fw-bold" id="dash_passLastYearLabel">ปีก่อนหน้า</small>
+                                            <h4 class="fw-bold mb-0 text-secondary" id="dash_passLastYearTotal">0 <span class="fs-6 fw-normal text-muted">คน</span></h4>
+                                        </div>
+                                        <div class="text-end border-start ps-4">
+                                            <small class="text-primary fw-bold" id="dash_passThisYearLabel">ปีปัจจุบัน</small>
+                                            <h4 class="fw-bold mb-0 text-primary" id="dash_passThisYearTotal">0 <span class="fs-6 fw-normal text-muted">คน</span></h4>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <canvas id="passengerChart" height="95"></canvas>
                             </div>
                         </div>
                     </div>
@@ -2449,6 +2463,18 @@
         }
 
         function renderPassengerChart(passData) {
+            // 🟢 1. คำนวณยอดรวมผู้โดยสารของทั้ง 2 ปี
+            const sumThisYear = passData.thisYearData.reduce((acc, val) => acc + (Number(val) || 0), 0);
+            const sumLastYear = passData.lastYearData.reduce((acc, val) => acc + (Number(val) || 0), 0);
+
+            // 🟢 2. ส่งค่าไปแสดงที่หน้า HTML (มุมขวาบนของกราฟ)
+            document.getElementById('dash_passThisYearLabel').innerText = `ปี ${passData.thisYearLabel}`;
+            document.getElementById('dash_passThisYearTotal').innerHTML = `${sumThisYear.toLocaleString('th-TH')} <span class="fs-6 fw-normal text-muted">คน</span>`;
+            
+            document.getElementById('dash_passLastYearLabel').innerText = `ปี ${passData.lastYearLabel}`;
+            document.getElementById('dash_passLastYearTotal').innerHTML = `${sumLastYear.toLocaleString('th-TH')} <span class="fs-6 fw-normal text-muted">คน</span>`;
+
+            // 🟢 3. วาดกราฟ
             const ctx = document.getElementById('passengerChart').getContext('2d');
             
             // ถ้าเคยวาดกราฟไปแล้ว ให้ทำลายทิ้งก่อน ไม่งั้นกราฟจะซ้อนกัน
