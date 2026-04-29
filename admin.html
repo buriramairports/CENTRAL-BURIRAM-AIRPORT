@@ -1878,7 +1878,154 @@
         }
         // =======================สิ้นสุด ฟังก์ชันจัดการ ผู้ใช้งาน =================
 
+// =========================================================================
+        // 🔄 ฟังก์ชันย่อยสำหรับตารางอื่นๆ ที่หายไป (นำกลับมาครบ 100%)
+        // =========================================================================
 
+        // ------------------------- BANNERS -------------------------
+        function renderBannersTable(data) {
+            const tbody = document.getElementById('tbody-banners'); tbody.innerHTML = '';
+            if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4">ไม่มีข้อมูล</td></tr>'; return; }
+            data.sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList)).forEach((item, index) => {
+                let badge = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิดใช้งาน</span>' : '<span class="badge bg-secondary">ปิด</span>';
+                let displayUrl = convertDriveImageLink(item.ImageURL);
+                let imgHtml = displayUrl ? `<img src="${displayUrl}" style="height: 60px; border-radius:5px; object-fit:cover; border:1px solid #ccc;">` : '-';
+                let btnUp = index > 0 ? `<button class="btn btn-sm btn-light text-primary me-1" onclick="moveOrder('Banners', ${index}, -1, renderBannersTable)"><i class="fa-solid fa-arrow-up"></i></button>` : `<button class="btn btn-sm btn-light me-1" style="visibility:hidden;"><i class="fa-solid fa-arrow-up"></i></button>`;
+                let btnDown = index < data.length - 1 ? `<button class="btn btn-sm btn-light text-primary me-2" onclick="moveOrder('Banners', ${index}, 1, renderBannersTable)"><i class="fa-solid fa-arrow-down"></i></button>` : `<button class="btn btn-sm btn-light me-2" style="visibility:hidden;"><i class="fa-solid fa-arrow-down"></i></button>`;
+                
+                tbody.innerHTML += `<tr><td class="fw-bold text-center h5 text-muted">${item.OrderList}</td><td>${imgHtml}</td><td><div class="fw-bold text-primary">${item.Title || '-'}</div><small class="text-muted">${item.Description || '-'}</small></td><td>${badge}</td><td class="text-center text-nowrap">${btnUp}${btnDown}<button class="btn btn-sm btn-outline-warning me-1" onclick="openBannerModal('${item.BannerID}')"><i class="fa-solid fa-pen"></i></button><button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('Banners', 'BannerID', '${item.BannerID}')"><i class="fa-solid fa-trash"></i></button></td></tr>`;
+            });
+        }
+        function openBannerModal(id = '') { 
+            document.getElementById('formBanner').reset(); document.getElementById('ban_BannerID').value = ''; document.getElementById('bannerModalTitle').innerText = 'เพิ่มรูปสไลด์ใหม่'; document.getElementById('ban_ExistingImageURL').value = ''; document.getElementById('ban_ImageStatus').innerText = 'กรุณาเลือกไฟล์รูปภาพ (ขนาดที่แนะนำ 1920x1080 px)';
+            if (id) { 
+                document.getElementById('bannerModalTitle').innerText = 'แก้ไขรูปสไลด์'; const item = currentTableData.find(x => x.BannerID === id); document.getElementById('ban_BannerID').value = item.BannerID; document.getElementById('ban_ExistingImageURL').value = item.ImageURL || ''; document.getElementById('ban_Title').value = item.Title; document.getElementById('ban_Description').value = item.Description; document.getElementById('ban_OrderList').value = item.OrderList; document.getElementById('ban_IsActive').checked = (item.IsActive === 'TRUE'); 
+                if(item.ImageURL) document.getElementById('ban_ImageStatus').innerHTML = `<a href="${convertDriveImageLink(item.ImageURL)}" target="_blank">คลิกดูรูปสไลด์เดิม</a> (อัปโหลดใหม่เพื่อแทนที่)`;
+            } 
+            new bootstrap.Modal(document.getElementById('bannerModal')).show(); 
+        }
+        async function saveBanner(e) { 
+            e.preventDefault(); const btn = document.getElementById('btnSaveBanner'); btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังอัปโหลด...'; btn.disabled = true; 
+            try {
+                let finalUrl = document.getElementById('ban_ExistingImageURL').value; const fileInput = document.getElementById('ban_UploadImage');
+                if(!document.getElementById('ban_BannerID').value && fileInput.files.length === 0) { Swal.fire('ผิดพลาด', 'กรุณาเลือกรูปภาพ', 'warning'); btn.innerHTML = 'บันทึกข้อมูล'; btn.disabled = false; return; }
+                if (fileInput.files.length > 0) { let uploadedUrl = await uploadSingleFile(fileInput.files[0], 'image'); if (uploadedUrl) finalUrl = uploadedUrl; }
+                
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังบันทึกข้อมูล...';
+                let ord = document.getElementById('ban_OrderList').value; if (!document.getElementById('ban_BannerID').value) ord = currentTableData.length + 1; 
+                
+                const recordData = { BannerID: document.getElementById('ban_BannerID').value, ImageURL: finalUrl, Title: document.getElementById('ban_Title').value, Description: document.getElementById('ban_Description').value, OrderList: ord, IsActive: document.getElementById('ban_IsActive').checked ? 'TRUE' : 'FALSE' }; 
+                fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'Banners', idColumn: 'BannerID', recordJSON: JSON.stringify(recordData) }) }).then(res => res.json()).then(res => { if (res.status === 'success') { bootstrap.Modal.getInstance(document.getElementById('bannerModal')).hide(); Swal.fire({ icon: 'success', title: 'สำเร็จ', showConfirmButton: false, timer: 1500 }); loadTableData('Banners', renderBannersTable); } }).finally(() => { btn.innerHTML = 'บันทึกข้อมูล'; btn.disabled = false; }); 
+            } catch(e) { Swal.fire('ผิดพลาด', 'เกิดปัญหาขณะบันทึก', 'error'); btn.innerHTML = 'บันทึกข้อมูล'; btn.disabled = false; } 
+        }
+        function saveBannerOrder() { saveOrderAPI('Banners', 'BannerID'); }
+
+        // ------------------------- DEPARTMENTS -------------------------
+        function renderDeptsTable(data) { 
+            const tbody = document.getElementById('tbody-departments'); tbody.innerHTML = ''; if (data.length === 0) return; 
+            data.sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList)).forEach((item, index) => { 
+                let badge = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิดใช้งาน</span>' : '<span class="badge bg-secondary">ปิด</span>'; 
+                let btnUp = index > 0 ? `<button class="btn btn-sm btn-light text-primary me-1" onclick="moveOrder('Departments', ${index}, -1, renderDeptsTable)"><i class="fa-solid fa-arrow-up"></i></button>` : `<button class="btn btn-sm btn-light me-1" style="visibility:hidden;"><i class="fa-solid fa-arrow-up"></i></button>`; 
+                let btnDown = index < data.length - 1 ? `<button class="btn btn-sm btn-light text-primary me-2" onclick="moveOrder('Departments', ${index}, 1, renderDeptsTable)"><i class="fa-solid fa-arrow-down"></i></button>` : `<button class="btn btn-sm btn-light me-2" style="visibility:hidden;"><i class="fa-solid fa-arrow-down"></i></button>`; 
+                tbody.innerHTML += `<tr><td class="fw-bold text-center h5 text-muted">${item.OrderList}</td><td class="fw-bold text-primary fs-6">${item.DeptName || '-'}</td><td class="text-muted">${item.Description || '-'}</td><td>${badge}</td><td class="text-center text-nowrap">${btnUp}${btnDown}<button class="btn btn-sm btn-outline-warning me-1" onclick="openDeptModal('${item.DeptID}')"><i class="fa-solid fa-pen"></i></button><button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('Departments', 'DeptID', '${item.DeptID}')"><i class="fa-solid fa-trash"></i></button></td></tr>`; 
+            }); 
+        }
+        function openDeptModal(id = '') { 
+            document.getElementById('formDept').reset(); document.getElementById('dep_DeptID').value = ''; 
+            if (id) { const i = currentTableData.find(x => x.DeptID === id); document.getElementById('dep_DeptID').value = i.DeptID; document.getElementById('dep_DeptName').value = i.DeptName; document.getElementById('dep_Description').value = i.Description; document.getElementById('dep_OrderList').value = i.OrderList; document.getElementById('dep_IsActive').checked = (i.IsActive === 'TRUE'); } 
+            new bootstrap.Modal(document.getElementById('deptModal')).show(); 
+        }
+        function saveDepartment(e) { 
+            e.preventDefault(); const btn = document.getElementById('btnSaveDept'); btn.disabled = true; 
+            let ord = document.getElementById('dep_OrderList').value; if (!document.getElementById('dep_DeptID').value) ord = currentTableData.length + 1; 
+            const rData = { DeptID: document.getElementById('dep_DeptID').value, DeptName: document.getElementById('dep_DeptName').value, Description: document.getElementById('dep_Description').value, OrderList: ord, IsActive: document.getElementById('dep_IsActive').checked ? 'TRUE' : 'FALSE' }; 
+            fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'Departments', idColumn: 'DeptID', recordJSON: JSON.stringify(rData) }) }).then(res=>res.json()).then(res=>{ if (res.status === 'success') { bootstrap.Modal.getInstance(document.getElementById('deptModal')).hide(); Swal.fire({ icon: 'success', showConfirmButton: false, timer: 1500 }); loadTableData('Departments', renderDeptsTable); } }).finally(() => btn.disabled = false); 
+        }
+        function saveDeptOrder() { saveOrderAPI('Departments', 'DeptID'); }
+
+        // ------------------------- E-SERVICES -------------------------
+        function renderEServicesTable(data) { 
+            const tbody = document.getElementById('tbody-eservices'); tbody.innerHTML = ''; if (data.length === 0) return; 
+            data.sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList)).forEach((item, index) => { 
+                let badge = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิดใช้งาน</span>' : '<span class="badge bg-secondary">ปิด</span>'; let targetBadge = item.Target === '_blank' ? '<span class="badge bg-light text-dark border">แท็บใหม่</span>' : '<span class="badge bg-light text-dark border">หน้าเดิม</span>'; 
+                let btnUp = index > 0 ? `<button class="btn btn-sm btn-light text-primary me-1" onclick="moveOrder('EServices', ${index}, -1, renderEServicesTable)"><i class="fa-solid fa-arrow-up"></i></button>` : `<button class="btn btn-sm btn-light me-1" style="visibility:hidden;"><i class="fa-solid fa-arrow-up"></i></button>`; let btnDown = index < data.length - 1 ? `<button class="btn btn-sm btn-light text-primary me-2" onclick="moveOrder('EServices', ${index}, 1, renderEServicesTable)"><i class="fa-solid fa-arrow-down"></i></button>` : `<button class="btn btn-sm btn-light me-2" style="visibility:hidden;"><i class="fa-solid fa-arrow-down"></i></button>`; 
+                tbody.innerHTML += `<tr><td class="fw-bold text-center h5 text-muted">${item.OrderList}</td><td class="text-center"><i class="fa-solid ${item.IconClass} fa-2x text-primary" style="opacity: 0.8;"></i></td><td class="fw-bold text-dark fs-6">${item.ServiceName || '-'}</td><td><div class="text-truncate text-primary" style="max-width: 250px; font-size: 0.85rem;" title="${item.URL}">${item.URL || '-'}</div>${targetBadge}</td><td>${badge}</td><td class="text-center text-nowrap">${btnUp}${btnDown}<button class="btn btn-sm btn-outline-warning me-1" onclick="openEServiceModal('${item.ServiceID}')"><i class="fa-solid fa-pen"></i></button><button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('EServices', 'ServiceID', '${item.ServiceID}')"><i class="fa-solid fa-trash"></i></button></td></tr>`; 
+            }); 
+        }
+        function openEServiceModal(id = '') { 
+            document.getElementById('formEService').reset(); document.getElementById('srv_ServiceID').value = ''; 
+            if (id) { const i = currentTableData.find(x => x.ServiceID === id); document.getElementById('srv_ServiceID').value = i.ServiceID; document.getElementById('srv_ServiceName').value = i.ServiceName; document.getElementById('srv_IconClass').value = i.IconClass; document.getElementById('srv_URL').value = i.URL; document.getElementById('srv_Target').value = i.Target; document.getElementById('srv_OrderList').value = i.OrderList; document.getElementById('srv_IsActive').checked = (i.IsActive === 'TRUE'); } 
+            new bootstrap.Modal(document.getElementById('eserviceModal')).show(); 
+        }
+        function saveEService(e) { 
+            e.preventDefault(); const btn = document.getElementById('btnSaveEService'); btn.disabled = true; 
+            let ord = document.getElementById('srv_OrderList').value; if (!document.getElementById('srv_ServiceID').value) ord = currentTableData.length + 1; 
+            const rData = { ServiceID: document.getElementById('srv_ServiceID').value, ServiceName: document.getElementById('srv_ServiceName').value, IconClass: document.getElementById('srv_IconClass').value, URL: document.getElementById('srv_URL').value, Target: document.getElementById('srv_Target').value, OrderList: ord, IsActive: document.getElementById('srv_IsActive').checked ? 'TRUE' : 'FALSE' }; 
+            fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'EServices', idColumn: 'ServiceID', recordJSON: JSON.stringify(rData) }) }).then(res=>res.json()).then(res=>{ if (res.status === 'success') { bootstrap.Modal.getInstance(document.getElementById('eserviceModal')).hide(); Swal.fire({ icon: 'success', showConfirmButton: false, timer: 1500 }); loadTableData('EServices', renderEServicesTable); } }).finally(() => btn.disabled = false); 
+        }
+        function saveEServiceOrder() { saveOrderAPI('EServices', 'ServiceID'); }
+
+        // ------------------------- AIRLINES -------------------------
+        function renderAirlinesTable(data) { 
+            const tbody = document.getElementById('tbody-airlines'); tbody.innerHTML = ''; if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4">ไม่มีข้อมูล</td></tr>'; return; }
+            data.sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList)).forEach((item, index) => { 
+                let badge = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิดใช้งาน</span>' : '<span class="badge bg-secondary">ปิด</span>'; 
+                let displayUrl = convertDriveImageLink(item.IconURL);
+                let imgHtml = displayUrl ? `<img src="${displayUrl}" style="height: 40px; background:white; padding:2px; border-radius:5px; object-fit:contain;">` : '<i class="fa-solid fa-plane fa-2x text-muted"></i>'; 
+                let colorBox = `<div style="width: 25px; height: 25px; background-color: ${item.ThemeColor}; border-radius: 50%; border: 1px solid #ccc; display:inline-block;"></div>`; 
+                let btnUp = index > 0 ? `<button class="btn btn-sm btn-light text-primary me-1" onclick="moveOrder('Airlines', ${index}, -1, renderAirlinesTable)"><i class="fa-solid fa-arrow-up"></i></button>` : `<button class="btn btn-sm btn-light me-1" style="visibility:hidden;"><i class="fa-solid fa-arrow-up"></i></button>`; let btnDown = index < data.length - 1 ? `<button class="btn btn-sm btn-light text-primary me-2" onclick="moveOrder('Airlines', ${index}, 1, renderAirlinesTable)"><i class="fa-solid fa-arrow-down"></i></button>` : `<button class="btn btn-sm btn-light me-2" style="visibility:hidden;"><i class="fa-solid fa-arrow-down"></i></button>`; 
+                tbody.innerHTML += `<tr><td class="fw-bold text-center h5 text-muted">${item.OrderList}</td><td class="text-center">${imgHtml}</td><td><div class="fw-bold text-dark fs-6">${item.AirlineName || '-'}</div><small class="text-muted"><i class="fa-solid fa-phone fa-sm"></i> ${item.PhoneNumber || '-'}</small></td><td>${colorBox}</td><td>${badge}</td><td class="text-center text-nowrap">${btnUp}${btnDown}<button class="btn btn-sm btn-outline-warning me-1" onclick="openAirlineModal('${item.AirlineID}')"><i class="fa-solid fa-pen"></i></button><button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('Airlines', 'AirlineID', '${item.AirlineID}')"><i class="fa-solid fa-trash"></i></button></td></tr>`; 
+            }); 
+        }
+        function openAirlineModal(id = '') { 
+            document.getElementById('formAirline').reset(); document.getElementById('air_AirlineID').value = ''; document.getElementById('airlineModalTitle').innerText = 'เพิ่มสายการบิน'; document.getElementById('air_ExistingIconURL').value = ''; document.getElementById('air_IconStatus').innerHTML = 'ไฟล์ควรเป็นสี่เหลี่ยมจัตุรัสพื้นหลังใส (PNG)';
+            if (id) { 
+                document.getElementById('airlineModalTitle').innerText = 'แก้ไขสายการบิน'; const item = currentTableData.find(x => x.AirlineID === id); document.getElementById('air_AirlineID').value = item.AirlineID; document.getElementById('air_ExistingIconURL').value = item.IconURL || ''; document.getElementById('air_AirlineName').value = item.AirlineName; document.getElementById('air_PhoneNumber').value = item.PhoneNumber; document.getElementById('air_ThemeColor').value = item.ThemeColor; document.getElementById('air_OrderList').value = item.OrderList; document.getElementById('air_IsActive').checked = (item.IsActive === 'TRUE'); 
+                if(item.IconURL) document.getElementById('air_IconStatus').innerHTML = `<a href="${convertDriveImageLink(item.IconURL)}" target="_blank">คลิกดูโลโก้เดิม</a> (อัปโหลดใหม่เพื่อแทนที่)`;
+            } 
+            new bootstrap.Modal(document.getElementById('airlineModal')).show(); 
+        }
+        async function saveAirline(e) { 
+            e.preventDefault(); const btn = document.getElementById('btnSaveAirline'); btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังอัปโหลด...'; btn.disabled = true; 
+            try {
+                let finalUrl = document.getElementById('air_ExistingIconURL').value; const fileInput = document.getElementById('air_UploadIcon');
+                if (fileInput.files.length > 0) { let uploadedUrl = await uploadSingleFile(fileInput.files[0], 'image'); if (uploadedUrl) finalUrl = uploadedUrl; }
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังบันทึกข้อมูล...';
+                let ord = document.getElementById('air_OrderList').value; if (!document.getElementById('air_AirlineID').value) ord = currentTableData.length + 1; 
+                const recordData = { AirlineID: document.getElementById('air_AirlineID').value, AirlineName: document.getElementById('air_AirlineName').value, IconURL: finalUrl, PhoneNumber: document.getElementById('air_PhoneNumber').value, ThemeColor: document.getElementById('air_ThemeColor').value, OrderList: ord, IsActive: document.getElementById('air_IsActive').checked ? 'TRUE' : 'FALSE' }; 
+                fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'Airlines', idColumn: 'AirlineID', recordJSON: JSON.stringify(recordData) }) }).then(res=>res.json()).then(res=>{ if (res.status === 'success') { bootstrap.Modal.getInstance(document.getElementById('airlineModal')).hide(); Swal.fire({ icon: 'success', title: 'สำเร็จ', showConfirmButton: false, timer: 1500 }); loadTableData('Airlines', renderAirlinesTable); } }).finally(() => btn.disabled = false); 
+            } catch(e) { Swal.fire('ผิดพลาด', 'เกิดปัญหาขณะบันทึก', 'error'); btn.innerHTML = 'บันทึกข้อมูล'; btn.disabled = false;} 
+        }
+        function saveAirlineOrder() { saveOrderAPI('Airlines', 'AirlineID'); }
+
+        // ------------------------- NEWS CATEGORIES -------------------------
+        function renderNewsCatsTable(data) { 
+            const tbody = document.getElementById('tbody-newscategories'); tbody.innerHTML = ''; if (data.length === 0) return; 
+            data.sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList)).forEach((item, index) => { 
+                let badge = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิดใช้งาน</span>' : '<span class="badge bg-secondary">ปิด</span>'; let layoutLabel = item.LayoutType === 'slider' ? '<i class="fa-solid fa-images text-primary"></i> สไลด์รูปภาพ' : item.LayoutType === 'slider-vertical' ? '<i class="fa-solid fa-grip-vertical text-info"></i> สไลด์แนวตั้ง' : '<i class="fa-solid fa-list text-secondary"></i> แบบรายการ (Text)'; let colorBadge = item.ThemeColor === 'transparent' ? `<span class="badge bg-secondary">ไม่มีสี (สไลด์)</span>` : `<span class="badge text-white" style="background-color:${item.ThemeColor};">${item.ThemeColor}</span>`; 
+                let deptArray = item.Department ? item.Department.split(', ') : []; let deptBadges = deptArray.map(d => `<span class="badge bg-light text-dark border border-secondary mb-1 me-1">${d}</span>`).join('');
+                let btnUp = index > 0 ? `<button class="btn btn-sm btn-light text-primary me-1" onclick="moveOrder('NewsCats', ${index}, -1, renderNewsCatsTable)"><i class="fa-solid fa-arrow-up"></i></button>` : `<button class="btn btn-sm btn-light me-1" style="visibility:hidden;"><i class="fa-solid fa-arrow-up"></i></button>`; let btnDown = index < data.length - 1 ? `<button class="btn btn-sm btn-light text-primary me-2" onclick="moveOrder('NewsCats', ${index}, 1, renderNewsCatsTable)"><i class="fa-solid fa-arrow-down"></i></button>` : `<button class="btn btn-sm btn-light me-2" style="visibility:hidden;"><i class="fa-solid fa-arrow-down"></i></button>`; 
+                tbody.innerHTML += `<tr><td class="fw-bold text-center h5 text-muted">${item.OrderList}</td><td><div class="fw-bold text-dark fs-6">${item.CategoryName || '-'}</div>${colorBadge}</td><td>${deptBadges}</td><td>${layoutLabel}</td><td>${badge}</td><td class="text-center text-nowrap">${btnUp}${btnDown}<button class="btn btn-sm btn-outline-warning me-1" onclick="openNewsCatModal('${item.CategoryID}')"><i class="fa-solid fa-pen"></i></button><button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('NewsCategories', 'CategoryID', '${item.CategoryID}')"><i class="fa-solid fa-trash"></i></button></td></tr>`; 
+            }); 
+        }
+        function openNewsCatModal(id = '') { 
+            document.getElementById('formNewsCat').reset(); document.getElementById('ncat_CategoryID').value = ''; 
+            let options = document.getElementById('ncat_Department').options; for (let opt of options) opt.selected = false; 
+            if (id) { 
+                const i = currentTableData.find(x => x.CategoryID === id); document.getElementById('ncat_CategoryID').value = i.CategoryID; document.getElementById('ncat_CategoryName').value = i.CategoryName; document.getElementById('ncat_LayoutType').value = i.LayoutType; document.getElementById('ncat_ThemeColor').value = i.ThemeColor; document.getElementById('ncat_OrderList').value = i.OrderList; document.getElementById('ncat_IsActive').checked = (i.IsActive === 'TRUE'); 
+                let depts = i.Department ? i.Department.split(', ') : []; for (let opt of options) { opt.selected = depts.includes(opt.value); }
+            } 
+            new bootstrap.Modal(document.getElementById('newsCatModal')).show(); 
+        }
+        function saveNewsCat(e) { 
+            e.preventDefault(); const btn = document.getElementById('btnSaveNewsCat'); 
+            let selectedDepts = Array.from(document.getElementById('ncat_Department').selectedOptions).map(opt => opt.value).join(', ');
+            if(!selectedDepts) { Swal.fire('แจ้งเตือน', 'กรุณาเลือกกลุ่มงานที่รับผิดชอบอย่างน้อย 1 กลุ่ม', 'warning'); return; }
+            btn.disabled = true; let ord = document.getElementById('ncat_OrderList').value; if (!document.getElementById('ncat_CategoryID').value) ord = currentTableData.length + 1; 
+            const rData = { CategoryID: document.getElementById('ncat_CategoryID').value, CategoryName: document.getElementById('ncat_CategoryName').value, Department: selectedDepts, LayoutType: document.getElementById('ncat_LayoutType').value, ThemeColor: document.getElementById('ncat_ThemeColor').value, OrderList: ord, IsActive: document.getElementById('ncat_IsActive').checked ? 'TRUE' : 'FALSE' }; 
+            fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'NewsCategories', idColumn: 'CategoryID', recordJSON: JSON.stringify(rData) }) }).then(res=>res.json()).then(res=>{ if (res.status === 'success') { bootstrap.Modal.getInstance(document.getElementById('newsCatModal')).hide(); Swal.fire({ icon: 'success', showConfirmButton: false, timer: 1500 }); loadTableData('NewsCategories', renderNewsCatsTable); } }).finally(() => btn.disabled = false); 
+        }
+        function saveNewsCatOrder() { saveOrderAPI('NewsCategories', 'CategoryID'); }
         // ==========================================
         // 📰 ระบบจัดการข่าวสาร (News Management) 
         // ==========================================
