@@ -349,7 +349,57 @@
     <div class="modal fade" id="statModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0"><div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold" id="statModalTitle">เพิ่ม/แก้ไข สถิติผู้โดยสาร</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><form id="formStat" onsubmit="savePassengerStat(event)"><input type="hidden" id="stat_StatID"><div class="row g-3 mb-3"><div class="col-md-6"><label class="form-label fw-bold">ปี พ.ศ. <span class="text-danger">*</span></label><input type="number" class="form-control" id="stat_Year" placeholder="เช่น 2569" required></div><div class="col-md-6"><label class="form-label fw-bold">เดือน <span class="text-danger">*</span></label><select class="form-select" id="stat_Month" required><option value="">-- เลือกเดือน --</option><option value="01">มกราคม</option><option value="02">กุมภาพันธ์</option><option value="03">มีนาคม</option><option value="04">เมษายน</option><option value="05">พฤษภาคม</option><option value="06">มิถุนายน</option><option value="07">กรกฎาคม</option><option value="08">สิงหาคม</option><option value="09">กันยายน</option><option value="10">ตุลาคม</option><option value="11">พฤศจิกายน</option><option value="12">ธันวาคม</option></select></div></div><div class="mb-3"><label class="form-label fw-bold text-success">จำนวนผู้โดยสาร (คน) <span class="text-danger">*</span></label><input type="number" class="form-control fs-5 fw-bold text-success" id="stat_PassengerCount" placeholder="ใส่เฉพาะตัวเลข" required></div><div class="mb-4"><label class="form-label fw-bold">หมายเหตุ (ถ้ามี)</label><input type="text" class="form-control" id="stat_Remark" placeholder="เช่น ช่วงเทศกาลสงกรานต์"></div><button type="submit" class="btn btn-primary w-100" id="btnSaveStat">บันทึกข้อมูลสถิติ</button></form></div></div></div></div>
 
     <!-- Modal: Users -->
-    <div class="modal fade" id="userModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content border-0"><div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold" id="userModalTitle">เพิ่ม/แก้ไข บัญชีผู้ใช้</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><form id="formUser" onsubmit="saveUserRecord(event)"><input type="hidden" id="usr_UserID"><input type="hidden" id="usr_RegisterDate"><input type="hidden" id="usr_PDPA"><input type="hidden" id="usr_LastLogin"><div class="row g-3 mb-3 border-bottom pb-3"><div class="col-md-6"><label class="form-label fw-bold">ชื่อ (FirstName) <span class="text-danger">*</span></label><input type="text" class="form-control" id="usr_FirstName" required></div><div class="col-md-6"><label class="form-label fw-bold">นามสกุล (LastName) <span class="text-danger">*</span></label><input type="text" class="form-control" id="usr_LastName" required></div><div class="col-md-6"><label class="form-label fw-bold">อีเมล <span class="text-danger">*</span></label><input type="email" class="form-control" id="usr_Email" required></div><div class="col-md-6"><label class="form-label fw-bold">เบอร์โทรศัพท์ <span class="text-danger">*</span></label><input type="tel" class="form-control" id="usr_Phone" required></div><div class="col-md-6"><label class="form-label fw-bold">สังกัด / หน่วยงาน</label><input type="text" class="form-control" id="usr_Organization" placeholder="เช่น ท่าอากาศยานบุรีรัมย์"></div><div class="col-md-6"><label class="form-label fw-bold">ตำแหน่ง (Position)</label><input type="text" class="form-control" id="usr_Position"></div></div><h6 class="fw-bold text-danger mb-3"><i class="fa-solid fa-key"></i> ข้อมูลเข้าสู่ระบบและสิทธิ์การใช้งาน</h6><div class="row g-3 mb-3"><div class="col-md-6"><label class="form-label fw-bold">ชื่อผู้ใช้ (Username) <span class="text-danger">*</span></label><input type="text" class="form-control bg-light" id="usr_Username" required><small class="text-muted" id="userHelperText">ห้ามแก้ไข Username ของคนเดิม</small></div><div class="col-md-6"><label class="form-label fw-bold">รหัสผ่าน (Password) <span class="text-danger">*</span></label><input type="text" class="form-control" id="usr_Password" required></div><div class="col-md-6"><label class="form-label fw-bold">กลุ่มงาน <small class="text-muted">(เลือกเฉพาะแอดมิน)</small></label><select class="form-select" id="usr_Department"><option value="">-- ไม่ระบุ (ประชาชนทั่วไป) --</option></select></div><div class="col-md-6"><label class="form-label fw-bold">สิทธิ์การใช้งาน (Role)</label><select class="form-select text-primary fw-bold" id="usr_Role" onchange="toggleAllowedMenusUI()"><option value="User">User (ประชาชน)</option><option value="Staff">Staff (เจ้าหน้าที่ทั่วไป)</option><option value="SubAdmin">SubAdmin (แอดมินกลุ่มงาน)</option><option value="SuperAdmin">SuperAdmin (ผู้ดูแลสูงสุด)</option></select></div><div class="col-md-12" id="usr_AllowedMenusContainer" style="display: none;"><div class="p-3 bg-light border border-warning rounded"><label class="form-label fw-bold text-warning-emphasis"><i class="fa-solid fa-shield-halved me-1"></i> กำหนดสิทธิ์การมองเห็นเมนู (เฉพาะ SubAdmin)</label><div class="d-flex flex-wrap gap-3 mt-2"><div class="form-check"><input class="form-check-input chk-menu" type="checkbox" id="chk_news" value="news"><label class="form-check-label" for="chk_news">จัดการข่าวสาร</label></div><div class="form-check"><input class="form-check-input chk-menu" type="checkbox" id="chk_newscategories" value="newscategories"><label class="form-check-label" for="chk_newscategories">หมวดหมู่ข่าว</label></div><div class="form-check"><input class="form-check-input chk-menu" type="checkbox" id="chk_events" value="events"><label class="form-check-label" for="chk_events">ปฏิทินกิจกรรม</label></div><div class="form-check"><input class="form-check-input chk-menu" type="checkbox" id="chk_flightschedules" value="flightschedules"><label class="form-check-label" for="chk_flightschedules">ตารางเที่ยวบิน</label></div><div class="form-check"><input class="form-check-input chk-menu" type="checkbox" id="chk_passengerstats" value="passengerstats"><label class="form-check-label" for="chk_passengerstats">สถิติผู้โดยสาร</label></div><div class="form-check"><input class="form-check-input chk-menu" type="checkbox" id="chk_eservices" value="eservices"><label class="form-check-label" for="chk_eservices">ระบบ E-Services</label></div><div class="form-check"><input class="form-check-input chk-menu" type="checkbox" id="chk_airlines" value="airlines"><label class="form-check-label" for="chk_airlines">สายการบิน</label></div><div class="form-check"><input class="form-check-input chk-menu" type="checkbox" id="chk_banners" value="banners"><label class="form-check-label" for="chk_banners">แบนเนอร์สไลด์</label></div></div><div class="text-end mt-2"><button type="button" class="btn btn-sm btn-outline-secondary" onclick="checkAllMenus(true)">เลือกทั้งหมด</button></div></div></div><div class="col-md-12 mt-3"><div class="form-check form-switch p-3 bg-light rounded border"><input class="form-check-input ms-0 me-3" type="checkbox" id="usr_Status" style="transform: scale(1.3);" checked><label class="form-check-label fw-bold text-success" id="usr_StatusLabel" for="usr_Status">บัญชีนี้พร้อมใช้งาน (Active)</label></div></div></div><button type="submit" class="btn btn-primary w-100 mt-2" id="btnSaveUser">บันทึกข้อมูลผู้ใช้งาน</button></form></div></div></div></div>
+    <div class="modal fade" id="userModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold" id="userModalTitle">เพิ่ม/แก้ไข บัญชีผู้ใช้</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="formUser" onsubmit="saveUserRecord(event)">
+                        <input type="hidden" id="usr_UserID">
+                        <input type="hidden" id="usr_RegisterDate">
+                        <input type="hidden" id="usr_PDPA">
+                        <input type="hidden" id="usr_LastLogin">
+                        <div class="row g-3 mb-3 border-bottom pb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">ชื่อ (FirstName) <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="usr_FirstName" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">นามสกุล (LastName) <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="usr_LastName" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">อีเมล <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="usr_Email" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">เบอร์โทรศัพท์ <span class="text-danger">*</span></label>
+                                <input type="tel" class="form-control" id="usr_Phone" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">สังกัด / หน่วยงาน</label>
+                                <input type="text" class="form-control" id="usr_Organization" placeholder="เช่น ท่าอากาศยานบุรีรัมย์">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">ตำแหน่ง (Position)</label>
+                                <input type="text" class="form-control" id="usr_Position">
+                            </div>
+                        </div>
+                        <h6 class="fw-bold text-danger mb-3"><i class="fa-solid fa-key"></i> ข้อมูลเข้าสู่ระบบและสิทธิ์การใช้งาน</h6>
+                        <div class="row g-3 mb-3">
+                            <!-- ================= เริ่มต้น HTML ช่อง Username (แทนที่ของเดิม) ================= -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">ชื่อผู้ใช้ (Username) <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control bg-light" id="usr_Username" required oninput="checkUsernameRealtime()">
+                                <small class="text-muted" id="userHelperText">ห้ามแก้ไข Username ของคนเดิม</small>
+                                <!-- 🟢 เพิ่มจุดแสดงข้อความ Real-time -->
+                                <small id="usernameStatusMsg" class="fw-bold mt-1 d-block"></small>
+                            </div>
+<!-- ================= สิ้นสุด HTML ช่อง Username ================= -->
+                            <div class="col-md-6"><label class="form-label fw-bold">รหัสผ่าน (Password) <span class="text-danger">*</span></label><input type="text" class="form-control" id="usr_Password" required></div><div class="col-md-6"><label class="form-label fw-bold">กลุ่มงาน <small class="text-muted">(เลือกเฉพาะแอดมิน)</small></label><select class="form-select" id="usr_Department"><option value="">-- ไม่ระบุ (ประชาชนทั่วไป) --</option></select></div><div class="col-md-6"><label class="form-label fw-bold">สิทธิ์การใช้งาน (Role)</label><select class="form-select text-primary fw-bold" id="usr_Role" onchange="toggleAllowedMenusUI()"><option value="User">User (ประชาชน)</option><option value="Staff">Staff (เจ้าหน้าที่ทั่วไป)</option><option value="SubAdmin">SubAdmin (แอดมินกลุ่มงาน)</option><option value="SuperAdmin">SuperAdmin (ผู้ดูแลสูงสุด)</option></select></div><div class="col-md-12" id="usr_AllowedMenusContainer" style="display: none;"><div class="p-3 bg-light border border-warning rounded"><label class="form-label fw-bold text-warning-emphasis"><i class="fa-solid fa-shield-halved me-1"></i> กำหนดสิทธิ์การมองเห็นเมนู (เฉพาะ SubAdmin)</label><div class="d-flex flex-wrap gap-3 mt-2"><div class="form-check"><input class="form-check-input chk-menu" type="checkbox" id="chk_news" value="news"><label class="form-check-label" for="chk_news">จัดการข่าวสาร</label></div><div class="form-check"><input class="form-check-input chk-menu" type="checkbox" id="chk_newscategories" value="newscategories"><label class="form-check-label" for="chk_newscategories">หมวดหมู่ข่าว</label></div><div class="form-check"><input class="form-check-input chk-menu" type="checkbox" id="chk_events" value="events"><label class="form-check-label" for="chk_events">ปฏิทินกิจกรรม</label></div><div class="form-check"><input class="form-check-input chk-menu" type="checkbox" id="chk_flightschedules" value="flightschedules"><label class="form-check-label" for="chk_flightschedules">ตารางเที่ยวบิน</label></div><div class="form-check"><input class="form-check-input chk-menu" type="checkbox" id="chk_passengerstats" value="passengerstats"><label class="form-check-label" for="chk_passengerstats">สถิติผู้โดยสาร</label></div><div class="form-check"><input class="form-check-input chk-menu" type="checkbox" id="chk_eservices" value="eservices"><label class="form-check-label" for="chk_eservices">ระบบ E-Services</label></div><div class="form-check"><input class="form-check-input chk-menu" type="checkbox" id="chk_airlines" value="airlines"><label class="form-check-label" for="chk_airlines">สายการบิน</label></div><div class="form-check"><input class="form-check-input chk-menu" type="checkbox" id="chk_banners" value="banners"><label class="form-check-label" for="chk_banners">แบนเนอร์สไลด์</label></div></div><div class="text-end mt-2"><button type="button" class="btn btn-sm btn-outline-secondary" onclick="checkAllMenus(true)">เลือกทั้งหมด</button></div></div></div><div class="col-md-12 mt-3"><div class="form-check form-switch p-3 bg-light rounded border"><input class="form-check-input ms-0 me-3" type="checkbox" id="usr_Status" style="transform: scale(1.3);" checked><label class="form-check-label fw-bold text-success" id="usr_StatusLabel" for="usr_Status">บัญชีนี้พร้อมใช้งาน (Active)</label></div></div></div><button type="submit" class="btn btn-primary w-100 mt-2" id="btnSaveUser">บันทึกข้อมูลผู้ใช้งาน</button></form></div></div></div></div>
 
     <!-- Modal: Flight Schedules -->
     <div class="modal fade" id="flightModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content border-0"><div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold" id="flightModalTitle">เพิ่ม/แก้ไข ตารางเที่ยวบิน</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><form id="formFlight" onsubmit="saveFlightRecord(event)"><input type="hidden" id="flt_FlightID"><div class="row g-3 mb-3 border-bottom pb-3"><div class="col-md-6"><label class="form-label fw-bold">สายการบิน <span class="text-danger">*</span></label><select class="form-select" id="flt_AirlineID" required></select></div><div class="col-md-3"><label class="form-label fw-bold">หมายเลขเที่ยวบิน <span class="text-danger">*</span></label><input type="text" class="form-control text-uppercase fw-bold text-primary" id="flt_FlightNumber" placeholder="เช่น FD3522" required></div><div class="col-md-3"><label class="form-label fw-bold text-danger">ประเภทเที่ยวบิน <span class="text-danger">*</span></label><select class="form-select fw-bold" id="flt_FlightType" required><option value="Arrival">ขาเข้า (Arrival)</option><option value="Departure">ขาออก (Departure)</option></select></div></div><div class="row g-3 mb-3"><div class="col-md-6"><label class="form-label fw-bold">ต้นทาง (Origin) <span class="text-danger">*</span></label><input class="form-control" list="airportOptions" id="flt_Origin" required></div><div class="col-md-6"><label class="form-label fw-bold">ปลายทาง (Destination) <span class="text-danger">*</span></label><input class="form-control" list="airportOptions" id="flt_Destination" required></div><datalist id="airportOptions"><option value="ดอนเมือง (DMK)"></option><option value="สุวรรณภูมิ (BKK)"></option><option value="บุรีรัมย์ (BFV)"></option><option value="ภูเก็ต (HKT)"></option><option value="เชียงใหม่ (CNX)"></option></datalist><div class="col-md-6"><label class="form-label fw-bold">เวลาออก (Departure) <span class="text-danger">*</span></label><input type="time" class="form-control fw-bold" id="flt_DepartureTime" required></div><div class="col-md-6"><label class="form-label fw-bold">เวลาถึง (Arrival) <span class="text-danger">*</span></label><input type="time" class="form-control fw-bold" id="flt_ArrivalTime" required></div></div><div class="mb-4 bg-light p-3 rounded border"><label class="form-label fw-bold text-primary mb-2"><i class="fa-regular fa-calendar-check"></i> วันที่ทำการบิน <span class="text-danger">*</span></label><div class="form-text mb-2">สามารถคลิกเลือกได้หลายวันบนปฏิทิน หากต้องการลบให้คลิกซ้ำที่วันนั้น</div><input type="text" id="flt_FlightDates" class="form-control bg-white" placeholder="คลิกเพื่อเลือกวันที่บนปฏิทิน..." required readonly></div><div class="form-check form-switch mb-3"><input class="form-check-input" type="checkbox" id="flt_IsActive" style="transform: scale(1.3);" checked><label class="form-check-label ms-2 fw-bold text-success" for="flt_IsActive">เปิดให้บริการเที่ยวบินนี้</label></div><button type="submit" class="btn btn-primary w-100" id="btnSaveFlight">บันทึกเที่ยวบิน</button></form></div></div></div></div>
@@ -453,32 +503,86 @@
             if (viewId === 'users') { loadTableData('Users', renderUsersTable); populateUserDeptDropdown(); }
             if (viewId === 'flightschedules') { loadTableData('FlightSchedules', renderFlightsTable); populateAirlineDropdown(); }
             
+            // 🟢 แก้ไข: ใช้ .finally() ป้องกันหน้าจอค้าง
             if (viewId === 'news') {
                 Swal.fire({ title: 'กำลังโหลด...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
                 Promise.all([
                     fetch(`${API_URL}?action=getTableData&sheetName=NewsCategories`).then(res=>res.json()),
                     fetch(`${API_URL}?action=getTableData&sheetName=News`).then(res=>res.json())
                 ]).then(([catsRes, newsRes]) => {
-                    allCategoriesData = catsRes.data;
-                    currentTableData = newsRes.data;
+                    allCategoriesData = catsRes.data || [];
+                    currentTableData = newsRes.data || [];
                     populateNewsCategoryDropdown(); 
                     initNewsFilterDropdowns();      
                     applyNewsFilters();             
-                    Swal.close(); 
-                });
+                }).catch(err => console.error(err)).finally(() => Swal.close());
             }
             if (viewId === 'events') { 
                 Swal.fire({ title: 'กำลังโหลด...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
                 fetch(`${API_URL}?action=getTableData&sheetName=Events`).then(res=>res.json()).then(res => {
-                    currentTableData = res.data;
+                    currentTableData = res.data || [];
                     loadUsersForEvents(); 
                     initEventFilterDropdown();
                     applyEventFilters();  
-                    Swal.close(); 
-                });
+                }).catch(err => console.error(err)).finally(() => Swal.close());
             }
         }
         // ================= สิ้นสุด ฟังก์ชันเปลี่ยนหน้าเมนู =================
+
+        // ================= เริ่มต้น ระบบ Dashboard (เพิ่ม Loading) =================
+        function loadDashboardStats() {
+            const user = JSON.parse(localStorage.getItem('userData'));
+            if(user) document.getElementById('adminDeptDisplay').innerText = user.department || 'ทั้งหมด';
+
+            // 🟢 แก้ไข: แสดง Loading 
+            Swal.fire({ title: 'กำลังโหลดข้อมูลสถิติ...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+
+            fetch(`${API_URL}?action=getDashboardStats`)
+                .then(res => res.json())
+                .then(res => {
+                    if (res.status === 'success') {
+                        const data = res.data;
+                        document.getElementById('dash_totalFlights').innerText = data.totalFlights;
+                        document.getElementById('dash_totalEServices').innerText = data.totalEServices;
+                        document.getElementById('dash_totalBanners').innerText = data.totalBanners;
+                        document.getElementById('dash_totalAirlines').innerText = data.totalAirlines;
+                        document.getElementById('dash_usersTotal').innerHTML = `${data.users.Total} <span class="fs-6 fw-normal text-muted">บัญชี</span>`;
+                        document.getElementById('dash_usersSuper').innerText = data.users.SuperAdmin;
+                        document.getElementById('dash_usersSub').innerText = data.users.SubAdmin;
+                        document.getElementById('dash_usersStaff').innerText = data.users.Staff;
+                        document.getElementById('dash_usersNormal').innerText = data.users.User;
+                        renderPassengerChart(data.passengers);
+                        document.getElementById('dash_newsTotalRow3').innerHTML = `${data.totalNews} <span class="fs-6 fw-normal text-muted">เรื่องทั้งหมด</span>`;
+                        
+                        const deptContainer = document.getElementById('dash_newsByDeptContainer');
+                        deptContainer.innerHTML = '';
+                        if(data.newsBreakdown && data.newsBreakdown.length > 0) {
+                            let groupedByDept = {};
+                            data.newsBreakdown.forEach(item => {
+                                let deptName = item.dept || 'ไม่ระบุกลุ่มงาน';
+                                if(!groupedByDept[deptName]) { groupedByDept[deptName] = { total: 0, categories: [] }; }
+                                groupedByDept[deptName].total += item.count;
+                                groupedByDept[deptName].categories.push(item);
+                            });
+                            for (let dept in groupedByDept) {
+                                let deptData = groupedByDept[dept];
+                                let catListHTML = '';
+                                deptData.categories.forEach(cat => {
+                                    let textClass = cat.count > 0 ? "fw-bold text-dark" : "text-muted";
+                                    catListHTML += `<div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom" style="border-color: #e2e8f0 !important;"><span class="text-secondary small text-truncate pe-2" title="${cat.name}"><i class="fa-solid fa-caret-right text-primary me-1"></i> ${cat.name}</span><span class="${textClass}">${cat.count}</span></div>`;
+                                });
+                                deptContainer.innerHTML += `<div class="col-md-6 col-xl"><div class="p-3 bg-light rounded border h-100 shadow-sm"><div class="d-flex justify-content-between align-items-start mb-3 pb-2 border-bottom border-secondary border-opacity-25"><h6 class="fw-bold text-dark mb-0 lh-base"><i class="fa-solid fa-sitemap text-muted me-1"></i> ${dept}</h6><span class="badge bg-primary rounded-pill px-2 py-1 ms-2" style="font-size: 0.8rem;">${deptData.total} เรื่อง</span></div><div class="mt-2">${catListHTML}</div></div></div>`;
+                            }
+                        } else {
+                            deptContainer.innerHTML = '<div class="col-12 text-center text-muted py-4"><i class="fa-regular fa-folder-open fa-2x mb-2 text-light"></i><br>ยังไม่มีข่าวสารในระบบ</div>';
+                        }
+                        // ปิด Loading
+                        Swal.fire({ icon: 'success', title: 'อัปเดตข้อมูลแล้ว', showConfirmButton: false, timer: 800 });
+                    } else { Swal.fire('ผิดพลาด', 'ไม่สามารถดึงข้อมูลสถิติได้', 'error'); }
+                }).catch(err => { Swal.close(); });
+        }
+        // ================= สิ้นสุด ระบบ Dashboard =================
+        
 
         // ================= เริ่มต้น ฟังก์ชันช่วยเหลือ (Helpers) =================
         function convertDriveImageLink(url) {
@@ -508,6 +612,7 @@
             });
         }
 
+        // ================= เริ่มต้น ฟังก์ชันลบข้อมูล (แก้ลบ Users แล้วไม่หาย) =================
         function deleteRecord(sheetName, idColumn, idValue) {
             Swal.fire({ title: 'ยืนยันการลบ?', text: "หากลบแล้วจะไม่สามารถกู้คืนได้!", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ใช่, ลบทิ้ง!' }).then((result) => {
                 if (result.isConfirmed) {
@@ -516,21 +621,25 @@
                     fetch(API_URL, { method: 'POST', body: formData }).then(res => res.json()).then(res => {
                         if (res.status === 'success') {
                             Swal.fire({ icon: 'success', title: 'ลบสำเร็จ', showConfirmButton: false, timer: 1500 });
-                            const renderMap = { 'Banners': renderBannersTable, 'Departments': renderDeptsTable, 'EServices': renderEServicesTable, 'Airlines': renderAirlinesTable, 'NewsCategories': renderNewsCatsTable, 'PassengerStats': renderPassengerStatsTable, 'Users': renderUsersTable, 'FlightSchedules': renderFlightsTable };
                             
-                            // โหลดข้อมูลใหม่หลังจากลบ
+                            // โหลดข้อมูลใหม่แล้วประมวลผล Filter ตามตารางนั้นๆ
                             loadTableData(sheetName, (data) => {
                                 currentTableData = data;
                                 if (sheetName === 'Events') applyEventFilters(); 
-                                else if (sheetName === 'News') applyNewsFilters();
-                                else if (sheetName === 'PassengerStats') filterStatsTable(); 
-                                else if (renderMap[sheetName]) renderMap[sheetName](data);
+                                else if (sheetName === 'News') applyNewsFilters(); 
+                                else if (sheetName === 'PassengerStats') filterStatsTable();
+                                else if (sheetName === 'Users') applyUserFilters(); // 🟢 เพิ่มบรรทัดนี้ ให้หน้า User รีเฟรช
+                                else {
+                                    const renderMap = { 'Banners': renderBannersTable, 'Departments': renderDeptsTable, 'EServices': renderEServicesTable, 'Airlines': renderAirlinesTable, 'NewsCategories': renderNewsCatsTable, 'FlightSchedules': renderFlightsTable };
+                                    if (renderMap[sheetName]) renderMap[sheetName](data);
+                                }
                             });
                         }
                     });
                 }
             });
         }
+        // ================= สิ้นสุด ฟังก์ชันลบข้อมูล =================
 
         function moveOrder(tableType, currentIndex, direction, renderFunc) {
             let temp = currentTableData[currentIndex];
@@ -628,9 +737,44 @@
 
         function changeUserPage(page) { currentUserPage = page; renderUsersTable(); }
 
+        // ================= เริ่มต้น ระบบจัดการผู้ใช้งาน และ สิทธิ์ (Role) =================
+        let isUsernameValid = true; // ตัวแปรเก็บสถานะว่าชื่อผู้ใช้ซ้ำไหม
+
+        // 🟢 ฟังก์ชันเช็ค Username แบบ Real-time
+        function checkUsernameRealtime() {
+            const usernameInput = document.getElementById('usr_Username');
+            const statusMsg = document.getElementById('usernameStatusMsg');
+            const username = usernameInput.value.trim();
+
+            // ถ้ายาวไม่ถึง 4 ตัวอักษร ไม่ต้องส่งเช็ค
+            if (username.length < 4) {
+                statusMsg.innerText = "ต้องมีความยาวอย่างน้อย 4 ตัวอักษร";
+                statusMsg.className = "fw-bold mt-1 d-block text-danger";
+                isUsernameValid = false;
+                return;
+            }
+
+            statusMsg.innerText = "กำลังตรวจสอบ...";
+            statusMsg.className = "fw-bold mt-1 d-block text-muted";
+
+            fetch(`${API_URL}?action=checkUsername`, {
+                method: 'POST',
+                body: new URLSearchParams({ username: username })
+            }).then(res => res.json()).then(data => {
+                if (data.status === 'exist') {
+                    statusMsg.innerHTML = `<i class="fa-solid fa-xmark"></i> ${data.message}`;
+                    statusMsg.className = "fw-bold mt-1 d-block text-danger";
+                    isUsernameValid = false;
+                } else {
+                    statusMsg.innerHTML = `<i class="fa-solid fa-check"></i> ${data.message}`;
+                    statusMsg.className = "fw-bold mt-1 d-block text-success";
+                    isUsernameValid = true;
+                }
+            });
+        }
+
         function renderUsersTable() {
             const tbody = document.getElementById('tbody-users'); tbody.innerHTML = '';
-            
             const pageSize = parseInt(document.getElementById('filter_UserPageSize').value);
             const totalItems = filteredUserData.length;
             const totalPages = Math.ceil(totalItems / pageSize) || 1; 
@@ -643,14 +787,34 @@
 
             let pageData = filteredUserData.slice(startIndex, endIndex);
 
+            // ชื่อเมนูไทยสำหรับแสดงในตาราง
+            const menuNamesTH = { 'news':'ข่าวสาร', 'newscategories':'หมวดข่าว', 'events':'ปฏิทิน', 'flightschedules':'เที่ยวบิน', 'passengerstats':'สถิติฯ', 'eservices':'E-Services', 'airlines':'สายการบิน', 'banners':'แบนเนอร์' };
+
             if (pageData.length === 0) { 
                 tbody.innerHTML = '<tr><td colspan="6" class="py-4 text-center text-muted">ไม่พบข้อมูลบัญชีที่ค้นหา</td></tr>'; 
             } else {
                 pageData.forEach((item) => {
                     let statusBadge = item.Status === 'Active' ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">ระงับ</span>';
+                    
                     let roleBadge = '';
-                    if (item.Role === 'SuperAdmin') roleBadge = '<span class="badge bg-danger">SuperAdmin</span>';
-                    else if (item.Role === 'SubAdmin') roleBadge = '<span class="badge bg-warning text-dark">SubAdmin</span>';
+                    let allowedMenusHtml = ''; // 🟢 ตัวแปรสำหรับวาด Badge เมนูที่เข้าได้
+                    
+                    if (item.Role === 'SuperAdmin') {
+                        roleBadge = '<span class="badge bg-danger">SuperAdmin</span>';
+                        allowedMenusHtml = '<div class="mt-1"><span class="badge bg-danger bg-opacity-10 text-danger border border-danger">เข้าถึงทุกเมนู</span></div>';
+                    }
+                    else if (item.Role === 'SubAdmin') {
+                        roleBadge = '<span class="badge bg-warning text-dark">SubAdmin</span>';
+                        // วาดป้ายชื่อเมนูย่อยๆ ที่ SubAdmin คนนี้เข้าได้
+                        if(item.AllowedMenus) {
+                            let menus = item.AllowedMenus.split(',');
+                            allowedMenusHtml = '<div class="mt-1 d-flex flex-wrap gap-1 justify-content-center">';
+                            menus.forEach(m => {
+                                if(menuNamesTH[m]) allowedMenusHtml += `<span class="badge bg-light text-dark border">${menuNamesTH[m]}</span>`;
+                            });
+                            allowedMenusHtml += '</div>';
+                        }
+                    }
                     else if (item.Role === 'Staff') roleBadge = '<span class="badge bg-info text-dark">Staff</span>';
                     else roleBadge = '<span class="badge bg-light text-dark border">User</span>';
 
@@ -662,7 +826,7 @@
                             <td><div class="fw-bold text-primary">${item.FirstName} ${item.LastName}</div><div class="small text-muted"><i class="fa-solid fa-user"></i> ${item.Username}</div></td>
                             <td><div class="small fw-bold">${item.Organization || '-'}</div><div class="small text-muted"><i class="fa-solid fa-envelope"></i> ${item.Email}</div><div class="small text-muted"><i class="fa-solid fa-phone"></i> ${item.Phone}</div></td>
                             <td class="text-center fw-bold text-secondary small">${deptInfo}</td>
-                            <td class="text-center">${roleBadge}</td>
+                            <td class="text-center">${roleBadge} ${allowedMenusHtml}</td>
                             <td class="text-center">${statusBadge}${loginInfo}</td>
                             <td class="text-center">
                                 <button class="btn btn-sm btn-outline-warning me-1" onclick="openUserModal('${item.UserID}')"><i class="fa-solid fa-user-pen"></i></button>
@@ -672,8 +836,7 @@
                     `;
                 });
             }
-
-            // จัดการวาดปุ่ม Pagination
+            
             const ul = document.getElementById('user_PaginationControls'); ul.innerHTML = '';
             if(totalPages > 1) {
                 ul.innerHTML += `<li class="page-item ${currentUserPage === 1 ? 'disabled' : ''}"><a class="page-link" href="#" onclick="changeUserPage(${currentUserPage - 1})"><i class="fa-solid fa-chevron-left"></i></a></li>`;
@@ -682,16 +845,17 @@
             }
         }
 
-        document.getElementById('usr_Status').addEventListener('change', function() {
-            let label = document.getElementById('usr_StatusLabel');
-            if(this.checked) { label.innerText = 'บัญชีนี้พร้อมใช้งาน (Active)'; label.className = 'form-check-label fw-bold text-success'; }
-            else { label.innerText = 'ระงับการใช้งาน (Inactive)'; label.className = 'form-check-label fw-bold text-danger'; }
-        });
-
         function openUserModal(id = '') {
-            document.getElementById('formUser').reset(); document.getElementById('usr_UserID').value = ''; document.getElementById('userModalTitle').innerText = 'เพิ่มบัญชีผู้ใช้งานใหม่';
+            document.getElementById('formUser').reset(); 
+            document.getElementById('usr_UserID').value = ''; 
+            document.getElementById('userModalTitle').innerText = 'เพิ่มบัญชีผู้ใช้งานใหม่';
             
-            const userInp = document.getElementById('usr_Username'); userInp.readOnly = false; document.getElementById('userHelperText').style.display = 'none';
+            const userInp = document.getElementById('usr_Username'); 
+            userInp.readOnly = false; 
+            document.getElementById('userHelperText').style.display = 'none';
+            document.getElementById('usernameStatusMsg').innerText = ''; // ล้างข้อความเตือน
+            isUsernameValid = false; // รีเซ็ตสถานะ ป้องกันกดเซฟโดยไม่กรอก
+
             document.getElementById('usr_Status').checked = true; document.getElementById('usr_StatusLabel').innerText = 'บัญชีนี้พร้อมใช้งาน (Active)'; document.getElementById('usr_StatusLabel').className = 'form-check-label fw-bold text-success';
             document.getElementById('usr_RegisterDate').value = Utilities_getNow(); document.getElementById('usr_PDPA').value = 'Added By Admin'; document.getElementById('usr_LastLogin').value = '';
 
@@ -709,7 +873,6 @@
                 document.getElementById('usr_Password').value = item.Password; 
                 document.getElementById('usr_Department').value = item.Department || ''; document.getElementById('usr_Role').value = item.Role;
                 
-                // ติ๊กเมนูที่อนุญาต
                 if(item.AllowedMenus) {
                     let allowed = item.AllowedMenus.split(',');
                     document.querySelectorAll('.chk-menu').forEach(cb => {
@@ -718,7 +881,11 @@
                 }
                 toggleAllowedMenusUI();
 
-                userInp.value = item.Username; userInp.readOnly = true; document.getElementById('userHelperText').style.display = 'block';
+                userInp.value = item.Username; 
+                userInp.readOnly = true; 
+                document.getElementById('userHelperText').style.display = 'block';
+                isUsernameValid = true; // ถ้าเป็นโหมดแก้ไข ถือว่า Username ผ่านเลย (เพราะไม่ได้แก้)
+
                 document.getElementById('usr_Status').checked = (item.Status === 'Active');
                 let evt = new Event("change"); document.getElementById('usr_Status').dispatchEvent(evt);
 
@@ -728,9 +895,17 @@
         }
 
         function saveUserRecord(e) {
-            e.preventDefault(); const btn = document.getElementById('btnSaveUser'); btn.innerHTML = 'กำลังบันทึก...'; btn.disabled = true;
+            e.preventDefault(); 
 
-            // 🟢 จัดการสิทธิ์เมนู: รวบรวมเมนูที่ติ๊ก (ถ้าเป็น SuperAdmin ให้คำว่า all)
+            // 🟢 ตรวจสอบว่า Username ซ้ำไหม
+            if (!isUsernameValid) {
+                Swal.fire('ข้อผิดพลาด', 'กรุณาตรวจสอบชื่อผู้ใช้งาน (Username) ใหม่อีกครั้ง', 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('btnSaveUser'); 
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังบันทึก...'; btn.disabled = true;
+
             let allowedMenusStr = '';
             let role = document.getElementById('usr_Role').value;
             if (role === 'SuperAdmin') {
@@ -744,7 +919,7 @@
 
             const recordData = {
                 UserID: document.getElementById('usr_UserID').value, Username: document.getElementById('usr_Username').value, Password: document.getElementById('usr_Password').value, FirstName: document.getElementById('usr_FirstName').value, LastName: document.getElementById('usr_LastName').value, Email: document.getElementById('usr_Email').value, Phone: document.getElementById('usr_Phone').value, Organization: document.getElementById('usr_Organization').value, Position: document.getElementById('usr_Position').value, Department: document.getElementById('usr_Department').value, Role: role, 
-                AllowedMenus: allowedMenusStr, // 🟢 ส่งสิทธิ์เข้าเซิร์ฟเวอร์
+                AllowedMenus: allowedMenusStr, 
                 Status: document.getElementById('usr_Status').checked ? 'Active' : 'Inactive', LastLogin: document.getElementById('usr_LastLogin').value, pdpaConsent: document.getElementById('usr_PDPA').value, RegisterDate: document.getElementById('usr_RegisterDate').value
             };
 
@@ -754,13 +929,12 @@
                 if (res.status === 'success') {
                     bootstrap.Modal.getInstance(document.getElementById('userModal')).hide(); document.getElementById('formUser').reset(); 
                     Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', showConfirmButton: false, timer: 1500 }); 
-                    // อัปเดตตารางและ UI ใหม่
+                    
                     loadTableData('Users', (data) => { currentTableData = data; applyUserFilters(); });
                 } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
             }).finally(() => { btn.innerHTML = 'บันทึกข้อมูลผู้ใช้งาน'; btn.disabled = false; });
         }
-
-        // =======================สิ้นสุด ฟังก์ชันจัดการ ผู้ใช้งาน =================
+        // ================= สิ้นสุด ระบบจัดการ ผู้ใช้งาน =================
 
 
         // ================= เริ่มต้น ฟังก์ชันจัดการ ตั้งค่าเว็บไซต์ =================
@@ -1091,6 +1265,18 @@
 
 
         // ================= เริ่มต้น ฟังก์ชันจัดการ หมวดหมู่ข่าว (News Categories) =================
+        function populateDeptDropdown() {
+            fetch(`${API_URL}?action=getTableData&sheetName=Departments`).then(res => res.json()).then(res => {
+                if(res.status === 'success') {
+                    const select = document.getElementById('ncat_Department');
+                    select.innerHTML = '<option value="">-- กรุณาเลือกกลุ่มงาน --</option><option value="ทั้งหมด">ทั้งหมด (ดูแลทุกกลุ่มงาน)</option>';
+                    res.data.sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList)).forEach(dept => {
+                        if(dept.IsActive === 'TRUE') select.innerHTML += `<option value="${dept.DeptName}">${dept.DeptName}</option>`;
+                    });
+                }
+            });
+        }
+        
         function renderNewsCatsTable(data) { 
             const tbody = document.getElementById('tbody-newscategories'); tbody.innerHTML = ''; 
             if (data.length === 0) return; 
