@@ -52,6 +52,7 @@
             <li class="mt-4 px-3"><small class="text-uppercase fw-bold" style="color: #64748b; font-size: 0.7rem;">จัดการข้อมูลข่าวสาร</small></li>
             <li><a href="#" onclick="switchView('news', this)"><i class="fa-solid fa-newspaper"></i> จัดการข่าวสาร</a></li>
             <li><a href="#" onclick="switchView('newscategories', this)"><i class="fa-solid fa-layer-group"></i> หมวดหมู่ข่าว</a></li>
+            <li><a href="#" onclick="switchView('events', this)"><i class="fa-regular fa-calendar-days"></i> ปฏิทินกิจกรรม</a></li>
             
             <li class="mt-4 px-3"><small class="text-uppercase fw-bold" style="color: #64748b; font-size: 0.7rem;">จัดการข้อมูลเที่ยวบิน/ผู้โดยสาร</small></li>
             <li><a href="#" onclick="switchView('flightschedules', this)"><i class="fa-solid fa-plane-arrival"></i> ตารางเที่ยวบิน</a></li>
@@ -532,6 +533,36 @@
                 </div>
             </div>
             <!-- ================= สิ้นสุด หน้า จัดการข่าวสาร ================= -->
+
+            <!-- ================= เริ่มต้น หน้า จัดการปฏิทิน (Events) ================= -->
+            <div id="section-events" class="content-section" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold text-dark"><i class="fa-regular fa-calendar-days text-primary me-2"></i> จัดการปฏิทินกิจกรรม</h4>
+                    <button class="btn btn-primary" onclick="openEventModal()"><i class="fa-solid fa-plus me-1"></i> เพิ่มกิจกรรม</button>
+                </div>
+
+                <div class="card card-custom">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th width="10%">วันที่</th>
+                                        <th width="30%">ชื่อกิจกรรม</th>
+                                        <th width="15%">หน่วยงาน</th>
+                                        <th width="15%" class="text-center">ประเภท</th>
+                                        <th width="15%" class="text-center">สถานะ</th>
+                                        <th width="15%" class="text-center">จัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-events">
+                                    </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- ================= เริ่มต้น หน้า จัดการจัดการปฏิทิน (Events) ================= -->
 
         </div>
         <div class="footer-text">&copy; 2026 ระบบจัดการหลังบ้าน - ท่าอากาศยานบุรีรัมย์</div>
@@ -1099,6 +1130,105 @@
     </div>
     <!-- ================= สิ้นสุด Modal: เขียนข่าว ================= -->
 
+    <!-- ================= เริ่มต้น Modal: เขียนปฏิทิน (Events) ================= -->
+    <div class="modal fade" id="eventModal" tabindex="-1" data-bs-backdrop="static">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content border-0 shadow">
+                        <div class="modal-header bg-primary text-white">
+                            <h5 class="modal-title fw-bold" id="eventModalTitle"><i class="fa-regular fa-calendar-plus me-2"></i> เพิ่มกิจกรรมใหม่</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="formEvent" onsubmit="saveEvent(event)">
+                                <input type="hidden" id="evt_EventID">
+                                
+                                <div class="row mb-3">
+                                    <div class="col-md-12">
+                                        <label class="form-label fw-bold">ชื่อกิจกรรม <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="evt_EventName" required>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">วันที่จัดกิจกรรม <span class="text-danger">*</span></label>
+                                        <input type="date" class="form-control" id="evt_EventDate" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">เวลา (เช่น 08.30-16.30 น.) <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="evt_EventTime" placeholder="08.30-16.30 น." required>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">สถานที่ <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="evt_EventLocation" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">หน่วยงานที่รับผิดชอบ <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="evt_EventDept" required>
+                                    </div>
+                                </div>
+
+                                <hr>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">ประเภทการแสดงผลปฏิทิน <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="evt_EventType" onchange="toggleEventInternalView()" required>
+                                        <option value="public">แสดงที่หน้าเว็บ (ประชาชนทั่วไป)</option>
+                                        <option value="internal">ปฏิทินภายใน (เฉพาะเจ้าหน้าที่)</option>
+                                    </select>
+                                </div>
+
+                                <div id="evt_InternalSection" class="p-3 bg-light border rounded mb-3" style="display: none;">
+                                    <label class="form-label fw-bold text-primary">กำหนดผู้เข้าร่วมกิจกรรม (เฉพาะภายใน)</label>
+                                    <div class="mb-2">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="evtParticipantType" id="ptype_group" value="group" checked onchange="toggleParticipantInput()">
+                                            <label class="form-check-label" for="ptype_group">ระบุเป็นข้อความรวมๆ (เช่น กลุ่มงานบริหาร)</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="evtParticipantType" id="ptype_users" value="users" onchange="toggleParticipantInput()">
+                                            <label class="form-check-label" for="ptype_users">เจาะจงรายบุคคล</label>
+                                        </div>
+                                    </div>
+
+                                    <div id="div_ptype_group">
+                                        <input type="text" class="form-control" id="evt_ParticipantsText" placeholder="เช่น กลุ่มงานบริหาร / นวส.ปง. / ทุกคน">
+                                    </div>
+
+                                    <div id="div_ptype_users" style="display: none;">
+                                        <div class="row g-2 mb-2">
+                                            <div class="col-md-4">
+                                                <select class="form-select form-select-sm" id="evt_UserFilter" onchange="filterUsersList()">
+                                                    <option value="">-- กรองตามตำแหน่ง/กลุ่มงาน --</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <select class="form-select" id="evt_ParticipantsUsers" multiple size="5">
+                                            <option value="">กำลังโหลดรายชื่อเจ้าหน้าที่...</option>
+                                        </select>
+                                        <div class="form-text"><i class="fa-solid fa-circle-info"></i> กด Ctrl (Windows) หรือ Cmd (Mac) ค้างไว้เพื่อเลือกหลายคน</div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">สถานะ <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="evt_IsActive" required>
+                                        <option value="TRUE">เปิดใช้งาน (แสดงผล)</option>
+                                        <option value="FALSE">ปิด (ซ่อน)</option>
+                                    </select>
+                                </div>
+
+                                <div class="text-end mt-4">
+                                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">ยกเลิก</button>
+                                    <button type="submit" class="btn btn-primary px-4" id="btnSaveEvent">บันทึกข้อมูล</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    <!-- ================= สิ้นสุด Modal: เขียนปฏิทิน (Events) ================= -->
+
     <!-- ================= เริ่มต้น Modal: ดูไฟล์เอกสารแนบ ================= -->
     <div class="modal fade" id="viewFilesModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-sm">
@@ -1251,6 +1381,7 @@
                     Swal.close(); // ปิดป๊อปอัปทีเดียวตอนเสร็จหมด
                 });
             }
+            if (viewName === 'events') { loadTableData('Events', renderEventsTable); }
         }
         // ================= สิ้นสุด ฟังก์ชันเปลี่ยนหน้าเมนู =================
 
@@ -2554,6 +2685,225 @@
         }
 
         // =======================สิ้นสุด ฟังก์ชันจัดการ Dashboard =================
+        // ================= เริ่มต้น ฟังก์ชันจัดการ ปฏิทินกิจกรรม (Events) =================
+        let allUsersForEvents = []; // เก็บรายชื่อผู้ใช้ทั้งหมดไว้กรอง
+
+        function renderEventsTable(data) {
+            const tbody = document.getElementById('tbody-events');
+            tbody.innerHTML = '';
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">ไม่พบข้อมูลกิจกรรม</td></tr>`;
+                return;
+            }
+
+            // เรียงจากวันที่ล่าสุดไปเก่าสุด
+            data.sort((a, b) => new Date(b.EventDate) - new Date(a.EventDate)).forEach((item) => {
+                let badgeStatus = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิดแสดงผล</span>' : '<span class="badge bg-secondary">ปิด</span>';
+                let badgeType = item.EventType === 'internal' ? '<span class="badge bg-warning text-dark"><i class="fa-solid fa-lock me-1"></i> ภายใน</span>' : '<span class="badge bg-info text-dark"><i class="fa-solid fa-globe me-1"></i> หน้าเว็บ</span>';
+                
+                // แปลงรูปแบบวันที่ไทยอย่างง่าย
+                let d = new Date(item.EventDate);
+                let dateStr = `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()+543}`;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="text-nowrap">${dateStr}</td>
+                        <td>
+                            <div class="fw-bold text-dark">${item.EventName}</div>
+                            <small class="text-muted"><i class="fa-regular fa-clock me-1"></i>${item.EventTime}</small>
+                        </td>
+                        <td>${item.EventDept}</td>
+                        <td class="text-center">${badgeType}</td>
+                        <td class="text-center">${badgeStatus}</td>
+                        <td class="text-center text-nowrap">
+                            <button class="btn btn-sm btn-outline-warning me-1" onclick="openEventModal('${item.EventID}')"><i class="fa-solid fa-pen"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('Events', 'EventID', '${item.EventID}')"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openEventModal(id = '') {
+            document.getElementById('formEvent').reset();
+            document.getElementById('evt_EventID').value = '';
+            document.getElementById('eventModalTitle').innerHTML = '<i class="fa-regular fa-calendar-plus me-2"></i> เพิ่มกิจกรรมใหม่';
+            
+            // รีเซ็ตการแสดงผล
+            toggleEventInternalView();
+            toggleParticipantInput();
+
+            // โหลดรายชื่อผู้ใช้งานมารอไว้สำหรับเลือกเข้าร่วม
+            loadUsersForEventDropdown();
+
+            if (id) {
+                document.getElementById('eventModalTitle').innerHTML = '<i class="fa-regular fa-calendar-check me-2"></i> แก้ไขกิจกรรม';
+                const i = currentTableData.find(x => x.EventID === id);
+                if(i) {
+                    document.getElementById('evt_EventID').value = i.EventID;
+                    document.getElementById('evt_EventName').value = i.EventName;
+                    
+                    // แปลง format วันที่กลับไปใส่ input type="date" (YYYY-MM-DD)
+                    if(i.EventDate) {
+                        let d = new Date(i.EventDate);
+                        document.getElementById('evt_EventDate').value = d.toISOString().split('T')[0];
+                    }
+                    
+                    document.getElementById('evt_EventTime').value = i.EventTime;
+                    document.getElementById('evt_EventLocation').value = i.EventLocation;
+                    document.getElementById('evt_EventDept').value = i.EventDept;
+                    document.getElementById('evt_EventType').value = i.EventType;
+                    document.getElementById('evt_IsActive').value = i.IsActive;
+
+                    if(i.EventType === 'internal') {
+                        if(i.ParticipantType === 'users') {
+                            document.getElementById('ptype_users').checked = true;
+                            // ข้อมูลเก่าที่เลือกรายบุคคล จะเซ็ตในฟังก์ชัน loadUsersForEventDropdown ทันทีที่โหลดเสร็จ
+                            setTimeout(() => { setUsersSelected(i.Participants); }, 800);
+                        } else {
+                            document.getElementById('ptype_group').checked = true;
+                            document.getElementById('evt_ParticipantsText').value = i.Participants || '';
+                        }
+                    }
+                    toggleEventInternalView();
+                    toggleParticipantInput();
+                }
+            }
+            new bootstrap.Modal(document.getElementById('eventModal')).show();
+        }
+
+        // จัดการโชว์/ซ่อน ส่วนของผู้เข้าร่วมภายใน
+        function toggleEventInternalView() {
+            const type = document.getElementById('evt_EventType').value;
+            const internalSec = document.getElementById('evt_InternalSection');
+            if(type === 'internal') {
+                internalSec.style.display = 'block';
+            } else {
+                internalSec.style.display = 'none';
+            }
+        }
+
+        function toggleParticipantInput() {
+            const isGroup = document.getElementById('ptype_group').checked;
+            document.getElementById('div_ptype_group').style.display = isGroup ? 'block' : 'none';
+            document.getElementById('div_ptype_users').style.display = isGroup ? 'none' : 'block';
+        }
+
+        // โหลดข้อมูลรายชื่อเจ้าหน้าที่จากชีท Users
+        function loadUsersForEventDropdown() {
+            fetch(`${API_URL}?action=getTableData&sheetName=Users`)
+            .then(res => res.json())
+            .then(res => {
+                if(res.status === 'success') {
+                    allUsersForEvents = res.data.filter(u => u.IsActive === 'TRUE'); // เก็บเฉพาะคนที่ Active
+                    
+                    // สกัดเอาชื่อตำแหน่ง/กลุ่มงาน ออกมาทำ Filter
+                    let depts = [...new Set(allUsersForEvents.map(item => item.Department))].filter(Boolean);
+                    let filterSelect = document.getElementById('evt_UserFilter');
+                    filterSelect.innerHTML = '<option value="">-- กรองทั้งหมด --</option>';
+                    depts.forEach(d => {
+                        filterSelect.innerHTML += `<option value="${d}">${d}</option>`;
+                    });
+
+                    renderUsersOptions(allUsersForEvents);
+                }
+            });
+        }
+
+        // วาดตัวเลือกบุคลากร
+        function renderUsersOptions(usersList) {
+            const select = document.getElementById('evt_ParticipantsUsers');
+            select.innerHTML = '';
+            usersList.forEach(u => {
+                select.innerHTML += `<option value="${u.Name}">${u.Name} (${u.Department})</option>`;
+            });
+        }
+
+        // กรองคนตามตำแหน่ง
+        function filterUsersList() {
+            const filterVal = document.getElementById('evt_UserFilter').value;
+            if(!filterVal) {
+                renderUsersOptions(allUsersForEvents);
+            } else {
+                const filtered = allUsersForEvents.filter(u => u.Department === filterVal);
+                renderUsersOptions(filtered);
+            }
+        }
+
+        // เลือก Option ของรายชื่อคนแบบ Multiple ตามข้อมูลที่ดึงมาแก้ไข
+        function setUsersSelected(participantsString) {
+            if(!participantsString) return;
+            const namesArray = participantsString.split(', ');
+            const options = document.getElementById('evt_ParticipantsUsers').options;
+            for(let opt of options) {
+                if(namesArray.includes(opt.value)) opt.selected = true;
+            }
+        }
+
+        // บันทึกข้อมูล
+        function saveEvent(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSaveEvent');
+            btn.disabled = true;
+
+            const evtType = document.getElementById('evt_EventType').value;
+            let participantType = '';
+            let participants = '';
+
+            if(evtType === 'internal') {
+                const isUsers = document.getElementById('ptype_users').checked;
+                if(isUsers) {
+                    participantType = 'users';
+                    participants = Array.from(document.getElementById('evt_ParticipantsUsers').selectedOptions).map(opt => opt.value).join(', ');
+                    if(!participants) {
+                        Swal.fire('แจ้งเตือน', 'กรุณาเลือกผู้เข้าร่วมกิจกรรมอย่างน้อย 1 คน', 'warning');
+                        btn.disabled = false; return;
+                    }
+                } else {
+                    participantType = 'group';
+                    participants = document.getElementById('evt_ParticipantsText').value;
+                    if(!participants) {
+                        Swal.fire('แจ้งเตือน', 'กรุณาระบุกลุ่มผู้เข้าร่วมกิจกรรม', 'warning');
+                        btn.disabled = false; return;
+                    }
+                }
+            }
+
+            const rData = {
+                EventID: document.getElementById('evt_EventID').value,
+                EventName: document.getElementById('evt_EventName').value,
+                EventDate: document.getElementById('evt_EventDate').value,
+                EventTime: document.getElementById('evt_EventTime').value,
+                EventLocation: document.getElementById('evt_EventLocation').value,
+                EventDept: document.getElementById('evt_EventDept').value,
+                EventType: evtType,
+                ParticipantType: participantType,
+                Participants: participants,
+                IsActive: document.getElementById('evt_IsActive').value
+            };
+
+            fetch(API_URL, {
+                method: 'POST',
+                body: new URLSearchParams({
+                    action: 'saveRecord',
+                    sheetName: 'Events',
+                    idColumn: 'EventID',
+                    recordJSON: JSON.stringify(rData)
+                })
+            })
+            .then(res => res.json())
+            .then(res => {
+                if (res.status === 'success') {
+                    bootstrap.Modal.getInstance(document.getElementById('eventModal')).hide();
+                    Swal.fire({ icon: 'success', title: 'บันทึกข้อมูลเรียบร้อย', showConfirmButton: false, timer: 1500 });
+                    loadTableData('Events', renderEventsTable); // รีโหลดตาราง
+                } else {
+                    Swal.fire('ผิดพลาด', res.message, 'error');
+                }
+            })
+            .finally(() => btn.disabled = false);
+        }
+        // ================= สิ้นสุด ฟังก์ชันจัดการ ปฏิทินกิจกรรม =================
     </script>
 </body>
 </html>
