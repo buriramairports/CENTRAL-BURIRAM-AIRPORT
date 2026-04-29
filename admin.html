@@ -109,10 +109,9 @@
 
                 <!-- 🟢 แถวที่ 1: สถิติหลัก (4 กล่องใหญ่) -->
                 <div class="row g-4 mb-4">
-                    <div class="col-md-3"><div class="stat-card border-primary"><div class="icon"><i class="fa-solid fa-newspaper"></i></div><div><h3 class="fw-bold mb-0 text-dark" id="dash_totalNews">0</h3><div class="text-muted small">ข่าวสารทั้งหมด</div></div></div></div>
-                    <div class="col-md-3"><div class="stat-card" style="border-left-color: #8b5cf6;"><div class="icon" style="background: #ede9fe; color: #8b5cf6;"><i class="fa-solid fa-plane-up"></i></div><div><h3 class="fw-bold mb-0 text-dark" id="dash_totalFlights">0</h3><div class="text-muted small">ตารางเที่ยวบินที่เปิดใช้</div></div></div></div>
-                    <div class="col-md-3"><div class="stat-card" style="border-left-color: #f59e0b;"><div class="icon" style="background: #fef3c7; color: #f59e0b;"><i class="fa-solid fa-laptop-code"></i></div><div><h3 class="fw-bold mb-0 text-dark" id="dash_totalEServices">0</h3><div class="text-muted small">E-Services ในระบบ</div></div></div></div>
-                    <div class="col-md-3"><div class="stat-card" style="border-left-color: #ec4899;"><div class="icon" style="background: #fce7f3; color: #ec4899;"><i class="fa-regular fa-images"></i></div><div><h3 class="fw-bold mb-0 text-dark" id="dash_totalBanners">0</h3><div class="text-muted small">แบนเนอร์สไลด์</div></div></div></div>
+                    <div class="col-md-4"><div class="stat-card" style="border-left-color: #8b5cf6;"><div class="icon" style="background: #ede9fe; color: #8b5cf6;"><i class="fa-solid fa-plane-up"></i></div><div><h3 class="fw-bold mb-0 text-dark" id="dash_totalFlights">0</h3><div class="text-muted small">ตารางเที่ยวบินที่เปิดใช้</div></div></div></div>
+                    <div class="col-md-4"><div class="stat-card" style="border-left-color: #f59e0b;"><div class="icon" style="background: #fef3c7; color: #f59e0b;"><i class="fa-solid fa-laptop-code"></i></div><div><h3 class="fw-bold mb-0 text-dark" id="dash_totalEServices">0</h3><div class="text-muted small">E-Services ในระบบ</div></div></div></div>
+                    <div class="col-md-4"><div class="stat-card" style="border-left-color: #ec4899;"><div class="icon" style="background: #fce7f3; color: #ec4899;"><i class="fa-regular fa-images"></i></div><div><h3 class="fw-bold mb-0 text-dark" id="dash_totalBanners">0</h3><div class="text-muted small">แบนเนอร์สไลด์</div></div></div></div>
                 </div>
 
                 <!-- 🟢 แถวที่ 2: กราฟ และ สถิติย่อย -->
@@ -126,9 +125,22 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- สถิติข่าวสาร -->
+                    <div class="col-lg-4">
+                        
+                        <div class="card card-custom mb-4" style="border-top: 5px solid #3b82f6;">
+                            <div class="card-body p-4">
+                                <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-newspaper text-primary me-2"></i> สถิติข่าวสาร (News)</h6>
+                                <h2 class="display-6 fw-bold text-center text-primary mb-4" id="dash_newsTotalCard">0 <span class="fs-6 fw-normal text-muted">เรื่อง</span></h2>
+                                <div id="dash_newsBreakdownList" style="max-height: 250px; overflow-y: auto; padding-right: 5px;">
+                                    <div class="text-center text-muted py-3">กำลังโหลดข้อมูล...</div>
+                                </div>
+                            </div>
+                        </div>
                     
                     <!-- สถิติผู้ใช้งาน และ ข้อมูลอื่นๆ -->
-                    <div class="col-lg-4">
+                    
                         <div class="card card-custom mb-4" style="border-top: 5px solid #22c55e;">
                             <div class="card-body p-4">
                                 <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-users text-success me-2"></i> สถิติผู้ใช้งาน (Users)</h6>
@@ -2340,11 +2352,10 @@
         // ==========================================
         let myPassengerChart; // ตัวแปรเก็บกราฟ เพื่อเอาไว้ลบทิ้งก่อนวาดใหม่
 
-        function loadDashboardStats() {
+       function loadDashboardStats() {
             const user = JSON.parse(localStorage.getItem('userData'));
             if(user) document.getElementById('adminDeptDisplay').innerText = user.department || 'ทั้งหมด';
 
-            // 1. เรียกใช้ป๊อปอัป Loading บล็อกหน้าจอไว้ก่อนดึงข้อมูล
             Swal.fire({ 
                 title: 'กำลังโหลดข้อมูลสถิติ...', 
                 allowOutsideClick: false, 
@@ -2357,8 +2368,7 @@
                     if (res.status === 'success') {
                         const data = res.data;
                         
-                        // หยอดตัวเลขลงกล่องสถิติ
-                        document.getElementById('dash_totalNews').innerText = data.totalNews;
+                        // หยอดตัวเลขลงกล่องสถิติด้านบน
                         document.getElementById('dash_totalFlights').innerText = data.totalFlights;
                         document.getElementById('dash_totalEServices').innerText = data.totalEServices;
                         document.getElementById('dash_totalBanners').innerText = data.totalBanners;
@@ -2374,7 +2384,30 @@
                         // วาดกราฟเปรียบเทียบสถิติผู้โดยสาร
                         renderPassengerChart(data.passengers);
 
-                        // 2. ปิดป๊อปอัป Loading ทันทีเมื่อข้อมูลทุกอย่างพร้อมและวาดลงหน้าจอเสร็จแล้ว
+                        // 🟢 จัดการส่วน Card ข่าวสาร (อัปเดตยอดรวม และ List หมวดหมู่)
+                        document.getElementById('dash_newsTotalCard').innerHTML = `${data.totalNews} <span class="fs-6 fw-normal text-muted">เรื่อง</span>`;
+                        
+                        const newsListContainer = document.getElementById('dash_newsBreakdownList');
+                        newsListContainer.innerHTML = '';
+                        
+                        if(data.newsBreakdown && data.newsBreakdown.length > 0) {
+                            data.newsBreakdown.forEach(item => {
+                                let countClass = item.count > 0 ? "fw-bold text-dark" : "text-muted";
+                                newsListContainer.innerHTML += `
+                                    <div class="d-flex justify-content-between mb-3 pb-2 border-bottom">
+                                        <div>
+                                            <div class="text-secondary fw-bold" style="font-size: 0.95rem;">${item.name}</div>
+                                            <div class="text-muted mt-1" style="font-size: 0.75rem;"><i class="fa-solid fa-sitemap me-1"></i> ${item.dept}</div>
+                                        </div>
+                                        <span class="${countClass} fs-5 align-self-center">${item.count}</span>
+                                    </div>
+                                `;
+                            });
+                        } else {
+                            newsListContainer.innerHTML = '<div class="text-center text-muted small py-3">ยังไม่มีหมวดหมู่ข่าวสารในระบบ</div>';
+                        }
+
+                        // ปิด Loading
                         Swal.close();
                     } else {
                         Swal.fire('ผิดพลาด', 'ไม่สามารถดึงข้อมูลสถิติได้', 'error');
