@@ -2813,6 +2813,7 @@
         let selectedStaffIds = [];
 
         // ฟังก์ชันโหลดข้อมูล และรับพารามิเตอร์ existingStr เพื่อเซ็ตค่ากรณี "แก้ไขกิจกรรม"
+        // ฟังก์ชันโหลดข้อมูล
         function loadStaffDataForChips(existingStr = '') {
             document.getElementById('availableStaffList').innerHTML = '<div class="text-center p-3 text-muted"><i class="fas fa-spinner fa-spin me-2"></i>กำลังโหลดรายชื่อ...</div>';
 
@@ -2827,12 +2828,12 @@
                         return {
                             id: fullName, 
                             name: fullName,
-                            position: u.Department || 'ไม่ระบุ',
+                            // 🟢 แก้ไขข้อ 1: ดึง u.Position มาแสดง (ถ้าฐานข้อมูลคุณใช้ชื่ออื่น ให้แก้ตรงนี้นะครับ)
+                            position: u.Position || 'ไม่ระบุตำแหน่ง', 
                             group: u.Department || 'ไม่ระบุสังกัด'
                         };
                     });
 
-                    // 🟢 ถ้ามีรายชื่อเดิมที่บันทึกไว้ (กรณีแก้ไข) ให้จับแยกมาใส่ array ที่เลือกไว้
                     if(existingStr) {
                         selectedStaffIds = existingStr.split(',').map(name => name.trim()).filter(name => name !== '');
                     }
@@ -2842,7 +2843,7 @@
                 }
             })
             .catch(err => {
-                document.getElementById('availableStaffList').innerHTML = '<div class="text-center p-3 text-danger">เกิดข้อผิดพลาดในการดึงข้อมูล</div>';
+                document.getElementById('availableStaffList').innerHTML = '<div class="text-center p-3 text-danger">เกิดข้อผิดพลาด</div>';
             });
         }
 
@@ -2852,6 +2853,7 @@
             const text = filterText.toLowerCase();
 
             staffData.forEach(staff => {
+                // 🟢 ค้นหาได้ทั้ง ชื่อ, ตำแหน่ง และ กลุ่มงาน
                 if (staff.name.toLowerCase().includes(text) || 
                     staff.position.toLowerCase().includes(text) || 
                     staff.group.toLowerCase().includes(text)) {
@@ -2865,7 +2867,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <div class="fw-bold text-dark">${staff.name}</div>
-                                <small class="text-muted"><i class="fas fa-briefcase me-1"></i>${staff.position} | <i class="fas fa-users me-1"></i>${staff.group}</small>
+                                <small class="text-muted"><i class="fas fa-briefcase me-1"></i> ${staff.position} | <i class="fas fa-users me-1"></i> ${staff.group}</small>
                             </div>
                             ${isSelected ? '<i class="fas fa-check-circle text-success"></i>' : '<i class="fas fa-plus-circle text-muted" style="opacity:0.3;"></i>'}
                         </div>
@@ -2879,27 +2881,25 @@
             }
         }
 
+        // 🟢 แก้ไขข้อ 2 & 3: ปรับปรุงการวาดป้ายรายชื่อไม่ให้ UI หาย
         function renderSelectedStaff() {
             const area = document.getElementById('selectedStaffArea');
-            const emptyText = document.getElementById('emptyStateText');
             const countSpan = document.getElementById('selectedCount');
             const hiddenInput = document.getElementById('selectedStaffIds');
             
-            area.innerHTML = "";
             countSpan.innerText = selectedStaffIds.length;
-            hiddenInput.value = selectedStaffIds.join(','); // ซ่อนค่าไว้ส่งแบบฟอร์ม
+            hiddenInput.value = selectedStaffIds.join(','); 
 
             if (selectedStaffIds.length === 0) {
-                area.appendChild(emptyText);
-                emptyText.style.display = "block";
+                area.innerHTML = '<span class="text-muted small" id="emptyStateText">ยังไม่มีการเลือกผู้เข้าร่วม</span>';
             } else {
-                emptyText.style.display = "none";
+                area.innerHTML = ''; // ล้างเฉพาะตอนมีคนถูกเลือก
                 selectedStaffIds.forEach(id => {
                     const staff = staffData.find(s => s.id === id);
                     if(staff) {
-                        const chip = document.createElement('div');
+                        const chip = document.createElement('span'); 
                         chip.className = 'staff-chip';
-                        chip.innerHTML = `${staff.name} <span class="remove-chip" onclick="removeStaff('${staff.id}')">&times;</span>`;
+                        chip.innerHTML = `${staff.name} <span class="remove-chip" onclick="removeStaff('${staff.id}')" style="cursor:pointer; margin-left:8px; color:#dc3545;">&times;</span>`;
                         area.appendChild(chip);
                     }
                 });
@@ -2943,67 +2943,81 @@
 
         // บันทึกข้อมูล
         function saveEvent(e) {
-            e.preventDefault();
-            const btn = document.getElementById('btnSaveEvent');
-            btn.disabled = true;
+    e.preventDefault();
+    const btn = document.getElementById('btnSaveEvent');
+    btn.disabled = true;
 
-            const evtType = document.getElementById('evt_EventType').value;
-            let participantType = '';
-            let participants = '';
-
-            if(evtType === 'internal') {
-                const isUsers = document.getElementById('ptype_users').checked;
-                if(isUsers) {
-                    participantType = 'users';
-                    participants = Array.from(document.getElementById('evt_ParticipantsUsers').selectedOptions).map(opt => opt.value).join(', ');
-                    if(!participants) {
-                        Swal.fire('แจ้งเตือน', 'กรุณาเลือกผู้เข้าร่วมกิจกรรมอย่างน้อย 1 คน', 'warning');
-                        btn.disabled = false; return;
-                    }
-                } else {
-                    participantType = 'group';
-                    participants = document.getElementById('evt_ParticipantsText').value;
-                    if(!participants) {
-                        Swal.fire('แจ้งเตือน', 'กรุณาระบุกลุ่มผู้เข้าร่วมกิจกรรม', 'warning');
-                        btn.disabled = false; return;
-                    }
-                }
+    const evtType = document.getElementById('evt_EventType').value;
+    let participantType = '';
+    let participants = '';
+    
+    if(evtType === 'internal') {
+        const isUsers = document.getElementById('ptype_users').checked;
+        if(isUsers) {
+            participantType = 'users';
+            // 🟢 แก้ไข: เปลี่ยนมาดึงข้อมูลจาก input hidden ของระบบป้ายชื่อ (Chips)
+            participants = document.getElementById('selectedStaffIds').value; 
+            
+            if(!participants) {
+                Swal.fire('แจ้งเตือน', 'กรุณาเลือกผู้เข้าร่วมกิจกรรมอย่างน้อย 1 คน', 'warning');
+                btn.disabled = false; return;
             }
-
-            const rData = {
-                EventID: document.getElementById('evt_EventID').value,
-                EventName: document.getElementById('evt_EventName').value,
-                EventDate: document.getElementById('evt_EventDate').value,
-                EventTime: document.getElementById('evt_EventTime').value,
-                EventLocation: document.getElementById('evt_EventLocation').value,
-                EventDept: document.getElementById('evt_EventDept').value,
-                EventType: evtType,
-                ParticipantType: participantType,
-                Participants: participants,
-                IsActive: document.getElementById('evt_IsActive').value
-            };
-
-            fetch(API_URL, {
-                method: 'POST',
-                body: new URLSearchParams({
-                    action: 'saveRecord',
-                    sheetName: 'Events',
-                    idColumn: 'EventID',
-                    recordJSON: JSON.stringify(rData)
-                })
-            })
-            .then(res => res.json())
-            .then(res => {
-                if (res.status === 'success') {
-                    bootstrap.Modal.getInstance(document.getElementById('eventModal')).hide();
-                    Swal.fire({ icon: 'success', title: 'บันทึกข้อมูลเรียบร้อย', showConfirmButton: false, timer: 1500 });
-                    loadTableData('Events', renderEventsTable); // รีโหลดตาราง
-                } else {
-                    Swal.fire('ผิดพลาด', res.message, 'error');
-                }
-            })
-            .finally(() => btn.disabled = false);
+        } else {
+            participantType = 'group';
+            participants = document.getElementById('evt_ParticipantsText').value;
+            if(!participants) {
+                Swal.fire('แจ้งเตือน', 'กรุณาระบุกลุ่มผู้เข้าร่วมกิจกรรม', 'warning');
+                btn.disabled = false; return;
+            }
         }
+    }
+
+    const rData = {
+        EventID: document.getElementById('evt_EventID').value,
+        EventName: document.getElementById('evt_EventName').value,
+        EventDate: document.getElementById('evt_EventDate').value,
+        EventTime: document.getElementById('evt_EventTime').value,
+        EventLocation: document.getElementById('evt_EventLocation').value,
+        EventDept: document.getElementById('evt_EventDept').value,
+        EventType: evtType,
+        ParticipantType: participantType,
+        Participants: participants,
+        IsActive: document.getElementById('evt_IsActive').value
+    };
+
+    // 🟢 เพิ่มเติม: แสดง Loading Alert ระหว่างรอเซฟข้อมูล
+    Swal.fire({
+        title: 'กำลังบันทึกข้อมูล...',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    fetch(API_URL, {
+        method: 'POST',
+        body: new URLSearchParams({
+            action: 'saveRecord',
+            sheetName: 'Events',
+            idColumn: 'EventID',
+            recordJSON: JSON.stringify(rData)
+        })
+    })
+    .then(res => res.json())
+    .then(res => {
+        if (res.status === 'success') {
+            bootstrap.Modal.getInstance(document.getElementById('eventModal')).hide();
+            Swal.fire({ icon: 'success', title: 'บันทึกข้อมูลเรียบร้อย', showConfirmButton: false, timer: 1500 });
+            loadTableData('Events', renderEventsTable); // รีโหลดตาราง
+        } else {
+            Swal.fire('ผิดพลาด', res.message, 'error');
+        }
+    })
+    .catch(err => {
+        Swal.fire('ผิดพลาด', 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้', 'error');
+    })
+    .finally(() => btn.disabled = false);
+}
         // ================= สิ้นสุด ฟังก์ชันจัดการ ปฏิทินกิจกรรม =================
     </script>
 </body>
