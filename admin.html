@@ -2369,13 +2369,38 @@
             }
         }
 
+        // 🟢 ฟังก์ชันช่วยเหลือ: แปลงวันที่แบบไทย (พ.ศ.) ให้เป็น Date Object ที่คอมพิวเตอร์เข้าใจ (ค.ศ.)
+        function parseThaiDate(dateString) {
+            if (!dateString) return new Date(0); // ถ้าไม่มีข้อมูล ให้ถือว่าเป็นวันเก่าสุด
+            
+            // รูปแบบ dateString: "28/04/2569 17:05:59"
+            let parts = dateString.split(' ');
+            if (parts.length !== 2) return new Date(0);
+
+            let dateParts = parts[0].split('/'); // ["28", "04", "2569"]
+            let timeParts = parts[1].split(':'); // ["17", "05", "59"]
+
+            if (dateParts.length !== 3) return new Date(0);
+
+            let day = parseInt(dateParts[0], 10);
+            let month = parseInt(dateParts[1], 10) - 1; // เดือนใน JS เริ่มที่ 0
+            let year = parseInt(dateParts[2], 10) - 543; // 🟢 ลบ 543 แปลง พ.ศ. เป็น ค.ศ.
+
+            let hours = timeParts[0] ? parseInt(timeParts[0], 10) : 0;
+            let mins = timeParts[1] ? parseInt(timeParts[1], 10) : 0;
+            let secs = timeParts[2] ? parseInt(timeParts[2], 10) : 0;
+
+            // คืนค่าเป็น Date Object ที่แท้จริง (เพื่อให้เอาไป บวก/ลบ/เรียงลำดับ ได้)
+            return new Date(year, month, day, hours, mins, secs);
+        }
+
         // 2. ฟังก์ชันประมวลผลการค้นหา และ จัดเรียง
         function applyNewsFilters() {
             const user = JSON.parse(localStorage.getItem('userData'));
             const searchTxt = document.getElementById('filter_NewsSearch').value.toLowerCase();
             const catVal = document.getElementById('filter_NewsCategory').value;
             const deptVal = document.getElementById('filter_NewsDept').value;
-            const sortVal = document.getElementById('filter_NewsSort').value; // 🟢 ดึงค่าการจัดเรียง
+            const sortVal = document.getElementById('filter_NewsSort').value; 
 
             // 1. คัดกรองข้อมูลก่อน (Filter)
             filteredNewsData = currentTableData.filter(news => {
@@ -2394,11 +2419,12 @@
                 return true;
             });
 
-            // 🟢 2. ทำการจัดเรียง (Sort) ตามเงื่อนไขที่เลือก
+            // 2. ทำการจัดเรียง (Sort) ตามเงื่อนไขที่เลือก
             filteredNewsData.sort((a, b) => {
-                // ดึงค่ามาแปลงเพื่อใช้เทียบ
-                let dateA = new Date(a.CreateDate);
-                let dateB = new Date(b.CreateDate);
+                // 🟢 ใช้ฟังก์ชัน parseThaiDate แปลงวันที่ก่อนนำมาเรียงลำดับ
+                let dateA = parseThaiDate(a.CreateDate).getTime();
+                let dateB = parseThaiDate(b.CreateDate).getTime();
+                
                 let viewA = parseInt(a.ViewCount) || 0;
                 let viewB = parseInt(b.ViewCount) || 0;
 
@@ -2408,7 +2434,6 @@
                     case 'date_asc':  // เก่าไปใหม่
                         return dateA - dateB;
                     case 'view_desc': // ยอดวิวมากไปน้อย
-                        // ถ้ายอดวิวเท่ากัน ให้เอาข่าวใหม่ขึ้นก่อน
                         if(viewB === viewA) return dateB - dateA; 
                         return viewB - viewA;
                     case 'view_asc':  // ยอดวิวน้อยไปมาก
@@ -2419,7 +2444,6 @@
                 }
             });
 
-            // รีเซ็ตกลับไปหน้า 1 เสมอเมื่อมีการค้นหาหรือเปลี่ยนการจัดเรียงใหม่
             currentNewsPage = 1;
             renderNewsTable(); // สั่งวาดตาราง
         }
