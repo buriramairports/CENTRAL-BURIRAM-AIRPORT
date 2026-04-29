@@ -1276,12 +1276,16 @@
 
 
         // ================= เริ่มต้น ฟังก์ชันจัดการ แบนเนอร์ (Banners) =================
-        function renderBannersTable(data) {
+         function renderBannersTable(data) {
             const tbody = document.getElementById('tbody-banners'); tbody.innerHTML = '';
             if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4">ไม่มีข้อมูล</td></tr>'; return; }
             data.sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList)).forEach((item, index) => {
                 let badge = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิดใช้งาน</span>' : '<span class="badge bg-secondary">ปิด</span>';
-                let imgHtml = item.ImageURL ? `<img src="${item.ImageURL}" style="height: 60px; border-radius:5px; object-fit:cover; border:1px solid #ccc;">` : '-';
+                
+                // 🟢 แก้ไข: ใช้ convertDriveImageLink ตรงนี้ครั้งเดียว เพื่อให้โชว์รูป thumbnail ได้ (ถ้าเป็นลิงก์นอกก็จะไม่พัง)
+                let displayUrl = convertDriveImageLink(item.ImageURL);
+                let imgHtml = displayUrl ? `<img src="${displayUrl}" style="height: 60px; border-radius:5px; object-fit:cover; border:1px solid #ccc;">` : '-';
+                
                 let btnUp = index > 0 ? `<button class="btn btn-sm btn-light text-primary me-1" onclick="moveOrder('Banners', ${index}, -1, renderBannersTable)"><i class="fa-solid fa-arrow-up"></i></button>` : `<button class="btn btn-sm btn-light me-1" style="visibility:hidden;"><i class="fa-solid fa-arrow-up"></i></button>`;
                 let btnDown = index < data.length - 1 ? `<button class="btn btn-sm btn-light text-primary me-2" onclick="moveOrder('Banners', ${index}, 1, renderBannersTable)"><i class="fa-solid fa-arrow-down"></i></button>` : `<button class="btn btn-sm btn-light me-2" style="visibility:hidden;"><i class="fa-solid fa-arrow-down"></i></button>`;
                 
@@ -1339,7 +1343,6 @@
                     Swal.fire('ผิดพลาด', 'กรุณาเลือกรูปภาพ', 'warning'); btn.innerHTML = 'บันทึกข้อมูล'; btn.disabled = false; return;
                 }
 
-                // อัปโหลดรูปลง Drive
                 if (fileInput.files.length > 0) {
                     let uploadedUrl = await uploadSingleFile(fileInput.files[0], 'image');
                     if (uploadedUrl) finalUrl = uploadedUrl;
@@ -1349,6 +1352,7 @@
                 let ord = document.getElementById('ban_OrderList').value; 
                 if (!document.getElementById('ban_BannerID').value) ord = currentTableData.length + 1; 
                 
+                // 🟢 แก้ไข: ใช้ finalUrl เลย ไม่ต้องครอบ convertDriveImageLink แล้ว
                 const recordData = { BannerID: document.getElementById('ban_BannerID').value, ImageURL: finalUrl, Title: document.getElementById('ban_Title').value, Description: document.getElementById('ban_Description').value, OrderList: ord, IsActive: document.getElementById('ban_IsActive').checked ? 'TRUE' : 'FALSE' }; 
                 const formData = new URLSearchParams({ action: 'saveRecord', sheetName: 'Banners', idColumn: 'BannerID', recordJSON: JSON.stringify(recordData) });
                 
@@ -1478,10 +1482,14 @@
         // ================= เริ่มต้น ฟังก์ชันจัดการ สายการบิน (Airlines) =================
         function renderAirlinesTable(data) { 
             const tbody = document.getElementById('tbody-airlines'); tbody.innerHTML = ''; 
-            if (data.length === 0) return; 
+            if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4">ไม่มีข้อมูล</td></tr>'; return; }
             data.sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList)).forEach((item, index) => { 
                 let badge = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิดใช้งาน</span>' : '<span class="badge bg-secondary">ปิด</span>'; 
-                let imgHtml = item.IconURL ? `<img src="${item.IconURL}" style="height: 40px; background:white; padding:2px; border-radius:5px; object-fit:contain;">` : '<i class="fa-solid fa-plane fa-2x text-muted"></i>'; 
+                
+                // 🟢 แก้ไข: โชว์ thumbnail
+                let displayUrl = convertDriveImageLink(item.IconURL);
+                let imgHtml = displayUrl ? `<img src="${displayUrl}" style="height: 40px; background:white; padding:2px; border-radius:5px; object-fit:contain;">` : '<i class="fa-solid fa-plane fa-2x text-muted"></i>'; 
+                
                 let colorBox = `<div style="width: 25px; height: 25px; background-color: ${item.ThemeColor}; border-radius: 50%; border: 1px solid #ccc; display:inline-block;"></div>`; 
                 let btnUp = index > 0 ? `<button class="btn btn-sm btn-light text-primary me-1" onclick="moveOrder('Airlines', ${index}, -1, renderAirlinesTable)"><i class="fa-solid fa-arrow-up"></i></button>` : `<button class="btn btn-sm btn-light me-1" style="visibility:hidden;"><i class="fa-solid fa-arrow-up"></i></button>`; 
                 let btnDown = index < data.length - 1 ? `<button class="btn btn-sm btn-light text-primary me-2" onclick="moveOrder('Airlines', ${index}, 1, renderAirlinesTable)"><i class="fa-solid fa-arrow-down"></i></button>` : `<button class="btn btn-sm btn-light me-2" style="visibility:hidden;"><i class="fa-solid fa-arrow-down"></i></button>`; 
@@ -1544,6 +1552,7 @@
                 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังบันทึกข้อมูล...';
                 let ord = document.getElementById('air_OrderList').value; if (!document.getElementById('air_AirlineID').value) ord = currentTableData.length + 1; 
                 
+                // 🟢 แก้ไข: ใช้ finalUrl แทน
                 const recordData = { AirlineID: document.getElementById('air_AirlineID').value, AirlineName: document.getElementById('air_AirlineName').value, IconURL: finalUrl, PhoneNumber: document.getElementById('air_PhoneNumber').value, ThemeColor: document.getElementById('air_ThemeColor').value, OrderList: ord, IsActive: document.getElementById('air_IsActive').checked ? 'TRUE' : 'FALSE' }; 
                 const formData = new URLSearchParams({ action: 'saveRecord', sheetName: 'Airlines', idColumn: 'AirlineID', recordJSON: JSON.stringify(recordData) });
 
