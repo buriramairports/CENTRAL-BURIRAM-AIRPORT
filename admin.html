@@ -408,7 +408,31 @@
     <div class="modal fade" id="viewFlightDatesModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-md"><div class="modal-content border-0"><div class="modal-header bg-light"><h6 class="modal-title fw-bold text-primary"><i class="fa-regular fa-calendar-check"></i> ข้อมูลวันทำการบิน</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body p-4 text-center"><div class="mb-4 bg-light p-3 rounded border"><h4 class="fw-bold text-danger mb-2" id="viewDates_FlightNo">FD3522</h4><div class="fw-bold text-dark mb-2" id="viewDates_Airline"><i class="fa-solid fa-plane"></i> สายการบิน...</div><div class="text-secondary mb-2" id="viewDates_Route">ต้นทาง <i class="fa-solid fa-arrow-right mx-1"></i> ปลายทาง</div><div class="text-primary fw-bold"><i class="fa-regular fa-clock me-1"></i> <span id="viewDates_Time">00:00 - 00:00</span></div></div><div class="text-muted small mb-2">จำนวนวันทำการบินทั้งหมด <span id="viewDates_Count" class="fw-bold fs-5 text-dark">0</span> วัน</div><div class="d-flex justify-content-center"><input type="text" id="viewDates_Calendar" class="d-none"></div></div></div></div></div>
 
     <!-- Modal: News -->
-    <div class="modal fade" id="newsModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-xl"><div class="modal-content border-0"><div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold" id="newsModalTitle">เขียนข่าวใหม่</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4 bg-light"><form id="formNews" onsubmit="saveNewsRecord(event)"><input type="hidden" id="news_NewsID"><input type="hidden" id="news_CreateDate"><input type="hidden" id="news_Author"><input type="hidden" id="news_ViewCount"><input type="hidden" id="news_ExistingCoverURL"><input type="hidden" id="news_ExistingFileURL"><input type="hidden" id="news_ExistingGalleryURL"><div class="row g-4"><div class="col-lg-8"><div class="card border-0 shadow-sm h-100"><div class="card-body d-flex flex-column"><div class="mb-3"><label class="form-label fw-bold">หัวข้อข่าว <span class="text-danger">*</span></label><input type="text" class="form-control fs-5 fw-bold text-primary" id="news_Title" required></div><div class="mb-2 flex-grow-1 d-flex flex-column"><label class="form-label fw-bold">เนื้อหาข่าว <span class="text-danger">*</span></label><div id="news_Content_Editor" style="height: 500px; background: white;"></div></div></div></div></div><div class="col-lg-4"><div class="card border-0 shadow-sm mb-3"><div class="card-body"><label class="form-label fw-bold"><i class="fa-solid fa-layer-group text-info"></i> หมวดหมู่ข่าว <span class="text-danger">*</span></label><select class="form-select mb-4" id="news_CategoryID" required></select><label class="form-label fw-bold"><i class="fa-solid fa-image text-warning"></i> อัปโหลดรูปภาพหน้าปก (1 รูป)</label><input type="file" class="form-control mb-1" id="news_UploadCover" accept="image/png, image/jpeg"><div class="form-text mb-4" id="news_CoverStatus">ไม่ได้เลือกไฟล์</div><label class="form-label fw-bold"><i class="fa-solid fa-images text-success"></i> อัปโหลดแกลลอรีรูปภาพ (เลือกได้หลายรูป)</label><input type="file" class="form-control mb-1" id="news_UploadGallery" accept="image/png, image/jpeg" multiple><div class="form-text mb-4" id="news_GalleryStatus">ไม่ได้เลือกไฟล์</div><label class="form-label fw-bold"><i class="fa-solid fa-file-pdf text-danger"></i> อัปโหลดไฟล์เอกสาร (เลือกได้หลายไฟล์)</label><input type="file" class="form-control mb-1" id="news_UploadFile" accept=".pdf,.doc,.docx" multiple><div class="form-text mb-4" id="news_FileStatus">ไม่ได้เลือกไฟล์</div><hr><label class="form-label fw-bold">สถานะการเผยแพร่</label><select class="form-select fw-bold text-success" id="news_Status"><option value="Publish">เผยแพร่ทันที (Publish)</option><option value="Draft">บันทึกเป็นฉบับร่าง (Draft)</option></select></div></div><button type="submit" class="btn btn-primary w-100 py-3 fw-bold fs-5" id="btnSaveNews"><i class="fa-solid fa-paper-plane me-2"></i> บันทึกและอัปโหลด</button></div></div></form></div></div></div></div>
+    <div class="modal fade" id="newsModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-xl"><div class="modal-content border-0"><div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold" id="newsModalTitle">เขียนข่าวใหม่</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4 bg-light"><form id="formNews" onsubmit="saveNewsRecord(event)"><input type="hidden" id="news_NewsID"><input type="hidden" id="news_CreateDate"><input type="hidden" id="news_Author"><input type="hidden" id="news_ViewCount"><input type="hidden" id="news_ExistingCoverURL"><input type="hidden" id="news_ExistingFileURL"><input type="hidden" id="news_ExistingGalleryURL"><div class="row g-4"><div class="col-lg-8"><div class="card border-0 shadow-sm h-100"><div class="card-body d-flex flex-column"><div class="mb-3"><label class="form-label fw-bold">หัวข้อข่าว <span class="text-danger">*</span></label><input type="text" class="form-control fs-5 fw-bold text-primary" id="news_Title" required></div><div class="mb-2 flex-grow-1 d-flex flex-column"><label class="form-label fw-bold">เนื้อหาข่าว <span class="text-danger">*</span></label><div id="news_Content_Editor" style="height: 500px; background: white;"></div></div></div></div></div><div class="col-lg-4"><div class="card border-0 shadow-sm mb-3"><div class="card-body"><label class="form-label fw-bold"><i class="fa-solid fa-layer-group text-info"></i> หมวดหมู่ข่าว <span class="text-danger">*</span></label><select class="form-select mb-4" id="news_CategoryID" required></select><label class="form-label fw-bold"><i class="fa-solid fa-image text-warning"></i> อัปโหลดรูปภาพหน้าปก (1 รูป)</label><input type="file" class="form-control mb-1" id="news_UploadCover" accept="image/png, image/jpeg"><div class="form-text mb-4" id="news_CoverStatus">ไม่ได้เลือกไฟล์</div><label class="form-label fw-bold"><i class="fa-solid fa-images text-success"></i> อัปโหลดแกลลอรีรูปภาพ (เลือกได้หลายรูป)</label><input type="file" class="form-control mb-1" id="news_UploadGallery" accept="image/png, image/jpeg" multiple><div class="form-text mb-4" id="news_GalleryStatus">ไม่ได้เลือกไฟล์</div><label class="form-label fw-bold"><i class="fa-solid fa-file-pdf text-danger"></i> อัปโหลดไฟล์เอกสาร (เลือกได้หลายไฟล์)</label><input type="file" class="form-control mb-1" id="news_UploadFile" accept=".pdf,.doc,.docx" multiple><div class="form-text mb-4" id="news_FileStatus">ไม่ได้เลือกไฟล์</div>
+    <!-- ================= เริ่มต้น ส่วนสถานะการเผยแพร่และตั้งเวลา ================= -->
+<hr>
+<label class="form-label fw-bold mt-2">สถานะการเผยแพร่</label>
+<select class="form-select fw-bold text-success mb-3" id="news_Status" onchange="togglePublishDateUI()">
+    <option value="Publish">เผยแพร่ทันที (Publish)</option>
+    <option value="Schedule">ตั้งเวลาโพสต์ล่วงหน้า (Schedule)</option>
+    <option value="Draft">บันทึกเป็นฉบับร่าง (Draft)</option>
+</select>
+
+<!-- ช่องเลือกวัน/เวลา โพสต์ล่วงหน้า (ซ่อนไว้ก่อน จะแสดงเมื่อเลือก Schedule) -->
+<div id="div_PublishDate" style="display: none;" class="mb-3 p-3 bg-white border border-primary rounded">
+    <label class="form-label fw-bold text-primary"><i class="fa-regular fa-clock"></i> เลือกวันและเวลาที่จะเผยแพร่</label>
+    <input type="text" class="form-control" id="news_PublishDate" placeholder="คลิกเพื่อเลือกวัน/เวลา...">
+</div>
+
+<!-- ช่องตั้งวันหมดอายุสถานะ NEW -->
+<div class="mb-2 p-3 bg-white border border-danger rounded">
+    <label class="form-label fw-bold text-danger"><i class="fa-solid fa-fire"></i> แสดงป้าย "ข่าวใหม่/รับสมัคร" จนถึงวันที่</label>
+    <input type="text" class="form-control mb-1" id="news_ExpireDate" placeholder="คลิกเพื่อเลือกวันที่... (ไม่บังคับ)">
+    <div class="form-text small text-muted">หากเลยวันที่กำหนด ป้าย 'NEW' จะหายไปจากหน้าเว็บไซต์อัตโนมัติ</div>
+</div>
+<!-- ================= สิ้นสุด ส่วนสถานะการเผยแพร่และตั้งเวลา ================= -->
+        
+    </div></div><button type="submit" class="btn btn-primary w-100 py-3 fw-bold fs-5" id="btnSaveNews"><i class="fa-solid fa-paper-plane me-2"></i> บันทึกและอัปโหลด</button></div></div></form></div></div></div></div>
 
     <!-- Modal: Events -->
     <div class="modal fade" id="eventModal" tabindex="-1" data-bs-backdrop="static"><div class="modal-dialog modal-lg"><div class="modal-content border-0 shadow"><div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold" id="eventModalTitle"><i class="fa-regular fa-calendar-plus me-2"></i> เพิ่มกิจกรรมใหม่</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="formEvent" onsubmit="saveEvent(event)"><input type="hidden" id="evt_EventID"><div class="row mb-3"><div class="col-md-12"><label class="form-label fw-bold">ชื่อกิจกรรม <span class="text-danger">*</span></label><input type="text" class="form-control" id="evt_EventName" required></div></div><div class="row mb-3"><div class="col-md-6"><label class="form-label fw-bold">วันที่จัดกิจกรรม <span class="text-danger">*</span></label><input type="date" class="form-control" id="evt_EventDate" required></div><div class="col-md-6"><label class="form-label fw-bold">เวลา (เช่น 08.30-16.30 น.) <span class="text-danger">*</span></label><input type="text" class="form-control" id="evt_EventTime" placeholder="08.30-16.30 น." required></div></div><div class="row mb-3"><div class="col-md-6"><label class="form-label fw-bold">สถานที่ <span class="text-danger">*</span></label><input type="text" class="form-control" id="evt_EventLocation" required></div><div class="col-md-6"><label class="form-label fw-bold">หน่วยงานที่รับผิดชอบ <span class="text-danger">*</span></label><input type="text" class="form-control" id="evt_EventDept" required></div></div><hr><div class="mb-3"><label class="form-label fw-bold">ประเภทการแสดงผลปฏิทิน <span class="text-danger">*</span></label><select class="form-select" id="evt_EventType" onchange="toggleEventInternalView()" required><option value="public">แสดงที่หน้าเว็บ (ประชาชนทั่วไป)</option><option value="internal">ปฏิทินภายใน (เฉพาะเจ้าหน้าที่)</option></select></div><div id="evt_InternalSection" class="p-3 bg-light border rounded mb-3" style="display: none;"><label class="form-label fw-bold text-primary">กำหนดผู้เข้าร่วมกิจกรรม (เฉพาะภายใน)</label><div class="mb-2"><div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="evtParticipantType" id="ptype_group" value="group" checked onchange="toggleParticipantInput()"><label class="form-check-label" for="ptype_group">ระบุเป็นข้อความรวมๆ (เช่น กลุ่มงานบริหาร)</label></div><div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="evtParticipantType" id="ptype_users" value="users" onchange="toggleParticipantInput()"><label class="form-check-label" for="ptype_users">เจาะจงรายบุคคล</label></div></div><div id="div_ptype_group"><input type="text" class="form-control" id="evt_ParticipantsText" placeholder="เช่น กลุ่มงานบริหาร / นวส.ปง. / ทุกคน"></div><div id="div_ptype_users" style="display: none;"><div class="card shadow-sm border-0 mt-2"><div class="card-body p-2"><div class="input-group mb-2"><span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span><input type="text" class="form-control border-start-0 ps-0" id="searchStaffInput" placeholder="พิมพ์ค้นหา ชื่อ-นามสกุล หรือ กลุ่มงาน..."></div><div class="border rounded mb-2" style="max-height: 180px; overflow-y: auto; background-color: #fcfcfc;"><div class="list-group list-group-flush" id="availableStaffList"></div></div><div class="p-2 border rounded" style="background-color: #f8fafc; min-height: 60px;"><div class="mb-1 fw-bold text-secondary text-uppercase" style="font-size: 0.75rem;">รายชื่อที่เลือกแล้ว (<span id="selectedCount">0</span>)</div><div id="selectedStaffArea"><span class="text-muted small" id="emptyStateText">ยังไม่มีการเลือกผู้เข้าร่วม</span></div></div><input type="hidden" name="selected_staff_ids" id="selectedStaffIds" value=""></div></div></div></div><div class="mb-3"><label class="form-label fw-bold">สถานะ <span class="text-danger">*</span></label><select class="form-select" id="evt_IsActive" required><option value="TRUE">เปิดใช้งาน (แสดงผล)</option><option value="FALSE">ปิด (ซ่อน)</option></select></div><div class="text-end mt-4"><button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">ยกเลิก</button><button type="submit" class="btn btn-primary px-4" id="btnSaveEvent">บันทึกข้อมูล</button></div></form></div></div></div></div>
@@ -454,6 +478,14 @@
         let currentEventPage = 1;
         let staffData = []; 
         let selectedStaffIds = [];
+        let publishDatepicker;
+        let expireDatepicker;
+
+        // ฟังก์ชันซ่อน/แสดงกล่องตั้งเวลาโพสต์
+        function togglePublishDateUI() {
+            const status = document.getElementById('news_Status').value;
+            document.getElementById('div_PublishDate').style.display = (status === 'Schedule') ? 'block' : 'none';
+        }
         // ================= สิ้นสุด ตัวแปร Global =================
 
         // ================= เริ่มต้น ทำงานเมื่อโหลดหน้าเว็บ =================
@@ -492,6 +524,9 @@
             try {
                 flightDatepicker = flatpickr("#flt_FlightDates", { mode: "multiple", dateFormat: "d/m/Y", locale: "th", conjunction: ", " });
                 quillEditor = new Quill('#news_Content_Editor', { theme: 'snow', placeholder: 'พิมพ์เนื้อหาข่าว หรือกด Ctrl+V เพื่อวางรูป...', modules: { toolbar: [ [{ 'header': [1, 2, 3, false] }], ['bold', 'italic', 'underline', 'strike'], [{ 'list': 'ordered'}, { 'list': 'bullet' }], [{ 'align': [] }], ['link'], ['clean'] ] } });
+                // เปิดใช้งานปฏิทินสำหรับตั้งเวลาข่าว
+                publishDatepicker = flatpickr("#news_PublishDate", { enableTime: true, dateFormat: "d/m/Y H:i", locale: "th", time_24hr: true });
+                expireDatepicker = flatpickr("#news_ExpireDate", { dateFormat: "d/m/Y", locale: "th" });
             } catch(e) { console.error("Plugin Init Error:", e); }
 
             // เรียกโหลด Dashboard เป็นหน้าแรก
@@ -1810,6 +1845,7 @@
             ul.innerHTML += `<li class="page-item ${nextClass}"><a class="page-link" href="#" onclick="changeNewsPage(${currentNewsPage + 1})"><i class="fa-solid fa-chevron-right"></i></a></li>`;
         }
 
+        // ================= เริ่มต้นฟังก์ชัน เปิดหน้าต่างเขียนข่าว =================
         function openNewsModal(id = '') {
             document.getElementById('formNews').reset(); document.getElementById('news_NewsID').value = ''; document.getElementById('newsModalTitle').innerText = 'เขียนข่าว/ประชาสัมพันธ์ใหม่';
             quillEditor.root.innerHTML = '';
@@ -1818,6 +1854,11 @@
 
             const user = JSON.parse(localStorage.getItem('userData'));
             document.getElementById('news_CreateDate').value = Utilities_getNow(); document.getElementById('news_Author').value = user.fullname; document.getElementById('news_ViewCount').value = '0';
+            
+            // ล้างค่าปฏิทินใหม่
+            publishDatepicker.clear();
+            expireDatepicker.clear();
+            togglePublishDateUI(); // อัปเดต UI
 
             if (id) {
                 document.getElementById('newsModalTitle').innerText = 'แก้ไขข่าวสาร';
@@ -1829,9 +1870,15 @@
                 if(item.CoverImageURL) document.getElementById('news_CoverStatus').innerHTML = `<a href="${item.CoverImageURL}" target="_blank">มีรูปหน้าปกเดิมอยู่แล้ว</a> (อัปโหลดใหม่เพื่อแทนที่)`;
                 if(item.FilesURL) document.getElementById('news_FileStatus').innerHTML = `มีไฟล์แนบเดิม ${item.FilesURL.split(', ').length} ไฟล์ (อัปโหลดใหม่เพื่อเพิ่มต่อท้าย)`;
                 if(item.GalleryURLs) document.getElementById('news_GalleryStatus').innerHTML = `มีรูปแกลลอรีเดิม ${item.GalleryURLs.split(', ').length} รูป (อัปโหลดใหม่เพื่อเพิ่มต่อท้าย)`;
+
+                // 🟢 ดึงข้อมูลวันที่เดิมมาใส่ในปฏิทิน
+                if(item.PublishDate) publishDatepicker.setDate(item.PublishDate, true, "d/m/Y H:i");
+                if(item.ExpireDate) expireDatepicker.setDate(item.ExpireDate, true, "d/m/Y");
+                togglePublishDateUI();
             }
             new bootstrap.Modal(document.getElementById('newsModal')).show();
         }
+        // ================= สิ้นสุดฟังก์ชัน เปิดหน้าต่างเขียนข่าว =================
 
         async function uploadSingleFile(file, fileType) {
             try {
@@ -1861,10 +1908,24 @@
             });
         }
 
+        // ================= เริ่มต้นฟังก์ชัน บันทึกข่าวสารลงฐานข้อมูล =================
         async function saveNewsRecord(e) {
             e.preventDefault(); const btn = document.getElementById('btnSaveNews');
             const htmlContent = quillEditor.root.innerHTML;
             if (quillEditor.getText().trim().length === 0) { Swal.fire('ข้อผิดพลาด', 'กรุณาใส่เนื้อหาข่าว', 'warning'); return; }
+
+            // 🟢 ตรวจสอบว่าถ้าตั้งเวลาโพสต์ ต้องกรอกวันที่ด้วย
+            let statusVal = document.getElementById('news_Status').value;
+            let publishVal = document.getElementById('news_PublishDate').value;
+            let expireVal = document.getElementById('news_ExpireDate').value;
+
+            if (statusVal === 'Schedule' && !publishVal) {
+                Swal.fire('ข้อผิดพลาด', 'คุณเลือกตั้งเวลาโพสต์ล่วงหน้า กรุณาระบุวัน/เวลาที่จะเผยแพร่ด้วยครับ', 'warning'); return;
+            }
+            // ถ้าเลือก Publish ให้ใช้วันเวลาปัจจุบันเป็น PublishDate ไปเลย
+            if (statusVal === 'Publish' && !publishVal) {
+                publishVal = Utilities_getNow().substring(0, 16); // เอาแค่ วันที่ และชั่วโมง:นาที
+            }
 
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังเตรียมไฟล์ (ห้ามปิดหน้าจอ)...'; btn.disabled = true;
 
@@ -1888,7 +1949,23 @@
 
                 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังบันทึกข้อมูล...';
 
-                const recordData = { NewsID: document.getElementById('news_NewsID').value, Title: document.getElementById('news_Title').value, Content: htmlContent, CategoryID: document.getElementById('news_CategoryID').value, Status: document.getElementById('news_Status').value, CreateDate: document.getElementById('news_CreateDate').value, Author: document.getElementById('news_Author').value, ViewCount: document.getElementById('news_ViewCount').value, CoverImageURL: finalCoverUrl, FilesURL: finalFilesUrls.join(', '), GalleryURLs: finalGalleryUrls.join(', ') };
+                // 🟢 เพิ่ม PublishDate และ ExpireDate เข้าไปใน Object เพื่อส่งไปบันทึก
+                const recordData = { 
+                    NewsID: document.getElementById('news_NewsID').value, 
+                    Title: document.getElementById('news_Title').value, 
+                    Content: htmlContent, 
+                    CategoryID: document.getElementById('news_CategoryID').value, 
+                    Status: statusVal, 
+                    CreateDate: document.getElementById('news_CreateDate').value, 
+                    Author: document.getElementById('news_Author').value, 
+                    ViewCount: document.getElementById('news_ViewCount').value, 
+                    CoverImageURL: finalCoverUrl, 
+                    FilesURL: finalFilesUrls.join(', '), 
+                    GalleryURLs: finalGalleryUrls.join(', '),
+                    PublishDate: publishVal,
+                    ExpireDate: expireVal
+                };
+                
                 const formData = new URLSearchParams({ action: 'saveRecord', sheetName: 'News', idColumn: 'NewsID', recordJSON: JSON.stringify(recordData) });
                 
                 const response = await fetch(API_URL, { method: 'POST', body: formData }); const result = await response.json();
@@ -1900,6 +1977,7 @@
             } catch (error) { console.error(error); Swal.fire('ข้อผิดพลาด', 'ไม่สามารถบันทึกข้อมูลได้', 'error'); } 
             finally { btn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i> บันทึกข่าวสาร'; btn.disabled = false; }
         }
+        // ================= สิ้นสุดฟังก์ชัน บันทึกข่าวสารลงฐานข้อมูล =================
 
         function openFilesModal(newsId) {
             const item = currentTableData.find(x => x.NewsID === newsId);
