@@ -1534,8 +1534,8 @@
                 Swal.fire({ title: 'กำลังโหลด...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
                 fetch(`${API_URL}?action=getTableData&sheetName=Events`).then(res=>res.json()).then(res => {
                     currentTableData = res.data;
-                    initEventFilterDropdown(); // สร้าง Dropdown หน่วยงาน
-                    applyEventFilters();       // ประมวลผลและวาดตาราง
+                    loadUsersForEvents(); // 🟢 โหลดข้อมูล Users มารอไว้เลย
+                    applyEventFilters();  // 🟢 เรียกใช้ Filter ตัวใหม่
                     Swal.close(); 
                 });
             }
