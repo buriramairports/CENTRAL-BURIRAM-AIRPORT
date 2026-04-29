@@ -519,55 +519,56 @@
                     <h4 class="fw-bold text-dark mb-0"><i class="fa-solid fa-newspaper me-2 text-primary"></i> จัดการข่าวสารและประชาสัมพันธ์</h4>
                     <button class="btn btn-success" onclick="openNewsModal()"><i class="fa-solid fa-plus me-1"></i> เขียนข่าวใหม่</button>
                 </div>
-                <!-- ========= เริ่มfilter ============= -->
-                <div class="card shadow-sm mb-4" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border: none;">
-  <div class="card-body">
-    <div class="row g-3">
-      <div class="col-md-4">
-        <label class="form-label fw-bold">ค้นหาข่าวสาร</label>
-        <div class="input-group">
-          <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
-          <input type="text" id="searchInput" class="form-control border-start-0" placeholder="พิมพ์ชื่อข่าว หรือคำที่ต้องการ...">
-        </div>
-      </div>
 
-      <div class="col-md-3">
-        <label class="form-label fw-bold">หมวดข่าว</label>
-        <select id="categoryFilter" class="form-select">
-          <option value="">ทั้งหมดทุกหมวด</option>
-          <option value="กิจกรรม">กิจกรรม</option>
-          <option value="ประชาสัมพันธ์">ประชาสัมพันธ์</option>
-          <option value="ประกาศ">ประกาศ</option>
-        </select>
-      </div>
+                <!-- ========= เริ่ม Filter & Search ============= -->
+                <div class="card shadow-sm mb-4" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border: none;">
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold text-secondary">ค้นหาข่าวสาร</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                                    <input type="text" id="filter_NewsSearch" class="form-control border-start-0" placeholder="พิมพ์ชื่อข่าว..." oninput="applyNewsFilters()">
+                                </div>
+                            </div>
 
-      <div class="col-md-3">
-        <label class="form-label fw-bold">กลุ่มงาน</label>
-        <select id="departmentFilter" class="form-select">
-          <option value="">ทุกกลุ่มงาน</option>
-          <option value="ฝ่ายอำนวยการ">ฝ่ายอำนวยการ</option>
-          <option value="ฝ่ายปฏิบัติการ">ฝ่ายปฏิบัติการ</option>
-          <option value="ฝ่ายวิศวกรรม">ฝ่ายวิศวกรรม</option>
-        </select>
-      </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold text-secondary">หมวดข่าว</label>
+                                <!-- 🟢 Options จะถูกสร้างโดย JavaScript -->
+                                <select id="filter_NewsCategory" class="form-select" onchange="applyNewsFilters()">
+                                    <option value="">ทั้งหมดทุกหมวด</option>
+                                </select>
+                            </div>
 
-      <div class="col-md-2">
-        <label class="form-label fw-bold">แสดงหน้าละ</label>
-        <select id="pageSize" class="form-select">
-          <option value="10">10 แถว</option>
-          <option value="20">20 แถว</option>
-          <option value="50">50 แถว</option>
-        </select>
-      </div>
-    </div>
-  </div>
-</div>
-          <nav class="d-flex justify-content-between align-items-center mt-3">
-  <div id="pageInfo" class="text-muted small">แสดง 0 ถึง 0 จากทั้งหมด 0 รายการ</div>
-  <ul class="pagination pagination-sm mb-0" id="paginationControls">
-    </ul>
-</nav>      
-                <!-- ========= สิ้นสุด filter ============= -->
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold text-secondary">กลุ่มงาน</label>
+                                <!-- 🟢 Options จะถูกสร้างโดย JavaScript (และกรองตามสิทธิ์) -->
+                                <select id="filter_NewsDept" class="form-select" onchange="applyNewsFilters()">
+                                    <option value="">ทุกกลุ่มงาน</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-2">
+                                <label class="form-label fw-bold text-secondary">แสดงหน้าละ</label>
+                                <select id="filter_NewsPageSize" class="form-select" onchange="applyNewsFilters()">
+                                    <option value="10">10 แถว</option>
+                                    <option value="20">20 แถว</option>
+                                    <option value="50">50 แถว</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- ตัวบอกจำนวนหน้า -->
+                <nav class="d-flex justify-content-between align-items-center mb-2 px-1">
+                    <div id="news_PageInfo" class="text-muted small fw-bold">แสดง 0 ถึง 0 จากทั้งหมด 0 รายการ</div>
+                    <ul class="pagination pagination-sm mb-0 shadow-sm" id="news_PaginationControls">
+                        <!-- ปุ่มเปลี่ยนหน้าจะถูกสร้างโดย JavaScript -->
+                    </ul>
+                </nav>      
+                <!-- ========= สิ้นสุด Filter ============= -->
+
                 <div class="card card-custom">
                     <div class="card-body p-0 table-responsive">
                         <table class="table table-hover align-middle mb-0">
@@ -1445,9 +1446,12 @@
                 ]).then(([catsRes, newsRes]) => {
                     allCategoriesData = catsRes.data;
                     currentTableData = newsRes.data;
-                    populateNewsCategoryDropdown(); 
-                    renderNewsTable(currentTableData);
-                    Swal.close(); // ปิดป๊อปอัปทีเดียวตอนเสร็จหมด
+                    
+                    populateNewsCategoryDropdown(); // Dropdown ของ Modal เพิ่มข่าว
+                    initNewsFilterDropdowns();      // 🟢 เติม Dropdown ของระบบ Filter ค้นหา
+                    applyNewsFilters();             // 🟢 ประมวลผล Filter และวาดตาราง
+                    
+                    Swal.close(); 
                 });
             }
             if (viewId === 'events') { loadTableData('Events', renderEventsTable); }
@@ -2311,37 +2315,138 @@
             });
         }
 
-       function renderNewsTable(data) {
+       // ==========================================
+        // 📰 ระบบค้นหาและแบ่งหน้า (Filter & Pagination) ของข่าวสาร
+        // ==========================================
+        let filteredNewsData = []; // เก็บข้อมูลข่าวที่ผ่านการคัดกรองแล้ว
+        let currentNewsPage = 1;   // หน้าปัจจุบัน
+
+        // 1. เติมข้อมูลลงใน Dropdown ค้นหา (หมวดหมู่ และ กลุ่มงาน)
+        function initNewsFilterDropdowns() {
             const user = JSON.parse(localStorage.getItem('userData'));
+            const catFilter = document.getElementById('filter_NewsCategory');
+            const deptFilter = document.getElementById('filter_NewsDept');
+            
+            // รีเซ็ตค่าใหม่
+            catFilter.innerHTML = '<option value="">ทั้งหมดทุกหมวด</option>';
+            deptFilter.innerHTML = '<option value="">ทุกกลุ่มงาน</option>';
+
+            let addedDepts = new Set(); // ป้องกันกลุ่มงานซ้ำกันใน Dropdown
+
+            allCategoriesData.forEach(cat => {
+                let catDepts = cat.Department ? cat.Department.split(', ') : [];
+                
+                // เช็คสิทธิ์ (RBAC): ดูว่า User คนนี้มีสิทธิ์เห็นหมวดหมู่นี้ไหม
+                let hasAccess = (user.role === 'SuperAdmin' || catDepts.includes(user.department) || catDepts.includes('ทั้งหมด'));
+                
+                if (hasAccess && cat.IsActive === 'TRUE') {
+                    // เติมหมวดหมู่
+                    catFilter.innerHTML += `<option value="${cat.CategoryID}">${cat.CategoryName}</option>`;
+                    
+                    // เติมกลุ่มงาน (เฉพาะอันที่ไม่ซ้ำ)
+                    catDepts.forEach(d => {
+                        if (d !== 'ทั้งหมด' && !addedDepts.has(d)) {
+                            addedDepts.add(d);
+                            deptFilter.innerHTML += `<option value="${d}">${d}</option>`;
+                        }
+                    });
+                }
+            });
+
+            // บังคับล็อคกลุ่มงานถ้าเป็น SubAdmin
+            if (user.role === 'SubAdmin') {
+                deptFilter.value = user.department;
+                deptFilter.disabled = true; // ล็อคไม่ให้กดเปลี่ยน
+            }
+        }
+
+        // 2. ฟังก์ชันประมวลผลการค้นหา
+        function applyNewsFilters() {
+            const user = JSON.parse(localStorage.getItem('userData'));
+            const searchTxt = document.getElementById('filter_NewsSearch').value.toLowerCase();
+            const catVal = document.getElementById('filter_NewsCategory').value;
+            const deptVal = document.getElementById('filter_NewsDept').value;
+            const pageSize = parseInt(document.getElementById('filter_NewsPageSize').value);
+
+            // คัดกรองจาก currentTableData (ข้อมูลดิบทั้งหมด)
+            filteredNewsData = currentTableData.filter(news => {
+                let catObj = allCategoriesData.find(c => c.CategoryID === news.CategoryID);
+                if (!catObj) return false;
+                
+                let catDepts = catObj.Department ? catObj.Department.split(', ') : [];
+                
+                // 1. เช็คสิทธิ์การเข้าถึงพื้นฐาน
+                let hasAccess = (user.role === 'SuperAdmin' || catDepts.includes(user.department) || catDepts.includes('ทั้งหมด'));
+                if (!hasAccess) return false;
+
+                // 2. เช็คตัวกรอง: กลุ่มงาน
+                if (deptVal && !catDepts.includes(deptVal)) return false;
+
+                // 3. เช็คตัวกรอง: หมวดหมู่
+                if (catVal && news.CategoryID !== catVal) return false;
+
+                // 4. เช็คตัวกรอง: คำค้นหา (หาจากหัวข้อข่าว)
+                if (searchTxt && !news.Title.toLowerCase().includes(searchTxt)) return false;
+
+                return true;
+            });
+
+            // เรียงลำดับข่าวใหม่สุดขึ้นก่อน
+            filteredNewsData.sort((a,b) => new Date(b.CreateDate) - new Date(a.CreateDate));
+
+            // รีเซ็ตกลับไปหน้า 1 เสมอเมื่อมีการค้นหาใหม่
+            currentNewsPage = 1;
+            renderNewsTable(); // สั่งวาดตาราง
+        }
+
+        // 3. เปลี่ยนหน้า (Pagination)
+        function changeNewsPage(page) {
+            currentNewsPage = page;
+            renderNewsTable();
+        }
+
+        // 4. วาดตาราง (เฉพาะข้อมูลในหน้าปัจจุบัน)
+        function renderNewsTable() {
             const tbody = document.getElementById('tbody-news');
             tbody.innerHTML = '';
             
-            let allowedData = data;
-            if (user.role === 'SubAdmin') {
-                // 🟢 กรองหา ID หมวดหมู่ข่าวที่ SubAdmin คนนี้มีสิทธิ์มองเห็น
-                let allowedCatIDs = allCategoriesData.filter(c => {
-                    let catDepts = c.Department ? c.Department.split(', ') : [];
-                    return catDepts.includes(user.department) || catDepts.includes('ทั้งหมด');
-                }).map(c => c.CategoryID);
-                allowedData = data.filter(news => allowedCatIDs.includes(news.CategoryID));
+            const pageSize = parseInt(document.getElementById('filter_NewsPageSize').value);
+            const totalItems = filteredNewsData.length;
+            const totalPages = Math.ceil(totalItems / pageSize) || 1; // กันค่าเป็น 0
+            
+            // ป้องกันเปิดไปหน้าที่ไม่มีอยู่จริง
+            if (currentNewsPage > totalPages) currentNewsPage = totalPages;
+
+            // คำนวณ Index เริ่มต้นและสิ้นสุดของ Array
+            const startIndex = (currentNewsPage - 1) * pageSize;
+            const endIndex = Math.min(startIndex + pageSize, totalItems);
+
+            // อัปเดตข้อความ "แสดง 1 ถึง 10 จากทั้งหมด 50"
+            document.getElementById('news_PageInfo').innerText = totalItems === 0 
+                ? `ไม่พบข้อมูล` 
+                : `แสดง ${startIndex + 1} ถึง ${endIndex} จากทั้งหมด ${totalItems} รายการ`;
+
+            // ดึงข้อมูลเฉพาะหน้าที่เลือก
+            let pageData = filteredNewsData.slice(startIndex, endIndex);
+
+            if (pageData.length === 0) { 
+                tbody.innerHTML = '<tr><td colspan="6" class="py-5 text-center text-muted"><i class="fa-solid fa-box-open fa-3x mb-3 opacity-25"></i><br>ไม่มีข่าวที่ตรงกับเงื่อนไขการค้นหา</td></tr>'; 
+                renderNewsPagination(totalPages);
+                return; 
             }
 
-            if (allowedData.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="py-4 text-center">ไม่มีข่าวในหมวดหมู่ของคุณ</td></tr>'; return; }
-
-            allowedData.sort((a,b) => new Date(b.CreateDate) - new Date(a.CreateDate)).forEach((item) => {
+            // วาดแถวตาราง
+            pageData.forEach((item) => {
                 let badge = item.Status === 'Publish' ? '<span class="badge bg-success">เผยแพร่แล้ว</span>' : '<span class="badge bg-warning text-dark">ฉบับร่าง</span>';
                 let coverUrl = convertDriveImageLink(item.CoverImageURL);
-                let imgHtml = coverUrl ? `<img src="${coverUrl}" style="width:100px; height:60px; object-fit:cover; border-radius:5px;">` : `<div style="width:100px; height:60px; background:#e2e8f0; border-radius:5px; display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-image text-muted"></i></div>`;
+                let imgHtml = coverUrl ? `<img src="${coverUrl}" style="width:100px; height:60px; object-fit:cover; border-radius:5px; border: 1px solid #e2e8f0;">` : `<div style="width:100px; height:60px; background:#e2e8f0; border-radius:5px; display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-image text-muted"></i></div>`;
                 
                 let catObj = allCategoriesData.find(c => c.CategoryID === item.CategoryID);
                 let catName = catObj ? catObj.CategoryName : 'ไม่ระบุหมวดหมู่';
-                
-                // 🟢 แก้ไข: ถ้าสีเป็น transparent ให้แสดงเป็นพื้นหลังสีเทาแทน เพื่อให้อ่านตัวหนังสือสีขาวออก
                 let catColor = (catObj && catObj.ThemeColor !== 'transparent') ? catObj.ThemeColor : '#64748b';
 
                 let filesArr = item.FilesURL ? item.FilesURL.split(', ') : [];
                 let galArr = item.GalleryURLs ? item.GalleryURLs.split(', ') : [];
-                
                 let btnAttachment = filesArr.length > 0 ? `<button class="btn btn-sm btn-outline-danger mt-2 me-1" onclick="openFilesModal('${item.NewsID}')"><i class="fa-solid fa-file-pdf"></i> ${filesArr.length} ไฟล์</button>` : '';
                 let btnGallery = galArr.length > 0 ? `<button class="btn btn-sm btn-outline-success mt-2" onclick="openGalleryModal('${item.NewsID}')"><i class="fa-solid fa-images"></i> ${galArr.length} รูป</button>` : '';
 
@@ -2353,9 +2458,9 @@
                             <div class="mt-1">${btnAttachment} ${btnGallery}</div>
                             <div class="small text-muted mt-1"><i class="fa-regular fa-calendar me-1"></i> ${item.CreateDate || '-'} | <i class="fa-solid fa-pen-nib mx-1"></i> ${item.Author || '-'}</div>
                         </td>
-                        <td><span class="badge text-white" style="background-color: ${catColor};">${catName}</span></td>
-                        <td class="text-center fw-bold text-secondary">${item.ViewCount || 0}</td>
-                        <td>${badge}</td>
+                        <td><span class="badge text-white shadow-sm" style="background-color: ${catColor};">${catName}</span></td>
+                        <td class="text-center fw-bold text-secondary fs-5">${item.ViewCount || 0}</td>
+                        <td class="text-center">${badge}</td>
                         <td class="text-center">
                             <button class="btn btn-sm btn-outline-warning mb-1" onclick="openNewsModal('${item.NewsID}')"><i class="fa-solid fa-pen"></i></button>
                             <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('News', 'NewsID', '${item.NewsID}')"><i class="fa-solid fa-trash"></i></button>
@@ -2363,6 +2468,30 @@
                     </tr>
                 `;
             });
+
+            renderNewsPagination(totalPages);
+        }
+
+        // 5. วาดปุ่มกดเปลี่ยนหน้า (Pagination Buttons)
+        function renderNewsPagination(totalPages) {
+            const ul = document.getElementById('news_PaginationControls');
+            ul.innerHTML = '';
+            
+            if(totalPages <= 1) return; // ถ้ามีหน้าเดียว ไม่ต้องโชว์ปุ่ม
+
+            // ปุ่ม Previous
+            let prevClass = currentNewsPage === 1 ? 'disabled' : '';
+            ul.innerHTML += `<li class="page-item ${prevClass}"><a class="page-link" href="#" onclick="changeNewsPage(${currentNewsPage - 1})"><i class="fa-solid fa-chevron-left"></i></a></li>`;
+            
+            // ปุ่มตัวเลขหน้า
+            for(let i = 1; i <= totalPages; i++) {
+                let activeClass = i === currentNewsPage ? 'active' : '';
+                ul.innerHTML += `<li class="page-item ${activeClass}"><a class="page-link" href="#" onclick="changeNewsPage(${i})">${i}</a></li>`;
+            }
+
+            // ปุ่ม Next
+            let nextClass = currentNewsPage === totalPages ? 'disabled' : '';
+            ul.innerHTML += `<li class="page-item ${nextClass}"><a class="page-link" href="#" onclick="changeNewsPage(${currentNewsPage + 1})"><i class="fa-solid fa-chevron-right"></i></a></li>`;
         }
 
          function openNewsModal(id = '') {
