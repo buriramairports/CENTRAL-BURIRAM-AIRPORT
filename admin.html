@@ -458,221 +458,206 @@
 
         // ================= เริ่มต้น ทำงานเมื่อโหลดหน้าเว็บ =================
         document.addEventListener('DOMContentLoaded', () => {
-            const user = JSON.parse(localStorage.getItem('userData'));
-            if(user) {
-                document.getElementById('adminNameDisplay').innerText = user.fullname;
-                document.getElementById('adminRoleDisplay').innerText = user.role;
-                document.getElementById('adminDeptDisplay').innerText = user.department;
-                
-                if (user.role === 'SubAdmin') {
-                    document.getElementById('adminRoleDisplay').className = "badge bg-warning text-dark ms-2";
-                    document.getElementById('menuSuperAdminGroup').style.display = 'none';
+            try {
+                const user = JSON.parse(localStorage.getItem('userData'));
+                if(user) {
+                    // ดักจับไม่ให้แสดงผลค่า undefined บนหน้าจอ
+                    document.getElementById('adminNameDisplay').innerText = user.fullname || user.FirstName || user.Username || 'ผู้ดูแลระบบ';
+                    document.getElementById('adminRoleDisplay').innerText = user.role || 'Admin';
+                    document.getElementById('adminDeptDisplay').innerText = user.department || 'ส่วนกลาง';
                     
-                    let allowed = user.allowedMenus ? user.allowedMenus.split(',') : [];
-                    const menuItems = ['news', 'newscategories', 'events', 'flightschedules', 'passengerstats', 'eservices', 'airlines', 'banners'];
-                    
-                    menuItems.forEach(menu => {
-                        if (!allowed.includes(menu)) {
-                            let el = document.getElementById('menu_' + menu);
-                            if(el) el.style.display = 'none';
-                        }
-                    });
+                    if (user.role === 'SubAdmin') {
+                        document.getElementById('adminRoleDisplay').className = "badge bg-warning text-dark ms-2";
+                        document.getElementById('menuSuperAdminGroup').style.display = 'none';
+                        
+                        let allowed = user.allowedMenus ? user.allowedMenus.split(',') : [];
+                        const menuItems = ['news', 'newscategories', 'events', 'flightschedules', 'passengerstats', 'eservices', 'airlines', 'banners'];
+                        
+                        menuItems.forEach(menu => {
+                            if (!allowed.includes(menu)) {
+                                let el = document.getElementById('menu_' + menu);
+                                if(el) el.style.display = 'none';
+                            }
+                        });
 
-                    // ซ่อนหัวข้อใหญ่ ถ้าไม่มีเมนูย่อยให้แสดง
-                    if (!allowed.includes('news') && !allowed.includes('newscategories') && !allowed.includes('events')) {
-                        document.getElementById('header_news').style.display = 'none';
-                    }
-                    if (!allowed.includes('flightschedules') && !allowed.includes('passengerstats')) {
-                        document.getElementById('header_flights').style.display = 'none';
-                    }
-                    if (!allowed.includes('eservices') && !allowed.includes('airlines') && !allowed.includes('banners')) {
-                        document.getElementById('header_basic').style.display = 'none';
+                        if (!allowed.includes('news') && !allowed.includes('newscategories') && !allowed.includes('events')) document.getElementById('header_news').style.display = 'none';
+                        if (!allowed.includes('flightschedules') && !allowed.includes('passengerstats')) document.getElementById('header_flights').style.display = 'none';
+                        if (!allowed.includes('eservices') && !allowed.includes('airlines') && !allowed.includes('banners')) document.getElementById('header_basic').style.display = 'none';
                     }
                 }
+            } catch (err) {
+                console.error("Error setting up user profile:", err);
             }
 
             try {
-                flightDatepicker = flatpickr("#flt_FlightDates", { 
-                    mode: "multiple", 
-                    dateFormat: "d/m/Y", 
-                    locale: "th", 
-                    conjunction: ", " 
-                });
-                
-                quillEditor = new Quill('#news_Content_Editor', { 
-                    theme: 'snow', 
-                    placeholder: 'พิมพ์เนื้อหาข่าว หรือกด Ctrl+V เพื่อวางรูป...', 
-                    modules: { 
-                        toolbar: [ 
-                            [{ 'header': [1, 2, 3, false] }], 
-                            ['bold', 'italic', 'underline', 'strike'], 
-                            [{ 'list': 'ordered'}, { 'list': 'bullet' }], 
-                            [{ 'align': [] }], 
-                            ['link'], 
-                            ['clean'] 
-                        ] 
-                    } 
-                });
-            } catch(e) { 
-                console.error("Plugin Init Error:", e); 
-            }
+                flightDatepicker = flatpickr("#flt_FlightDates", { mode: "multiple", dateFormat: "d/m/Y", locale: "th", conjunction: ", " });
+                quillEditor = new Quill('#news_Content_Editor', { theme: 'snow', placeholder: 'พิมพ์เนื้อหาข่าว หรือกด Ctrl+V เพื่อวางรูป...', modules: { toolbar: [ [{ 'header': [1, 2, 3, false] }], ['bold', 'italic', 'underline', 'strike'], [{ 'list': 'ordered'}, { 'list': 'bullet' }], [{ 'align': [] }], ['link'], ['clean'] ] } });
+            } catch(e) { console.error("Plugin Init Error:", e); }
 
             // เรียกโหลด Dashboard เป็นหน้าแรก
             switchView('dashboard', document.querySelector('.sidebar-menu a.active')); 
         });
-
         function adminLogout() {
-            Swal.fire({ 
-                title: 'ยืนยันการออกจากระบบ?', 
-                icon: 'warning', 
-                showCancelButton: true, 
-                confirmButtonColor: '#d33', 
-                confirmButtonText: 'ออกจากระบบ', 
-                cancelButtonText: 'ยกเลิก' 
-            }).then((result) => {
-                if (result.isConfirmed) { 
-                    localStorage.removeItem('userData'); 
-                    window.location.href = 'index.html'; 
-                }
+            Swal.fire({ title: 'ยืนยันการออกจากระบบ?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ออกจากระบบ', cancelButtonText: 'ยกเลิก' }).then((result) => {
+                if (result.isConfirmed) { localStorage.removeItem('userData'); window.location.href = 'index.html'; }
             });
         }
         // ================= สิ้นสุด ทำงานเมื่อโหลดหน้าเว็บ =================
 
         // ================= เริ่มต้นฟังก์ชัน ระบบนำทาง (Switch View) =================
         function switchView(viewId, clickedMenuElement) {
-            document.querySelectorAll('.admin-view').forEach(view => view.style.display = 'none');
-            document.getElementById('view-' + viewId).style.display = 'block';
+            try {
+                document.querySelectorAll('.admin-view').forEach(view => view.style.display = 'none');
+                
+                const targetView = document.getElementById('view-' + viewId);
+                if(targetView) targetView.style.display = 'block';
 
-            // 🟢 [แก้ไขบั๊กที่ 2]: จัดการแถบ Active เมนูให้คงอยู่แม้โหลดตารางใหม่ (เมื่อ clickedMenuElement เป็น null)
-            document.querySelectorAll('.sidebar-menu a').forEach(menu => menu.classList.remove('active'));
-            let targetMenu = clickedMenuElement;
-            if (!targetMenu) {
-                if (viewId === 'dashboard') {
-                    targetMenu = document.querySelector('.sidebar-menu a[onclick*="switchView(\\'dashboard\\'"]');
-                } else {
-                    // ค้นหา <a> ที่อยู่ภายใต้ <li id="menu_ชื่อวิว">
-                    let liElement = document.getElementById('menu_' + viewId);
-                    if (liElement) targetMenu = liElement.querySelector('a');
+                // 🟢 แก้ไขเรื่องแถบเมนูด้านซ้ายหายเวลาโหลดข้อมูลใหม่
+                document.querySelectorAll('.sidebar-menu a').forEach(menu => menu.classList.remove('active'));
+                let targetMenu = clickedMenuElement;
+                if (!targetMenu) {
+                    if (viewId === 'dashboard') {
+                        // ปรับการค้นหาให้ปลอดภัย ไม่พังเพราะเครื่องหมาย Quote
+                        targetMenu = document.querySelector('.sidebar-menu a[onclick*="dashboard"]');
+                    } else {
+                        let liElement = document.getElementById('menu_' + viewId);
+                        if (liElement) targetMenu = liElement.querySelector('a');
+                    }
                 }
-            }
-            if (targetMenu) targetMenu.classList.add('active');
+                if (targetMenu) targetMenu.classList.add('active');
 
-            Swal.fire({ title: 'กำลังโหลดข้อมูล...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                Swal.fire({ title: 'กำลังโหลดข้อมูล...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
-            // 🟢 [แก้ไขบั๊กที่ 1]: เพิ่ม .catch() ในทุกๆ การ fetch เพื่อป้องกันหน้าจอค้างหมุนตลอดเวลา
-            if (viewId === 'dashboard') {
-                fetch(`${API_URL}?action=getDashboardStats`).then(res => res.json()).then(res => {
-                    if (res.status === 'success') { renderDashboard(res.data); Swal.close(); }
-                    else { Swal.fire('ผิดพลาด', 'โหลดสถิติไม่ได้', 'error'); }
-                }).catch(err => Swal.fire('ข้อผิดพลาด', 'การเชื่อมต่อขัดข้อง', 'error'));
-            }
-            else if (viewId === 'settings') {
-                fetch(API_URL + "?action=getSettings").then(res => res.json()).then(res => {
-                    if (res.status === 'success') { 
-                        const data = res.data; 
-                        document.getElementById('set_SystemName').value = data.SystemName || ''; 
-                        document.getElementById('set_NewsLimitHome').value = data.NewsLimitHome || ''; 
-                        document.getElementById('set_FolderImageID').value = data.FolderImageID || ''; 
-                        document.getElementById('set_FolderFileID').value = data.FolderFileID || ''; 
-                        document.getElementById('set_BannerSpeed').value = data.BannerSpeed || '6000'; 
-                        document.getElementById('set_BannerEffect').value = data.BannerEffect || 'fade'; 
-                        document.getElementById('set_MaintenanceMode').checked = (data.MaintenanceMode === 'TRUE'); 
-                        Swal.close(); 
-                    }
-                }).catch(err => Swal.fire('ข้อผิดพลาด', 'การเชื่อมต่อขัดข้อง', 'error'));
-            }
-            else if (viewId === 'banners') {
-                fetch(`${API_URL}?action=getTableData&sheetName=Banners`).then(res=>res.json()).then(res => {
-                    currentTableData = res.data || []; renderBannersTable(currentTableData); Swal.close();
-                }).catch(err => Swal.fire('ข้อผิดพลาด', 'การเชื่อมต่อขัดข้อง', 'error'));
-            }
-            else if (viewId === 'departments') {
-                fetch(`${API_URL}?action=getTableData&sheetName=Departments`).then(res=>res.json()).then(res => {
-                    currentTableData = res.data || []; renderDeptsTable(currentTableData); Swal.close();
-                }).catch(err => Swal.fire('ข้อผิดพลาด', 'การเชื่อมต่อขัดข้อง', 'error'));
-            }
-            else if (viewId === 'eservices') {
-                fetch(`${API_URL}?action=getTableData&sheetName=EServices`).then(res=>res.json()).then(res => {
-                    currentTableData = res.data || []; renderEServicesTable(currentTableData); Swal.close();
-                }).catch(err => Swal.fire('ข้อผิดพลาด', 'การเชื่อมต่อขัดข้อง', 'error'));
-            }
-            else if (viewId === 'airlines') {
-                fetch(`${API_URL}?action=getTableData&sheetName=Airlines`).then(res=>res.json()).then(res => {
-                    currentTableData = res.data || []; renderAirlinesTable(currentTableData); Swal.close();
-                }).catch(err => Swal.fire('ข้อผิดพลาด', 'การเชื่อมต่อขัดข้อง', 'error'));
-            }
-            else if (viewId === 'newscategories') {
-                Promise.all([ 
-                    fetch(`${API_URL}?action=getTableData&sheetName=NewsCategories`).then(res=>res.json()), 
-                    fetch(`${API_URL}?action=getTableData&sheetName=Departments`).then(res=>res.json()) 
-                ]).then(([catsRes, deptsRes]) => {
-                    currentTableData = catsRes.data || [];
-                    populateNewsCatDeptDropdown(deptsRes.data || []); 
-                    renderNewsCatsTable(currentTableData);
-                    Swal.close();
-                }).catch(err => Swal.fire('ข้อผิดพลาด', 'การเชื่อมต่อขัดข้อง', 'error'));
-            }
-            else if (viewId === 'passengerstats') {
-                fetch(`${API_URL}?action=getTableData&sheetName=PassengerStats`).then(res=>res.json()).then(res => {
-                    currentTableData = res.data || []; renderPassengerStatsTable(currentTableData); Swal.close();
-                }).catch(err => Swal.fire('ข้อผิดพลาด', 'การเชื่อมต่อขัดข้อง', 'error'));
-            }
-            else if (viewId === 'users') {
-                Promise.all([ 
-                    fetch(`${API_URL}?action=getTableData&sheetName=Users`).then(res=>res.json()), 
-                    fetch(`${API_URL}?action=getTableData&sheetName=Departments`).then(res=>res.json()) 
-                ]).then(([usersRes, deptsRes]) => {
-                    currentTableData = usersRes.data || [];
-                    populateUserDeptDropdown(deptsRes.data || []);
-                    applyUserFilters();
-                    Swal.close();
-                }).catch(err => Swal.fire('ข้อผิดพลาด', 'การเชื่อมต่อขัดข้อง', 'error'));
-            }
-            else if (viewId === 'flightschedules') {
-                Promise.all([ 
-                    fetch(`${API_URL}?action=getTableData&sheetName=FlightSchedules`).then(res=>res.json()), 
-                    fetch(`${API_URL}?action=getTableData&sheetName=Airlines`).then(res=>res.json()) 
-                ]).then(([flightsRes, airlinesRes]) => {
-                    currentTableData = flightsRes.data || [];
-                    allAirlinesData = airlinesRes.data || [];
-                    populateAirlineDropdown();
-                    renderFlightsTable(currentTableData);
-                    Swal.close();
-                }).catch(err => Swal.fire('ข้อผิดพลาด', 'การเชื่อมต่อขัดข้อง', 'error'));
-            }
-            else if (viewId === 'news') {
-                Promise.all([ 
-                    fetch(`${API_URL}?action=getTableData&sheetName=NewsCategories`).then(res=>res.json()), 
-                    fetch(`${API_URL}?action=getTableData&sheetName=News`).then(res=>res.json()) 
-                ]).then(([catsRes, newsRes]) => {
-                    allCategoriesData = catsRes.data || [];
-                    currentTableData = newsRes.data || [];
-                    populateNewsCategoryDropdown(); 
-                    initNewsFilterDropdowns();      
-                    applyNewsFilters();             
-                    Swal.close(); 
-                }).catch(err => Swal.fire('ข้อผิดพลาด', 'การเชื่อมต่อขัดข้อง', 'error'));
-            }
-            else if (viewId === 'events') { 
-                Promise.all([ 
-                    fetch(`${API_URL}?action=getTableData&sheetName=Events`).then(res=>res.json()), 
-                    fetch(`${API_URL}?action=getTableData&sheetName=Users`).then(res=>res.json()) 
-                ]).then(([eventsRes, usersRes]) => {
-                    // 🟢 [ป้องกันบั๊กเพิ่มเติม] หุ้ม try-catch เผื่อข้อมูลในตารางพัง จะได้ไม่ค้าง
-                    try {
-                        currentTableData = eventsRes.data || [];
-                        allUsersDataForEvents = usersRes.data || [];
-                        initEventFilterDropdown();
-                        applyEventFilters();  
-                        Swal.close(); 
-                    } catch (renderErr) {
-                        console.error(renderErr);
-                        Swal.fire('ข้อผิดพลาด', 'ข้อมูลปฏิทินไม่สมบูรณ์', 'error');
-                    }
-                }).catch(err => {
-                    console.error(err);
-                    Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'error');
-                });
+                // ฟังก์ชันจัดการ Error รวมศูนย์ (ป้องกันหน้าจอโหลดค้าง)
+                const handleError = (err) => {
+                    console.error("Fetch Error:", err);
+                    Swal.fire('ข้อผิดพลาด', 'ไม่สามารถดึงข้อมูลได้ โปรดตรวจสอบการเชื่อมต่ออินเทอร์เน็ต', 'error');
+                };
+
+                // เรียกข้อมูล API พร้อมใส่ .catch() ดักทุกบรรทัด
+                if (viewId === 'dashboard') {
+                    fetch(`${API_URL}?action=getDashboardStats`).then(res => res.json()).then(res => {
+                        if (res.status === 'success') { renderDashboard(res.data); Swal.close(); }
+                        else { Swal.fire('ผิดพลาด', 'โหลดสถิติไม่ได้: ' + res.message, 'error'); }
+                    }).catch(handleError);
+                }
+                else if (viewId === 'settings') {
+                    fetch(`${API_URL}?action=getSettings`).then(res => res.json()).then(res => {
+                        if (res.status === 'success') { 
+                            const data = res.data; 
+                            document.getElementById('set_SystemName').value = data.SystemName || ''; 
+                            document.getElementById('set_NewsLimitHome').value = data.NewsLimitHome || ''; 
+                            document.getElementById('set_FolderImageID').value = data.FolderImageID || ''; 
+                            document.getElementById('set_FolderFileID').value = data.FolderFileID || ''; 
+                            document.getElementById('set_BannerSpeed').value = data.BannerSpeed || '6000'; 
+                            document.getElementById('set_BannerEffect').value = data.BannerEffect || 'fade'; 
+                            document.getElementById('set_MaintenanceMode').checked = (data.MaintenanceMode === 'TRUE'); 
+                            Swal.close(); 
+                        } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
+                    }).catch(handleError);
+                }
+                else if (viewId === 'banners') {
+                    fetch(`${API_URL}?action=getTableData&sheetName=Banners`).then(res=>res.json()).then(res => {
+                        if(res.status === 'success') { currentTableData = res.data || []; renderBannersTable(currentTableData); Swal.close(); }
+                        else throw new Error(res.message);
+                    }).catch(handleError);
+                }
+                else if (viewId === 'departments') {
+                    fetch(`${API_URL}?action=getTableData&sheetName=Departments`).then(res=>res.json()).then(res => {
+                        if(res.status === 'success') { currentTableData = res.data || []; renderDeptsTable(currentTableData); Swal.close(); }
+                        else throw new Error(res.message);
+                    }).catch(handleError);
+                }
+                else if (viewId === 'eservices') {
+                    fetch(`${API_URL}?action=getTableData&sheetName=EServices`).then(res=>res.json()).then(res => {
+                        if(res.status === 'success') { currentTableData = res.data || []; renderEServicesTable(currentTableData); Swal.close(); }
+                        else throw new Error(res.message);
+                    }).catch(handleError);
+                }
+                else if (viewId === 'airlines') {
+                    fetch(`${API_URL}?action=getTableData&sheetName=Airlines`).then(res=>res.json()).then(res => {
+                        if(res.status === 'success') { currentTableData = res.data || []; renderAirlinesTable(currentTableData); Swal.close(); }
+                        else throw new Error(res.message);
+                    }).catch(handleError);
+                }
+                else if (viewId === 'newscategories') {
+                    Promise.all([ 
+                        fetch(`${API_URL}?action=getTableData&sheetName=NewsCategories`).then(res=>res.json()), 
+                        fetch(`${API_URL}?action=getTableData&sheetName=Departments`).then(res=>res.json()) 
+                    ]).then(([catsRes, deptsRes]) => {
+                        if(catsRes.status === 'success' && deptsRes.status === 'success') {
+                            currentTableData = catsRes.data || [];
+                            populateNewsCatDeptDropdown(deptsRes.data || []); 
+                            renderNewsCatsTable(currentTableData);
+                            Swal.close();
+                        } else throw new Error("Data load failed");
+                    }).catch(handleError);
+                }
+                else if (viewId === 'passengerstats') {
+                    fetch(`${API_URL}?action=getTableData&sheetName=PassengerStats`).then(res=>res.json()).then(res => {
+                        if(res.status === 'success') { currentTableData = res.data || []; renderPassengerStatsTable(currentTableData); Swal.close(); }
+                        else throw new Error(res.message);
+                    }).catch(handleError);
+                }
+                else if (viewId === 'users') {
+                    Promise.all([ 
+                        fetch(`${API_URL}?action=getTableData&sheetName=Users`).then(res=>res.json()), 
+                        fetch(`${API_URL}?action=getTableData&sheetName=Departments`).then(res=>res.json()) 
+                    ]).then(([usersRes, deptsRes]) => {
+                        if(usersRes.status === 'success' && deptsRes.status === 'success') {
+                            currentTableData = usersRes.data || [];
+                            populateUserDeptDropdown(deptsRes.data || []);
+                            applyUserFilters();
+                            Swal.close();
+                        } else throw new Error("Data load failed");
+                    }).catch(handleError);
+                }
+                else if (viewId === 'flightschedules') {
+                    Promise.all([ 
+                        fetch(`${API_URL}?action=getTableData&sheetName=FlightSchedules`).then(res=>res.json()), 
+                        fetch(`${API_URL}?action=getTableData&sheetName=Airlines`).then(res=>res.json()) 
+                    ]).then(([flightsRes, airlinesRes]) => {
+                        if(flightsRes.status === 'success' && airlinesRes.status === 'success') {
+                            currentTableData = flightsRes.data || [];
+                            allAirlinesData = airlinesRes.data || [];
+                            populateAirlineDropdown();
+                            renderFlightsTable(currentTableData);
+                            Swal.close();
+                        } else throw new Error("Data load failed");
+                    }).catch(handleError);
+                }
+                else if (viewId === 'news') {
+                    Promise.all([ 
+                        fetch(`${API_URL}?action=getTableData&sheetName=NewsCategories`).then(res=>res.json()), 
+                        fetch(`${API_URL}?action=getTableData&sheetName=News`).then(res=>res.json()) 
+                    ]).then(([catsRes, newsRes]) => {
+                        if(catsRes.status === 'success' && newsRes.status === 'success') {
+                            allCategoriesData = catsRes.data || [];
+                            currentTableData = newsRes.data || [];
+                            populateNewsCategoryDropdown(); 
+                            initNewsFilterDropdowns();      
+                            applyNewsFilters();             
+                            Swal.close(); 
+                        } else throw new Error("Data load failed");
+                    }).catch(handleError);
+                }
+                else if (viewId === 'events') { 
+                    Promise.all([ 
+                        fetch(`${API_URL}?action=getTableData&sheetName=Events`).then(res=>res.json()), 
+                        fetch(`${API_URL}?action=getTableData&sheetName=Users`).then(res=>res.json()) 
+                    ]).then(([eventsRes, usersRes]) => {
+                        if(eventsRes.status === 'success' && usersRes.status === 'success') {
+                            currentTableData = eventsRes.data || [];
+                            allUsersDataForEvents = usersRes.data || [];
+                            initEventFilterDropdown();
+                            applyEventFilters();  
+                            Swal.close(); 
+                        } else throw new Error("Data load failed");
+                    }).catch(handleError);
+                }
+            } catch (error) {
+                console.error("Critical error in switchView:", error);
+                Swal.fire('ข้อผิดพลาดร้ายแรง', 'เกิดข้อผิดพลาดในการโหลดหน้าเว็บ โปรดรีเฟรช', 'error');
             }
         }
         // ================= สิ้นสุดฟังก์ชัน ระบบนำทาง (Switch View) =================
@@ -1971,11 +1956,11 @@
                 return true;
             });
 
-            // 🟢 [ป้องกันบั๊กที่ 1]: แปลงวันที่เผื่อกรณีค่าว่าง จะได้ไม่ Error (NaN) ตอนนำไป sort
+            // 🟢 ป้องกันบั๊กเวลาเรียงลำดับ แล้วมีข้อมูลวันที่แบบแปลกๆ โผล่มา
             filteredEventData.sort((a, b) => {
                 let dateA = new Date(a.EventDate).getTime(); 
                 let dateB = new Date(b.EventDate).getTime();
-                if (isNaN(dateA)) dateA = 0; // ถ้าวันที่พัง ให้ค่าเป็น 0
+                if (isNaN(dateA)) dateA = 0; // ป้องกัน NaN ทำให้ Sort พัง
                 if (isNaN(dateB)) dateB = 0;
                 return sortVal === 'date_desc' ? dateB - dateA : dateA - dateB;
             });
