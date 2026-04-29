@@ -524,7 +524,7 @@
                 <div class="card shadow-sm mb-4" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border: none;">
                     <div class="card-body">
                         <div class="row g-3">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label class="form-label fw-bold text-secondary">ค้นหาข่าวสาร</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
@@ -532,19 +532,28 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <label class="form-label fw-bold text-secondary">หมวดข่าว</label>
-                                <!-- 🟢 Options จะถูกสร้างโดย JavaScript -->
                                 <select id="filter_NewsCategory" class="form-select" onchange="applyNewsFilters()">
                                     <option value="">ทั้งหมดทุกหมวด</option>
                                 </select>
                             </div>
 
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <label class="form-label fw-bold text-secondary">กลุ่มงาน</label>
-                                <!-- 🟢 Options จะถูกสร้างโดย JavaScript (และกรองตามสิทธิ์) -->
                                 <select id="filter_NewsDept" class="form-select" onchange="applyNewsFilters()">
                                     <option value="">ทุกกลุ่มงาน</option>
+                                </select>
+                            </div>
+
+                            <!-- 🟢 เพิ่มใหม่: กล่องเรียงลำดับ -->
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold text-secondary">เรียงลำดับ (Sort By)</label>
+                                <select id="filter_NewsSort" class="form-select" onchange="applyNewsFilters()">
+                                    <option value="date_desc">วันที่: ใหม่สุด - เก่าสุด</option>
+                                    <option value="date_asc">วันที่: เก่าสุด - ใหม่สุด</option>
+                                    <option value="view_desc">ยอดวิว: มาก - น้อย</option>
+                                    <option value="view_asc">ยอดวิว: น้อย - มาก</option>
                                 </select>
                             </div>
 
@@ -2360,41 +2369,57 @@
             }
         }
 
-        // 2. ฟังก์ชันประมวลผลการค้นหา
+        // 2. ฟังก์ชันประมวลผลการค้นหา และ จัดเรียง
         function applyNewsFilters() {
             const user = JSON.parse(localStorage.getItem('userData'));
             const searchTxt = document.getElementById('filter_NewsSearch').value.toLowerCase();
             const catVal = document.getElementById('filter_NewsCategory').value;
             const deptVal = document.getElementById('filter_NewsDept').value;
-            const pageSize = parseInt(document.getElementById('filter_NewsPageSize').value);
+            const sortVal = document.getElementById('filter_NewsSort').value; // 🟢 ดึงค่าการจัดเรียง
 
-            // คัดกรองจาก currentTableData (ข้อมูลดิบทั้งหมด)
+            // 1. คัดกรองข้อมูลก่อน (Filter)
             filteredNewsData = currentTableData.filter(news => {
                 let catObj = allCategoriesData.find(c => c.CategoryID === news.CategoryID);
                 if (!catObj) return false;
                 
                 let catDepts = catObj.Department ? catObj.Department.split(', ') : [];
                 
-                // 1. เช็คสิทธิ์การเข้าถึงพื้นฐาน
                 let hasAccess = (user.role === 'SuperAdmin' || catDepts.includes(user.department) || catDepts.includes('ทั้งหมด'));
                 if (!hasAccess) return false;
 
-                // 2. เช็คตัวกรอง: กลุ่มงาน
                 if (deptVal && !catDepts.includes(deptVal)) return false;
-
-                // 3. เช็คตัวกรอง: หมวดหมู่
                 if (catVal && news.CategoryID !== catVal) return false;
-
-                // 4. เช็คตัวกรอง: คำค้นหา (หาจากหัวข้อข่าว)
                 if (searchTxt && !news.Title.toLowerCase().includes(searchTxt)) return false;
 
                 return true;
             });
 
-            // เรียงลำดับข่าวใหม่สุดขึ้นก่อน
-            filteredNewsData.sort((a,b) => new Date(b.CreateDate) - new Date(a.CreateDate));
+            // 🟢 2. ทำการจัดเรียง (Sort) ตามเงื่อนไขที่เลือก
+            filteredNewsData.sort((a, b) => {
+                // ดึงค่ามาแปลงเพื่อใช้เทียบ
+                let dateA = new Date(a.CreateDate);
+                let dateB = new Date(b.CreateDate);
+                let viewA = parseInt(a.ViewCount) || 0;
+                let viewB = parseInt(b.ViewCount) || 0;
 
-            // รีเซ็ตกลับไปหน้า 1 เสมอเมื่อมีการค้นหาใหม่
+                switch (sortVal) {
+                    case 'date_desc': // ใหม่ไปเก่า
+                        return dateB - dateA;
+                    case 'date_asc':  // เก่าไปใหม่
+                        return dateA - dateB;
+                    case 'view_desc': // ยอดวิวมากไปน้อย
+                        // ถ้ายอดวิวเท่ากัน ให้เอาข่าวใหม่ขึ้นก่อน
+                        if(viewB === viewA) return dateB - dateA; 
+                        return viewB - viewA;
+                    case 'view_asc':  // ยอดวิวน้อยไปมาก
+                        if(viewA === viewB) return dateB - dateA; 
+                        return viewA - viewB;
+                    default:
+                        return dateB - dateA;
+                }
+            });
+
+            // รีเซ็ตกลับไปหน้า 1 เสมอเมื่อมีการค้นหาหรือเปลี่ยนการจัดเรียงใหม่
             currentNewsPage = 1;
             renderNewsTable(); // สั่งวาดตาราง
         }
