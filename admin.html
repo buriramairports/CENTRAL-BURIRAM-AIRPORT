@@ -1579,48 +1579,46 @@
             });
         }
 
-        function deleteRecord(sheetName, idColumn, idValue) {
+       function deleteRecord(sheetName, idColumn, idValue) {
             Swal.fire({ title: 'ยืนยันการลบ?', text: "หากลบแล้วจะไม่สามารถกู้คืนได้!", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ใช่, ลบทิ้ง!' }).then((result) => {
                 if (result.isConfirmed) {
                     Swal.fire({ title: 'กำลังลบ...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
                     const formData = new URLSearchParams({ action: 'deleteRecord', sheetName: sheetName, idColumn: idColumn, idValue: idValue });
                     fetch(API_URL, { method: 'POST', body: formData }).then(res => res.json()).then(res => {
-                      /*  if (res.status === 'success') {
-                            Swal.fire({ icon: 'success', title: 'ลบสำเร็จ', showConfirmButton: false, timer: 1500 });
-                            if(sheetName === 'Banners') loadTableData('Banners', renderBannersTable);
-                            if(sheetName === 'Departments') loadTableData('Departments', renderDeptsTable);
-                            if(sheetName === 'EServices') loadTableData('EServices', renderEServicesTable);
-                            if(sheetName === 'Airlines') loadTableData('Airlines', renderAirlinesTable);
-                            if(sheetName === 'NewsCategories') loadTableData('NewsCategories', renderNewsCatsTable);
-                            if(sheetName === 'PassengerStats') loadTableData('PassengerStats', renderPassengerStatsTable);
-                            if(sheetName === 'Users') loadTableData('Users', renderUsersTable);
-                            if(sheetName === 'FlightSchedules') loadTableData('FlightSchedules', renderFlightsTable);
-                            if(sheetName === 'News') loadTableData('News', renderNewsTable);
-                            if(sheetName === 'Events') loadTableData('Events', renderEventsTable);
-                        }*/
                         if (res.status === 'success') {
-                        Swal.fire({ icon: 'success', title: 'ลบสำเร็จ', showConfirmButton: false, timer: 1500 });
+                            Swal.fire({ icon: 'success', title: 'ลบสำเร็จ', showConfirmButton: false, timer: 1500 });
 
-                        // สร้างคู่มือว่า Sheet ไหน ต้องใช้ฟังก์ชัน Render ตัวไหน
-                        const renderMap = {
-                            'Banners': renderBannersTable,
-                            'Departments': renderDeptsTable,
-                            'EServices': renderEServicesTable,
-                            'Airlines': renderAirlinesTable,
-                            'NewsCategories': renderNewsCatsTable,
-                            'PassengerStats': renderPassengerStatsTable,
-                            'Users': renderUsersTable,
-                            'FlightSchedules': renderFlightsTable,
-                            'News': renderNewsTable,
-                            'Events': renderEventsTable 
-                        };
-
-                    // ถ้าชื่อ sheet ตรงกับที่มีในคู่มือ ก็สั่งโหลดข้อมูลใหม่ทันที
-                        if (renderMap[sheetName]) {
-                            loadTableData(sheetName, renderMap[sheetName]);
+                            // โหลดข้อมูลใหม่จากชีท แล้วเช็คว่าหน้านั้นมีระบบ Filter ไหม
+                            loadTableData(sheetName, (data) => {
+                                currentTableData = data; // อัปเดตข้อมูลสด
+                                
+                                // ถ้าตารางนั้นมีระบบ Filter ให้เรียกฟังก์ชัน Filter แทน render ตรงๆ
+                                if (sheetName === 'Events') {
+                                    applyEventFilters(); 
+                                } else if (sheetName === 'News') {
+                                    applyNewsFilters();
+                                } else if (sheetName === 'PassengerStats') {
+                                    filterStatsTable(); // สถิติผู้โดยสารก็มี Filter ปี
+                                } else {
+                                    // สำหรับตารางอื่นๆ ที่ไม่มี Filter ก็ Render ตรงๆ ได้เลย
+                                    const renderMap = {
+                                        'Banners': renderBannersTable,
+                                        'Departments': renderDeptsTable,
+                                        'EServices': renderEServicesTable,
+                                        'Airlines': renderAirlinesTable,
+                                        'NewsCategories': renderNewsCatsTable,
+                                        'Users': renderUsersTable,
+                                        'FlightSchedules': renderFlightsTable
+                                    };
+                                    if (renderMap[sheetName]) {
+                                        renderMap[sheetName](data);
+                                    }
+                                }
+                            });
+                        } else {
+                            Swal.fire('ผิดพลาด', res.message, 'error');
                         }
-                    }
-                    });
+                    }).catch(() => Swal.fire('ผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'error'));
                 }
             });
         }
