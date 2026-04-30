@@ -84,7 +84,7 @@
                     <span id="adminRoleDisplay" class="badge bg-danger ms-2">Admin</span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end shadow border-0">
-                    <li><a class="dropdown-item" href="#"><i class="fa-solid fa-user-shield me-2"></i> ข้อมูลส่วนตัว</a></li>
+                    <li><a class="dropdown-item" href="javascript:void(0)" onclick="openProfileModal()"><i class="fa-solid fa-user-shield me-2"></i> ข้อมูลส่วนตัว</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item text-danger" href="#" onclick="adminLogout()"><i class="fa-solid fa-right-from-bracket me-2"></i> ออกจากระบบ</a></li>
                 </ul>
@@ -446,6 +446,65 @@
     <!-- Modal: View Gallery -->
     <div class="modal fade" id="viewGalleryModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-xl"><div class="modal-content border-0 bg-dark"><div class="modal-header border-secondary p-3"><h5 class="modal-title fw-bold text-white"><i class="fa-solid fa-images text-success me-2"></i> แกลลอรีรูปภาพ</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-0 relative"><div id="galleryCarousel" class="carousel slide" data-bs-ride="carousel"><div class="carousel-indicators" id="gallery-indicators"></div><div class="carousel-inner" id="gallery-inner" style="height: 80vh; background-color: #000;"></div><button class="carousel-control-prev" type="button" data-bs-target="#galleryCarousel" data-bs-slide="prev"><span class="carousel-control-prev-icon" aria-hidden="true"></span><span class="visually-hidden">Previous</span></button><button class="carousel-control-next" type="button" data-bs-target="#galleryCarousel" data-bs-slide="next"><span class="carousel-control-next-icon" aria-hidden="true"></span><span class="visually-hidden">Next</span></button></div></div></div></div></div>
 
+    <!-- ================= เริ่มต้น Modal: My Profile (ข้อมูลส่วนตัว) ================= -->
+    <div class="modal fade" id="profileModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-user-shield me-2 text-warning"></i> ข้อมูลส่วนตัวของฉัน</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="formProfile" onsubmit="saveProfile(event)">
+                        <div class="row g-3 mb-3 pb-3 border-bottom">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">ชื่อ (FirstName) <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="prof_FirstName" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">นามสกุล (LastName) <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="prof_LastName" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">อีเมล</label>
+                                <input type="email" class="form-control" id="prof_Email" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">เบอร์โทรศัพท์</label>
+                                <input type="tel" class="form-control" id="prof_Phone" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted">สังกัด / หน่วยงาน</label>
+                                <input type="text" class="form-control bg-light" id="prof_Organization" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">ตำแหน่ง (Position)</label>
+                                <input type="text" class="form-control" id="prof_Position">
+                            </div>
+                        </div>
+
+                        <h6 class="fw-bold text-primary mb-3"><i class="fa-solid fa-key"></i> ตั้งค่ารหัสผ่าน</h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted">ชื่อผู้ใช้ (Username)</label>
+                                <input type="text" class="form-control bg-light" id="prof_Username" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">รหัสผ่านใหม่ (หากไม่ต้องการเปลี่ยน ให้ปล่อยว่างไว้)</label>
+                                <input type="text" class="form-control" id="prof_Password" placeholder="พิมพ์รหัสผ่านใหม่ที่นี่">
+                            </div>
+                        </div>
+
+                        <div class="text-end mt-4">
+                            <button type="button" class="btn btn-secondary px-4 me-2" data-bs-dismiss="modal">ปิด</button>
+                            <button type="submit" class="btn btn-primary px-4" id="btnSaveProfile"><i class="fa-solid fa-save me-2"></i> บันทึกข้อมูลส่วนตัว</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ================= สิ้นสุด Modal: My Profile (ข้อมูลส่วนตัว) ================= -->
 
     <!-- ========================================================================= -->
     <!--                                 JAVASCRIPT                                  -->
@@ -2269,6 +2328,102 @@
         }
         // ================= สิ้นสุด ระบบจัดการ ปฏิทินกิจกรรม =================
 
+        // ================= เริ่มต้นฟังก์ชัน ข้อมูลส่วนตัว (My Profile) =================
+        let myFullProfileData = {}; // เอาไว้เก็บข้อมูลเต็ม ป้องกันการเซฟทับแล้ว Role/Dept หาย
+
+        function openProfileModal() {
+            const userSession = JSON.parse(localStorage.getItem('userData'));
+            if (!userSession) return;
+
+            Swal.fire({ title: 'กำลังดึงข้อมูลบัญชี...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            // ดึงข้อมูล Users ทั้งตาราง เพื่อหาไอดีของเรา
+            fetch(`${API_URL}?action=getTableData&sheetName=Users`)
+            .then(res => res.json())
+            .then(res => {
+                if (res.status === 'success') {
+                    const myData = res.data.find(u => u.UserID === userSession.id);
+                    if (myData) {
+                        myFullProfileData = myData; // เก็บ object ฉบับเต็มไว้
+
+                        // นำข้อมูลลงฟอร์ม
+                        document.getElementById('prof_FirstName').value = myData.FirstName || '';
+                        document.getElementById('prof_LastName').value = myData.LastName || '';
+                        document.getElementById('prof_Email').value = myData.Email || '';
+                        document.getElementById('prof_Phone').value = myData.Phone || '';
+                        document.getElementById('prof_Organization').value = myData.Organization || '';
+                        document.getElementById('prof_Position').value = myData.Position || '';
+                        document.getElementById('prof_Username').value = myData.Username || '';
+                        document.getElementById('prof_Password').value = ''; // ล้างช่องรหัสผ่านให้ว่างไว้เสมอ
+
+                        Swal.close();
+                        new bootstrap.Modal(document.getElementById('profileModal')).show();
+                    } else {
+                        Swal.fire('ผิดพลาด', 'ไม่พบข้อมูลบัญชีของคุณในระบบ', 'error');
+                    }
+                } else {
+                    Swal.fire('ผิดพลาด', res.message, 'error');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'error');
+            });
+        }
+
+        function saveProfile(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSaveProfile');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังบันทึก...';
+            btn.disabled = true;
+
+            // เอาค่าที่แก้ไขจากหน้าฟอร์ม ไปอัปเดตใส่ object ตัวเต็ม
+            myFullProfileData.FirstName = document.getElementById('prof_FirstName').value;
+            myFullProfileData.LastName = document.getElementById('prof_LastName').value;
+            myFullProfileData.Email = document.getElementById('prof_Email').value;
+            myFullProfileData.Phone = document.getElementById('prof_Phone').value;
+            myFullProfileData.Position = document.getElementById('prof_Position').value;
+
+            // ตรวจสอบว่าต้องการเปลี่ยนรหัสผ่านหรือไม่
+            const newPassword = document.getElementById('prof_Password').value.trim();
+            if (newPassword !== '') {
+                myFullProfileData.Password = newPassword;
+            }
+
+            // เตรียมข้อมูลส่ง API (ใช้ Action saveRecord เหมือนการแก้ User ปกติ)
+            const formData = new URLSearchParams({
+                action: 'saveRecord',
+                sheetName: 'Users',
+                idColumn: 'UserID',
+                recordJSON: JSON.stringify(myFullProfileData)
+            });
+
+            fetch(API_URL, { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(res => {
+                if (res.status === 'success') {
+                    // อัปเดตข้อมูลในระบบ (เพื่อเปลี่ยนชื่อตรงมุมขวาบนทันที)
+                    const userSession = JSON.parse(localStorage.getItem('userData'));
+                    userSession.fullname = `${myFullProfileData.FirstName} ${myFullProfileData.LastName}`;
+                    localStorage.setItem('userData', JSON.stringify(userSession));
+                    document.getElementById('adminNameDisplay').innerText = userSession.fullname;
+
+                    bootstrap.Modal.getInstance(document.getElementById('profileModal')).hide();
+                    Swal.fire({ icon: 'success', title: 'อัปเดตข้อมูลสำเร็จ', showConfirmButton: false, timer: 1500 });
+                } else {
+                    Swal.fire('ผิดพลาด', res.message, 'error');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                Swal.fire('ข้อผิดพลาด', 'ไม่สามารถบันทึกข้อมูลได้', 'error');
+            })
+            .finally(() => {
+                btn.innerHTML = '<i class="fa-solid fa-save me-2"></i> บันทึกข้อมูลส่วนตัว';
+                btn.disabled = false;
+            });
+        }
+        // ================= สิ้นสุดฟังก์ชัน ข้อมูลส่วนตัว (My Profile) =================
     </script>
 </body>
 </html>
