@@ -249,7 +249,7 @@
                         <div class="text-center py-4 text-muted">กำลังโหลดข้อมูล...</div>
                     </div>
                     <div class="card-footer bg-white border-0 text-end pb-3">
-                        <button class="btn btn-view-all btn-sm">ดูทั้งหมด</button>
+                        <a href="calendar.html" target="_blank" class="btn btn-view-all btn-sm">ดูทั้งหมด</a>
                     </div>
                 </div>
                    
@@ -854,26 +854,33 @@
 
         let allPassengerStats = [];
         function renderPassengerStats(data) {
-            allPassengerStats = data; // เก็บข้อมูลทั้งหมดไว้ใช้ตอนกรอง
-            const currentYear = new Date().getFullYear();
+            allPassengerStats = data;
             
-            // สร้างตัวเลือก Dropdown สำหรับปีที่มีข้อมูล
+            // 🟢 [แก้ไข 2.2] เปลี่ยนข้อความใน Filter ให้แสดงเป็น พ.ศ. (ให้ตรงกับข้อมูลที่กรอกในหลังบ้าน)
             const yearSelect = document.getElementById('filterStatYear');
             if(yearSelect) {
                 let uniqueYears = [...new Set(data.map(item => item.Year))].filter(y => y).sort().reverse();
-                if(uniqueYears.length === 0) uniqueYears = [currentYear.toString()];
+                if(uniqueYears.length === 0) uniqueYears = [(new Date().getFullYear() + 543).toString()];
                 
-                yearSelect.innerHTML = uniqueYears.map(y => `<option value="${y}">ประจำปี ค.ศ. ${y}</option>`).join('');
+                yearSelect.innerHTML = uniqueYears.map(y => `<option value="${y}">ประจำปี พ.ศ. ${y}</option>`).join('');
                 filterPassengerStatsTable(); // เรียกให้วาดตารางครั้งแรก
             }
 
-            // คำนวณยอดรวมผู้โดยสารของปีปัจจุบัน (ตั้งแต่ 1 ม.ค. ถึงปัจจุบัน)
-            let totalCurrentYear = 0;
-            data.filter(item => item.Year === currentYear.toString()).forEach(item => {
-                totalCurrentYear += parseInt(item.PassengerCount) || 0;
+            // 🟢 [แก้ไข 2.1] ให้คำนวณยอดรวมโดยอิงจาก "ปีที่เลือกอยู่ใน Filter ขณะนั้น" แทนที่จะฟิกซ์ปี
+            calculateTotalPassenger();
+        }
+
+        // 🟢 [แก้ไข 2.1] แยกฟังก์ชันคำนวณยอดรวมออกมา เพื่อให้คำนวณใหม่ทุกครั้งที่เปลี่ยนปีใน Filter
+        function calculateTotalPassenger() {
+            const selectedYear = document.getElementById('filterStatYear') ? document.getElementById('filterStatYear').value : (new Date().getFullYear() + 543).toString();
+            let totalYear = 0;
+            
+            allPassengerStats.filter(item => item.Year === selectedYear).forEach(item => {
+                totalYear += parseInt(item.PassengerCount) || 0;
             });
+            
             const totalDisplay = document.getElementById('totalPassengerBadge');
-            if(totalDisplay) totalDisplay.innerHTML = `${totalCurrentYear.toLocaleString('th-TH')} <span class="fs-5 fw-normal">คน</span>`;
+            if(totalDisplay) totalDisplay.innerHTML = `${totalYear.toLocaleString('th-TH')} <span class="fs-5 fw-normal">คน</span>`;
         }
 
         // ฟังชันก์วาดตารางสถิติผู้โดยสารใน Modal
@@ -885,8 +892,11 @@
             const selectedYear = document.getElementById('filterStatYear').value;
             let filteredData = allPassengerStats.filter(item => item.Year === selectedYear);
             
+            // 🟢 อัปเดตยอดรวมให้ตรงกับปีที่เพิ่งเลือก
+            calculateTotalPassenger();
+            
             if (filteredData.length === 0) { 
-                tbody.innerHTML = '<tr><td colspan="3" class="py-4 text-muted">ไม่มีข้อมูลของปีที่เลือก</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="3" class="py-4 text-muted text-center">ไม่มีข้อมูลของปีที่เลือก</td></tr>';
                 return; 
             }
 
