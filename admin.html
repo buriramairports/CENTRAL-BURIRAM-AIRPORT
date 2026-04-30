@@ -475,7 +475,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold text-muted">สังกัด / หน่วยงาน</label>
-                                <input type="text" class="form-control bg-light" id="prof_Organization" readonly>
+                                <input type="text" class="form-control" id="prof_Organization">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">ตำแหน่ง (Position)</label>
@@ -2383,6 +2383,7 @@
             myFullProfileData.Email = document.getElementById('prof_Email').value;
             myFullProfileData.Phone = document.getElementById('prof_Phone').value;
             myFullProfileData.Position = document.getElementById('prof_Position').value;
+            myFullProfileData.Organization = document.getElementById('prof_Organization').value;
 
             // ตรวจสอบว่าต้องการเปลี่ยนรหัสผ่านหรือไม่
             const newPassword = document.getElementById('prof_Password').value.trim();
