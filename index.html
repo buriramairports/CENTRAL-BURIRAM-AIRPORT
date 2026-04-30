@@ -175,29 +175,19 @@
         </div>
     </nav>
 
-    <!-- สไลด์หลัก -->
-    <div id="heroCarousel" class="carousel slide carousel-fade hero-carousel" data-bs-ride="carousel" data-bs-interval="6000">
-        <div class="carousel-indicators">
-            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
-            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
+    <!-- ================= เริ่มต้น สไลด์หลัก (ดึงจาก API) ================= -->
+    <div id="heroCarousel" class="carousel slide hero-carousel" data-bs-ride="carousel" data-bs-interval="6000">
+        <div class="carousel-indicators" id="carousel-indicators-container">
+            <!-- จุดบอกตำแหน่งสไลด์ จะถูกเพิ่มด้วย JS -->
         </div>
-        <div class="carousel-inner">
+        <div class="carousel-inner" id="carousel-inner-container">
+            <!-- รูปสไลด์ จะถูกเพิ่มด้วย JS พร้อมภาพสำรองกรณีโหลดช้า -->
             <div class="carousel-item active">
-                <img src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=2074&auto=format&fit=crop" class="d-block w-100" alt="Banner 1">
-                <div class="carousel-caption d-none d-md-block text-start">
-                    <h1 class="fw-bold animate-title" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">ท่าอากาศยานบุรีรัมย์</h1>
-                    <p class="animate-desc" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">ประตูสู่อารยธรรมอีสานใต้</p>
-                </div>
-            </div>
-            <div class="carousel-item">
-                <img src="https://images.unsplash.com/photo-1542296332-2e4473faf563?q=80&w=2070&auto=format&fit=crop" class="d-block w-100" alt="Banner 2">
-                <div class="carousel-caption d-none d-md-block text-start">
-                    <h1 class="fw-bold animate-title" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">ยกระดับมาตรฐานความปลอดภัย</h1>
-                    <p class="animate-desc" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">เพื่อความมั่นใจในทุกการเดินทางของคุณ</p>
-                </div>
+                <img src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=2074&auto=format&fit=crop" class="d-block w-100" alt="Loading...">
             </div>
         </div>
     </div>
+    <!-- ================= สิ้นสุด สไลด์หลัก ================= -->
 
     <!-- ส่วนเนื้อหาหลัก -->
     <div class="container mt-5 mb-5">
@@ -548,29 +538,100 @@
         const API_URL = "https://script.google.com/macros/s/AKfycbx_KEKYYe2Mu1vTORWF8GZnV4zuOku_4IqEvwhZ4q556ggVOHjy-blHKvY_IuYOfGHqaA/exec";
         let isLoggedIn = false; 
 
-        // ==========================================
-        // 1. ระบบ E-Services
-        // ==========================================
-        const eServicesData = [
-            { id: 'tour', name: 'ระบบจองวันทัศนศึกษา', icon: 'fa-bus', desc: 'สำหรับหน่วยงานภายนอก' },
-            { id: 'vip', name: 'ระบบจองห้องรับรอง (VIP)', icon: 'fa-crown', desc: 'สำหรับผู้บริหาร/แขก' },
-            { id: 'car', name: 'ระบบจองรถยนต์ส่วนกลาง', icon: 'fa-car', desc: 'สำหรับเจ้าหน้าที่' },
-            { id: 'meeting', name: 'ระบบจองห้องประชุม', icon: 'fa-people-roof', desc: 'จองห้องประชุมออนไลน์' },
-            { id: 'it', name: 'ระบบแจ้งซ่อม IT', icon: 'fa-computer', desc: 'สำหรับเจ้าหน้าที่ภายใน' }
-        ];
+        // ================= เริ่มต้น 1. ฟังก์ชันดึงข้อมูลพื้นฐาน (API Integration Phase 1) =================
+        
+        // ฟังก์ชันช่วยแปลงลิงก์รูปภาพ Google Drive
+        function convertDriveImageLink(url) {
+            if(!url) return "";
+            let id = ""; const regexView = /\/file\/d\/([a-zA-Z0-9_-]+)/; const regexId = /id=([a-zA-Z0-9_-]+)/; 
+            if (url.match(regexView)) id = url.match(regexView)[1]; else if (url.match(regexId)) id = url.match(regexId)[1];
+            if (id) return `https://drive.google.com/thumbnail?id=${id}&sz=w1920`; // ขยายไซส์เพื่อทำแบนเนอร์
+            return url; 
+        }
 
-        function renderEServices() {
+        async function loadInitialData() {
+            try {
+                // ยิง API ดึง 3 ตารางพร้อมกัน เพื่อความรวดเร็ว
+                const [settingsRes, bannersRes, eservicesRes] = await Promise.all([
+                    fetch(API_URL + '?action=getSettings').then(r => r.json()),
+                    fetch(API_URL + '?action=getTableData&sheetName=Banners').then(r => r.json()),
+                    fetch(API_URL + '?action=getTableData&sheetName=EServices').then(r => r.json())
+                ]);
+
+                // 1. ตั้งค่าเว็บไซต์ (Settings)
+                if(settingsRes.status === 'success') {
+                    const settings = settingsRes.data;
+                    if(settings.SystemName) document.title = settings.SystemName;
+                    
+                    const carouselEl = document.getElementById('heroCarousel');
+                    if(settings.BannerSpeed) carouselEl.setAttribute('data-bs-interval', settings.BannerSpeed);
+                    if(settings.BannerEffect === 'fade') carouselEl.classList.add('carousel-fade');
+                    else carouselEl.classList.remove('carousel-fade');
+                }
+
+                // 2. จัดการแบนเนอร์สไลด์ (Banners)
+                if(bannersRes.status === 'success') renderBanners(bannersRes.data);
+
+                // 3. จัดการระบบบริการ (E-Services)
+                if(eservicesRes.status === 'success') renderEServices(eservicesRes.data);
+
+            } catch(error) { console.error("Error loading initial data:", error); }
+        }
+
+        // ฟังก์ชันวาดรูปแบนเนอร์
+        function renderBanners(data) {
+            const indicators = document.getElementById('carousel-indicators-container');
+            const inner = document.getElementById('carousel-inner-container');
+            indicators.innerHTML = ''; inner.innerHTML = '';
+
+            const activeBanners = data.filter(b => b.IsActive === 'TRUE').sort((a, b) => parseInt(a.OrderList) - parseInt(b.OrderList));
+            if(activeBanners.length === 0) return; // ถ้าไม่มีรูปในระบบ ให้แสดงภาพสำรอง (default) ใน HTML
+
+            activeBanners.forEach((item, index) => {
+                const isActive = index === 0 ? 'active' : '';
+                const imgUrl = convertDriveImageLink(item.ImageURL);
+                
+                indicators.innerHTML += `<button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="${index}" class="${isActive}"></button>`;
+                inner.innerHTML += `
+                    <div class="carousel-item ${isActive}">
+                        <img src="${imgUrl}" class="d-block w-100" alt="Banner ${index+1}">
+                        <div class="carousel-caption d-none d-md-block text-start">
+                            ${item.Title ? `<h1 class="fw-bold animate-title" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">${item.Title}</h1>` : ''}
+                            ${item.Description ? `<p class="animate-desc" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">${item.Description}</p>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // ฟังก์ชันวาดปุ่ม E-Services
+        function renderEServices(data) {
             const mainContainer = document.getElementById('eservice-container');
             const modalContainer = document.getElementById('all-eservice-container');
             mainContainer.innerHTML = ''; modalContainer.innerHTML = '';
-            const createCardHTML = (service, colSize) => `<div class="${colSize}"><div class="card h-100 p-3 shadow-sm e-service-card" onclick="handleServiceClick('${service.id}', '${service.name}')"><div class="card-body text-center p-0 pt-2"><i class="fa-solid ${service.icon} mb-2" style="font-size: 30px; color: var(--secondary-blue);"></i><h6 class="fw-bold mb-1">${service.name}</h6><small class="text-muted" style="font-size: 11px;">${service.desc}</small></div></div></div>`;
+
+            const activeServices = data.filter(s => s.IsActive === 'TRUE').sort((a, b) => parseInt(a.OrderList) - parseInt(b.OrderList));
+
+            const createCardHTML = (service, colSize) => `
+                <div class="${colSize}">
+                    <div class="card h-100 p-3 shadow-sm e-service-card" onclick="handleServiceClick('${service.URL}', '${service.ServiceName}', '${service.Target}')">
+                        <div class="card-body text-center p-0 pt-2">
+                            <i class="fa-solid ${service.IconClass} mb-2" style="font-size: 30px; color: var(--secondary-blue);"></i>
+                            <h6 class="fw-bold mb-1" style="font-size: 0.95rem;">${service.ServiceName}</h6>
+                        </div>
+                    </div>
+                </div>`;
             
             const maxDisplay = 4;
-            eServicesData.slice(0, maxDisplay).forEach(s => mainContainer.innerHTML += createCardHTML(s, 'col-md-3 col-6'));
-            if (eServicesData.length > maxDisplay) document.getElementById('btnViewAllEServices').classList.remove('d-none');
-            eServicesData.forEach(s => modalContainer.innerHTML += createCardHTML(s, 'col-md-3 col-6'));
+            activeServices.slice(0, maxDisplay).forEach(s => mainContainer.innerHTML += createCardHTML(s, 'col-md-3 col-6'));
+            
+            if (activeServices.length > maxDisplay) document.getElementById('btnViewAllEServices').classList.remove('d-none');
+            else document.getElementById('btnViewAllEServices').classList.add('d-none');
+            
+            activeServices.forEach(s => modalContainer.innerHTML += createCardHTML(s, 'col-md-3 col-6'));
         }
-        renderEServices();
+        // ================= สิ้นสุด 1. ฟังก์ชันดึงข้อมูลพื้นฐาน =================
+        ///////////////////////////renderEServices();
 
         // ==========================================
         // 2. ระบบ Dynamic News
@@ -628,26 +689,34 @@
             }
         }
 
-        function handleServiceClick(id, name) { 
+        // ================= เริ่มต้น ระบบจัดการการคลิก E-Services =================
+        function handleServiceClick(url, name, target) { 
             if(!isLoggedIn) {
-                Swal.fire({ icon: 'warning', title: 'กรุณาเข้าสู่ระบบ', text: 'เพื่อใช้งาน ' + name, confirmButtonColor: '#0A3161' }).then(showAuthModal); 
+                Swal.fire({ icon: 'warning', title: 'กรุณาเข้าสู่ระบบ', text: 'เพื่อใช้งาน ' + name, confirmButtonColor: '#0A3161' }).then((res) => {
+                    // ถ้ากดตกลง หรือกดปิดแจ้งเตือน ให้เด้งหน้า Login ขึ้นมา
+                    if(res.isConfirmed || res.isDismissed) showAuthModal();
+                }); 
             } else {
-                Swal.fire({ icon: 'success', title: 'กำลังพาไปที่', text: name, showConfirmButton: false, timer: 1500 }); 
+                // เข้าสู่ระบบแล้ว ให้พาไปที่ URL ตามที่ตั้งค่า Target ไว้ในหลังบ้าน
+                if(target === '_blank') { window.open(url, '_blank'); } 
+                else { window.location.href = url; }
             }
         }
+        // ================= สิ้นสุด ระบบจัดการการคลิก E-Services =================
 
-        // ==========================================
-        // 4. ระบบ Login / Register / PDPA (เชื่อมต่อ API)
-        // ==========================================
-          // 🟢 [เพิ่มใหม่] ตรวจสอบสถานะการล็อกอินทุกครั้งที่เปิดหน้าเว็บ
+        // ================= เริ่มต้น โหลดข้อมูลเมื่อเปิดหน้าเว็บ =================
         document.addEventListener('DOMContentLoaded', () => {
             const savedUser = localStorage.getItem('userData');
             if (savedUser) {
                 const user = JSON.parse(savedUser);
                 isLoggedIn = true;
-                updateUserMenuUI(user); // เรียกใช้ฟังก์ชันเปลี่ยนปุ่มมุมขวาบน
+                updateUserMenuUI(user);
             }
+            
+            // 🟢 เรียกฟังก์ชันดึงข้อมูลจาก API ทันทีที่เปิดหน้าเว็บ
+            loadInitialData();
         });
+        // ================= สิ้นสุด โหลดข้อมูลเมื่อเปิดหน้าเว็บ =================
 
         // 🟢 [เพิ่มใหม่] ฟังก์ชันสำหรับเปลี่ยนปุ่มมุมขวาบน (ใช้ซ้ำได้)
         function updateUserMenuUI(user) {
