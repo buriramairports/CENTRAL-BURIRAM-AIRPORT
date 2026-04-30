@@ -663,7 +663,7 @@
                 // 4. ข่าวสารและประชาสัมพันธ์
                 if(newsCatsRes.status === 'success' && newsRes.status === 'success') {
                     allNewsData = newsRes.data; // เก็บลงตัวแปร Global
-                    renderDynamicNews(newsCatsRes.data, newsRes.data);
+                    renderDynamicNews(newsCatsRes.data, newsRes.data, settingsRes.data);
                 }
 
                 // 5. ปฏิทินกิจกรรม
@@ -727,26 +727,37 @@
             });
         }
 
-        function renderDynamicNews(catsData, newsData) {
+        // ================= เริ่มต้นฟังก์ชัน วาดข่าวสารหน้าหลัก =================
+        // 🟢 เพิ่มพารามิเตอร์ settingsData เข้ามาเพื่อดึงจำนวนลิมิตข่าว
+        function renderDynamicNews(catsData, newsData, settingsData) {
             const container = document.getElementById('dynamic-news-container'); container.innerHTML = '';
-            const activeCats = catsData.filter(c => c.IsActive === 'TRUE').sort((a,b) => a.OrderList - b.OrderList);
-            let validNews = newsData.filter(n => isReadyToPublish(n)); // 🟢 กรองข่าวที่ Publish เท่านั้น หรือถึงเวลาโพสต์แล้ว
+            
+            // 🟢 กรองเอาเฉพาะที่เปิดใช้งาน และ อนุญาตให้โชว์หน้าแรก (ShowOnHome)
+            const activeCats = catsData.filter(c => c.IsActive === 'TRUE' && c.ShowOnHome !== 'FALSE').sort((a,b) => a.OrderList - b.OrderList);
+            let validNews = newsData.filter(n => isReadyToPublish(n)); 
+
+            // 🟢 ดึงลิมิตจาก Settings ถ้าไม่ได้ตั้งไว้ให้ดึงมาหมวดละ 5 ข่าว
+            let newsLimit = settingsData && settingsData.NewsLimitHome ? parseInt(settingsData.NewsLimitHome) : 5;
 
             activeCats.forEach(cat => {
                 let catNews = validNews.filter(n => n.CategoryID === cat.CategoryID);
-                // เรียงข่าวล่าสุดขึ้นบน (ดูจาก PublishDate เป็นหลัก ถ้าไม่มีดูจาก CreateDate)
                 catNews.sort((a,b) => {
                     let d1 = parseDateTimeString(b.PublishDate || b.CreateDate).getTime();
                     let d2 = parseDateTimeString(a.PublishDate || a.CreateDate).getTime();
                     return d1 - d2;
                 });
 
-                // จัดขนาดคอลัมน์อัตโนมัติ ตามประเภท Layout
+                // ตัดข่าวให้เหลือตามโควต้าลิมิต
+                catNews = catNews.slice(0, newsLimit);
+
                 let colSize = 'col-lg-4';
                 if (cat.LayoutType === 'slider') colSize = 'col-lg-7';
                 else if (cat.LayoutType === 'slider-vertical') colSize = 'col-lg-5';
 
                 let html = '';
+                // สร้างปุ่มดูทั้งหมด
+                let btnViewAllHTML = `<a href="news.html?category=${cat.CategoryID}" class="btn btn-sm btn-outline-primary rounded-pill px-3" style="font-size: 0.75rem;">ดูทั้งหมด <i class="fa-solid fa-arrow-right"></i></a>`;
+
                 if(cat.LayoutType.includes('slider')) {
                     let slides = '';
                     if(catNews.length === 0) { slides = `<div class="swiper-slide"><div class="p-5 text-center text-muted">ไม่มีข่าวสารในหมวดหมู่นี้</div></div>`; } 
@@ -764,29 +775,28 @@
                         });
                     }
 
-                    html = `<div class="${colSize} mb-4"><div class="card shadow-sm h-100 border-0"><div class="card-header-custom"><h5>${cat.CategoryName}</h5></div><div class="card-body p-0 pb-4"><div class="swiper swiper-${cat.CategoryID}"><div class="swiper-wrapper">${slides}</div><div class="swiper-pagination"></div></div></div></div></div>`;
+                    html = `<div class="${colSize} mb-4"><div class="card shadow-sm h-100 border-0"><div class="card-header-custom"><h5>${cat.CategoryName}</h5> ${btnViewAllHTML}</div><div class="card-body p-0 pb-4"><div class="swiper swiper-${cat.CategoryID}"><div class="swiper-wrapper">${slides}</div><div class="swiper-pagination"></div></div></div></div></div>`;
                 } else {
                     let list = '';
                     if(catNews.length === 0) { list = `<div class="text-center text-muted py-3">ไม่มีข้อมูล</div>`; } 
                     else {
-                        catNews.slice(0, 5).forEach(n => { // โชว์แบบ List แค่ 5 ข่าวพอ
+                        catNews.forEach(n => { 
                             let newBadge = isStillNew(n.ExpireDate) ? `<span class="badge bg-danger ms-2 blink" style="font-size:0.65rem; padding: 2px 5px;">NEW</span>` : '';
                             let dateText = n.PublishDate ? n.PublishDate.split(' ')[0] : n.CreateDate.split(' ')[0];
                             let themeColor = cat.ThemeColor !== 'transparent' ? cat.ThemeColor : '#0A3161';
-                            
                             list += `<a href="javascript:void(0)" onclick="openNewsDetail('${n.NewsID}')" class="text-list-item"><i class="fa-solid fa-caret-right text-list-icon" style="color:${themeColor}; font-size:1.2rem;"></i><div><div class="text-list-title text-dark">${n.Title} ${newBadge}</div><div class="text-list-date"><i class="fa-regular fa-calendar me-1"></i> ${dateText}</div></div></a>`;
                         });
                     }
-                    html = `<div class="${colSize} mb-4"><div class="card shadow-sm h-100 border-0 overflow-hidden"><div class="card-header-solid" style="background-color:${cat.ThemeColor !== 'transparent' ? cat.ThemeColor : '#0A3161'}; border-radius:0;">${cat.CategoryName}</div><div class="card-body text-list-container pb-4 pt-2">${list}</div></div></div>`;
+                    html = `<div class="${colSize} mb-4"><div class="card shadow-sm h-100 border-0 overflow-hidden"><div class="card-header-solid" style="background-color:${cat.ThemeColor !== 'transparent' ? cat.ThemeColor : '#0A3161'}; border-radius:0;"><span>${cat.CategoryName}</span> ${btnViewAllHTML.replace('btn-outline-primary', 'btn-light')}</div><div class="card-body text-list-container pb-4 pt-2">${list}</div></div></div>`;
                 }
                 container.innerHTML += html;
             });
 
-            // Initialize Swipers
             activeCats.filter(c => c.LayoutType.includes('slider')).forEach(c => {
                 new Swiper(`.swiper-${c.CategoryID}`, { loop: true, pagination: { el: '.swiper-pagination', clickable: true }, autoplay: { delay: 4000, disableOnInteraction: false } });
             });
         }
+        // ================= สิ้นสุดฟังก์ชัน วาดข่าวสารหน้าหลัก =================
 
         // ตอนนี้ยังไม่มีหน้าอ่านข่าว ให้โชว์ป๊อปอัปแจ้งไปก่อน
         function openNewsDetail(newsId) {
