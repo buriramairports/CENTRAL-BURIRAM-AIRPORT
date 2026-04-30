@@ -252,9 +252,7 @@
                         <button class="btn btn-view-all btn-sm">ดูทั้งหมด</button>
                     </div>
                 </div>
-                    <div class="card-footer bg-white border-0 text-end pb-3">
-                        <button class="btn btn-view-all btn-sm">ดูทั้งหมด</button>
-                    </div>
+                   
                 </div>
             </div>
 
@@ -539,9 +537,37 @@
         </div>
     </div>
     
-    <!-- Modal ปฏิทินกิจกรรม -->
-    <div class="modal fade" id="calendarModal" tabindex="-1"><div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content border-0"><div class="modal-header modal-calendar-header flex-column align-items-stretch"><button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal"></button><div class="modal-calendar-title-box"><div class="modal-calendar-title-date"><div id="modalCalDay">28</div><div id="modalCalMonth" class="modal-calendar-title-month">เม.ย. 69</div></div><div><h5 id="modalCalTitle" class="mb-0 fw-bold" style="line-height: 1.5;">ชื่อกิจกรรม</h5></div></div><div class="row modal-calendar-meta g-2"><div class="col-md-6"><i class="fa-regular fa-calendar-days"></i> วันที่: <span id="modalCalDateFull"></span></div><div class="col-md-6"><i class="fa-solid fa-location-dot"></i> สถานที่: <span id="modalCalLocation"></span></div><div class="col-md-6"><i class="fa-regular fa-clock"></i> เวลา: <span id="modalCalTime"></span></div><div class="col-md-6"><i class="fa-regular fa-building"></i> หน่วยงาน: <span id="modalCalDept"></span></div></div></div><div class="modal-body p-4"><h5 class="fw-bold mb-3" style="color: var(--primary-blue);" id="modalCalTitleBody">ชื่อกิจกรรม</h5><div class="text-center mb-4 bg-light p-4 rounded"><i class="fa-solid fa-image fa-4x text-muted opacity-25"></i></div><div class="d-flex justify-content-between text-muted small border-top pt-3"><span><span id="modalCalDateBottom"></span> | อ่าน 0 ครั้ง</span><button class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-print"></i> Print</button></div></div></div></div></div>
-
+    <!-- ================= เริ่มต้น Modal ปฏิทินกิจกรรม ================= -->
+    <div class="modal fade" id="calendarModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header modal-calendar-header flex-column align-items-stretch pb-3" style="background-color: var(--primary-blue); color: white; border-radius: 5px 5px 0 0;">
+                    <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal"></button>
+                    <div class="pt-3 px-3">
+                        <h4 id="modalCalTitleBody" class="fw-bold mb-3" style="line-height: 1.5; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">ชื่อกิจกรรม</h4>
+                        <div class="row g-2 small text-light">
+                            <div class="col-md-6"><i class="fa-regular fa-calendar-days me-1"></i> วันที่: <span id="modalCalDateFull" class="fw-bold text-white"></span></div>
+                            <div class="col-md-6"><i class="fa-solid fa-location-dot me-1"></i> สถานที่: <span id="modalCalLocation" class="fw-bold text-white"></span></div>
+                            <div class="col-md-6"><i class="fa-regular fa-clock me-1"></i> เวลา: <span id="modalCalTime" class="fw-bold text-white"></span></div>
+                            <div class="col-md-6"><i class="fa-regular fa-building me-1"></i> หน่วยงาน: <span id="modalCalDept" class="fw-bold text-white"></span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body p-4 bg-light">
+                    <!-- สามารถเพิ่มเนื้อหารายละเอียดกิจกรรมในอนาคตได้ที่นี่ -->
+                    <div class="text-center text-muted py-3">
+                        รายละเอียดเพิ่มเติม โปรดติดต่อหน่วยงานผู้รับผิดชอบ
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center text-muted small border-top border-secondary border-opacity-25 pt-3 mt-3">
+                        <span>ข้อมูลอัปเดตล่าสุด: <span id="modalCalDateBottom"></span></span>
+                        <button class="btn btn-sm btn-secondary px-3" data-bs-dismiss="modal"><i class="fa-solid fa-xmark me-1"></i> ปิดหน้าต่าง</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ================= สิ้นสุด Modal ปฏิทินกิจกรรม ================= -->
+    
     <!-- Modal รวมระบบ E-Services -->
     <div class="modal fade" id="allEServicesModal" tabindex="-1"><div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"><div class="modal-content border-0 bg-light"><div class="modal-header text-white" style="background-color: var(--primary-blue);"><h5 class="modal-title fw-bold"><i class="fa-solid fa-laptop-code"></i> ระบบบริการอิเล็กทรอนิกส์ทั้งหมด</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><div class="row g-3" id="all-eservice-container"></div></div></div></div></div>
 
