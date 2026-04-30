@@ -741,7 +741,22 @@
 
             activeCats.forEach(cat => {
                 let catNews = validNews.filter(n => n.CategoryID === cat.CategoryID);
+                // 🟢 [แก้ไข] เรียงลำดับข่าว: เอาข่าว NEW ขึ้นก่อน (เรียงตามวันหมดอายุมากไปน้อย) -> แล้วค่อยเรียงตามวันที่โพสต์ (ใหม่ไปเก่า)
                 catNews.sort((a,b) => {
+                    let aIsNew = isStillNew(a.ExpireDate);
+                    let bIsNew = isStillNew(b.ExpireDate);
+
+                    if (aIsNew && !bIsNew) return -1; // a เป็น NEW ให้ a ขึ้นก่อน
+                    if (!aIsNew && bIsNew) return 1;  // b เป็น NEW ให้ b ขึ้นก่อน
+
+                    if (aIsNew && bIsNew) {
+                        // ถ้าเป็น NEW ทั้งคู่ ให้ดูว่าใครหมดอายุทีหลัง (วันหมดอายุมากกว่าอยู่บน)
+                        let expA = parseDateTimeString(a.ExpireDate + ' 23:59').getTime();
+                        let expB = parseDateTimeString(b.ExpireDate + ' 23:59').getTime();
+                        return expB - expA; 
+                    }
+
+                    // ถ้าไม่เป็น NEW ทั้งคู่ (ข่าวปกติ) ให้เรียงตามวันที่โพสต์ (ใหม่สุดอยู่บน)
                     let d1 = parseDateTimeString(b.PublishDate || b.CreateDate).getTime();
                     let d2 = parseDateTimeString(a.PublishDate || a.CreateDate).getTime();
                     return d1 - d2;
@@ -755,9 +770,9 @@
                 else if (cat.LayoutType === 'slider-vertical') colSize = 'col-lg-5';
 
                 let html = '';
-                // สร้างปุ่มดูทั้งหมด
-                let btnViewAllHTML = `<a href="news.html?category=${cat.CategoryID}" class="btn btn-sm btn-outline-primary rounded-pill px-3" style="font-size: 0.75rem;">ดูทั้งหมด <i class="fa-solid fa-arrow-right"></i></a>`;
-
+                // 🟢 [แก้ไข] เพิ่ม target="_blank" เพื่อให้เปิดแท็บใหม่
+                let btnViewAllHTML = `<a href="news.html?category=${cat.CategoryID}" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-3" style="font-size: 0.75rem;">ดูทั้งหมด <i class="fa-solid fa-arrow-right"></i></a>`;
+                
                 if(cat.LayoutType.includes('slider')) {
                     let slides = '';
                     if(catNews.length === 0) { slides = `<div class="swiper-slide"><div class="p-5 text-center text-muted">ไม่มีข่าวสารในหมวดหมู่นี้</div></div>`; } 
@@ -834,10 +849,20 @@
         function showPassengerStatsModal() { new bootstrap.Modal(document.getElementById('passengerStatsModal')).show(); }
         function toggleChatbot() { Swal.fire({ icon: 'info', title: 'ระบบแชทบอท', text: 'กำลังอยู่ในช่วงพัฒนา จะเปิดให้บริการเร็วๆ นี้ครับ', confirmButtonColor: '#0A3161' }); }
         
+        // ================= เริ่มต้นฟังก์ชัน โชว์รายละเอียดกิจกรรม =================
         function showCalendarDetail(day, month, title, time, location, dept) { 
-            document.getElementById('modalCalDay').innerText = day; document.getElementById('modalCalMonth').innerText = month; document.getElementById('modalCalTitle').innerText = title; document.getElementById('modalCalTitleBody').innerText = title; document.getElementById('modalCalDateFull').innerText = day + ' ' + month; document.getElementById('modalCalDateBottom').innerText = day + ' ' + month; document.getElementById('modalCalTime').innerText = time; document.getElementById('modalCalLocation').innerText = location; document.getElementById('modalCalDept').innerText = dept; 
+            // ลบโค้ดที่อ้างถึง ID ที่ตัดทิ้งไปแล้วออก เพื่อไม่ให้เกิด Error
+            document.getElementById('modalCalTitleBody').innerText = title; 
+            document.getElementById('modalCalDateFull').innerText = day + ' ' + month; 
+            document.getElementById('modalCalDateBottom').innerText = day + ' ' + month; 
+            document.getElementById('modalCalTime').innerText = time; 
+            document.getElementById('modalCalLocation').innerText = location; 
+            document.getElementById('modalCalDept').innerText = dept; 
+            
+            // สั่งเปิด Modal ปฏิทิน
             new bootstrap.Modal(document.getElementById('calendarModal')).show(); 
         }
+        // ================= สิ้นสุดฟังก์ชัน โชว์รายละเอียดกิจกรรม =================
 
         function selectFlightDate(element, dateText, hasFlight) {
             document.querySelectorAll('.flight-day-box').forEach(el => { el.classList.remove('active-day'); const num = el.querySelector('.flight-date-num'); if(num) num.classList.remove('flight-active-date-num'); });
