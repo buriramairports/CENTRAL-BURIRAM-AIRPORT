@@ -716,9 +716,17 @@
             });
         }
 
+        // ================= เริ่มต้น ฟังก์ชันดึงวันที่/เวลา =================
+        // ฟังก์ชันดึงเวลาปัจจุบันเป็น พ.ศ. (เอาไว้โชว์สวยๆ)
         function Utilities_getNow() {
             const date = new Date(); return ("0" + date.getDate()).slice(-2) + "/" + ("0"+(date.getMonth()+1)).slice(-2) + "/" + (date.getFullYear()+543) + " " + ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2) + ":" + ("0" + date.getSeconds()).slice(-2);
         }
+
+        // 🟢 [เพิ่มใหม่] ฟังก์ชันดึงเวลาปัจจุบันเป็น "ค.ศ." (เอาไว้เซฟลงฐานข้อมูลให้เป็นมาตรฐานเดียวกับปฏิทิน)
+        function Utilities_getNow_AD() {
+            const date = new Date(); return ("0" + date.getDate()).slice(-2) + "/" + ("0"+(date.getMonth()+1)).slice(-2) + "/" + date.getFullYear() + " " + ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2);
+        }
+        // ================= สิ้นสุด ฟังก์ชันดึงวันที่/เวลา =================
 
         function parseThaiDate(dateString) {
             if (!dateString) return new Date(0); 
@@ -1853,7 +1861,10 @@
             document.getElementById('news_ExistingCoverURL').value = ''; document.getElementById('news_ExistingFileURL').value = ''; document.getElementById('news_ExistingGalleryURL').value = '';
 
             const user = JSON.parse(localStorage.getItem('userData'));
-            document.getElementById('news_CreateDate').value = Utilities_getNow(); document.getElementById('news_Author').value = user.fullname; document.getElementById('news_ViewCount').value = '0';
+            // 🟢 [แก้ไข] บันทึก CreateDate เป็น ค.ศ. เสมอเพื่อความสม่ำเสมอในฐานข้อมูล
+            document.getElementById('news_CreateDate').value = Utilities_getNow_AD() + ":" + ("0" + new Date().getSeconds()).slice(-2); 
+            document.getElementById('news_Author').value = user.fullname; 
+            document.getElementById('news_ViewCount').value = '0';
             
             // ล้างค่าปฏิทินใหม่
             publishDatepicker.clear();
@@ -1923,8 +1934,9 @@
                 Swal.fire('ข้อผิดพลาด', 'คุณเลือกตั้งเวลาโพสต์ล่วงหน้า กรุณาระบุวัน/เวลาที่จะเผยแพร่ด้วยครับ', 'warning'); return;
             }
             // ถ้าเลือก Publish ให้ใช้วันเวลาปัจจุบันเป็น PublishDate ไปเลย
+            // 🟢 [แก้ไข] ถ้าเลือก Publish ให้ใช้วันเวลาปัจจุบันเป็น "ค.ศ." เป็น PublishDate ไปเลย
             if (statusVal === 'Publish' && !publishVal) {
-                publishVal = Utilities_getNow().substring(0, 16); // เอาแค่ วันที่ และชั่วโมง:นาที
+                publishVal = Utilities_getNow_AD(); // จะได้ค่าเช่น "30/04/2026 12:30"
             }
 
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังเตรียมไฟล์ (ห้ามปิดหน้าจอ)...'; btn.disabled = true;
