@@ -1540,7 +1540,10 @@
             isUsernameValid = false; 
 
             document.getElementById('usr_Status').checked = true; document.getElementById('usr_StatusLabel').innerText = 'บัญชีนี้พร้อมใช้งาน (Active)'; document.getElementById('usr_StatusLabel').className = 'form-check-label fw-bold text-success';
-            document.getElementById('usr_RegisterDate').value = Utilities_getNow(); document.getElementById('usr_PDPA').value = 'Added By Admin'; document.getElementById('usr_LastLogin').value = '';
+            // 🟢 [แก้ไข] ให้บันทึกวันที่สมัคร (กรณีแอดมินเพิ่ม) เป็น ค.ศ.
+            document.getElementById('usr_RegisterDate').value = Utilities_getNow_AD() + ":" + ("0" + new Date().getSeconds()).slice(-2); 
+            document.getElementById('usr_PDPA').value = 'Added By Admin'; 
+            document.getElementById('usr_LastLogin').value = '';
 
             checkAllMenus(false);
             toggleAllowedMenusUI();
@@ -2245,7 +2248,8 @@
                     if(!participants) { Swal.fire('แจ้งเตือน', 'กรุณาระบุกลุ่มผู้เข้าร่วมกิจกรรม', 'warning'); btn.disabled = false; return; }
                 }
             }
-            const now = new Date(); const formattedDate = `${("0"+now.getDate()).slice(-2)}/${("0"+(now.getMonth()+1)).slice(-2)}/${now.getFullYear()+543} ${("0"+now.getHours()).slice(-2)}:${("0"+now.getMinutes()).slice(-2)} น.`;
+            // 🟢 [แก้ไข] บันทึกวันที่สร้างกิจกรรม (CreateDate) ลงฐานข้อมูลเป็น ค.ศ.
+            const formattedDate = Utilities_getNow_AD() + ":" + ("0" + new Date().getSeconds()).slice(-2);
             
             const rData = {
                 EventID: document.getElementById('evt_EventID').value, EventName: document.getElementById('evt_EventName').value, EventDate: document.getElementById('evt_EventDate').value, EventTime: document.getElementById('evt_EventTime').value, EventLocation: document.getElementById('evt_EventLocation').value, EventDept: document.getElementById('evt_EventDept').value, EventType: evtType, ParticipantType: participantType, Participants: participants, IsActive: document.getElementById('evt_IsActive').value,
