@@ -38,6 +38,10 @@
         .loader-text { color: white; font-size: 1.2rem; font-weight: 500; letter-spacing: 1px; }
         /* ================= สิ้นสุด Preloader ================= */
 
+        /* ป้าย NEW แบบกะพริบ */
+        .blink { animation: blinker 1.5s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
+
         body { font-family: 'Kanit', sans-serif; background-color: var(--light-bg); background-image: url('https://www.transparenttextures.com/patterns/cubes.png'); }
         .navbar { background-color: var(--primary-blue); box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .navbar-brand img { height: 40px; margin-right: 10px; }
@@ -238,16 +242,18 @@
                     <div class="card-header-custom bg-white">
                         <h5 style="color: #555;"><i class="fa-regular fa-calendar-check text-primary"></i> ปฏิทินกิจกรรม</h5>
                     </div>
-                    <div class="card-body pt-0">
-                        <div class="calendar-item" onclick="showCalendarDetail('28', 'เม.ย. 69', 'ประชุมคณะกรรมการระดับชาติ ...', '08.30-16.30 น.', 'ห้องประชุม 1003 ชั้น 10', 'สำนักงานนโยบายและแผนฯ')">
-                            <div class="calendar-date"><div class="day">28</div><div class="month">เม.ย. 69</div></div>
-                            <div class="calendar-desc">การประชุมคณะกรรมการประเมินผลการปฏิบัติราชการ ครั้งที่ 1/2569...</div>
-                        </div>
-                        <div class="calendar-item border-0" onclick="showCalendarDetail('23', 'เม.ย. 69', 'บรรยายพิเศษสัมมนา...', '09.00-12.00 น.', 'ห้องประชุมใหญ่', 'สำนักงานสิ่งแวดล้อมฯ')">
-                            <div class="calendar-date"><div class="day">23</div><div class="month">เม.ย. 69</div></div>
-                            <div class="calendar-desc">โครงการฝึกอบรมเชิงปฏิบัติการ การใช้งานระบบสารสนเทศ...</div>
-                        </div>
+                    <div class="card shadow-sm h-100 border-0">
+                    <div class="card-header-custom bg-white">
+                        <h5 style="color: #555;"><i class="fa-regular fa-calendar-check text-primary"></i> ปฏิทินกิจกรรม</h5>
                     </div>
+                    <!-- 🟢 เพิ่ม id="events-container" และลบข้อมูลจำลองด้านในออก -->
+                    <div class="card-body pt-0" id="events-container">
+                        <div class="text-center py-4 text-muted">กำลังโหลดข้อมูล...</div>
+                    </div>
+                    <div class="card-footer bg-white border-0 text-end pb-3">
+                        <button class="btn btn-view-all btn-sm">ดูทั้งหมด</button>
+                    </div>
+                </div>
                     <div class="card-footer bg-white border-0 text-end pb-3">
                         <button class="btn btn-view-all btn-sm">ดูทั้งหมด</button>
                     </div>
@@ -563,108 +569,215 @@
         let isLoggedIn = false; 
 
         // ================= เริ่มต้น 1. ฟังก์ชันดึงข้อมูลพื้นฐาน (API Integration Phase 1) =================
-        
-        // ฟังก์ชันช่วยแปลงลิงก์รูปภาพ Google Drive
+        // ================= เริ่มต้นฟังก์ชัน เครื่องมือคำนวณวันที่ =================
+        function parseDateTimeString(dtStr) {
+            if (!dtStr) return new Date(0);
+            let parts = dtStr.split(' ');
+            let dParts = parts[0].split('/');
+            let tParts = parts[1] ? parts[1].split(':') : ['00', '00'];
+            return new Date(dParts[2], dParts[1] - 1, dParts[0], tParts[0], tParts[1]);
+        }
+
+        // เช็คว่าถึงเวลาโพสต์หรือยัง
+        function isReadyToPublish(item) {
+            if (item.Status === 'Draft') return false;
+            if (item.Status === 'Schedule' && item.PublishDate) {
+                let pubDate = parseDateTimeString(item.PublishDate);
+                return new Date() >= pubDate;
+            }
+            return true;
+        }
+
+        // เช็คว่าเลยวันหมดอายุ (ป้าย NEW) หรือยัง
+        function isStillNew(expireDateStr) {
+            if (!expireDateStr) return false;
+            let parts = expireDateStr.split('/');
+            if(parts.length < 3) return false;
+            let expDate = new Date(parts[2], parts[1] - 1, parts[0], 23, 59, 59); // ให้หมดอายุตอน 23:59 น. ของวันนั้น
+            return new Date() <= expDate;
+        }
+
         function convertDriveImageLink(url) {
             if(!url) return "";
             let id = ""; const regexView = /\/file\/d\/([a-zA-Z0-9_-]+)/; const regexId = /id=([a-zA-Z0-9_-]+)/; 
             if (url.match(regexView)) id = url.match(regexView)[1]; else if (url.match(regexId)) id = url.match(regexId)[1];
-            if (id) return `https://drive.google.com/thumbnail?id=${id}&sz=w1920`; // ขยายไซส์เพื่อทำแบนเนอร์
+            if (id) return `https://drive.google.com/thumbnail?id=${id}&sz=w1920`;
             return url; 
         }
+        // ================= สิ้นสุดฟังก์ชัน เครื่องมือคำนวณวันที่ =================
+
+        // ================= เริ่มต้น ดึงข้อมูลจาก API แบบสมบูรณ์ (ระยะที่ 1 + 2) =================
+        let allNewsData = []; // เก็บเผื่อกดดูรายละเอียด
 
         async function loadInitialData() {
             try {
-                // ยิง API ดึง 3 ตารางพร้อมกัน เพื่อความรวดเร็ว
-                const [settingsRes, bannersRes, eservicesRes] = await Promise.all([
+                // ดึง 6 ตารางพร้อมกัน
+                const [settingsRes, bannersRes, eservicesRes, newsCatsRes, newsRes, eventsRes] = await Promise.all([
                     fetch(API_URL + '?action=getSettings').then(r => r.json()),
                     fetch(API_URL + '?action=getTableData&sheetName=Banners').then(r => r.json()),
-                    fetch(API_URL + '?action=getTableData&sheetName=EServices').then(r => r.json())
+                    fetch(API_URL + '?action=getTableData&sheetName=EServices').then(r => r.json()),
+                    fetch(API_URL + '?action=getTableData&sheetName=NewsCategories').then(r => r.json()),
+                    fetch(API_URL + '?action=getTableData&sheetName=News').then(r => r.json()),
+                    fetch(API_URL + '?action=getTableData&sheetName=Events').then(r => r.json())
                 ]);
 
-                // 1. ตั้งค่าเว็บไซต์ (Settings)
+                // 1. ตั้งค่าเว็บไซต์
                 if(settingsRes.status === 'success') {
                     const settings = settingsRes.data;
                     if(settings.SystemName) document.title = settings.SystemName;
-                    
                     const carouselEl = document.getElementById('heroCarousel');
                     if(settings.BannerSpeed) carouselEl.setAttribute('data-bs-interval', settings.BannerSpeed);
                     if(settings.BannerEffect === 'fade') carouselEl.classList.add('carousel-fade');
-                    else carouselEl.classList.remove('carousel-fade');
                 }
 
-                // 2. จัดการแบนเนอร์สไลด์ (Banners)
+                // 2. แบนเนอร์สไลด์
                 if(bannersRes.status === 'success') renderBanners(bannersRes.data);
-
-                // 3. จัดการระบบบริการ (E-Services)
+                
+                // 3. E-Services
                 if(eservicesRes.status === 'success') renderEServices(eservicesRes.data);
+
+                // 4. ข่าวสารและประชาสัมพันธ์
+                if(newsCatsRes.status === 'success' && newsRes.status === 'success') {
+                    allNewsData = newsRes.data; // เก็บลงตัวแปร Global
+                    renderDynamicNews(newsCatsRes.data, newsRes.data);
+                }
+
+                // 5. ปฏิทินกิจกรรม
+                if(eventsRes.status === 'success') renderEvents(eventsRes.data);
 
             } catch(error) { 
                 console.error("Error loading initial data:", error); 
             } finally {
-                // 🟢 [เพิ่มใหม่] ปิดหน้าจอโหลด (Preloader) เมื่อทำงานเสร็จ (หรือแม้จะเกิด Error ก็ต้องปิด)
+                // ปิดหน้าจอ Load
                 const preloader = document.getElementById('preloader');
-                if(preloader) {
-                    preloader.style.opacity = '0';
-                    setTimeout(() => { preloader.style.visibility = 'hidden'; }, 600); // รอให้เฟดเสร็จแล้วค่อยซ่อน
-                }
+                if(preloader) { preloader.style.opacity = '0'; setTimeout(() => { preloader.style.visibility = 'hidden'; }, 600); }
             }
         }
 
-        // ฟังก์ชันวาดรูปแบนเนอร์
+        // ============ ฟังก์ชันวาด UI ต่างๆ ============
         function renderBanners(data) {
-            const indicators = document.getElementById('carousel-indicators-container');
-            const inner = document.getElementById('carousel-inner-container');
+            const indicators = document.getElementById('carousel-indicators-container'); const inner = document.getElementById('carousel-inner-container');
             indicators.innerHTML = ''; inner.innerHTML = '';
-
             const activeBanners = data.filter(b => b.IsActive === 'TRUE').sort((a, b) => parseInt(a.OrderList) - parseInt(b.OrderList));
-            if(activeBanners.length === 0) return; // ถ้าไม่มีรูปในระบบ ให้แสดงภาพสำรอง (default) ใน HTML
-
             activeBanners.forEach((item, index) => {
-                const isActive = index === 0 ? 'active' : '';
-                const imgUrl = convertDriveImageLink(item.ImageURL);
-                
+                const isActive = index === 0 ? 'active' : ''; const imgUrl = convertDriveImageLink(item.ImageURL);
                 indicators.innerHTML += `<button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="${index}" class="${isActive}"></button>`;
-                inner.innerHTML += `
-                    <div class="carousel-item ${isActive}">
-                        <img src="${imgUrl}" class="d-block w-100" alt="Banner ${index+1}">
-                        <div class="carousel-caption d-none d-md-block text-start">
-                            ${item.Title ? `<h1 class="fw-bold animate-title" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">${item.Title}</h1>` : ''}
-                            ${item.Description ? `<p class="animate-desc" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">${item.Description}</p>` : ''}
-                        </div>
+                inner.innerHTML += `<div class="carousel-item ${isActive}"><img src="${imgUrl}" class="d-block w-100" alt="Banner ${index+1}"><div class="carousel-caption d-none d-md-block text-start">${item.Title ? `<h1 class="fw-bold animate-title" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">${item.Title}</h1>` : ''}${item.Description ? `<p class="animate-desc" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">${item.Description}</p>` : ''}</div></div>`;
+            });
+        }
+
+        function renderEServices(data) {
+            const mainCont = document.getElementById('eservice-container'); const modalCont = document.getElementById('all-eservice-container');
+            mainCont.innerHTML = ''; modalCont.innerHTML = '';
+            const activeServices = data.filter(s => s.IsActive === 'TRUE').sort((a, b) => parseInt(a.OrderList) - parseInt(b.OrderList));
+            const createCardHTML = (s, col) => `<div class="${col}"><div class="card h-100 p-3 shadow-sm e-service-card" onclick="handleServiceClick('${s.URL}', '${s.ServiceName}', '${s.Target}')"><div class="card-body text-center p-0 pt-2"><i class="fa-solid ${s.IconClass} mb-2" style="font-size: 30px; color: var(--secondary-blue);"></i><h6 class="fw-bold mb-1" style="font-size: 0.95rem;">${s.ServiceName}</h6></div></div></div>`;
+            activeServices.slice(0, 4).forEach(s => mainCont.innerHTML += createCardHTML(s, 'col-md-3 col-6'));
+            if (activeServices.length > 4) document.getElementById('btnViewAllEServices').classList.remove('d-none');
+            activeServices.forEach(s => modalCont.innerHTML += createCardHTML(s, 'col-md-3 col-6'));
+        }
+
+        function renderEvents(data) {
+            const container = document.getElementById('events-container'); container.innerHTML = '';
+            // กรองเอาเฉพาะ สาธารณะ + เปิดแสดงผล
+            let publicEvents = data.filter(e => e.IsActive === 'TRUE' && e.EventType === 'public');
+            // เรียงวันที่ ใหม่ -> เก่า (เอาอันล่าสุดขึ้น)
+            publicEvents.sort((a,b) => parseDateTimeString(b.EventDate).getTime() - parseDateTimeString(a.EventDate).getTime());
+
+            if(publicEvents.length === 0) { container.innerHTML = '<div class="text-center text-muted p-3">ยังไม่มีกิจกรรมในขณะนี้</div>'; return; }
+
+            const monthNamesShort = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+            
+            // โชว์แค่ 4 กิจกรรมล่าสุด
+            publicEvents.slice(0, 4).forEach(item => {
+                let evtDate = new Date(item.EventDate);
+                if(isNaN(evtDate)) return;
+                let day = evtDate.getDate();
+                let monthStr = monthNamesShort[evtDate.getMonth()] + ' ' + (evtDate.getFullYear() + 543).toString().slice(-2);
+
+                container.innerHTML += `
+                    <div class="calendar-item" onclick="showCalendarDetail('${day}', '${monthStr}', '${item.EventName}', '${item.EventTime}', '${item.EventLocation}', '${item.EventDept}')">
+                        <div class="calendar-date"><div class="day">${day}</div><div class="month">${monthStr}</div></div>
+                        <div class="calendar-desc">${item.EventName}</div>
                     </div>
                 `;
             });
         }
 
-        // ฟังก์ชันวาดปุ่ม E-Services
-        function renderEServices(data) {
-            const mainContainer = document.getElementById('eservice-container');
-            const modalContainer = document.getElementById('all-eservice-container');
-            mainContainer.innerHTML = ''; modalContainer.innerHTML = '';
+        function renderDynamicNews(catsData, newsData) {
+            const container = document.getElementById('dynamic-news-container'); container.innerHTML = '';
+            const activeCats = catsData.filter(c => c.IsActive === 'TRUE').sort((a,b) => a.OrderList - b.OrderList);
+            let validNews = newsData.filter(n => isReadyToPublish(n)); // 🟢 กรองข่าวที่ Publish เท่านั้น หรือถึงเวลาโพสต์แล้ว
 
-            const activeServices = data.filter(s => s.IsActive === 'TRUE').sort((a, b) => parseInt(a.OrderList) - parseInt(b.OrderList));
+            activeCats.forEach(cat => {
+                let catNews = validNews.filter(n => n.CategoryID === cat.CategoryID);
+                // เรียงข่าวล่าสุดขึ้นบน (ดูจาก PublishDate เป็นหลัก ถ้าไม่มีดูจาก CreateDate)
+                catNews.sort((a,b) => {
+                    let d1 = parseDateTimeString(b.PublishDate || b.CreateDate).getTime();
+                    let d2 = parseDateTimeString(a.PublishDate || a.CreateDate).getTime();
+                    return d1 - d2;
+                });
 
-            const createCardHTML = (service, colSize) => `
-                <div class="${colSize}">
-                    <div class="card h-100 p-3 shadow-sm e-service-card" onclick="handleServiceClick('${service.URL}', '${service.ServiceName}', '${service.Target}')">
-                        <div class="card-body text-center p-0 pt-2">
-                            <i class="fa-solid ${service.IconClass} mb-2" style="font-size: 30px; color: var(--secondary-blue);"></i>
-                            <h6 class="fw-bold mb-1" style="font-size: 0.95rem;">${service.ServiceName}</h6>
-                        </div>
-                    </div>
-                </div>`;
-            
-            const maxDisplay = 4;
-            activeServices.slice(0, maxDisplay).forEach(s => mainContainer.innerHTML += createCardHTML(s, 'col-md-3 col-6'));
-            
-            if (activeServices.length > maxDisplay) document.getElementById('btnViewAllEServices').classList.remove('d-none');
-            else document.getElementById('btnViewAllEServices').classList.add('d-none');
-            
-            activeServices.forEach(s => modalContainer.innerHTML += createCardHTML(s, 'col-md-3 col-6'));
+                // จัดขนาดคอลัมน์อัตโนมัติ ตามประเภท Layout
+                let colSize = 'col-lg-4';
+                if (cat.LayoutType === 'slider') colSize = 'col-lg-7';
+                else if (cat.LayoutType === 'slider-vertical') colSize = 'col-lg-5';
+
+                let html = '';
+                if(cat.LayoutType.includes('slider')) {
+                    let slides = '';
+                    if(catNews.length === 0) { slides = `<div class="swiper-slide"><div class="p-5 text-center text-muted">ไม่มีข่าวสารในหมวดหมู่นี้</div></div>`; } 
+                    else {
+                        catNews.forEach(n => {
+                            let imgUrl = convertDriveImageLink(n.CoverImageURL) || 'https://via.placeholder.com/600x400?text=ไม่มีรูปหน้าปก';
+                            let newBadge = isStillNew(n.ExpireDate) ? `<span class="badge bg-danger ms-2 blink">NEW</span>` : '';
+                            let dateText = n.PublishDate ? n.PublishDate.split(' ')[0] : n.CreateDate.split(' ')[0];
+
+                            if(cat.LayoutType === 'slider') {
+                                slides += `<div class="swiper-slide" onclick="openNewsDetail('${n.NewsID}')"><div class="news-horizontal"><img src="${imgUrl}"><div class="content"><h6 class="fw-bold" style="display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">${n.Title} ${newBadge}</h6><small class="text-secondary"><i class="fa-regular fa-calendar"></i> ${dateText}</small></div></div></div>`;
+                            } else {
+                                slides += `<div class="swiper-slide" onclick="openNewsDetail('${n.NewsID}')"><img src="${imgUrl}" class="news-img-top"><div class="p-3"><h6 class="fw-bold" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${n.Title} ${newBadge}</h6><small class="text-secondary"><i class="fa-regular fa-calendar"></i> ${dateText}</small></div></div>`;
+                            }
+                        });
+                    }
+
+                    html = `<div class="${colSize} mb-4"><div class="card shadow-sm h-100 border-0"><div class="card-header-custom"><h5>${cat.CategoryName}</h5></div><div class="card-body p-0 pb-4"><div class="swiper swiper-${cat.CategoryID}"><div class="swiper-wrapper">${slides}</div><div class="swiper-pagination"></div></div></div></div></div>`;
+                } else {
+                    let list = '';
+                    if(catNews.length === 0) { list = `<div class="text-center text-muted py-3">ไม่มีข้อมูล</div>`; } 
+                    else {
+                        catNews.slice(0, 5).forEach(n => { // โชว์แบบ List แค่ 5 ข่าวพอ
+                            let newBadge = isStillNew(n.ExpireDate) ? `<span class="badge bg-danger ms-2 blink" style="font-size:0.65rem; padding: 2px 5px;">NEW</span>` : '';
+                            let dateText = n.PublishDate ? n.PublishDate.split(' ')[0] : n.CreateDate.split(' ')[0];
+                            let themeColor = cat.ThemeColor !== 'transparent' ? cat.ThemeColor : '#0A3161';
+                            
+                            list += `<a href="javascript:void(0)" onclick="openNewsDetail('${n.NewsID}')" class="text-list-item"><i class="fa-solid fa-caret-right text-list-icon" style="color:${themeColor}; font-size:1.2rem;"></i><div><div class="text-list-title text-dark">${n.Title} ${newBadge}</div><div class="text-list-date"><i class="fa-regular fa-calendar me-1"></i> ${dateText}</div></div></a>`;
+                        });
+                    }
+                    html = `<div class="${colSize} mb-4"><div class="card shadow-sm h-100 border-0 overflow-hidden"><div class="card-header-solid" style="background-color:${cat.ThemeColor !== 'transparent' ? cat.ThemeColor : '#0A3161'}; border-radius:0;">${cat.CategoryName}</div><div class="card-body text-list-container pb-4 pt-2">${list}</div></div></div>`;
+                }
+                container.innerHTML += html;
+            });
+
+            // Initialize Swipers
+            activeCats.filter(c => c.LayoutType.includes('slider')).forEach(c => {
+                new Swiper(`.swiper-${c.CategoryID}`, { loop: true, pagination: { el: '.swiper-pagination', clickable: true }, autoplay: { delay: 4000, disableOnInteraction: false } });
+            });
         }
+
+        // ตอนนี้ยังไม่มีหน้าอ่านข่าว ให้โชว์ป๊อปอัปแจ้งไปก่อน
+        function openNewsDetail(newsId) {
+            Swal.fire({ icon: 'info', title: 'กำลังพัฒนาระบบอ่านข่าว', text: 'รอติดตามในอนาคตอันใกล้นี้ครับ (รหัสข่าว: ' + newsId + ')', confirmButtonColor: '#0A3161' });
+        }
+        // ================= สิ้นสุด ดึงข้อมูลจาก API =================
+       
+
+        
+
+       
+
+       
         // ================= สิ้นสุด 1. ฟังก์ชันดึงข้อมูลพื้นฐาน =================
-        ///////////////////////////renderEServices();
+        
 
         // ==========================================
         // 2. ระบบ Dynamic News
@@ -677,25 +790,7 @@
             { id: 'flight', title: 'ข่าวพิธีการบิน', department: 'กลุ่มพิธีการบิน', isActive: true, order: 5, layoutType: 'text-list', colSize: 'col-lg-4', themeColor: '#537b98', items: [{ title: "ตารางการบินประจำฤดูหนาว", date: "1 เม.ย. 69" }] }
         ];
 
-        function renderDynamicNews() {
-            const container = document.getElementById('dynamic-news-container');
-            newsCategories.filter(c => c.isActive).sort((a, b) => a.order - b.order).forEach(cat => {
-                let html = '';
-                if (cat.layoutType.includes('slider')) {
-                    let slides = '';
-                    cat.items.forEach(i => { slides += cat.layoutType === 'slider' ? `<div class="swiper-slide"><div class="news-horizontal"><img src="${i.img}"><div class="content"><h6 class="fw-bold">${i.title}</h6><small class="text-secondary">${i.date}</small></div></div></div>` : `<div class="swiper-slide"><img src="${i.img}" class="news-img-top"><div class="p-3"><h6 class="fw-bold">${i.title}</h6><small class="text-secondary">${i.date}</small></div></div>`; });
-                    html = `<div class="${cat.colSize} mb-4"><div class="card shadow-sm h-100 border-0"><div class="card-header-custom"><h5>${cat.title}</h5></div><div class="card-body p-0 pb-4"><div class="swiper swiper-${cat.id}"><div class="swiper-wrapper">${slides}</div><div class="swiper-pagination"></div></div></div></div></div>`;
-                } else {
-                    let list = '';
-                    cat.items.forEach(i => { list += `<a href="#" class="text-list-item"><i class="fa-solid fa-circle-info text-list-icon" style="color:${cat.themeColor}"></i><div><div class="text-list-title">${i.title}</div><div class="text-list-date">${i.date}</div></div></a>`; });
-                    html = `<div class="${cat.colSize} mb-4"><div class="card shadow-sm h-100 border-0 overflow-hidden"><div class="card-header-solid" style="background-color:${cat.themeColor}; border-radius:0;">${cat.title}</div><div class="card-body text-list-container pb-4 pt-2">${list}</div></div></div>`;
-                }
-                container.innerHTML += html;
-            });
-            newsCategories.filter(c => c.layoutType.includes('slider')).forEach(c => new Swiper(`.swiper-${c.id}`, { loop: true, pagination: { el: '.swiper-pagination' } }));
-        }
-        renderDynamicNews();
-
+        
         // ==========================================
         // 3. UI Interactions & Modals
         // ==========================================
