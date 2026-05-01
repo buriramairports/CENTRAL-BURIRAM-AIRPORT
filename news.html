@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ข่าวสารและประชาสัมพันธ์ | ท่าอากาศยานบุรีรัมย์</title>
+    <link id="dynamic-favicon" rel="icon" href="https://cdn-icons-png.flaticon.com/512/3125/3125713.png" type="image/png">
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -71,6 +72,18 @@
         .sidebar-scrollable::-webkit-scrollbar-track { background: transparent; }
         .sidebar-scrollable::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .sidebar-scrollable::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        /* ================= โลโก้หน่วยงานใน Footer ================= */
+        .footer-contact-logo {
+            height: 65px; /* กำหนดความสูงให้เท่ากันหมด */
+            width: auto;
+            max-width: 80px; /* ป้องกันโลโก้บางอันกว้างเกินไป */
+            object-fit: contain;
+            transition: transform 0.3s ease;
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3)); /* ใส่เงาบางๆ ให้โลโก้ลอยเด่นขึ้นจากพื้นหลังสีน้ำเงิน */
+        }
+        .footer-contact-logo:hover {
+            transform: scale(1.1); /* ขยายขึ้นเล็กน้อยเมื่อเอาเมาส์ชี้ */
+        }
     </style>
 </head>
 <body>
@@ -83,8 +96,10 @@
     <!-- แถบเมนูด้านบน (เหมือนหน้าแรก) -->
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="index.html">
-                <i class="fa-solid fa-plane-departure me-2"></i> ท่าอากาศยานบุรีรัมย์
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="#">
+                <img id="navLogoImg" src="" style="height: 40px; margin-right: 10px; display: none;" alt="Logo">
+                <i id="navLogoIcon" class="fa-solid fa-plane-departure me-2"></i> 
+                <span id="navAirportName">ท่าอากาศยานบุรีรัมย์</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
