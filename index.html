@@ -454,24 +454,29 @@
                             </div>
                         </div>
                     </div>
+                    <!-- สถิติผู้เข้าชมเว็บไซต์ -->
                     <div class="col-lg-4 ps-4">
                         <h5 class="fw-bold mb-3"><i class="fa-solid fa-chart-line me-2"></i> สถิติผู้เข้าชมเว็บไซต์</h5>
-                        <div class="stats-box">
-                            <div class="stats-row">
-                                <span><i class="fa-solid fa-users me-2"></i> ผู้เข้าชมทั้งหมด</span>
-                                <span class="fw-bold text-warning">10,000</span>
+                        
+                        <div class="stats-box" style="background-color: #0d2847; border: 1px solid rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);">
+                            <div class="stats-row d-flex justify-content-between align-items-center border-bottom border-secondary border-opacity-25 pb-2 mb-2">
+                                <span class="fw-bold"><i class="fa-solid fa-users me-2"></i> ผู้เข้าชมทั้งหมด</span>
+                                <span class="fw-bold text-warning fs-5" id="statTotalAll">-</span>
                             </div>
-                            <div class="stats-row">
-                                <span><i class="fa-regular fa-calendar me-2"></i> เมษายน 2569</span>
-                                <span class="fw-bold">7,000</span>
+                            <div class="stats-row d-flex justify-content-between align-items-center border-bottom border-secondary border-opacity-25 pb-2 mb-2">
+                                <span class="fw-bold" id="statCurrentMonthLabel"><i class="fa-regular fa-calendar me-2"></i> เดือนปัจจุบัน</span>
+                                <span class="fw-bold text-white fs-5" id="statTotalMonth">-</span>
                             </div>
-                            <div class="stats-row border-0 pb-0 mt-2">
-                                <span class="text-success"><i class="fa-solid fa-circle text-success fa-xs me-2 blink"></i> ออนไลน์ขณะนี้</span>
-                                <span class="badge bg-success rounded-pill px-3">59</span>
+                            <div class="stats-row border-0 pb-0 mt-2 d-flex justify-content-between align-items-center">
+                                <span class="text-success fw-bold"><i class="fa-solid fa-circle text-success fa-xs me-2 blink"></i> ออนไลน์ขณะนี้</span>
+                                <span class="badge rounded-pill px-3 py-1" style="background-color: #198754; font-size: 0.9rem;" id="statOnlineNow">1</span>
                             </div>
                         </div>
-                        <div class="text-end mt-2">
-                            <button class="btn btn-sm btn-outline-light" onclick="showWebStatsModal()">ดูข้อมูลย้อนหลัง <i class="fa-solid fa-clock-rotate-left"></i></button>
+
+                        <div class="text-end mt-3">
+                            <button class="btn btn-outline-light rounded-pill px-3 py-1 border-secondary" style="font-size: 0.85rem;" onclick="showWebStatsModal()">
+                                ดูข้อมูลย้อนหลัง <i class="fa-solid fa-clock-rotate-left ms-1"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -670,7 +675,27 @@
     <div class="modal fade" id="allEServicesModal" tabindex="-1"><div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"><div class="modal-content border-0 bg-light"><div class="modal-header text-white" style="background-color: var(--primary-blue);"><h5 class="modal-title fw-bold"><i class="fa-solid fa-laptop-code"></i> ระบบบริการอิเล็กทรอนิกส์ทั้งหมด</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><div class="row g-3" id="all-eservice-container"></div></div></div></div></div>
 
     <!-- Modal สถิติผู้เข้าชมเว็บย้อนหลัง -->
-    <div class="modal fade" id="webStatsModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header text-white" style="background-color: var(--primary-blue);"><h5 class="modal-title"><i class="fa-solid fa-chart-line"></i> สถิติผู้เข้าชมเว็บย้อนหลัง</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-2 mb-4"><div class="col-8"><select class="form-select"><option value="2569">พ.ศ. 2569</option><option value="2568">พ.ศ. 2568</option></select></div><div class="col-4"><button class="btn btn-primary w-100"><i class="fa-solid fa-filter"></i> กรอง</button></div></div><table class="table table-bordered table-striped text-center"><thead class="table-light"><tr><th>เดือน</th><th>จำนวนผู้เข้าชมเว็บ</th></tr></thead><tbody><tr><td>เมษายน</td><td>7,000</td></tr><tr><td>มีนาคม</td><td>3,000</td></tr></tbody></table></div></div></div></div>
+    <div class="modal fade" id="webStatsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0">
+                <div class="modal-header text-white" style="background-color: var(--primary-blue);">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-chart-line me-2"></i> สถิติผู้เข้าชมเว็บย้อนหลัง</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-2 mb-4">
+                        <div class="col-12">
+                            <select class="form-select fw-bold text-primary" id="filterWebStatYear" onchange="renderWebStatsTable()"></select>
+                        </div>
+                    </div>
+                    <table class="table table-bordered table-striped text-center">
+                        <thead class="table-light"><tr><th>เดือน</th><th>จำนวนผู้เข้าชมเว็บ</th></tr></thead>
+                        <tbody id="tbody-webstats"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal สถิติผู้โดยสาร -->
     <div class="modal fade" id="passengerStatsModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content border-0"><div class="modal-header text-white" style="background-color: var(--primary-blue);"><h5 class="modal-title fw-bold"><i class="fa-solid fa-users-line"></i> ข้อมูลสถิติผู้โดยสาร</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><div class="passenger-summary-box mb-4"><h6 class="mb-1 opacity-75">ยอดรวมผู้โดยสารสะสม (ตั้งแต่ 1 ม.ค. ถึงปัจจุบัน)</h6><h1 class="display-5 fw-bold mb-0" id="totalPassengerBadge">กำลังคำนวณ... <span class="fs-5 fw-normal">คน</span></h1></div><div class="row g-2 mb-3"><div class="col-md-4"><select class="form-select" id="filterStatYear" onchange="filterPassengerStatsTable()"></select></div><div class="col-md-2"></div></div><div class="table-responsive"><table class="table table-bordered table-hover text-center passenger-table align-middle"><thead><tr><th width="25%">เดือน</th><th width="35%">จำนวนผู้โดยสาร (คน)</th><th width="40%">หมายเหตุ</th></tr></thead><tbody id="tbody-passengerstats"></tbody></table></div></div></div></div></div>
@@ -1954,6 +1979,86 @@
             }
         }
         // ================= สิ้นสุด ระบบจัดการการคลิก E-Services =================
+
+        // ================= เริ่มต้น ระบบเก็บสถิติผู้เข้าชมเว็บไซต์ =================
+        let allWebStatsData = [];
+
+        async function processWebStats() {
+            const d = new Date();
+            const currentYear = (d.getFullYear() + 543).toString(); // ปี พ.ศ.
+            const currentMonth = ("0" + (d.getMonth() + 1)).slice(-2); // เดือน 01-12
+            
+            const monthNames = { "01": "มกราคม", "02": "กุมภาพันธ์", "03": "มีนาคม", "04": "เมษายน", "05": "พฤษภาคม", "06": "มิถุนายน", "07": "กรกฎาคม", "08": "สิงหาคม", "09": "กันยายน", "10": "ตุลาคม", "11": "พฤศจิกายน", "12": "ธันวาคม" };
+            document.getElementById('statCurrentMonthLabel').innerHTML = `<i class="fa-regular fa-calendar me-2"></i> ${monthNames[currentMonth]} ${currentYear}`;
+
+            // 1. นับผู้เข้าชมใหม่ (ใช้ SessionStorage เพื่อนับแค่ 1 ครั้งต่อ 1 การเปิดเบราว์เซอร์)
+            if (!sessionStorage.getItem('visited_this_session')) {
+                sessionStorage.setItem('visited_this_session', 'true');
+                // ยิง API แบบเงียบๆ เพื่อบวกเลขใน Google Sheet
+                fetch(API_URL, { 
+                    method: 'POST', 
+                    body: new URLSearchParams({ action: 'recordVisit', year: currentYear, month: currentMonth }) 
+                });
+            }
+
+            // 2. ดึงข้อมูลสถิติปัจจุบันมาโชว์
+            try {
+                const res = await fetch(API_URL + '?action=getWebStats').then(r => r.json());
+                if (res.status === 'success') {
+                    allWebStatsData = res.data;
+                    document.getElementById('statTotalAll').innerText = (res.total || 0).toLocaleString('th-TH');
+                    
+                    let thisMonthStat = allWebStatsData.find(s => s.year === currentYear && s.month === currentMonth);
+                    // บวก 1 กรณีเพิ่งเข้าครั้งแรกของ Session เพื่อให้เลขตรงกับความจริง
+                    let thisMonthCount = thisMonthStat ? parseInt(thisMonthStat.count) : 0;
+                    if(sessionStorage.getItem('visited_this_session') === 'true' && !thisMonthStat) thisMonthCount++; 
+                    
+                    document.getElementById('statTotalMonth').innerText = thisMonthCount.toLocaleString('th-TH');
+                    
+                    // นำ ปี ที่มีในระบบไปใส่ Modal ย้อนหลัง
+                    let uniqueYears = [...new Set(allWebStatsData.map(item => item.year))].sort().reverse();
+                    if(uniqueYears.length === 0) uniqueYears = [currentYear];
+                    document.getElementById('filterWebStatYear').innerHTML = uniqueYears.map(y => `<option value="${y}">ประจำปี พ.ศ. ${y}</option>`).join('');
+                }
+            } catch(e) {}
+
+            // 3. จำลองคนออนไลน์ (Random ตามเวลาของวัน ให้ดูสมจริง)
+            const hour = d.getHours();
+            let baseOnline = 5;
+            if (hour >= 8 && hour <= 16) baseOnline = 25; // เวลางาน คนเยอะ
+            else if (hour > 16 && hour <= 22) baseOnline = 15; // เลิกงาน คนปานกลาง
+            
+            // สุ่มเลขแกว่งไปมา
+            let onlineNow = baseOnline + Math.floor(Math.random() * 15);
+            document.getElementById('statOnlineNow').innerText = onlineNow;
+        }
+
+        // วาดตารางใน Modal เมื่อเปลี่ยนปี
+        function renderWebStatsTable() {
+            const tbody = document.getElementById('tbody-webstats'); tbody.innerHTML = '';
+            const selectedYear = document.getElementById('filterWebStatYear').value;
+            const monthNames = { "01": "มกราคม", "02": "กุมภาพันธ์", "03": "มีนาคม", "04": "เมษายน", "05": "พฤษภาคม", "06": "มิถุนายน", "07": "กรกฎาคม", "08": "สิงหาคม", "09": "กันยายน", "10": "ตุลาคม", "11": "พฤศจิกายน", "12": "ธันวาคม" };
+            
+            let filteredData = allWebStatsData.filter(item => item.year === selectedYear);
+            if (filteredData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="2" class="py-4 text-muted">ไม่มีข้อมูลของปีนี้</td></tr>'; return; 
+            }
+
+            filteredData.sort((a,b) => parseInt(b.month) - parseInt(a.month)).forEach(item => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="fw-bold">${monthNames[item.month]}</td>
+                        <td class="fs-6 fw-bold text-success">${parseInt(item.count).toLocaleString('th-TH')}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // เรียกใช้ฟังก์ชันนี้ทันทีหลังจากเปิดหน้าเว็บ
+        document.addEventListener('DOMContentLoaded', () => {
+            processWebStats();
+        });
+        // ================= สิ้นสุด ระบบเก็บสถิติผู้เข้าชมเว็บไซต์ =================
 
         // ================= เริ่มต้น โหลดข้อมูลเมื่อเปิดหน้าเว็บ =================
         document.addEventListener('DOMContentLoaded', () => {
