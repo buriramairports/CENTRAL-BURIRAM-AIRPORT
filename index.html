@@ -252,7 +252,7 @@
                     <li class="nav-item"><a class="nav-link active" href="#">หน้าหลัก</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">เกี่ยวกับหน่วยงาน</a></li>
                     <li class="nav-item"><a class="nav-link" href="#eservices-section">บริการประชาชน</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">ติดต่อเรา</a></li>
+                    <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="showContactModal()">ติดต่อเรา</a></li>
                 </ul>
                 <div id="userMenu">
                     <button class="btn btn-outline-light rounded-pill px-4" onclick="showAuthModal()">
@@ -393,10 +393,10 @@
             <div class="container">
                 <div class="row align-items-start g-4">
                     <div class="col-lg-4 border-end border-secondary pe-4">
-                        <h5 class="fw-bold mb-3"><i class="fa-solid fa-building me-2"></i> ท่าอากาศยานบุรีรัมย์</h5>
-                        <p class="mb-2"><i class="fa-solid fa-location-dot me-2"></i> 144 หมู่ 12 ต.ร่อนทอง อ.สตึก จ.บุรีรัมย์ 31150</p>
-                        <p class="mb-2"><i class="fa-solid fa-phone me-2"></i> 044-666-334</p>
-                        <p class="mb-0"><i class="fa-solid fa-envelope me-2"></i> buriram@airports.go.th</p>
+                        <h5 class="fw-bold mb-3"><i class="fa-solid fa-building me-2"></i> <span id="footerSystemName">ท่าอากาศยานบุรีรัมย์</span></h5>
+                        <p class="mb-2"><i class="fa-solid fa-location-dot me-2"></i> <span id="footerAddress">-</span></p>
+                        <p class="mb-2"><i class="fa-solid fa-phone me-2"></i> <span id="footerPhone">-</span></p>
+                        <p class="mb-0"><i class="fa-solid fa-envelope me-2"></i> <span id="footerEmail">-</span></p>
                     </div>
                     <div class="col-lg-4 border-end border-secondary px-4">
                         <h5 class="fw-bold mb-3 text-warning"><i class="fa-solid fa-plane-circle-check me-2"></i> สายการบินที่ให้บริการ</h5>
@@ -834,6 +834,42 @@
         </div>
     </div>
     <!-- ================= สิ้นสุด Modal สไลด์โชว์รูปภาพแกลลอรี ================= -->
+
+    <!-- ================= เริ่มต้น Modal ติดต่อเรา ================= -->
+    <div class="modal fade" id="contactModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header text-white" style="background-color: var(--primary-blue);">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-address-book me-2"></i> ติดต่อเรา (Contact Us)</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="text-center mb-4 mt-2">
+                        <i class="fa-solid fa-building-flag fa-4x text-secondary mb-3"></i>
+                        <h4 class="fw-bold text-primary" id="modalContactName">ท่าอากาศยานบุรีรัมย์</h4>
+                    </div>
+                    <ul class="list-group list-group-flush mb-2">
+                        <li class="list-group-item d-flex align-items-center py-3 px-0">
+                            <div class="bg-light rounded-circle d-flex justify-content-center align-items-center me-3" style="width:45px; height:45px;"><i class="fa-solid fa-location-dot text-danger fs-5"></i></div>
+                            <div><div class="small text-muted fw-bold mb-1">ที่อยู่ทำการ</div><div id="modalContactAddress" class="text-dark">กำลังโหลด...</div></div>
+                        </li>
+                        <li class="list-group-item d-flex align-items-center py-3 px-0">
+                            <div class="bg-light rounded-circle d-flex justify-content-center align-items-center me-3" style="width:45px; height:45px;"><i class="fa-solid fa-phone text-success fs-5"></i></div>
+                            <div><div class="small text-muted fw-bold mb-1">เบอร์โทรศัพท์</div><div id="modalContactPhone" class="text-dark fw-bold fs-6">กำลังโหลด...</div></div>
+                        </li>
+                        <li class="list-group-item d-flex align-items-center py-3 px-0">
+                            <div class="bg-light rounded-circle d-flex justify-content-center align-items-center me-3" style="width:45px; height:45px;"><i class="fa-solid fa-envelope text-warning fs-5"></i></div>
+                            <div><div class="small text-muted fw-bold mb-1">อีเมล (E-mail)</div><div id="modalContactEmail" class="text-dark">กำลังโหลด...</div></div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">ปิดหน้าต่าง</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ================= สิ้นสุด Modal ติดต่อเรา ================= -->
     
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -906,10 +942,24 @@
                 // 1. ตั้งค่าเว็บไซต์
                 if(settingsRes.status === 'success') {
                     const settings = settingsRes.data;
-                    if(settings.SystemName) document.title = settings.SystemName;
+                    if(settings.SystemName) {
+                        document.title = settings.SystemName;
+                        document.getElementById('footerSystemName').innerText = settings.SystemName;
+                        document.getElementById('modalContactName').innerText = settings.SystemName;
+                    }
                     const carouselEl = document.getElementById('heroCarousel');
                     if(settings.BannerSpeed) carouselEl.setAttribute('data-bs-interval', settings.BannerSpeed);
                     if(settings.BannerEffect === 'fade') carouselEl.classList.add('carousel-fade');
+
+                    // 🟢 นำข้อมูลติดต่อไปใส่ใน Footer
+                    document.getElementById('footerAddress').innerText = settings.ContactAddress || '-';
+                    document.getElementById('footerPhone').innerText = settings.ContactPhone || '-';
+                    document.getElementById('footerEmail').innerText = settings.ContactEmail || '-';
+
+                    // 🟢 นำข้อมูลติดต่อไปใส่ใน Modal ติดต่อเรา
+                    document.getElementById('modalContactAddress').innerText = settings.ContactAddress || '-';
+                    document.getElementById('modalContactPhone').innerText = settings.ContactPhone || '-';
+                    document.getElementById('modalContactEmail').innerText = settings.ContactEmail || '-';
                 }
 
                 // 2. แบนเนอร์สไลด์
@@ -1839,7 +1889,9 @@
             loadInitialData();
         });
         // ================= สิ้นสุด โหลดข้อมูลเมื่อเปิดหน้าเว็บ =================
-
+// =================เริ่มต้น modal ติดต่อ =================
+        function showContactModal() { new bootstrap.Modal(document.getElementById('contactModal')).show(); }
+// ================= สิ้นสุด modal ติดต่อ =================
         // 🟢 [เพิ่มใหม่] ฟังก์ชันสำหรับเปลี่ยนปุ่มมุมขวาบน (ใช้ซ้ำได้)
         function updateUserMenuUI(user) {
             let adminMenu = '';
