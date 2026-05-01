@@ -165,21 +165,23 @@
         /* ================= เริ่มต้น แก้ไขสไตล์ ปฏิทินตารางเที่ยวบิน ================= */
         .flight-calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 10px; }
         .flight-day-header { text-align: center; font-weight: bold; font-size: 0.85rem; color: var(--primary-blue); padding-bottom: 5px;}
-        .flight-day-box { border: 1px solid #eee; border-radius: 5px; padding: 5px; min-height: 90px; display: flex; flex-direction: column; background-color: #f8f9fa; cursor: default; transition: 0.2s; position: relative; overflow: hidden; }
+        
+        /* ปรับ min-height ให้สูงขึ้นเป็น 105px เพื่อรองรับโลโก้ 2-3 บรรทัด */
+        .flight-day-box { border: 1px solid #eee; border-radius: 5px; padding: 5px; min-height: 105px; display: flex; flex-direction: column; background-color: #f8f9fa; cursor: default; transition: 0.2s; position: relative; overflow: hidden; }
         .flight-day-box.has-flight { background-color: #e8f5e9; border-color: #81c784; cursor: pointer; }
         .flight-day-box.has-flight:hover { background-color: #c8e6c9; transform: scale(1.05); box-shadow: 0 4px 8px rgba(0,0,0,0.1); z-index: 10;}
         .flight-day-box.active-day { background-color: var(--primary-blue) !important; color: white; border-color: var(--primary-blue); }
         .flight-date-num { font-weight: bold; font-size: 1rem; align-self: flex-end; z-index: 2; position: relative;}
         .flight-active-date-num { color: inherit; }
         
-        /* แก้ไขบั๊ก ป้ายไฮไลต์วันปัจจุบัน (ย้ายเข้ามาในกล่องมุมซ้ายบน) */
+        /* ป้ายไฮไลต์วันปัจจุบัน */
         .flight-day-box.is-today { border: 2px solid var(--primary-blue); background-color: #e3f2fd; }
         .flight-day-box.is-today::before { content: 'วันนี้'; position: absolute; top: 0; left: 0; font-size: 0.65rem; background: var(--primary-blue); color: white; padding: 2px 6px; border-radius: 0 0 5px 0; z-index: 2; }
 
-        /* เพิ่มใหม่: สไตล์สำหรับกล่องเก็บโลโก้สายการบิน รองรับหลายสายการบิน */
-        .flight-logos-container { display: flex; flex-wrap: wrap; gap: 4px; margin-top: auto; padding-top: 5px; justify-content: flex-end; align-items: flex-end;}
-        .flight-logo-small { width: 22px; height: 22px; object-fit: contain; background: white; border-radius: 50%; border: 1px solid #ccc; padding: 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-        .flight-logo-fallback { width: 22px; height: 22px; display: flex; justify-content: center; align-items: center; background: white; border-radius: 50%; border: 1px solid #ccc; font-size: 0.55rem; font-weight: bold; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        /* ปรับช่องเก็บโลโก้ให้ระยะห่างน้อยลง (gap: 2px) และย่อขนาดโลโก้ลงเหลือ 20px เพื่อให้จุได้ 8-12 สายการบิน */
+        .flight-logos-container { display: flex; flex-wrap: wrap; gap: 2px; margin-top: auto; padding-top: 5px; justify-content: flex-end; align-items: flex-end;}
+        .flight-logo-small { width: 20px; height: 20px; object-fit: contain; background: white; border-radius: 50%; border: 1px solid #ccc; padding: 1px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .flight-logo-fallback { width: 20px; height: 20px; display: flex; justify-content: center; align-items: center; background: white; border-radius: 50%; border: 1px solid #ccc; font-size: 0.5rem; font-weight: bold; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
         /* ================= สิ้นสุด แก้ไขสไตล์ ปฏิทินตารางเที่ยวบิน ================= */
         
     </style>
@@ -1097,7 +1099,11 @@
 
 
         
-         // ================= เริ่มต้นฟังก์ชัน วาดตารางปฏิทินเที่ยวบิน =================
+        // ================= เริ่มต้น ตัวแปรเก็บข้อมูลเที่ยวบินของวันที่เลือก =================
+        let currentDayFlights = []; 
+        // ================= สิ้นสุด ตัวแปรเก็บข้อมูลเที่ยวบินของวันที่เลือก =================
+
+        // ================= เริ่มต้นฟังก์ชัน วาดตารางปฏิทินเที่ยวบิน (ปรับให้รองรับ 12 โลโก้) =================
         function renderFlightCalendar() {
             const mSelect = document.getElementById('flightMonthSelect');
             const ySelect = document.getElementById('flightYearSelect');
@@ -1107,7 +1113,6 @@
             currentFlightYear = parseInt(ySelect.value);
             const monthsTH = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
             
-            // ซ่อนกล่องเลือกเดือนหลังจากเลือกเสร็จ
             let bsCollapse = bootstrap.Collapse.getInstance(document.getElementById('flightMonthSelector'));
             if(bsCollapse) bsCollapse.hide();
 
@@ -1115,7 +1120,7 @@
 
             const firstDayIndex = new Date(currentFlightYear, currentFlightMonth, 1).getDay();
             const daysInMonth = new Date(currentFlightYear, currentFlightMonth + 1, 0).getDate();
-            const todayDate = new Date(); // สำหรับเช็คไฮไลต์วันปัจจุบัน
+            const todayDate = new Date(); 
 
             const grid = document.getElementById('flightCalendarGrid');
             let html = `<div class="flight-day-header text-danger">อา</div><div class="flight-day-header">จ</div><div class="flight-day-header">อ</div><div class="flight-day-header">พ</div><div class="flight-day-header">พฤ</div><div class="flight-day-header">ศ</div><div class="flight-day-header text-danger">ส</div>`;
@@ -1145,7 +1150,6 @@
                 let boxClass = "flight-day-box";
                 let airlineDotsHtml = "";
 
-                // เช็คไฮไลต์วันปัจจุบัน
                 if(day === todayDate.getDate() && currentFlightMonth === todayDate.getMonth() && currentFlightYear === todayDate.getFullYear()) {
                     boxClass += " is-today";
                 }
@@ -1158,22 +1162,17 @@
                         if(airObj && !airlinesInDay.includes(airObj)) airlinesInDay.push(airObj);
                     });
 
-                    // 🟢 ปรับเปลี่ยนให้ใช้โลโก้แทนตัวหนังสือ รองรับได้หลายสายการบิน
                     airlineDotsHtml += `<div class="flight-logos-container">`;
-                    airlinesInDay.slice(0, 10).forEach(air => {
+                    // 🟢 ขยายให้รองรับโลโก้ได้ถึง 12 สายการบิน (ถ้าเกินจะแสดง ...)
+                    airlinesInDay.slice(0, 12).forEach(air => {
                         let logoUrl = air.IconURL ? convertDriveImageLink(air.IconURL) : '';
                         if (logoUrl) {
                             airlineDotsHtml += `<img src="${logoUrl}" class="flight-logo-small" title="${air.AirlineName}">`;
                         } else {
-                            // ถ้าไม่มีโลโก้ ให้แสดงวงกลมที่มีอักษรย่อ 2 ตัวแรกแทน
                             airlineDotsHtml += `<div class="flight-logo-fallback" style="color: ${air.ThemeColor || '#0A3161'}; border-color: ${air.ThemeColor || '#0A3161'};" title="${air.AirlineName}">${air.AirlineName.substring(0,2)}</div>`;
                         }
                     });
-                    
-                    // ถ้าระบบมีเกิน 10 สายการบินในวันเดียว ให้แสดง ...
-                    if(airlinesInDay.length > 10) {
-                        airlineDotsHtml += `<div class="flight-logo-fallback text-muted">...</div>`;
-                    }
+                    if(airlinesInDay.length > 12) airlineDotsHtml += `<div class="flight-logo-fallback text-muted">...</div>`;
                     airlineDotsHtml += `</div>`;
                 }
 
@@ -1189,7 +1188,7 @@
         }
         // ================= สิ้นสุดฟังก์ชัน วาดตารางปฏิทินเที่ยวบิน =================
 
-        // 🟢 ฟังก์ชันวาดรายการเที่ยวบินฝั่งขวา (ใส่โลโก้ และขยายฟอนต์)
+        // ================= เริ่มต้นฟังก์ชัน เมื่อคลิกเลือกวันที่ (ดึงข้อมูลมาเก็บไว้แล้วสั่ง Render) =================
         function showDailyFlights(element, dateText, flightDataStr) {
             document.querySelectorAll('.flight-day-box').forEach(el => { el.classList.remove('active-day'); const num = el.querySelector('.flight-date-num'); if(num) num.classList.remove('flight-active-date-num'); });
             
@@ -1197,56 +1196,94 @@
             const numEl = element.querySelector('.flight-date-num'); if(numEl) numEl.classList.add('flight-active-date-num');
             
             document.getElementById('flightSelectedDate').innerText = dateText;
+            
+            // เก็บข้อมูลเที่ยวบินของวันนั้นลงตัวแปร Global
+            currentDayFlights = JSON.parse(decodeURIComponent(flightDataStr));
+            
+            // เรียกฟังก์ชันวาดรายการเที่ยวบิน (ค่าว่างคือแสดงทั้งหมด)
+            renderFlightListResult('');
+        }
+        // ================= สิ้นสุดฟังก์ชัน เมื่อคลิกเลือกวันที่ =================
+
+          // ================= เริ่มต้นฟังก์ชัน วาดรายการเที่ยวบินด้านขวา (พร้อมระบบกรอง และแสดงชื่อเต็ม) =================
+        function renderFlightListResult(filterAirlineID) {
             const resultBox = document.getElementById('flightDetailsResult');
             
-            let flights = JSON.parse(decodeURIComponent(flightDataStr));
-            
-            if (flights.length === 0) {
+            if (currentDayFlights.length === 0) {
                 resultBox.innerHTML = `<div class="text-center p-4 text-muted bg-white rounded shadow-sm"><i class="fa-solid fa-plane-slash fa-3x mb-3 opacity-25"></i><h6>ไม่มีเที่ยวบินให้บริการในวันที่เลือก</h6></div>`;
                 return;
             }
 
-            flights.sort((a,b) => a.DepartureTime.localeCompare(b.DepartureTime));
+            // 🟢 1. สร้าง Dropdown สำหรับกรองสายการบิน
+            let uniqueAirlineIDs = [...new Set(currentDayFlights.map(f => f.AirlineID))];
+            let filterHtml = '';
+            if (uniqueAirlineIDs.length > 1) { // จะแสดง Dropdown ก็ต่อเมื่อวันนั้นมีมากกว่า 1 สายการบิน
+                let options = `<option value="">แสดงทุกสายการบิน</option>`;
+                uniqueAirlineIDs.forEach(id => {
+                    let airObj = allAirlinesData.find(a => a.AirlineID === id);
+                    if(airObj) {
+                        options += `<option value="${id}" ${filterAirlineID === id ? 'selected' : ''}>${airObj.AirlineName}</option>`;
+                    }
+                });
+                filterHtml = `
+                    <div class="mb-3">
+                        <select class="form-select border-primary bg-light fw-bold text-primary" onchange="renderFlightListResult(this.value)">
+                            ${options}
+                        </select>
+                    </div>
+                `;
+            }
 
-            let html = '';
-            flights.forEach(f => {
+            // 🟢 2. กรองข้อมูลตามที่เลือก และเรียงตามเวลา
+            let flightsToShow = currentDayFlights;
+            if (filterAirlineID) {
+                flightsToShow = currentDayFlights.filter(f => f.AirlineID === filterAirlineID);
+            }
+            flightsToShow.sort((a,b) => a.DepartureTime.localeCompare(b.DepartureTime));
+
+            // 🟢 3. วาดรายการเที่ยวบิน (แสดงชื่อเต็มทั้งหมด)
+            let listHtml = '';
+            flightsToShow.forEach(f => {
                 let airObj = allAirlinesData.find(a => a.AirlineID === f.AirlineID);
                 let airName = airObj ? airObj.AirlineName : 'ไม่ทราบสายการบิน';
                 let airColor = airObj ? airObj.ThemeColor : 'var(--primary-blue)';
                 
-                // 🟢 สร้างตัวแปรโลโก้ ถ้าไม่มีโลโก้ให้โชว์ไอคอนเครื่องบินแทน
                 let iconType = f.FlightType === 'Arrival' ? 'fa-plane-arrival' : 'fa-plane-departure';
                 let airLogoUrl = airObj && airObj.IconURL ? convertDriveImageLink(airObj.IconURL) : '';
                 let logoHtml = airLogoUrl 
                     ? `<img src="${airLogoUrl}" style="height: 28px; width: 28px; object-fit: contain; background: white; border-radius: 4px; padding: 2px; margin-right: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">` 
                     : `<i class="fa-solid ${iconType} me-2"></i>`;
 
-                html += `
+                // เอาคลาส text-truncate ออก เพื่อให้ชื่อสายการบินแสดงเต็ม 
+                // และใช้ f.Origin / f.Destination แบบเต็ม ไม่โดน .split() รหัส (DMK) ทิ้ง
+                listHtml += `
                 <div class="card border-0 shadow-sm mb-3 border-start border-4" style="border-left-color: ${airColor} !important; border-radius: 8px;">
                     <div class="card-body p-3">
                         <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
-                            <!-- 🟢 นำโลโก้มาแสดงคู่กับชื่อสายการบิน และเพิ่มขนาดฟอนต์ -->
                             <div class="fw-bold d-flex align-items-center" style="color: ${airColor}; font-size: 1.05rem;">
-                                ${logoHtml} <span class="text-truncate" style="max-width: 150px;">${airName}</span>
+                                ${logoHtml} <span>${airName}</span>
                             </div>
-                            <span class="badge rounded-pill fs-6 px-3" style="background-color: ${airColor}">${f.FlightNumber}</span>
+                            <span class="badge rounded-pill fs-6 px-3 ms-2" style="background-color: ${airColor}">${f.FlightNumber}</span>
                         </div>
                         <div class="d-flex justify-content-between text-muted">
-                            <div class="text-center">
-                                <div class="small fw-bold">${f.Origin.split(' ')[0]}</div>
+                            <div class="text-center" style="width: 42%;">
+                                <div class="small fw-bold text-dark">${f.Origin}</div>
                                 <div class="display-6 fw-bold text-dark mt-1" style="font-size: 1.6rem;">${f.DepartureTime}</div>
                             </div>
                             <div class="align-self-center"><i class="fa-solid fa-arrow-right-long opacity-50 fa-lg"></i></div>
-                            <div class="text-center">
-                                <div class="small fw-bold">${f.Destination.split(' ')[0]}</div>
+                            <div class="text-center" style="width: 42%;">
+                                <div class="small fw-bold text-dark">${f.Destination}</div>
                                 <div class="display-6 fw-bold text-dark mt-1" style="font-size: 1.6rem;">${f.ArrivalTime}</div>
                             </div>
                         </div>
                     </div>
                 </div>`;
             });
-            resultBox.innerHTML = html;
+            
+            // แสดงผล Dropdown (ถ้ามี) + รายการการ์ด
+            resultBox.innerHTML = filterHtml + listHtml;
         }
+        // ================= สิ้นสุดฟังก์ชัน วาดรายการเที่ยวบินด้านขวา =================
 
         // ================= สิ้นสุดฟังก์ชัน 4. ปฏิทินตารางเที่ยวบิน =================
 
