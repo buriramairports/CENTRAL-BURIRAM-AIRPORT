@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ข่าวสารและประชาสัมพันธ์ | ท่าอากาศยานบุรีรัมย์</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6.5.1 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts (Kanit) -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-blue: #0A3161; 
+            --secondary-blue: #155297;
+            --light-bg: #F4F7F6;
+        }
+
+        body { font-family: 'Kanit', sans-serif; background-color: var(--light-bg); background-image: url('https://www.transparenttextures.com/patterns/cubes.png'); }
+        .navbar { background-color: var(--primary-blue); box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .navbar-brand img { height: 40px; margin-right: 10px; }
+
+        /* ================= Preloader ================= */
+        #preloader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--primary-blue); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.6s ease, visibility 0.6s ease; }
+        .loader-spinner { width: 50px; height: 50px; border: 5px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: white; animation: spin 1s ease-in-out infinite; margin-bottom: 20px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .blink { animation: blinker 1.5s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
+
+        /* ================= Sidebar หมวดหมู่ ================= */
+        .sidebar-card { border: none; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; background: white;}
+        .sidebar-header { background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue)); color: white; padding: 15px 20px; font-weight: bold; font-size: 1.1rem; }
+        .dept-title { font-weight: bold; color: #475569; padding: 12px 20px; background: #f1f5f9; border-bottom: 1px solid #e2e8f0; font-size: 0.9rem; margin-top: 0;}
+        .cat-list { list-style: none; padding: 0; margin: 0; }
+        .cat-item { padding: 10px 20px; border-bottom: 1px dashed #e2e8f0; cursor: pointer; transition: 0.2s; color: #334155; font-size: 0.95rem; display: flex; align-items: center;}
+        .cat-item i { margin-right: 10px; color: #94a3b8; transition: 0.2s;}
+        .cat-item:hover { background-color: #f8fafc; color: var(--primary-blue); padding-left: 25px;}
+        .cat-item.active { background-color: #eff6ff; color: var(--primary-blue); font-weight: bold; border-left: 4px solid var(--primary-blue); }
+        .cat-item.active i { color: var(--primary-blue); }
+
+        /* ================= การ์ดข่าวสาร ================= */
+        .news-card { border: none; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.3s; cursor: pointer; height: 100%; display: flex; flex-direction: column; background: white;}
+        .news-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .news-img-wrapper { position: relative; height: 180px; overflow: hidden; }
+        .news-img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+        .news-card:hover .news-img { transform: scale(1.05); }
+        .news-badge { position: absolute; top: 10px; left: 10px; color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .news-new-tag { position: absolute; top: 10px; right: 10px; background: #ef4444; color: white; padding: 3px 8px; border-radius: 5px; font-size: 0.7rem; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .news-body { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; }
+        .news-title { font-weight: bold; color: #1e293b; font-size: 1.05rem; line-height: 1.4; margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .news-meta { margin-top: auto; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: #64748b; border-top: 1px dashed #e2e8f0; padding-top: 10px; }
+
+        /* ================= สไตล์ Modal อ่านข่าว (เหมือน index) ================= */
+        .news-read-cover { width: 100%; max-height: 400px; object-fit: cover; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .news-read-title { font-weight: 700; color: var(--primary-blue); line-height: 1.4; margin-bottom: 15px; }
+        .news-read-meta { display: flex; flex-wrap: wrap; gap: 15px; color: #64748b; font-size: 0.9rem; padding-bottom: 15px; border-bottom: 2px dashed #e2e8f0; margin-bottom: 20px; }
+        .news-read-content { font-size: 1.05rem; line-height: 1.8; color: #334155; }
+        .news-read-content img { max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0; }
+        .news-gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 20px; }
+        .news-gallery-img { width: 100%; height: 120px; object-fit: cover; border-radius: 8px; cursor: pointer; transition: 0.3s; border: 1px solid #e2e8f0; }
+        .news-gallery-img:hover { transform: scale(1.05); filter: brightness(0.9); }
+        .news-attachment-box { background: #f8fafc; border-left: 4px solid #ef4444; padding: 15px; border-radius: 5px; margin-top: 25px; }
+        .attachment-item { display: inline-flex; align-items: center; background: white; border: 1px solid #cbd5e1; padding: 8px 15px; border-radius: 20px; color: #475569; text-decoration: none; font-size: 0.9rem; margin: 5px 5px 5px 0; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.05);}
+        .attachment-item:hover { background: #ef4444; color: white; border-color: #ef4444; }
+    </style>
+</head>
+<body>
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text">กำลังโหลดข่าวสาร...</div>
+    </div>
+
+    <!-- แถบเมนูด้านบน (เหมือนหน้าแรก) -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="index.html">
+                <i class="fa-solid fa-plane-departure me-2"></i> ท่าอากาศยานบุรีรัมย์
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">หน้าหลัก</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="#">ข่าวสารและประชาสัมพันธ์</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Page -->
+    <div style="background: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=2000&auto=format&fit=crop') center/cover; position: relative;">
+        <div style="background: rgba(10, 49, 97, 0.85); padding: 50px 0;">
+            <div class="container text-center text-white">
+                <h2 class="fw-bold mb-2">ข่าวสารและประชาสัมพันธ์</h2>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb justify-content-center mb-0">
+                        <li class="breadcrumb-item"><a href="index.html" class="text-white-50 text-decoration-none">หน้าหลัก</a></li>
+                        <li class="breadcrumb-item active text-white" aria-current="page">ข่าวสารทั้งหมด</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- ส่วนเนื้อหาหลัก -->
+    <div class="container mt-5 mb-5">
+        <div class="row g-4">
+            
+            <!-- ฝั่งซ้าย: Sidebar หมวดหมู่ข่าว -->
+            <div class="col-lg-3">
+                <div class="sidebar-card sticky-top" style="top: 100px; z-index: 10;">
+                    <div class="sidebar-header">
+                        <i class="fa-solid fa-filter me-2"></i> หมวดหมู่ข่าวสาร
+                    </div>
+                    <!-- ปุ่มดูข่าวทั้งหมด -->
+                    <div class="cat-item fw-bold" id="cat-all" onclick="selectCategory('all')">
+                        <i class="fa-solid fa-border-all"></i> แสดงทุกหมวดหมู่
+                    </div>
+                    <!-- หมวดหมู่แยกตามกลุ่มงาน จะถูกวาดโดย JS -->
+                    <div id="sidebar-categories"></div>
+                </div>
+            </div>
+
+            <!-- ฝั่งขวา: รายการข่าวสาร -->
+            <div class="col-lg-9">
+                
+                <!-- เครื่องมือค้นหาและจัดเรียง -->
+                <div class="card border-0 shadow-sm mb-4 bg-white">
+                    <div class="card-body">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-md-7">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                                    <input type="text" id="searchNewsText" class="form-control border-start-0 bg-light" placeholder="ค้นหาหัวข้อข่าว..." oninput="applyFilters()">
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <select class="form-select bg-light" id="sortNews" onchange="applyFilters()">
+                                    <option value="newest">เรียงตามวันที่: ใหม่ล่าสุด</option>
+                                    <option value="oldest">เรียงตามวันที่: เก่าสุด</option>
+                                    <option value="popular">เรียงตามยอดเข้าชม: มากไปน้อย</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- หัวข้อหมวดหมู่ที่เลือก -->
+                <h4 class="fw-bold mb-3" style="color: var(--primary-blue);" id="currentCategoryTitle">ข่าวสารทั้งหมด</h4>
+
+                <!-- ผลลัพธ์การ์ดข่าว (Grid) -->
+                <div class="row g-4 mb-4" id="newsGridContainer">
+                    <!-- จะถูกแทนที่ด้วย JS -->
+                </div>
+
+                <!-- Pagination (แบ่งหน้า) -->
+                <nav>
+                    <ul class="pagination justify-content-center" id="newsPagination">
+                        <!-- จะถูกสร้างโดย JS -->
+                    </ul>
+                </nav>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ================= เริ่มต้น Modal อ่านข่าวสาร ================= -->
+    <div class="modal fade" id="newsReadModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-white border-bottom-0 pb-0 pt-4 px-4">
+                    <span id="readNewsCategory" class="badge bg-primary px-3 py-2 fs-6 rounded-pill mb-2">หมวดหมู่ข่าว</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" style="margin-top: -20px;"></button>
+                </div>
+                <div class="modal-body px-4 px-md-5 pb-5 pt-2">
+                    <h3 id="readNewsTitle" class="news-read-title">หัวข้อข่าว</h3>
+                    <div class="news-read-meta">
+                        <span id="readNewsDate"><i class="fa-regular fa-calendar text-primary me-1"></i> วันที่</span>
+                        <span id="readNewsAuthor"><i class="fa-solid fa-pen-nib text-danger me-1"></i> ผู้เขียน</span>
+                        <span id="readNewsViews"><i class="fa-solid fa-eye text-success me-1"></i> ยอดเข้าชม</span>
+                    </div>
+                    <img id="readNewsCover" src="" class="news-read-cover" style="display: none;" alt="รูปหน้าปกข่าว">
+                    <div id="readNewsContent" class="news-read-content"></div>
+                    
+                    <div id="readNewsGalleryContainer" style="display: none; border-top: 1px dashed #ccc; padding-top: 20px; margin-top: 30px;">
+                        <h5 class="fw-bold text-dark"><i class="fa-solid fa-images text-success me-2"></i> แกลลอรีรูปภาพ</h5>
+                        <div id="readNewsGallery" class="news-gallery-grid"></div>
+                    </div>
+                    <div id="readNewsFilesContainer" class="news-attachment-box" style="display: none;">
+                        <h6 class="fw-bold text-danger mb-3"><i class="fa-solid fa-paperclip me-2"></i> เอกสารแนบสำหรับดาวน์โหลด</h6>
+                        <div id="readNewsFiles"></div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-top-0 py-3">
+                    <button type="button" class="btn btn-secondary px-4 rounded-pill" data-bs-dismiss="modal">ปิดหน้าต่าง</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ================= สิ้นสุด Modal อ่านข่าวสาร ================= -->
+
+    <!-- ================= เริ่มต้น Modal สไลด์โชว์รูปภาพแกลลอรี ================= -->
+    <div class="modal fade" id="newsGalleryViewerModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content border-0 bg-dark">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h6 class="text-white mb-0"><i class="fa-solid fa-images text-success me-2"></i> แกลลอรีรูปภาพ</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0 relative">
+                    <div id="newsGalleryCarousel" class="carousel slide" data-bs-interval="false">
+                        <div class="carousel-indicators" id="newsGalleryCarouselIndicators"></div>
+                        <div class="carousel-inner" id="newsGalleryCarouselInner" style="height: 75vh; background-color: #111;"></div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#newsGalleryCarousel" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#newsGalleryCarousel" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ================= สิ้นสุด Modal สไลด์โชว์รูปภาพแกลลอรี ================= -->
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // 🔴 อย่าลืมวางลิงก์ API ของคุณตรงนี้ (ลิงก์เดิมที่ใช้ใน index.html)
+        const API_URL = "https://script.google.com/macros/s/AKfycbx_KEKYYe2Mu1vTORWF8GZnV4zuOku_4IqEvwhZ4q556ggVOHjy-blHKvY_IuYOfGHqaA/exec";
+
+        let allNewsData = [];
+        let allCategoriesData = [];
+        let filteredNews = [];
+        
+        let currentPage = 1;
+        const itemsPerPage = 9; // แสดงหน้าละ 9 ข่าว
+        let activeCategoryId = 'all';
+
+        // 1. ฟังก์ชันตัวช่วยต่างๆ (เหมือนหน้าแรก)
+        function convertDriveImageLink(url) {
+            if(!url) return "";
+            let id = ""; const regexView = /\/file\/d\/([a-zA-Z0-9_-]+)/; const regexId = /id=([a-zA-Z0-9_-]+)/; 
+            if (url.match(regexView)) id = url.match(regexView)[1]; else if (url.match(regexId)) id = url.match(regexId)[1];
+            if (id) return `https://drive.google.com/thumbnail?id=${id}&sz=w1000`;
+            return url; 
+        }
+        function parseDateTimeString(dtStr) {
+            if (!dtStr) return new Date(0);
+            let parts = dtStr.split(' '); let dParts = parts[0].split('/'); let tParts = parts[1] ? parts[1].split(':') : ['00', '00'];
+            return new Date(dParts[2], dParts[1] - 1, dParts[0], tParts[0], tParts[1]);
+        }
+        function isReadyToPublish(item) {
+            if (item.Status === 'Draft') return false;
+            if (item.Status === 'Schedule' && item.PublishDate) return new Date() >= parseDateTimeString(item.PublishDate);
+            return true;
+        }
+        function isStillNew(expireDateStr) {
+            if (!expireDateStr) return false;
+            let parts = expireDateStr.split('/'); if(parts.length < 3) return false;
+            return new Date() <= new Date(parts[2], parts[1] - 1, parts[0], 23, 59, 59);
+        }
+
+        // 2. ดึงข้อมูลเมื่อโหลดหน้า
+        document.addEventListener('DOMContentLoaded', async () => {
+            // เช็คว่ามี Parameter หมวดหมู่ส่งมาด้วยไหม (เช่น news.html?category=CAT001)
+            const urlParams = new URLSearchParams(window.location.search);
+            const passedCatId = urlParams.get('category');
+            if (passedCatId) activeCategoryId = passedCatId;
+
+            try {
+                const [catsRes, newsRes] = await Promise.all([
+                    fetch(API_URL + '?action=getTableData&sheetName=NewsCategories').then(r => r.json()),
+                    fetch(API_URL + '?action=getTableData&sheetName=News').then(r => r.json())
+                ]);
+
+                if (catsRes.status === 'success') allCategoriesData = catsRes.data.filter(c => c.IsActive === 'TRUE');
+                if (newsRes.status === 'success') allNewsData = newsRes.data.filter(n => isReadyToPublish(n));
+
+                renderSidebar();
+                selectCategory(activeCategoryId, false); // สั่งกรองข้อมูลครั้งแรก
+
+            } catch (error) {
+                console.error("Error loading news:", error);
+                Swal.fire('ข้อผิดพลาด', 'ไม่สามารถโหลดข้อมูลข่าวสารได้', 'error');
+            } finally {
+                const preloader = document.getElementById('preloader');
+                if (preloader) { preloader.style.opacity = '0'; setTimeout(() => { preloader.style.visibility = 'hidden'; }, 600); }
+            }
+        });
+
+        // 3. วาดเมนูหมวดหมู่ฝั่งซ้าย (แยกตาม Department)
+        function renderSidebar() {
+            const container = document.getElementById('sidebar-categories');
+            container.innerHTML = '';
+            
+            // จัดกลุ่มหมวดหมู่ตามกลุ่มงาน
+            let grouped = {};
+            allCategoriesData.forEach(cat => {
+                let depts = cat.Department ? cat.Department.split(', ') : ['ไม่ระบุกลุ่มงาน'];
+                depts.forEach(d => {
+                    if (!grouped[d]) grouped[d] = [];
+                    grouped[d].push(cat);
+                });
+            });
+
+            // สร้าง HTML
+            for (const dept in grouped) {
+                // ข้าม "ทั้งหมด" ถ้าไม่อยากให้มันซ้ำซ้อน 
+                if (dept === 'ทั้งหมด') continue;
+
+                let html = `<div class="dept-title"><i class="fa-solid fa-sitemap me-2 text-muted"></i>${dept}</div><ul class="cat-list">`;
+                
+                // เรียงหมวดหมู่ตาม OrderList
+                grouped[dept].sort((a,b) => a.OrderList - b.OrderList).forEach(cat => {
+                    let isActive = (cat.CategoryID === activeCategoryId) ? 'active' : '';
+                    let icon = cat.LayoutType === 'text-list' ? 'fa-list' : 'fa-image';
+                    
+                    html += `
+                        <li class="cat-item ${isActive}" id="cat-${cat.CategoryID}" onclick="selectCategory('${cat.CategoryID}')">
+                            <i class="fa-solid ${icon}"></i> ${cat.CategoryName}
+                        </li>
+                    `;
+                });
+                html += `</ul>`;
+                container.innerHTML += html;
+            }
+
+            // ไฮไลต์ปุ่ม "ทั้งหมด" ถ้าไม่ได้เลือกหมวดใดเลย
+            if (activeCategoryId === 'all') document.getElementById('cat-all').classList.add('active');
+        }
+
+        // 4. เมื่อคลิกเลือกหมวดหมู่ฝั่งซ้าย
+        function selectCategory(catId, shouldScroll = true) {
+            activeCategoryId = catId;
+            
+            // อัปเดตไฮไลต์ในเมนู
+            document.querySelectorAll('.cat-item').forEach(el => el.classList.remove('active'));
+            const activeEls = document.querySelectorAll(`#cat-${catId}`);
+            if (activeEls.length > 0) activeEls.forEach(el => el.classList.add('active'));
+            else document.getElementById('cat-all').classList.add('active');
+
+            // อัปเดตหัวข้อเรื่อง
+            const titleEl = document.getElementById('currentCategoryTitle');
+            if (catId === 'all') {
+                titleEl.innerText = "ข่าวสารทั้งหมด";
+            } else {
+                let catObj = allCategoriesData.find(c => c.CategoryID === catId);
+                titleEl.innerText = catObj ? catObj.CategoryName : "ข่าวสาร";
+            }
+
+            // ล้างช่องค้นหา และสั่งกรองข้อมูล
+            document.getElementById('searchNewsText').value = '';
+            document.getElementById('sortNews').value = 'newest';
+            applyFilters();
+
+            // เลื่อนจอขึ้นไปบนสุด (เฉพาะเวลากดด้วยมือ)
+            if (shouldScroll) window.scrollTo({ top: document.getElementById('currentCategoryTitle').offsetTop - 100, behavior: 'smooth' });
+        }
+
+        // 5. ระบบกรองและจัดเรียงข่าว (ค้นหา + หมวดหมู่ + เรียง)
+        function applyFilters() {
+            const searchText = document.getElementById('searchNewsText').value.toLowerCase();
+            const sortVal = document.getElementById('sortNews').value;
+
+            // กรอง
+            filteredNews = allNewsData.filter(news => {
+                // กรองหมวดหมู่
+                if (activeCategoryId !== 'all' && news.CategoryID !== activeCategoryId) return false;
+                
+                // กรองคำค้นหา (ค้นจากหัวข้อข่าว)
+                if (searchText !== "" && !news.Title.toLowerCase().includes(searchText)) return false;
+
+                return true;
+            });
+
+            // จัดเรียง
+            filteredNews.sort((a, b) => {
+                let dateA = parseDateTimeString(a.PublishDate || a.CreateDate).getTime();
+                let dateB = parseDateTimeString(b.PublishDate || b.CreateDate).getTime();
+                let viewA = parseInt(a.ViewCount) || 0;
+                let viewB = parseInt(b.ViewCount) || 0;
+
+                if (sortVal === 'newest') return dateB - dateA; // ใหม่ไปเก่า
+                if (sortVal === 'oldest') return dateA - dateB; // เก่าไปใหม่
+                if (sortVal === 'popular') return viewB - viewA; // วิวเยอะไปน้อย
+            });
+
+            // รีเซ็ตกลับไปหน้า 1 เสมอเมื่อมีการกรองใหม่
+            currentPage = 1;
+            renderNewsGrid();
+        }
+
+        // 6. เปลี่ยนหน้า
+        function changePage(page) {
+            currentPage = page;
+            renderNewsGrid();
+            window.scrollTo({ top: document.getElementById('currentCategoryTitle').offsetTop - 100, behavior: 'smooth' });
+        }
+
+        // 7. วาดการ์ดข่าวสาร และปุ่มแบ่งหน้า
+        function renderNewsGrid() {
+            const container = document.getElementById('newsGridContainer');
+            container.innerHTML = '';
+
+            const totalItems = filteredNews.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+            
+            if (currentPage > totalPages) currentPage = totalPages;
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+
+            let pageData = filteredNews.slice(startIndex, endIndex);
+
+            if (pageData.length === 0) {
+                container.innerHTML = `<div class="col-12 text-center text-muted py-5"><i class="fa-solid fa-box-open fa-4x mb-3 opacity-25"></i><h4>ไม่พบข่าวสารในหมวดหมู่นี้</h4></div>`;
+                renderPagination(0);
+                return;
+            }
+
+            pageData.forEach(news => {
+                let imgUrl = convertDriveImageLink(news.CoverImageURL) || 'https://via.placeholder.com/600x400?text=ไม่มีรูปหน้าปก';
+                let dateText = news.PublishDate ? news.PublishDate.split(' ')[0] : (news.CreateDate ? news.CreateDate.split(' ')[0] : '-');
+                let views = news.ViewCount || 0;
+                
+                let catObj = allCategoriesData.find(c => c.CategoryID === news.CategoryID);
+                let catName = catObj ? catObj.CategoryName : 'ทั่วไป';
+                let catColor = (catObj && catObj.ThemeColor !== 'transparent') ? catObj.ThemeColor : 'var(--primary-blue)';
+                
+                let newBadge = isStillNew(news.ExpireDate) ? `<span class="news-new-tag blink">NEW</span>` : '';
+
+                container.innerHTML += `
+                    <div class="col-md-6 col-lg-4">
+                        <div class="news-card" onclick="openNewsDetail('${news.NewsID}')">
+                            <div class="news-img-wrapper">
+                                <img src="${imgUrl}" class="news-img" alt="ปกข่าว">
+                                <span class="news-badge" style="background-color: ${catColor};">${catName}</span>
+                                ${newBadge}
+                            </div>
+                            <div class="news-body">
+                                <h5 class="news-title">${news.Title}</h5>
+                                <div class="news-meta">
+                                    <span><i class="fa-regular fa-calendar me-1"></i> ${dateText}</span>
+                                    <span><i class="fa-solid fa-eye me-1"></i> ${views} ครั้ง</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            renderPagination(totalPages);
+        }
+
+        // วาดปุ่ม Pagination
+        function renderPagination(totalPages) {
+            const ul = document.getElementById('newsPagination');
+            ul.innerHTML = '';
+            if(totalPages <= 1) return; 
+
+            let prevClass = currentPage === 1 ? 'disabled' : '';
+            ul.innerHTML += `<li class="page-item ${prevClass}"><a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage - 1})">ก่อนหน้า</a></li>`;
+            
+            for(let i = 1; i <= totalPages; i++) {
+                let activeClass = i === currentPage ? 'active' : '';
+                ul.innerHTML += `<li class="page-item ${activeClass}"><a class="page-link" href="javascript:void(0)" onclick="changePage(${i})">${i}</a></li>`;
+            }
+            
+            let nextClass = currentPage === totalPages ? 'disabled' : '';
+            ul.innerHTML += `<li class="page-item ${nextClass}"><a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage + 1})">ถัดไป</a></li>`;
+        }
+
+        // ================= เริ่มต้นฟังก์ชัน เปิดอ่านข่าวสาร (ก๊อปมาจากหน้าแรก) =================
+        function openNewsDetail(newsId) {
+            const news = allNewsData.find(n => n.NewsID === newsId);
+            if (!news) return;
+
+            document.getElementById('readNewsTitle').innerText = news.Title;
+            let dateText = news.PublishDate ? news.PublishDate : news.CreateDate;
+            document.getElementById('readNewsDate').innerHTML = `<i class="fa-regular fa-calendar text-primary me-1"></i> ${dateText}`;
+            document.getElementById('readNewsAuthor').innerHTML = `<i class="fa-solid fa-pen-nib text-danger me-1"></i> ${news.Author || 'แอดมิน'}`;
+            document.getElementById('readNewsViews').innerHTML = `<i class="fa-solid fa-eye text-success me-1"></i> ${news.ViewCount || 0} ครั้ง`;
+            
+            let catObj = allCategoriesData.find(c => c.CategoryID === news.CategoryID);
+            document.getElementById('readNewsCategory').innerText = catObj ? catObj.CategoryName : 'ข่าวสาร';
+            document.getElementById('readNewsCategory').style.backgroundColor = (catObj && catObj.ThemeColor !== 'transparent') ? catObj.ThemeColor : 'var(--primary-blue)';
+
+            document.getElementById('readNewsContent').innerHTML = news.Content || '<p class="text-muted text-center">ไม่มีเนื้อหา</p>';
+
+            const coverEl = document.getElementById('readNewsCover');
+            if (news.CoverImageURL) { coverEl.src = convertDriveImageLink(news.CoverImageURL); coverEl.style.display = 'block'; } 
+            else { coverEl.style.display = 'none'; }
+
+            const filesContainer = document.getElementById('readNewsFilesContainer');
+            const filesDiv = document.getElementById('readNewsFiles');
+            if (news.FilesURL) {
+                let filesHtml = '';
+                news.FilesURL.split(', ').forEach((url, idx) => { filesHtml += `<a href="${url.replace('?usp=sharing', '')}" target="_blank" class="attachment-item"><i class="fa-solid fa-file-arrow-down text-danger me-2"></i> เอกสารแนบที่ ${idx + 1}</a>`; });
+                filesDiv.innerHTML = filesHtml; filesContainer.style.display = 'block';
+            } else { filesContainer.style.display = 'none'; }
+
+            const galleryContainer = document.getElementById('readNewsGalleryContainer');
+            const galleryDiv = document.getElementById('readNewsGallery');
+            const carouselIndicators = document.getElementById('newsGalleryCarouselIndicators');
+            const carouselInner = document.getElementById('newsGalleryCarouselInner');
+
+            if (news.GalleryURLs) {
+                let galleryHtml = ''; let indicatorsHtml = ''; let slidesHtml = '';
+                news.GalleryURLs.split(', ').forEach((url, idx) => {
+                    let displayUrl = convertDriveImageLink(url); let rawUrl = url.replace('?usp=sharing', ''); let activeClass = idx === 0 ? 'active' : '';
+                    galleryHtml += `<img src="${displayUrl}" class="news-gallery-img" alt="แกลลอรี" onclick="openNewsGalleryViewer(${idx})">`;
+                    indicatorsHtml += `<button type="button" data-bs-target="#newsGalleryCarousel" data-bs-slide-to="${idx}" class="${activeClass}"></button>`;
+                    slidesHtml += `<div class="carousel-item ${activeClass} h-100"><div class="d-flex justify-content-center align-items-center h-100 w-100 p-3"><img src="${displayUrl}" class="img-fluid" style="max-height: 100%; max-width: 100%; object-fit: contain;"></div><div class="position-absolute bottom-0 end-0 m-4" style="z-index: 10;"><a href="${rawUrl}" target="_blank" class="btn btn-primary rounded-pill shadow-lg"><i class="fa-solid fa-expand me-2"></i>ดูรูป/ดาวน์โหลด</a></div></div>`;
+                });
+                galleryDiv.innerHTML = galleryHtml; galleryContainer.style.display = 'block';
+                carouselIndicators.innerHTML = indicatorsHtml; carouselInner.innerHTML = slidesHtml;
+            } else { galleryContainer.style.display = 'none'; }
+
+            new bootstrap.Modal(document.getElementById('newsReadModal')).show();
+        }
+
+        function openNewsGalleryViewer(startIndex) {
+            const myCarousel = document.getElementById('newsGalleryCarousel');
+            const carousel = new bootstrap.Carousel(myCarousel, { interval: false, ride: false });
+            carousel.to(startIndex);
+            new bootstrap.Modal(document.getElementById('newsGalleryViewerModal')).show();
+        }
+    </script>
+</body>
+</html>
