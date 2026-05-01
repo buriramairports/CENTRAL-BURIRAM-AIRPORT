@@ -682,15 +682,21 @@
                             </div>
                         </div>
 
-                        <!-- ฝั่งขวา: รายการเที่ยวบินในวันนั้น (ปรับเป็น col-lg-4 ให้กว้างขึ้น) -->
-                        <div class="col-lg-4 p-4 bg-light">
-                            <h5 class="fw-bold mb-3 border-bottom pb-2" style="color: var(--primary-blue);">
+                        <!-- ฝั่งขวา: รายการเที่ยวบินในวันนั้น -->
+                        <!-- 🟢 1. เติมคลาส d-flex flex-column เข้าไปที่กล่องคลุมเพื่อให้มันจัดเรียงแบบยืดหยุ่น -->
+                        <div class="col-lg-4 p-4 bg-light d-flex flex-column">
+                            
+                            <!-- ส่วนหัวข้อ (ล็อคขนาดไว้ไม่ให้หดตัว) -->
+                            <h5 class="fw-bold mb-3 border-bottom pb-2 flex-shrink-0" style="color: var(--primary-blue);">
                                 <i class="fa-solid fa-list-check me-2"></i> รายการเที่ยวบิน
                             </h5>
-                            <div class="text-muted small mb-3">วันที่เลือก: <span id="flightSelectedDate" class="fw-bold text-dark fs-6">-</span></div>
-                            <div id="flightDetailsResult" style="max-height: 400px; overflow-y: auto; overflow-x: hidden; padding-right: 10px;">
+                            <div class="text-muted small mb-3 flex-shrink-0">วันที่เลือก: <span id="flightSelectedDate" class="fw-bold text-dark fs-6">-</span></div>
+                            
+                            <!-- 🟢 2. ลบ max-height: 400px ออก แล้วใส่คลาส flex-grow-1 ให้มันขยายเต็มพื้นที่ว่างด้านล่าง -->
+                            <div id="flightDetailsResult" class="flex-grow-1" style="overflow-y: auto; overflow-x: hidden; padding-right: 10px; min-height: 400px;">
                                 <div class="text-center text-muted mt-5"><i class="fa-regular fa-hand-pointer fa-3x mb-3 opacity-25"></i><br>โปรดเลือกวันที่จากปฏิทิน</div>
                             </div>
+
                         </div>
                     </div>
                 </div>
