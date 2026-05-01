@@ -811,7 +811,7 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-0 relative">
-                    <div id="newsGalleryCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="false">
+                    <div id="newsGalleryCarousel" class="carousel slide" data-bs-interval="false">
                         <div class="carousel-indicators" id="newsGalleryCarouselIndicators"></div>
                         <div class="carousel-inner" id="newsGalleryCarouselInner" style="height: 75vh; background-color: #111;">
                             <!-- รูปภาพสไลด์จะถูกแทรกที่นี่ -->
@@ -1410,9 +1410,15 @@
 
         // 🟢 ฟังก์ชันสำหรับคลิกเปิดดูรูปสไลด์ขนาดใหญ่
         function openNewsGalleryViewer(startIndex) {
-            // เลื่อนสไลด์ไปที่รูปที่คลิก
             const myCarousel = document.getElementById('newsGalleryCarousel');
-            const carousel = new bootstrap.Carousel(myCarousel);
+            
+            // สั่งสร้าง Carousel พร้อมกำหนดไม่ให้เลื่อนอัตโนมัติ (interval: false)
+            const carousel = new bootstrap.Carousel(myCarousel, {
+                interval: false, 
+                ride: false
+            });
+            
+            // เลื่อนสไลด์ไปที่รูปลำดับที่คลิก
             carousel.to(startIndex);
             
             // เปิด Modal
