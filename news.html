@@ -113,16 +113,23 @@
             
             <!-- ฝั่งซ้าย: Sidebar หมวดหมู่ข่าว -->
             <div class="col-lg-3">
-                <div class="sidebar-card sticky-top" style="top: 100px; z-index: 10;">
-                    <div class="sidebar-header">
+                <!-- 🟢 เอา sticky-top ออก และจำกัดความสูงให้มี Scrollbar ซ่อนอยู่ข้างใน -->
+                <div class="sidebar-card" style="max-height: 800px; display: flex; flex-direction: column;">
+                    
+                    <!-- ส่วนหัวข้อ (ล็อคไว้ไม่ให้เลื่อน) -->
+                    <div class="sidebar-header flex-shrink-0">
                         <i class="fa-solid fa-filter me-2"></i> หมวดหมู่ข่าวสาร
                     </div>
-                    <!-- ปุ่มดูข่าวทั้งหมด -->
-                    <div class="cat-item fw-bold" id="cat-all" onclick="selectCategory('all')">
-                        <i class="fa-solid fa-border-all"></i> แสดงทุกหมวดหมู่
+                    
+                    <!-- ส่วนรายการหมวดหมู่ (ให้เลื่อน Scroll ได้ถ้าล้น) -->
+                    <div class="flex-grow-1" style="overflow-y: auto;">
+                        <div class="cat-item fw-bold" id="cat-all" onclick="selectCategory('all')">
+                            <i class="fa-solid fa-border-all"></i> แสดงทุกหมวดหมู่
+                        </div>
+                        <!-- หมวดหมู่แยกตามกลุ่มงาน จะถูกวาดโดย JS -->
+                        <div id="sidebar-categories"></div>
                     </div>
-                    <!-- หมวดหมู่แยกตามกลุ่มงาน จะถูกวาดโดย JS -->
-                    <div id="sidebar-categories"></div>
+
                 </div>
             </div>
 
