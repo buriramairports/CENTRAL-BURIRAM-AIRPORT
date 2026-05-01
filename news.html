@@ -117,18 +117,19 @@
     <div class="container mt-5 mb-5">
         <div class="row g-4">
             
-            <!-- ฝั่งซ้าย: Sidebar หมวดหมู่ข่าว -->
-            <div class="col-lg-3">
-                <!-- 🟢 ใช้ sticky-top เพื่อล็อคกล่องติดหน้าจอ (ห่างขอบบน 90px เพื่อหลบ Navbar) 
-                     และใช้ height: calc(100vh - 110px) เพื่อบังคับให้กล่องสูงพอดีจอเสมอ -->
-                <div class="sidebar-card sticky-top" style="top: 90px; height: calc(100vh - 110px); display: flex; flex-direction: column;">
+           <!-- ฝั่งซ้าย: Sidebar หมวดหมู่ข่าว -->
+            <!-- 🟢 1. ย้าย sticky มาไว้ที่ตัวคอลัมน์ และใส่ align-self-start เพื่อให้มันเลื่อนตามหน้าจอได้สมบูรณ์ -->
+            <div class="col-lg-3 align-self-start" style="position: sticky; top: 90px; z-index: 10;">
+                
+                <!-- 🟢 2. กล่องเมนู กำหนดความสูงสูงสุด (max-height) เพื่อไม่ให้ล้นจอ -->
+                <div class="sidebar-card" style="max-height: calc(100vh - 110px); display: flex; flex-direction: column;">
                     
                     <!-- ส่วนหัวข้อ (ล็อคไว้ไม่ให้เลื่อน) -->
                     <div class="sidebar-header flex-shrink-0">
                         <i class="fa-solid fa-filter me-2"></i> หมวดหมู่ข่าวสาร
                     </div>
                     
-                    <!-- ส่วนรายการหมวดหมู่ (มี Scrollbar ของตัวเองเมื่อข้อมูลล้น) -->
+                    <!-- ส่วนรายการหมวดหมู่ (มี Scrollbar ฝั่งซ้ายโผล่มาเมื่อข้อมูลล้น) -->
                     <div class="flex-grow-1 sidebar-scrollable" style="overflow-y: auto;">
                         <div class="cat-item fw-bold" id="cat-all" onclick="selectCategory('all')">
                             <i class="fa-solid fa-border-all"></i> แสดงทุกหมวดหมู่
