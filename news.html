@@ -65,6 +65,12 @@
         .news-attachment-box { background: #f8fafc; border-left: 4px solid #ef4444; padding: 15px; border-radius: 5px; margin-top: 25px; }
         .attachment-item { display: inline-flex; align-items: center; background: white; border: 1px solid #cbd5e1; padding: 8px 15px; border-radius: 20px; color: #475569; text-decoration: none; font-size: 0.9rem; margin: 5px 5px 5px 0; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.05);}
         .attachment-item:hover { background: #ef4444; color: white; border-color: #ef4444; }
+
+        /* ================= ปรับแต่ง Scrollbar ฝั่งซ้ายให้เรียวเล็กสวยงาม ================= */
+        .sidebar-scrollable::-webkit-scrollbar { width: 6px; }
+        .sidebar-scrollable::-webkit-scrollbar-track { background: transparent; }
+        .sidebar-scrollable::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .sidebar-scrollable::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
 <body>
@@ -113,16 +119,17 @@
             
             <!-- ฝั่งซ้าย: Sidebar หมวดหมู่ข่าว -->
             <div class="col-lg-3">
-                <!-- 🟢 เอา sticky-top ออก และจำกัดความสูงให้มี Scrollbar ซ่อนอยู่ข้างใน -->
-                <div class="sidebar-card" style="max-height: 800px; display: flex; flex-direction: column;">
+                <!-- 🟢 ใช้ sticky-top เพื่อล็อคกล่องติดหน้าจอ (ห่างขอบบน 90px เพื่อหลบ Navbar) 
+                     และใช้ height: calc(100vh - 110px) เพื่อบังคับให้กล่องสูงพอดีจอเสมอ -->
+                <div class="sidebar-card sticky-top" style="top: 90px; height: calc(100vh - 110px); display: flex; flex-direction: column;">
                     
                     <!-- ส่วนหัวข้อ (ล็อคไว้ไม่ให้เลื่อน) -->
                     <div class="sidebar-header flex-shrink-0">
                         <i class="fa-solid fa-filter me-2"></i> หมวดหมู่ข่าวสาร
                     </div>
                     
-                    <!-- ส่วนรายการหมวดหมู่ (ให้เลื่อน Scroll ได้ถ้าล้น) -->
-                    <div class="flex-grow-1" style="overflow-y: auto;">
+                    <!-- ส่วนรายการหมวดหมู่ (มี Scrollbar ของตัวเองเมื่อข้อมูลล้น) -->
+                    <div class="flex-grow-1 sidebar-scrollable" style="overflow-y: auto;">
                         <div class="cat-item fw-bold" id="cat-all" onclick="selectCategory('all')">
                             <i class="fa-solid fa-border-all"></i> แสดงทุกหมวดหมู่
                         </div>
