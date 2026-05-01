@@ -183,7 +183,23 @@
         .flight-logo-small { width: 20px; height: 20px; object-fit: contain; background: white; border-radius: 50%; border: 1px solid #ccc; padding: 1px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
         .flight-logo-fallback { width: 20px; height: 20px; display: flex; justify-content: center; align-items: center; background: white; border-radius: 50%; border: 1px solid #ccc; font-size: 0.5rem; font-weight: bold; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
         /* ================= สิ้นสุด แก้ไขสไตล์ ปฏิทินตารางเที่ยวบิน ================= */
+
+        /* ================= เริ่มต้น สไตล์ ปฏิทินกิจกรรม (ใน Modal) ================= */
+        .event-calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 10px; }
+        .event-day-header { text-align: center; font-weight: bold; font-size: 0.85rem; color: var(--primary-blue); padding-bottom: 5px;}
+        .event-day-box { border: 1px solid #eee; border-radius: 5px; padding: 5px; min-height: 80px; display: flex; flex-direction: column; background-color: #f8f9fa; cursor: default; transition: 0.2s; position: relative; overflow: hidden; }
+        .event-day-box.has-event { background-color: #fff3e0; border-color: #ffb74d; cursor: pointer; }
+        .event-day-box.has-event:hover { background-color: #ffe0b2; transform: scale(1.05); box-shadow: 0 4px 8px rgba(0,0,0,0.1); z-index: 10;}
+        .event-day-box.active-day { background-color: #f57c00 !important; color: white; border-color: #f57c00; }
+        .event-day-box.is-today { border: 2px solid var(--primary-blue); background-color: #e3f2fd; }
+        .event-day-box.is-today::before { content: 'วันนี้'; position: absolute; top: 0; left: 0; font-size: 0.65rem; background: var(--primary-blue); color: white; padding: 2px 6px; border-radius: 0 0 5px 0; z-index: 2; }
+        .event-date-num { font-weight: bold; font-size: 1rem; align-self: flex-end; z-index: 2; position: relative;}
+        .event-active-date-num { color: inherit; }
         
+        /* จุดสีส้มแสดงว่ามีกิจกรรมกี่อันในวันนั้น */
+        .event-dots-container { display: flex; flex-wrap: wrap; gap: 3px; margin-top: auto; padding-top: 5px; justify-content: flex-end; }
+        .event-dot { width: 10px; height: 10px; background-color: #f57c00; border-radius: 50%; box-shadow: 0 1px 2px rgba(0,0,0,0.2);}
+        /* ================= สิ้นสุด สไตล์ ปฏิทินกิจกรรม ================= */
     </style>
 </head>
 <body>
@@ -663,55 +679,61 @@
     </div>
     <!-- ================= สิ้นสุด Modal ตารางเที่ยวบิน ================= -->
 
-    <!-- ================= เริ่มต้น Modal ดูปฏิทินกิจกรรมทั้งหมด ================= -->
+    <!-- ================= เริ่มต้น Modal ดูปฏิทินกิจกรรมทั้งหมด (แบบใหม่) ================= -->
     <div class="modal fade" id="allEventsModal" tabindex="-1">
-        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content border-0 bg-light">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
                 <div class="modal-header text-white" style="background-color: var(--primary-blue);">
-                    <h5 class="modal-title fw-bold"><i class="fa-regular fa-calendar-days me-2"></i> ปฏิทินกิจกรรมทั้งหมด</h5>
+                    <h5 class="modal-title fw-bold"><i class="fa-regular fa-calendar-days me-2"></i> ปฏิทินกิจกรรม ท่าอากาศยานบุรีรัมย์</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body p-4">
-                    <!-- ส่วนเครื่องมือค้นหาและกรอง (Filter) -->
-                    <div class="card border-0 shadow-sm mb-4">
-                        <div class="card-body">
-                            <div class="row g-2">
-                                <div class="col-md-5">
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
-                                        <input type="text" id="filterEventText" class="form-control border-start-0" placeholder="ค้นหา ชื่อกิจกรรม, สถานที่, หน่วยงาน..." oninput="filterAllEvents()">
+                <div class="modal-body p-0">
+                    <div class="row g-0">
+                        
+                        <!-- ฝั่งซ้าย: ปฏิทิน (Calendar Grid) -->
+                        <div class="col-lg-5 p-4 border-end bg-white">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <button class="btn btn-sm btn-outline-secondary rounded-circle" onclick="changeEventMonth(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+                                <div class="text-center">
+                                    <h5 class="fw-bold mb-0 text-primary" id="eventCalendarTitle" style="cursor: pointer;" data-bs-toggle="collapse" data-bs-target="#eventMonthSelector">พฤษภาคม 2569 <i class="fa-solid fa-caret-down ms-1 fa-sm"></i></h5>
+                                </div>
+                                <button class="btn btn-sm btn-outline-secondary rounded-circle" onclick="changeEventMonth(1)"><i class="fa-solid fa-chevron-right"></i></button>
+                            </div>
+                            
+                            <div class="collapse mb-3" id="eventMonthSelector">
+                                <div class="card card-body p-2 shadow-sm border-primary">
+                                    <div class="row g-2">
+                                        <div class="col-7"><select class="form-select form-select-sm fw-bold" id="eventMonthSelect" onchange="renderEventCalendar()"></select></div>
+                                        <div class="col-5"><select class="form-select form-select-sm fw-bold" id="eventYearSelect" onchange="renderEventCalendar()"></select></div>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
-                                    <select class="form-select text-primary fw-bold" id="filterEventMonth" onchange="filterAllEvents()">
-                                        <option value="">-- ทุกเดือน --</option>
-                                        <option value="0">มกราคม</option><option value="1">กุมภาพันธ์</option><option value="2">มีนาคม</option>
-                                        <option value="3">เมษายน</option><option value="4">พฤษภาคม</option><option value="5">มิถุนายน</option>
-                                        <option value="6">กรกฎาคม</option><option value="7">สิงหาคม</option><option value="8">กันยายน</option>
-                                        <option value="9">ตุลาคม</option><option value="10">พฤศจิกายน</option><option value="11">ธันวาคม</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <select class="form-select text-primary fw-bold" id="filterEventYear" onchange="filterAllEvents()">
-                                        <option value="">-- ทุกปี --</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-1">
-                                    <button class="btn btn-outline-secondary w-100" onclick="clearEventFilters()" title="ล้างตัวกรอง"><i class="fa-solid fa-rotate-right"></i></button>
-                                </div>
+                            </div>
+
+                            <div class="event-calendar-grid" id="eventCalendarGrid">
+                                <!-- ตารางปฏิทินจะถูกวาดโดย JS -->
+                            </div>
+                            <div class="text-center mt-3 small text-muted">
+                                <i class="fa-solid fa-circle" style="color: #f57c00;"></i> วันที่มีกิจกรรม
                             </div>
                         </div>
-                    </div>
-                    
-                    <!-- ส่วนแสดงรายการผลลัพธ์ -->
-                    <div id="allEventsResultContainer" class="row g-3">
-                        <!-- ถูก Render ด้วย JS -->
+
+                        <!-- ฝั่งขวา: รายละเอียดกิจกรรมของวันที่เลือก -->
+                        <div class="col-lg-7 p-4 bg-light">
+                            <h5 class="fw-bold mb-3 border-bottom pb-2" style="color: var(--primary-blue);">
+                                <i class="fa-solid fa-list-ul me-2"></i> รายละเอียดกิจกรรม
+                            </h5>
+                            <div class="text-muted small mb-3">วันที่เลือก: <span id="eventSelectedDate" class="fw-bold text-dark fs-6">-</span></div>
+                            <div id="eventDetailsResult" style="max-height: 450px; overflow-y: auto; overflow-x: hidden; padding-right: 10px;">
+                                <div class="text-center text-muted mt-5"><i class="fa-regular fa-hand-pointer fa-3x mb-3 opacity-25"></i><br>โปรดเลือกวันที่จากปฏิทินด้านซ้าย</div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <!-- ================= สิ้นสุด Modal ดูปฏิทินกิจกรรมทั้งหมด ================= -->
+    <!-- ================= สิ้นสุด Modal ดูปฏิทินกิจกรรมทั้งหมด (แบบใหม่) ================= -->
     
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -842,12 +864,19 @@
         }
 
        // ================= เริ่มต้นฟังก์ชัน 2. ส่วนปฏิทินกิจกรรม =================
-        let allPublicEvents = []; // สร้างตัวแปร Global ไว้เก็บข้อมูลกิจกรรมสาธารณะทั้งหมด
+        let allPublicEvents = []; 
+        let currentEventMonth = new Date().getMonth(); 
+        let currentEventYear = new Date().getFullYear();
 
+        // ================= เริ่มต้นฟังก์ชัน 2. ส่วนปฏิทินกิจกรรม =================
+        let allPublicEvents = []; 
+        let currentEventMonth = new Date().getMonth(); 
+        let currentEventYear = new Date().getFullYear();
+
+        // ฟังก์ชันวาดกิจกรรม 4 อันลงหน้าแรก
         function renderEvents(data) {
             const container = document.getElementById('events-container'); container.innerHTML = '';
             
-            // 🟢 เก็บข้อมูลลงตัวแปร Global เพื่อเอาไปใช้ต่อใน Modal
             allPublicEvents = data.filter(e => e.IsActive === 'TRUE' && e.EventType === 'public');
             allPublicEvents.sort((a,b) => new Date(b.EventDate).getTime() - new Date(a.EventDate).getTime());
 
@@ -855,7 +884,6 @@
 
             const monthNamesShort = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
             
-            // โชว์แค่ 4 กิจกรรมล่าสุดในหน้าแรก
             allPublicEvents.slice(0, 4).forEach(item => {
                 let evtDate = new Date(item.EventDate);
                 if(isNaN(evtDate)) return;
@@ -871,24 +899,162 @@
             });
         }
 
-        // 🟢 ฟังก์ชันเปิด Modal พร้อมดึงข้อมูล "ปี" ที่มีในระบบมาใส่ Dropdown
+        // ================= เริ่มต้น ระบบ Modal ปฏิทินทั้งหมด (แบบมี Grid) =================
         function openAllEventsModal() {
-            const yearSelect = document.getElementById('filterEventYear');
-            let uniqueYears = [...new Set(allPublicEvents.map(e => {
-                let d = new Date(e.EventDate);
-                return isNaN(d) ? null : d.getFullYear();
-            }))].filter(y => y !== null).sort((a,b) => b - a); // เรียงจากปีล่าสุดไปอดีต
+            // เซ็ตค่า Dropdown เดือน/ปี 
+            const mSelect = document.getElementById('eventMonthSelect');
+            const ySelect = document.getElementById('eventYearSelect');
+            
+            const months = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+            mSelect.innerHTML = months.map((m, i) => `<option value="${i}">${m}</option>`).join('');
+            
+            let yHtml = '';
+            // ให้แสดงปีย้อนหลัง 1 ปี และเดินหน้า 2 ปี
+            for(let y = currentEventYear - 1; y <= currentEventYear + 2; y++) {
+                yHtml += `<option value="${y}">พ.ศ. ${y + 543}</option>`;
+            }
+            ySelect.innerHTML = yHtml;
 
-            // สร้าง Option ให้ Dropdown ปี
-            yearSelect.innerHTML = '<option value="">-- ทุกปี พ.ศ. --</option>';
-            uniqueYears.forEach(year => {
-                yearSelect.innerHTML += `<option value="${year}">${year + 543}</option>`;
-            });
+            mSelect.value = currentEventMonth;
+            ySelect.value = currentEventYear;
 
-            // ล้างค่า Filter และแสดงข้อมูลทั้งหมด
-            clearEventFilters();
+            renderEventCalendar();
             new bootstrap.Modal(document.getElementById('allEventsModal')).show();
         }
+
+        function changeEventMonth(direction) {
+            currentEventMonth += direction;
+            if(currentEventMonth > 11) { currentEventMonth = 0; currentEventYear++; }
+            else if(currentEventMonth < 0) { currentEventMonth = 11; currentEventYear--; }
+            
+            document.getElementById('eventMonthSelect').value = currentEventMonth;
+            document.getElementById('eventYearSelect').value = currentEventYear;
+            renderEventCalendar();
+        }
+
+        function renderEventCalendar() {
+            const mSelect = document.getElementById('eventMonthSelect');
+            const ySelect = document.getElementById('eventYearSelect');
+            if(!mSelect || !ySelect) return;
+
+            currentEventMonth = parseInt(mSelect.value);
+            currentEventYear = parseInt(ySelect.value);
+            const monthsTH = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+            
+            let bsCollapse = bootstrap.Collapse.getInstance(document.getElementById('eventMonthSelector'));
+            if(bsCollapse) bsCollapse.hide();
+
+            document.getElementById('eventCalendarTitle').innerHTML = `${monthsTH[currentEventMonth]} ${currentEventYear + 543} <i class="fa-solid fa-caret-down ms-1 fa-sm"></i>`;
+
+            const firstDayIndex = new Date(currentEventYear, currentEventMonth, 1).getDay();
+            const daysInMonth = new Date(currentEventYear, currentEventMonth + 1, 0).getDate();
+            const todayDate = new Date(); 
+
+            const grid = document.getElementById('eventCalendarGrid');
+            let html = `<div class="event-day-header text-danger">อา</div><div class="event-day-header">จ</div><div class="event-day-header">อ</div><div class="event-day-header">พ</div><div class="event-day-header">พฤ</div><div class="event-day-header">ศ</div><div class="event-day-header text-danger">ส</div>`;
+
+            // ช่องว่างก่อนเริ่มวันที่ 1
+            for (let i = 0; i < firstDayIndex; i++) html += `<div class="event-day-box border-0 bg-transparent"></div>`;
+
+            // จัดกลุ่มกิจกรรมตามวันที่
+            let eventsByDate = {};
+            allPublicEvents.forEach(evt => {
+                let d = new Date(evt.EventDate);
+                if(!isNaN(d)) {
+                    let dKey = `${d.getDate()}/${d.getMonth()}/${d.getFullYear()}`;
+                    if(!eventsByDate[dKey]) eventsByDate[dKey] = [];
+                    eventsByDate[dKey].push(evt);
+                }
+            });
+
+            // วาดกล่องปฏิทิน
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateKey = `${day}/${currentEventMonth}/${currentEventYear}`;
+                const dailyEvents = eventsByDate[dateKey] || [];
+                const hasEvent = dailyEvents.length > 0;
+                
+                const currentDayIndex = new Date(currentEventYear, currentEventMonth, day).getDay();
+                const isWeekend = (currentDayIndex === 0 || currentDayIndex === 6) ? 'text-danger' : '';
+                
+                let boxClass = "event-day-box";
+                let eventDotsHtml = "";
+
+                if(day === todayDate.getDate() && currentEventMonth === todayDate.getMonth() && currentEventYear === todayDate.getFullYear()) {
+                    boxClass += " is-today";
+                }
+
+                if (hasEvent) {
+                    boxClass += " has-event";
+                    eventDotsHtml += `<div class="event-dots-container">`;
+                    // วาดจุดสีส้มตามจำนวนกิจกรรม (สูงสุดโชว์ 4 จุด)
+                    for(let i=0; i < Math.min(dailyEvents.length, 4); i++){
+                        eventDotsHtml += `<div class="event-dot" title="${dailyEvents[i].EventName}"></div>`;
+                    }
+                    if(dailyEvents.length > 4) eventDotsHtml += `<span class="small fw-bold text-muted lh-1">+</span>`;
+                    eventDotsHtml += `</div>`;
+                }
+
+                let eventDataStr = encodeURIComponent(JSON.stringify(dailyEvents));
+                let fullDateStr = `${day} ${monthsTH[currentEventMonth]} ${currentEventYear + 543}`;
+                
+                html += `<div class="${boxClass}" onclick="showDailyEventsResult(this, '${fullDateStr}', '${eventDataStr}')"><div class="event-date-num ${isWeekend}">${day}</div>${eventDotsHtml}</div>`;
+            }
+
+            grid.innerHTML = html;
+            document.getElementById('eventSelectedDate').innerText = '-';
+            document.getElementById('eventDetailsResult').innerHTML = '<div class="text-center text-muted mt-5"><i class="fa-regular fa-hand-pointer fa-3x mb-3 opacity-25"></i><br>โปรดเลือกวันที่จากปฏิทินด้านซ้าย</div>';
+        }
+
+        // ฟังก์ชันเมื่อคลิกวันที่บนปฏิทิน (แสดงข้อมูลฝั่งขวา)
+        function showDailyEventsResult(element, dateText, eventDataStr) {
+            // ลบไฮไลต์เก่า
+            document.querySelectorAll('.event-day-box').forEach(el => { 
+                el.classList.remove('active-day'); 
+                const num = el.querySelector('.event-date-num'); 
+                if(num) num.classList.remove('event-active-date-num'); 
+            });
+            
+            // ไฮไลต์กล่องใหม่
+            element.classList.add('active-day'); 
+            const numEl = element.querySelector('.event-date-num'); 
+            if(numEl) numEl.classList.add('event-active-date-num');
+            
+            document.getElementById('eventSelectedDate').innerText = dateText;
+            const resultBox = document.getElementById('eventDetailsResult');
+            
+            let events = JSON.parse(decodeURIComponent(eventDataStr));
+            
+            if (events.length === 0) {
+                resultBox.innerHTML = `<div class="text-center p-4 text-muted bg-white rounded shadow-sm"><i class="fa-regular fa-calendar-xmark fa-3x mb-3 opacity-25"></i><h6>ไม่มีกิจกรรมในวันที่เลือก</h6></div>`;
+                return;
+            }
+
+            let html = '';
+            events.forEach(item => {
+                html += `
+                <div class="card border-0 shadow-sm mb-3" style="border-left: 4px solid #f57c00; border-radius: 8px;">
+                    <div class="card-body p-3">
+                        <h6 class="fw-bold mb-3 text-dark lh-base">${item.EventName}</h6>
+                        <div class="d-flex align-items-center small text-muted mb-2">
+                            <div style="width: 25px;"><i class="fa-regular fa-clock text-warning fs-6"></i></div>
+                            <div>${item.EventTime}</div>
+                        </div>
+                        <div class="d-flex align-items-center small text-muted mb-2">
+                            <div style="width: 25px;"><i class="fa-solid fa-location-dot text-danger fs-6"></i></div>
+                            <div>${item.EventLocation || 'ไม่ระบุสถานที่'}</div>
+                        </div>
+                        <div class="d-flex align-items-center small text-muted">
+                            <div style="width: 25px;"><i class="fa-solid fa-building-user text-info fs-6"></i></div>
+                            <div>จัดโดย: ${item.EventDept || '-'}</div>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            resultBox.innerHTML = html;
+        }
+        // ================= สิ้นสุด ระบบ Modal ปฏิทินทั้งหมด =================
+
+        
 
         // 🟢 ฟังก์ชันล้างค่าค้นหา
         function clearEventFilters() {
