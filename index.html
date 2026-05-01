@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบศูนย์กลางบริการ ท่าอากาศยานบุรีรัมย์</title>
+    <link id="dynamic-favicon" rel="icon" href="https://cdn-icons-png.flaticon.com/512/3125/3125713.png" type="image/png">
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -241,8 +242,10 @@
     <!-- แถบเมนูด้านบน -->
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="#">
-                <i class="fa-solid fa-plane-departure me-2"></i> ท่าอากาศยานบุรีรัมย์
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="#">
+                <img id="navLogoImg" src="" style="height: 40px; margin-right: 10px; display: none;" alt="Logo">
+                <i id="navLogoIcon" class="fa-solid fa-plane-departure me-2"></i> 
+                <span id="navAirportName">ท่าอากาศยานบุรีรัมย์</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -378,7 +381,7 @@
 
     <!-- FOOTER -->
     <footer class="mt-5">
-        <div class="footer-top-logos text-center overflow-hidden">
+        <!--div class="footer-top-logos text-center overflow-hidden">
             <div class="container d-flex justify-content-center flex-wrap">
                 <i class="fa-solid fa-plane-up fa-2x mx-3 text-muted"></i>
                 <i class="fa-solid fa-shield-halved fa-2x mx-3 text-muted"></i>
@@ -386,6 +389,15 @@
                 <i class="fa-solid fa-globe fa-2x mx-3 text-muted"></i>
                 <i class="fa-solid fa-passport fa-2x mx-3 text-muted"></i>
                 <i class="fa-solid fa-scale-balanced fa-2x mx-3 text-muted"></i>
+            </div>
+        </div-->
+        <div class="footer-top-logos text-center overflow-hidden">
+            <div class="container d-flex justify-content-center align-items-center flex-wrap" style="gap: 20px;">
+                <!-- 🟢 ใช้ id มารอรับรูปภาพจาก JS -->
+                <img id="footerLogoMinistry" src="" style="display: none; height: 50px;">
+                <img id="footerLogoDept" src="" style="display: none; height: 50px;">
+                <img id="footerLogoAirport" src="" style="display: none; height: 50px;">
+                <span id="footerLogoFallback" class="text-muted small">กำลังโหลดสัญลักษณ์หน่วยงาน...</span>
             </div>
         </div>
 
@@ -845,7 +857,8 @@
                 </div>
                 <div class="modal-body p-4">
                     <div class="text-center mb-4 mt-2">
-                        <i class="fa-solid fa-building-flag fa-4x text-secondary mb-3"></i>
+                        <img id="modalContactLogoImg" src="" style="height: 80px; display: none; margin-bottom: 15px;">
+                        <i id="modalContactLogoIcon" class="fa-solid fa-building-flag fa-4x text-secondary mb-3"></i>
                         <h4 class="fw-bold text-primary" id="modalContactName">ท่าอากาศยานบุรีรัมย์</h4>
                     </div>
                     <ul class="list-group list-group-flush mb-2">
@@ -942,24 +955,65 @@
                 // 1. ตั้งค่าเว็บไซต์
                 if(settingsRes.status === 'success') {
                     const settings = settingsRes.data;
-                    if(settings.SystemName) {
-                        document.title = settings.SystemName;
-                        document.getElementById('footerSystemName').innerText = settings.SystemName;
-                        document.getElementById('modalContactName').innerText = settings.SystemName;
+                    
+                    // แยก System Name (แสดงที่ Title Bar)
+                    if(settings.SystemName) document.title = settings.SystemName;
+                    
+                    // ชื่อ Airport Name (แสดงในเว็บ)
+                    let displayAirportName = settings.AirportName || settings.SystemName || 'ท่าอากาศยานบุรีรัมย์';
+                    if (document.getElementById('navAirportName')) document.getElementById('navAirportName').innerText = displayAirportName;
+                    if (document.getElementById('footerSystemName')) document.getElementById('footerSystemName').innerText = displayAirportName;
+                    if (document.getElementById('modalContactName')) document.getElementById('modalContactName').innerText = displayAirportName;
+
+                    // จัดการโลโก้สนามบิน (Navbar, Favicon, Modal)
+                    if (settings.LogoAirport) {
+                        let airportLogoUrl = convertDriveImageLink(settings.LogoAirport);
+                        if (document.getElementById('dynamic-favicon')) document.getElementById('dynamic-favicon').href = airportLogoUrl;
+                        
+                        if (document.getElementById('navLogoImg')) {
+                            document.getElementById('navLogoImg').src = airportLogoUrl;
+                            document.getElementById('navLogoImg').style.display = 'block';
+                            document.getElementById('navLogoIcon').style.display = 'none';
+                        }
+                        if (document.getElementById('modalContactLogoImg')) {
+                            document.getElementById('modalContactLogoImg').src = airportLogoUrl;
+                            document.getElementById('modalContactLogoImg').style.display = 'inline-block';
+                            document.getElementById('modalContactLogoIcon').style.display = 'none';
+                        }
+                        if (document.getElementById('footerLogoAirport')) {
+                            document.getElementById('footerLogoAirport').src = airportLogoUrl;
+                            document.getElementById('footerLogoAirport').style.display = 'inline-block';
+                        }
                     }
+
+                    // จัดการโลโก้กระทรวง และ กรม (Footer)
+                    let hasFooterLogos = false;
+                    if (settings.LogoMinistry && document.getElementById('footerLogoMinistry')) {
+                        document.getElementById('footerLogoMinistry').src = convertDriveImageLink(settings.LogoMinistry);
+                        document.getElementById('footerLogoMinistry').style.display = 'inline-block';
+                        hasFooterLogos = true;
+                    }
+                    if (settings.LogoDept && document.getElementById('footerLogoDept')) {
+                        document.getElementById('footerLogoDept').src = convertDriveImageLink(settings.LogoDept);
+                        document.getElementById('footerLogoDept').style.display = 'inline-block';
+                        hasFooterLogos = true;
+                    }
+                    // ซ่อนข้อความโหลด ถ้ามีโลโก้อย่างน้อย 1 อัน
+                    if ((hasFooterLogos || settings.LogoAirport) && document.getElementById('footerLogoFallback')) {
+                        document.getElementById('footerLogoFallback').style.display = 'none';
+                    }
+
+                    // ข้อมูลติดต่อและอื่นๆ (คงเดิมไว้)
                     const carouselEl = document.getElementById('heroCarousel');
-                    if(settings.BannerSpeed) carouselEl.setAttribute('data-bs-interval', settings.BannerSpeed);
-                    if(settings.BannerEffect === 'fade') carouselEl.classList.add('carousel-fade');
+                    if(carouselEl && settings.BannerSpeed) carouselEl.setAttribute('data-bs-interval', settings.BannerSpeed);
+                    if(carouselEl && settings.BannerEffect === 'fade') carouselEl.classList.add('carousel-fade');
 
-                    // 🟢 นำข้อมูลติดต่อไปใส่ใน Footer
-                    document.getElementById('footerAddress').innerText = settings.ContactAddress || '-';
-                    document.getElementById('footerPhone').innerText = settings.ContactPhone || '-';
-                    document.getElementById('footerEmail').innerText = settings.ContactEmail || '-';
-
-                    // 🟢 นำข้อมูลติดต่อไปใส่ใน Modal ติดต่อเรา
-                    document.getElementById('modalContactAddress').innerText = settings.ContactAddress || '-';
-                    document.getElementById('modalContactPhone').innerText = settings.ContactPhone || '-';
-                    document.getElementById('modalContactEmail').innerText = settings.ContactEmail || '-';
+                    if (document.getElementById('footerAddress')) document.getElementById('footerAddress').innerText = settings.ContactAddress || '-';
+                    if (document.getElementById('footerPhone')) document.getElementById('footerPhone').innerText = settings.ContactPhone || '-';
+                    if (document.getElementById('footerEmail')) document.getElementById('footerEmail').innerText = settings.ContactEmail || '-';
+                    if (document.getElementById('modalContactAddress')) document.getElementById('modalContactAddress').innerText = settings.ContactAddress || '-';
+                    if (document.getElementById('modalContactPhone')) document.getElementById('modalContactPhone').innerText = settings.ContactPhone || '-';
+                    if (document.getElementById('modalContactEmail')) document.getElementById('modalContactEmail').innerText = settings.ContactEmail || '-';
                 }
 
                 // 2. แบนเนอร์สไลด์
