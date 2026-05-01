@@ -2049,7 +2049,6 @@
             const selectedYear = document.getElementById('filterWebStatYear').value;
             const monthNames = { "01": "มกราคม", "02": "กุมภาพันธ์", "03": "มีนาคม", "04": "เมษายน", "05": "พฤษภาคม", "06": "มิถุนายน", "07": "กรกฎาคม", "08": "สิงหาคม", "09": "กันยายน", "10": "ตุลาคม", "11": "พฤศจิกายน", "12": "ธันวาคม" };
             
-            // 🟢 เพิ่ม String() เพื่อให้แน่ใจว่าตัวเลขปีจาก Google Sheets เทียบกับค่าใน Dropdown ได้ถูกต้อง
             let filteredData = allWebStatsData.filter(item => String(item.year) === String(selectedYear));
             
             if (filteredData.length === 0) {
@@ -2057,14 +2056,32 @@
                 return; 
             }
 
+            let yearlyTotal = 0; // ตัวแปรเก็บยอดรวมของปี
+
+            // วาดข้อมูลแต่ละเดือนลงตาราง
             filteredData.sort((a,b) => parseInt(b.month) - parseInt(a.month)).forEach(item => {
+                // 🟢 แปลงตัวเลขเดือนให้มี 0 นำหน้า (เช่น 5 กลายเป็น "05") เพื่อให้ตรงกับ Key ของเดือน
+                let formattedMonth = ("0" + item.month).slice(-2);
+                let monthNameFull = monthNames[formattedMonth] || item.month;
+                
+                let viewCount = parseInt(item.count) || 0;
+                yearlyTotal += viewCount; // นำยอดของแต่ละเดือนมาบวกสะสม
+
                 tbody.innerHTML += `
                     <tr>
-                        <td class="fw-bold">${monthNames[item.month] || item.month}</td>
-                        <td class="fs-6 fw-bold text-success">${parseInt(item.count).toLocaleString('th-TH')}</td>
+                        <td class="fw-bold">${monthNameFull}</td>
+                        <td class="fs-6 fw-bold text-success">${viewCount.toLocaleString('th-TH')}</td>
                     </tr>
                 `;
             });
+
+            // 🟢 วาดบรรทัดสรุปยอดรวม (Total) ของปี ไว้ที่ล่างสุดของตาราง
+            tbody.innerHTML += `
+                <tr class="table-light">
+                    <td class="fw-bold text-primary text-end pe-3">รวมทั้งปี พ.ศ. ${selectedYear}</td>
+                    <td class="fs-5 fw-bold text-primary">${yearlyTotal.toLocaleString('th-TH')}</td>
+                </tr>
+            `;
         }
         // ================= สิ้นสุดฟังก์ชัน วาดตารางสถิติย้อนหลังใน Modal =================
 
