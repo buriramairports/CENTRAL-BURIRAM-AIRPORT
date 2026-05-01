@@ -150,7 +150,42 @@
                 </div>
                 <div class="card card-custom p-4">
                     <form id="formSettings">
-                        <div class="row mb-4"><div class="col-md-3 fw-bold text-secondary">ข้อมูลทั่วไป</div><div class="col-md-9"><div class="mb-3"><label class="form-label">ชื่อเว็บไซต์</label><input type="text" class="form-control" id="set_SystemName"></div><div class="mb-3"><label class="form-label">จำนวนข่าวสูงสุดในหน้าแรก</label><input type="number" class="form-control" id="set_NewsLimitHome" style="max-width: 150px;"></div></div></div><hr class="text-muted">
+                        <div class="row mb-4">
+                            <div class="col-md-3 fw-bold text-secondary">ข้อมูลทั่วไป</div>
+                            <div class="col-md-9">
+                                <div class="mb-3"><label class="form-label">ชื่อเว็บไซต์/ระบบ (แสดงที่แท็บเบราว์เซอร์)</label><input type="text" class="form-control" id="set_SystemName"></div>
+                                <!-- 🟢 เพิ่มช่อง ชื่อท่าอากาศยาน -->
+                                <div class="mb-3"><label class="form-label">ชื่อท่าอากาศยาน (แสดงที่แถบเมนู และ Footer)</label><input type="text" class="form-control text-primary fw-bold" id="set_AirportName"></div>
+                                <div class="mb-3"><label class="form-label">จำนวนข่าวสูงสุดในหน้าแรก</label><input type="number" class="form-control" id="set_NewsLimitHome" style="max-width: 150px;"></div>
+                            </div>
+                        </div>
+                        <hr class="text-muted">
+
+                        <!-- 🟢 เพิ่มส่วนอัปโหลดโลโก้ -->
+                        <div class="row mb-4">
+                            <div class="col-md-3 fw-bold text-secondary">จัดการโลโก้ (Logos)</div>
+                            <div class="col-md-9">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold"><i class="fa-solid fa-plane-up text-primary"></i> โลโก้ท่าอากาศยาน</label>
+                                    <input type="hidden" id="set_ExistingLogoAirport">
+                                    <input type="file" class="form-control" id="set_UploadLogoAirport" accept="image/png, image/jpeg">
+                                    <div class="form-text mt-1" id="status_LogoAirport">แสดงที่แถบเมนู, Modal ติดต่อเรา และ Footer</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold"><i class="fa-solid fa-building-columns text-warning"></i> โลโก้กระทรวง (แสดงที่ Footer)</label>
+                                    <input type="hidden" id="set_ExistingLogoMinistry">
+                                    <input type="file" class="form-control" id="set_UploadLogoMinistry" accept="image/png, image/jpeg">
+                                    <div class="form-text mt-1" id="status_LogoMinistry"></div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold"><i class="fa-solid fa-building-shield text-success"></i> โลโก้กรม / สังกัด (แสดงที่ Footer)</label>
+                                    <input type="hidden" id="set_ExistingLogoDept">
+                                    <input type="file" class="form-control" id="set_UploadLogoDept" accept="image/png, image/jpeg">
+                                    <div class="form-text mt-1" id="status_LogoDept"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div class="row mb-4"><div class="col-md-3 fw-bold text-secondary">ตั้งค่าแบนเนอร์หน้าแรก</div><div class="col-md-9"><div class="mb-3"><label class="form-label">ระยะเวลาเปลี่ยนภาพ (มิลลิวินาที)</label><input type="number" class="form-control" id="set_BannerSpeed" style="max-width: 150px;" placeholder="เช่น 6000"><div class="form-text">1000 มิลลิวินาที = 1 วินาที</div></div><div class="mb-3"><label class="form-label">เอฟเฟกต์การเปลี่ยนภาพ</label><select class="form-select" id="set_BannerEffect" style="max-width: 250px;"><option value="slide">เลื่อนด้านข้าง (Slide)</option><option value="fade">ค่อยๆ จางหาย (Fade)</option></select></div></div></div><hr class="text-muted">
 
                         <!-- ================= เริ่มต้น เพิ่มช่องอัปโหลดรูปตารางเที่ยวบิน ================= -->
@@ -692,6 +727,18 @@
                             document.getElementById('set_ContactAddress').value = data.ContactAddress || ''; 
                             document.getElementById('set_ContactPhone').value = data.ContactPhone || ''; 
                             document.getElementById('set_ContactEmail').value = data.ContactEmail || '';
+                            document.getElementById('set_AirportName').value = data.AirportName || ''; 
+
+                            // ฟังก์ชันช่วยแสดงสถานะรูป
+                            const setImgStatus = (id, url, defaultText) => {
+                                document.getElementById(`set_Existing${id}`).value = url || '';
+                                document.getElementById(`set_Upload${id}`).value = '';
+                                document.getElementById(`status_${id}`).innerHTML = url ? `<a href="${convertDriveImageLink(url)}" target="_blank" class="text-primary fw-bold">คลิกดูรูปปัจจุบัน</a> (อัปโหลดใหม่เพื่อแทนที่)` : defaultText;
+                            };
+                            
+                            setImgStatus('LogoAirport', data.LogoAirport, 'แสดงที่แถบเมนู, Modal ติดต่อเรา และ Footer');
+                            setImgStatus('LogoMinistry', data.LogoMinistry, 'ยังไม่มีรูป');
+                            setImgStatus('LogoDept', data.LogoDept, 'ยังไม่มีรูป');
                             
                             // 🟢 เริ่มต้น: ดึงค่ารูประบบตารางเที่ยวบิน
                             document.getElementById('set_ExistingFlightImageURL').value = data.FlightScheduleImage || '';
@@ -1017,28 +1064,32 @@
             btn.disabled = true;
 
             try {
-                let finalFlightImageUrl = document.getElementById('set_ExistingFlightImageURL').value;
-                const fileInput = document.getElementById('set_UploadFlightImage');
+                const uploadIfExist = async (inputId) => {
+                    const fileInput = document.getElementById(inputId);
+                    if (fileInput.files.length > 0) return await uploadSingleFile(fileInput.files[0], 'image');
+                    return null;
+                };
 
-                // 🟢 ตรวจสอบว่ามีการอัปโหลดไฟล์ใหม่หรือไม่ ถ้ามีให้อัปโหลดเข้า Google Drive ก่อน
-                if (fileInput.files.length > 0) {
-                    Swal.fire({ title: 'กำลังอัปโหลดรูปภาพ...', text: 'โปรดรอสักครู่ ห้ามปิดหน้าต่างนี้', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
-                    let uploadedUrl = await uploadSingleFile(fileInput.files[0], 'image');
-                    if (uploadedUrl) finalFlightImageUrl = uploadedUrl;
-                } else {
-                    Swal.fire({ title: 'กำลังบันทึกการตั้งค่า...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
-                }
+                Swal.fire({ title: 'กำลังบันทึกการตั้งค่า...', text: 'โปรดรอสักครู่ ห้ามปิดหน้าต่างนี้', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
 
-                // รวบรวมข้อมูลการตั้งค่าทั้งหมดส่งไป API
-                const settingsData = {
-                    ContactAddress: document.getElementById('set_ContactAddress').value,
-                    ContactPhone: document.getElementById('set_ContactPhone').value,
-                    ContactEmail: document.getElementById('set_ContactEmail').value,
+                let finalFlightImage = await uploadIfExist('set_UploadFlightImage') || document.getElementById('set_ExistingFlightImageURL').value;
+                let finalLogoAirport = await uploadIfExist('set_UploadLogoAirport') || document.getElementById('set_ExistingLogoAirport').value;
+                let finalLogoMinistry = await uploadIfExist('set_UploadLogoMinistry') || document.getElementById('set_ExistingLogoMinistry').value;
+                let finalLogoDept = await uploadIfExist('set_UploadLogoDept') || document.getElementById('set_ExistingLogoDept').value;
+
+                const settingsData = { 
                     SystemName: document.getElementById('set_SystemName').value, 
+                    AirportName: document.getElementById('set_AirportName').value, // เพิ่มชื่อสนามบิน
+                    LogoAirport: finalLogoAirport,
+                    LogoMinistry: finalLogoMinistry,
+                    LogoDept: finalLogoDept,
                     NewsLimitHome: document.getElementById('set_NewsLimitHome').value, 
                     BannerSpeed: document.getElementById('set_BannerSpeed').value, 
                     BannerEffect: document.getElementById('set_BannerEffect').value, 
-                    FlightScheduleImage: finalFlightImageUrl, // เพิ่มบรรทัดนี้เพื่อเซฟรูปลงฐานข้อมูล
+                    FlightScheduleImage: finalFlightImage, 
+                    ContactAddress: document.getElementById('set_ContactAddress').value,
+                    ContactPhone: document.getElementById('set_ContactPhone').value,
+                    ContactEmail: document.getElementById('set_ContactEmail').value,
                     MaintenanceMode: document.getElementById('set_MaintenanceMode').checked ? 'TRUE' : 'FALSE' 
                 };
                 
