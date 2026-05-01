@@ -143,7 +143,7 @@
 
             <!-- ฝั่งขวา: รายการข่าวสาร -->
             <!-- 🟢 เพิ่ม style="padding-top: 10px;" เพื่อดันเนื้อหาให้ตรงกับกล่องซ้ายมือ (ปรับตัวเลขได้ตามต้องการ) -->
-            <div class="col-lg-9" style="padding-top: 110px;">
+            <div class="col-lg-9">
                 
                 <!-- เครื่องมือค้นหาและจัดเรียง -->
                 <div class="card border-0 shadow-sm mb-4 bg-white">
@@ -376,7 +376,7 @@
             applyFilters();
 
             // เลื่อนจอขึ้นไปบนสุด (เฉพาะเวลากดด้วยมือ)
-            if (shouldScroll) window.scrollTo({ top: document.getElementById('currentCategoryTitle').offsetTop - 100, behavior: 'smooth' });
+            if (shouldScroll) window.scrollTo({ top: document.getElementById('currentCategoryTitle').offsetTop - 160, behavior: 'smooth' });
         }
 
         // 5. ระบบกรองและจัดเรียงข่าว (ค้นหา + หมวดหมู่ + เรียง)
@@ -416,7 +416,7 @@
         function changePage(page) {
             currentPage = page;
             renderNewsGrid();
-            window.scrollTo({ top: document.getElementById('currentCategoryTitle').offsetTop - 100, behavior: 'smooth' });
+            window.scrollTo({ top: document.getElementById('currentCategoryTitle').offsetTop - 160, behavior: 'smooth' });
         }
 
         // 7. วาดการ์ดข่าวสาร และปุ่มแบ่งหน้า
