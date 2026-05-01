@@ -1701,7 +1701,14 @@
         // 3. UI Interactions & Modals
         // ==========================================
         function showAllEServicesModal() { new bootstrap.Modal(document.getElementById('allEServicesModal')).show(); }
-        function showWebStatsModal() { new bootstrap.Modal(document.getElementById('webStatsModal')).show(); }
+       // ================= เริ่มต้นฟังก์ชัน เปิด Modal สถิติย้อนหลัง =================
+        function showWebStatsModal() { 
+            // สั่งวาดข้อมูลตารางก่อนเปิด Modal
+            renderWebStatsTable(); 
+            // เปิดหน้าต่าง Modal
+            new bootstrap.Modal(document.getElementById('webStatsModal')).show(); 
+        }
+        // ================= สิ้นสุดฟังก์ชัน เปิด Modal สถิติย้อนหลัง =================
         function showFlightScheduleModal() { new bootstrap.Modal(document.getElementById('flightModal')).show(); }
         function showPassengerStatsModal() { new bootstrap.Modal(document.getElementById('passengerStatsModal')).show(); }
         function toggleChatbot() { Swal.fire({ icon: 'info', title: 'ระบบแชทบอท', text: 'กำลังอยู่ในช่วงพัฒนา จะเปิดให้บริการเร็วๆ นี้ครับ', confirmButtonColor: '#0A3161' }); }
@@ -2033,26 +2040,33 @@
             document.getElementById('statOnlineNow').innerText = onlineNow;
         }
 
-        // วาดตารางใน Modal เมื่อเปลี่ยนปี
+// ================= เริ่มต้นฟังก์ชัน วาดตารางสถิติย้อนหลังใน Modal =================
         function renderWebStatsTable() {
-            const tbody = document.getElementById('tbody-webstats'); tbody.innerHTML = '';
+            const tbody = document.getElementById('tbody-webstats'); 
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            
             const selectedYear = document.getElementById('filterWebStatYear').value;
             const monthNames = { "01": "มกราคม", "02": "กุมภาพันธ์", "03": "มีนาคม", "04": "เมษายน", "05": "พฤษภาคม", "06": "มิถุนายน", "07": "กรกฎาคม", "08": "สิงหาคม", "09": "กันยายน", "10": "ตุลาคม", "11": "พฤศจิกายน", "12": "ธันวาคม" };
             
-            let filteredData = allWebStatsData.filter(item => item.year === selectedYear);
+            // 🟢 เพิ่ม String() เพื่อให้แน่ใจว่าตัวเลขปีจาก Google Sheets เทียบกับค่าใน Dropdown ได้ถูกต้อง
+            let filteredData = allWebStatsData.filter(item => String(item.year) === String(selectedYear));
+            
             if (filteredData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="2" class="py-4 text-muted">ไม่มีข้อมูลของปีนี้</td></tr>'; return; 
+                tbody.innerHTML = '<tr><td colspan="2" class="py-4 text-muted">ไม่มีข้อมูลของปีนี้</td></tr>'; 
+                return; 
             }
 
             filteredData.sort((a,b) => parseInt(b.month) - parseInt(a.month)).forEach(item => {
                 tbody.innerHTML += `
                     <tr>
-                        <td class="fw-bold">${monthNames[item.month]}</td>
+                        <td class="fw-bold">${monthNames[item.month] || item.month}</td>
                         <td class="fs-6 fw-bold text-success">${parseInt(item.count).toLocaleString('th-TH')}</td>
                     </tr>
                 `;
             });
         }
+        // ================= สิ้นสุดฟังก์ชัน วาดตารางสถิติย้อนหลังใน Modal =================
 
         // เรียกใช้ฟังก์ชันนี้ทันทีหลังจากเปิดหน้าเว็บ
         document.addEventListener('DOMContentLoaded', () => {
