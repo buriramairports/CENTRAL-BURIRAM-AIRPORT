@@ -58,6 +58,10 @@
             <li id="header_flights" class="mt-4 px-3"><small class="text-uppercase fw-bold" style="color: #64748b; font-size: 0.7rem;">จัดการข้อมูลเที่ยวบิน/ผู้โดยสาร</small></li>
             <li id="menu_flightschedules"><a href="#" onclick="switchView('flightschedules', this)"><i class="fa-solid fa-plane-arrival"></i> ตารางเที่ยวบิน</a></li>
             <li id="menu_passengerstats"><a href="#" onclick="switchView('passengerstats', this)"><i class="fa-solid fa-users-line"></i> สถิติผู้โดยสาร</a></li>
+
+            <li id="header_about" class="mt-4 px-3"><small class="text-uppercase fw-bold" style="color: #64748b; font-size: 0.7rem;">จัดการข้อมูลหน่วยงาน</small></li>
+            <li id="menu_aboutcategories"><a href="#" onclick="switchView('aboutcategories', this)"><i class="fa-solid fa-folder-tree"></i> หมวดหมู่ข้อมูล</a></li>
+            <li id="menu_aboutpages"><a href="#" onclick="switchView('aboutpages', this)"><i class="fa-solid fa-file-lines"></i> เนื้อหาข้อมูล (เกี่ยวกับหน่วยงาน)</a></li>
             
             <li id="header_basic" class="mt-4 px-3"><small class="text-uppercase fw-bold" style="color: #64748b; font-size: 0.7rem;">จัดการข้อมูลพื้นฐาน</small></li>
             <li id="menu_eservices"><a href="#" onclick="switchView('eservices', this)"><i class="fa-solid fa-laptop-code"></i> ระบบ E-Services</a></li>
@@ -231,6 +235,24 @@
                 </div>
             </div>
 
+            <!-- ================= VIEW: About Categories ================= -->
+            <div id="view-aboutcategories" class="admin-view" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold text-dark mb-0"><i class="fa-solid fa-folder-tree me-2 text-primary"></i> หมวดหมู่ข้อมูลหน่วยงาน</h4>
+                    <div><button id="btnSaveOrder-AboutCats" class="btn btn-warning me-2 d-none" onclick="saveOrderAPI('AboutCategories', 'CategoryID')"><i class="fa-solid fa-save me-1"></i> บันทึกลำดับ</button><button class="btn btn-success" onclick="openAboutCatModal()"><i class="fa-solid fa-plus me-1"></i> เพิ่มหมวดหมู่</button></div>
+                </div>
+                <div class="card card-custom"><div class="card-body p-0 table-responsive"><table class="table table-hover align-middle mb-0"><thead class="table-light"><tr><th width="10%">ลำดับ</th><th width="60%">ชื่อหมวดหมู่ใหญ่ (เช่น เกี่ยวกับกรม, เกี่ยวกับหน่วยงาน)</th><th width="15%">สถานะ</th><th width="15%" class="text-center">จัดการ</th></tr></thead><tbody id="tbody-aboutcategories"></tbody></table></div></div>
+            </div>
+
+            <!-- ================= VIEW: About Pages ================= -->
+            <div id="view-aboutpages" class="admin-view" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold text-dark mb-0"><i class="fa-solid fa-file-lines me-2 text-primary"></i> เนื้อหาข้อมูลหน่วยงาน</h4>
+                    <div><button id="btnSaveOrder-AboutPages" class="btn btn-warning me-2 d-none" onclick="saveOrderAPI('AboutPages', 'PageID')"><i class="fa-solid fa-save me-1"></i> บันทึกลำดับ</button><button class="btn btn-success" onclick="openAboutPageModal()"><i class="fa-solid fa-plus me-1"></i> เพิ่มเนื้อหาใหม่</button></div>
+                </div>
+                <div class="card card-custom"><div class="card-body p-0 table-responsive"><table class="table table-hover align-middle mb-0"><thead class="table-light"><tr><th width="10%">ลำดับ</th><th width="35%">หัวข้อย่อย (Title)</th><th width="25%">อยู่ภายใต้หมวดหมู่</th><th width="15%">สถานะ</th><th width="15%" class="text-center">จัดการ</th></tr></thead><tbody id="tbody-aboutpages"></tbody></table></div></div>
+            </div>
+            
             <!-- ================= VIEW: Banners ================= -->
             <div id="view-banners" class="admin-view" style="display: none;">
                 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -587,6 +609,12 @@
     </div>
     <!-- ================= สิ้นสุด Modal: My Profile (ข้อมูลส่วนตัว) ================= -->
 
+    <!-- Modal: About Categories -->
+    <div class="modal fade" id="aboutCatModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0"><div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold" id="aboutCatModalTitle">เพิ่ม/แก้ไข หมวดหมู่ข้อมูล</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><form id="formAboutCat" onsubmit="saveAboutCat(event)"><input type="hidden" id="abtC_CategoryID"><input type="hidden" id="abtC_OrderList"><div class="mb-3"><label class="form-label fw-bold">ชื่อหมวดหมู่ใหญ่ <span class="text-danger">*</span></label><input type="text" class="form-control" id="abtC_CategoryName" placeholder="เช่น เกี่ยวกับหน่วยงาน" required></div><div class="form-check form-switch mb-3"><input class="form-check-input" type="checkbox" id="abtC_IsActive" style="transform: scale(1.2);" checked><label class="form-check-label ms-2 fw-bold text-success" for="abtC_IsActive">เปิดใช้งาน</label></div><button type="submit" class="btn btn-primary w-100" id="btnSaveAboutCat">บันทึกข้อมูล</button></form></div></div></div></div>
+
+    <!-- Modal: About Pages -->
+    <div class="modal fade" id="aboutPageModal" tabindex="-1"><div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"><div class="modal-content border-0"><div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold" id="aboutPageModalTitle">เพิ่ม/แก้ไข เนื้อหาข้อมูล</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4 bg-light"><form id="formAboutPage" onsubmit="saveAboutPage(event)"><input type="hidden" id="abtP_PageID"><input type="hidden" id="abtP_OrderList"><input type="hidden" id="abtP_ExistingCover"><input type="hidden" id="abtP_ExistingFiles"><input type="hidden" id="abtP_ExistingGallery"><div class="row g-4"><div class="col-lg-8"><div class="card border-0 shadow-sm h-100"><div class="card-body d-flex flex-column"><div class="mb-3"><label class="form-label fw-bold">หัวข้อย่อย <span class="text-danger">*</span></label><input type="text" class="form-control fs-5 fw-bold text-primary" id="abtP_Title" placeholder="เช่น วิสัยทัศน์/ค่านิยม" required></div><div class="mb-2 flex-grow-1 d-flex flex-column"><label class="form-label fw-bold">เนื้อหา <span class="text-danger">*</span></label><div id="abtP_Content_Editor" style="height: 400px; background: white;"></div></div></div></div></div><div class="col-lg-4"><div class="card border-0 shadow-sm mb-3"><div class="card-body"><label class="form-label fw-bold">หมวดหมู่ใหญ่ <span class="text-danger">*</span></label><select class="form-select mb-4" id="abtP_CategoryID" required></select><label class="form-label fw-bold"><i class="fa-solid fa-image text-warning"></i> อัปโหลดรูปปก (1 รูป)</label><input type="file" class="form-control mb-1" id="abtP_UploadCover" accept="image/png, image/jpeg"><div class="form-text mb-4" id="abtP_CoverStatus">ไม่ได้เลือกไฟล์</div><label class="form-label fw-bold"><i class="fa-solid fa-images text-success"></i> แกลลอรี (หลายรูป)</label><input type="file" class="form-control mb-1" id="abtP_UploadGallery" accept="image/png, image/jpeg" multiple><div class="form-text mb-4" id="abtP_GalleryStatus">ไม่ได้เลือกไฟล์</div><label class="form-label fw-bold"><i class="fa-solid fa-file-pdf text-danger"></i> ไฟล์เอกสาร (หลายไฟล์)</label><input type="file" class="form-control mb-1" id="abtP_UploadFile" accept=".pdf,.doc,.docx" multiple><div class="form-text mb-4" id="abtP_FileStatus">ไม่ได้เลือกไฟล์</div><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="abtP_IsActive" style="transform: scale(1.2);" checked><label class="form-check-label ms-2 fw-bold text-success" for="abtP_IsActive">เผยแพร่ข้อมูลนี้</label></div></div></div><button type="submit" class="btn btn-primary w-100 py-3 fw-bold fs-5" id="btnSaveAboutPage"><i class="fa-solid fa-save me-2"></i> บันทึกข้อมูล</button></div></div></form></div></div></div></div>
+
     <!-- ========================================================================= -->
     <!--                                 JAVASCRIPT                                  -->
     <!-- ========================================================================= -->
@@ -840,6 +868,16 @@
                             applyNewsFilters();             
                             Swal.close(); 
                         } else throw new Error("Data load failed");
+                    }).catch(handleError);
+                }
+                    else if (viewId === 'aboutcategories') {
+                    fetch(`${API_URL}?action=getTableData&sheetName=AboutCategories`).then(res=>res.json()).then(res => {
+                        if(res.status === 'success') { currentTableData = res.data || []; renderAboutCatsTable(currentTableData); Swal.close(); }
+                    }).catch(handleError);
+                }
+                else if (viewId === 'aboutpages') {
+                    Promise.all([ fetch(`${API_URL}?action=getTableData&sheetName=AboutCategories`).then(res=>res.json()), fetch(`${API_URL}?action=getTableData&sheetName=AboutPages`).then(res=>res.json()) ]).then(([catsRes, pagesRes]) => {
+                        if(catsRes.status === 'success' && pagesRes.status === 'success') { allAboutCats = catsRes.data || []; currentTableData = pagesRes.data || []; renderAboutPagesTable(); Swal.close(); }
                     }).catch(handleError);
                 }
                 else if (viewId === 'events') { 
@@ -2582,6 +2620,94 @@
             });
         }
         // ================= สิ้นสุดฟังก์ชัน ข้อมูลส่วนตัว (My Profile) =================
+
+        // ================= เตรียม Editor สำหรับ About Pages =================
+        let aboutQuillEditor;
+        let allAboutCats = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                aboutQuillEditor = new Quill('#abtP_Content_Editor', { theme: 'snow', placeholder: 'พิมพ์เนื้อหา...', modules: { toolbar: [ [{ 'header': [1, 2, 3, false] }], ['bold', 'italic', 'underline', 'strike'], [{ 'list': 'ordered'}, { 'list': 'bullet' }], [{ 'align': [] }], ['link'], ['clean'] ] } });
+            } catch(e) {}
+        });
+
+        // ================= ระบบ About Categories =================
+        function renderAboutCatsTable(data) {
+            const tbody = document.getElementById('tbody-aboutcategories'); tbody.innerHTML = '';
+            if (data.length === 0) return;
+            data.sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList)).forEach((item, index) => {
+                let badge = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิด</span>' : '<span class="badge bg-secondary">ปิด</span>';
+                let btnUp = index > 0 ? `<button class="btn btn-sm btn-light text-primary me-1" onclick="moveOrder('AboutCats', ${index}, -1, renderAboutCatsTable)"><i class="fa-solid fa-arrow-up"></i></button>` : `<button class="btn btn-sm btn-light me-1" style="visibility:hidden;"><i class="fa-solid fa-arrow-up"></i></button>`; 
+                let btnDown = index < data.length - 1 ? `<button class="btn btn-sm btn-light text-primary me-2" onclick="moveOrder('AboutCats', ${index}, 1, renderAboutCatsTable)"><i class="fa-solid fa-arrow-down"></i></button>` : `<button class="btn btn-sm btn-light me-2" style="visibility:hidden;"><i class="fa-solid fa-arrow-down"></i></button>`; 
+                tbody.innerHTML += `<tr><td class="fw-bold text-center">${item.OrderList}</td><td class="fw-bold text-primary">${item.CategoryName}</td><td>${badge}</td><td class="text-center text-nowrap">${btnUp}${btnDown} <button class="btn btn-sm btn-outline-warning" onclick="openAboutCatModal('${item.CategoryID}')"><i class="fa-solid fa-pen"></i></button> <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('AboutCategories', 'CategoryID', '${item.CategoryID}')"><i class="fa-solid fa-trash"></i></button></td></tr>`;
+            });
+        }
+        function openAboutCatModal(id = '') {
+            document.getElementById('formAboutCat').reset(); document.getElementById('abtC_CategoryID').value = '';
+            if (id) {
+                const i = currentTableData.find(x => x.CategoryID === id);
+                document.getElementById('abtC_CategoryID').value = i.CategoryID; document.getElementById('abtC_CategoryName').value = i.CategoryName; document.getElementById('abtC_OrderList').value = i.OrderList; document.getElementById('abtC_IsActive').checked = (i.IsActive === 'TRUE');
+            }
+            new bootstrap.Modal(document.getElementById('aboutCatModal')).show();
+        }
+        function saveAboutCat(e) {
+            e.preventDefault(); const btn = document.getElementById('btnSaveAboutCat'); btn.disabled = true;
+            let ord = document.getElementById('abtC_OrderList').value || (currentTableData.length + 1);
+            const rData = { CategoryID: document.getElementById('abtC_CategoryID').value, CategoryName: document.getElementById('abtC_CategoryName').value, OrderList: ord, IsActive: document.getElementById('abtC_IsActive').checked ? 'TRUE' : 'FALSE' };
+            fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'AboutCategories', idColumn: 'CategoryID', recordJSON: JSON.stringify(rData) }) }).then(res=>res.json()).then(res=>{ if (res.status === 'success') { bootstrap.Modal.getInstance(document.getElementById('aboutCatModal')).hide(); Swal.fire({ icon: 'success', showConfirmButton: false, timer: 1500 }); switchView('aboutcategories', null); } }).finally(() => btn.disabled = false);
+        }
+
+        // ================= ระบบ About Pages =================
+        function renderAboutPagesTable() {
+            const tbody = document.getElementById('tbody-aboutpages'); tbody.innerHTML = '';
+            if (currentTableData.length === 0) return;
+            currentTableData.sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList)).forEach((item, index) => {
+                let badge = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิด</span>' : '<span class="badge bg-secondary">ปิด</span>';
+                let catObj = allAboutCats.find(c => c.CategoryID === item.CategoryID); let catName = catObj ? catObj.CategoryName : '-';
+                let btnUp = index > 0 ? `<button class="btn btn-sm btn-light text-primary me-1" onclick="moveOrder('AboutPages', ${index}, -1, renderAboutPagesTable)"><i class="fa-solid fa-arrow-up"></i></button>` : `<button class="btn btn-sm btn-light me-1" style="visibility:hidden;"><i class="fa-solid fa-arrow-up"></i></button>`; 
+                let btnDown = index < currentTableData.length - 1 ? `<button class="btn btn-sm btn-light text-primary me-2" onclick="moveOrder('AboutPages', ${index}, 1, renderAboutPagesTable)"><i class="fa-solid fa-arrow-down"></i></button>` : `<button class="btn btn-sm btn-light me-2" style="visibility:hidden;"><i class="fa-solid fa-arrow-down"></i></button>`; 
+                tbody.innerHTML += `<tr><td class="fw-bold text-center">${item.OrderList}</td><td class="fw-bold text-primary">${item.Title}</td><td><span class="badge bg-light text-dark border">${catName}</span></td><td>${badge}</td><td class="text-center text-nowrap">${btnUp}${btnDown} <button class="btn btn-sm btn-outline-warning" onclick="openAboutPageModal('${item.PageID}')"><i class="fa-solid fa-pen"></i></button> <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('AboutPages', 'PageID', '${item.PageID}')"><i class="fa-solid fa-trash"></i></button></td></tr>`;
+            });
+        }
+        function openAboutPageModal(id = '') {
+            document.getElementById('formAboutPage').reset(); document.getElementById('abtP_PageID').value = ''; aboutQuillEditor.root.innerHTML = '';
+            document.getElementById('abtP_CoverStatus').innerText = 'ไม่ได้เลือกไฟล์'; document.getElementById('abtP_FileStatus').innerText = 'ไม่ได้เลือกไฟล์'; document.getElementById('abtP_GalleryStatus').innerText = 'ไม่ได้เลือกไฟล์';
+            document.getElementById('abtP_ExistingCover').value = ''; document.getElementById('abtP_ExistingFiles').value = ''; document.getElementById('abtP_ExistingGallery').value = '';
+            
+            const sel = document.getElementById('abtP_CategoryID'); sel.innerHTML = '<option value="">-- เลือกหมวดหมู่ใหญ่ --</option>';
+            allAboutCats.forEach(c => { if(c.IsActive==='TRUE') sel.innerHTML += `<option value="${c.CategoryID}">${c.CategoryName}</option>`; });
+
+            if (id) {
+                const i = currentTableData.find(x => x.PageID === id);
+                document.getElementById('abtP_PageID').value = i.PageID; document.getElementById('abtP_Title').value = i.Title; aboutQuillEditor.root.innerHTML = i.Content || ''; document.getElementById('abtP_CategoryID').value = i.CategoryID; document.getElementById('abtP_OrderList').value = i.OrderList; document.getElementById('abtP_IsActive').checked = (i.IsActive === 'TRUE');
+                document.getElementById('abtP_ExistingCover').value = i.CoverImageURL || ''; document.getElementById('abtP_ExistingFiles').value = i.FilesURL || ''; document.getElementById('abtP_ExistingGallery').value = i.GalleryURLs || '';
+                if(i.CoverImageURL) document.getElementById('abtP_CoverStatus').innerHTML = `<a href="${i.CoverImageURL}" target="_blank">มีรูปปกเดิมอยู่แล้ว</a>`;
+                if(i.FilesURL) document.getElementById('abtP_FileStatus').innerHTML = `มีไฟล์เดิม ${i.FilesURL.split(', ').length} ไฟล์`;
+                if(i.GalleryURLs) document.getElementById('abtP_GalleryStatus').innerHTML = `มีรูปแกลลอรีเดิม ${i.GalleryURLs.split(', ').length} รูป`;
+            }
+            new bootstrap.Modal(document.getElementById('aboutPageModal')).show();
+        }
+
+        async function saveAboutPage(e) {
+            e.preventDefault(); const btn = document.getElementById('btnSaveAboutPage');
+            if (aboutQuillEditor.getText().trim().length === 0) { Swal.fire('แจ้งเตือน', 'กรุณาใส่เนื้อหา', 'warning'); return; }
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังอัปโหลด...'; btn.disabled = true;
+
+            try {
+                let finalCover = document.getElementById('abtP_ExistingCover').value;
+                let finalFiles = document.getElementById('abtP_ExistingFiles').value ? document.getElementById('abtP_ExistingFiles').value.split(', ') : [];
+                let finalGal = document.getElementById('abtP_ExistingGallery').value ? document.getElementById('abtP_ExistingGallery').value.split(', ') : [];
+
+                const cInp = document.getElementById('abtP_UploadCover'); if (cInp.files.length > 0) { let url = await uploadSingleFile(cInp.files[0], 'image'); if (url) finalCover = url; }
+                const fInp = document.getElementById('abtP_UploadFile'); if (fInp.files.length > 0) { for(let i=0; i<fInp.files.length; i++){ let url = await uploadSingleFile(fInp.files[i], 'document'); if(url) finalFiles.push(url); } }
+                const gInp = document.getElementById('abtP_UploadGallery'); if (gInp.files.length > 0) { for(let i=0; i<gInp.files.length; i++){ let url = await uploadSingleFile(gInp.files[i], 'image'); if(url) finalGal.push(url); } }
+
+                let ord = document.getElementById('abtP_OrderList').value || (currentTableData.length + 1);
+                const rData = { PageID: document.getElementById('abtP_PageID').value, CategoryID: document.getElementById('abtP_CategoryID').value, Title: document.getElementById('abtP_Title').value, Content: aboutQuillEditor.root.innerHTML, CoverImageURL: finalCover, FilesURL: finalFiles.join(', '), GalleryURLs: finalGal.join(', '), OrderList: ord, IsActive: document.getElementById('abtP_IsActive').checked ? 'TRUE' : 'FALSE' };
+                fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'AboutPages', idColumn: 'PageID', recordJSON: JSON.stringify(rData) }) }).then(res=>res.json()).then(res=>{ if (res.status === 'success') { bootstrap.Modal.getInstance(document.getElementById('aboutPageModal')).hide(); Swal.fire({ icon: 'success', showConfirmButton: false, timer: 1500 }); switchView('aboutpages', null); } });
+            } catch(err) { Swal.fire('ผิดพลาด', 'อัปโหลดไม่สำเร็จ', 'error'); } finally { btn.innerHTML = '<i class="fa-solid fa-save me-2"></i> บันทึกข้อมูล'; btn.disabled = false; }
+        }
+        // ---------------------- สิ้นสุดฟังชั่น จัดการเกี่ยวหน่วยงาน -----------------------
     </script>
 </body>
 </html>
