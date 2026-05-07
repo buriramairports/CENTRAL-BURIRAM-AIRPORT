@@ -947,7 +947,6 @@
         }
 
         // ฟังก์ชันลบข้อมูล และโหลดตารางใหม่ให้ถูกต้อง
-        // ฟังก์ชันลบข้อมูล และโหลดตารางใหม่ให้ถูกต้อง
         function deleteRecord(sheetName, idColumn, idValue) {
             Swal.fire({ title: 'ยืนยันการลบ?', text: "หากลบแล้วจะไม่สามารถกู้คืนได้!", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ใช่, ลบทิ้ง!' }).then((result) => {
                 if (result.isConfirmed) {
@@ -956,7 +955,18 @@
                     if (indexToDelete > -1) {
                         currentTableData.splice(indexToDelete, 1);
                         
-                        // 🟢 เพิ่มการอัปเดตตารางของ AboutCategories และ AboutPages
+                        // 🟢 เพิ่ม: รันเลขลำดับ OrderList ให้ใหม่ทั้งหมด เพื่อไม่ให้เกิดเลขกระโดด เช่น 1, 2, 4
+                        // เช็คก่อนว่าข้อมูลชุดนี้มีคอลัมน์ OrderList ไหม
+                        if (currentTableData.length > 0 && currentTableData[0].hasOwnProperty('OrderList')) {
+                            // เรียงข้อมูลตาม OrderList เดิมก่อน (กันพลาด)
+                            currentTableData.sort((a, b) => parseInt(a.OrderList) - parseInt(b.OrderList));
+                            // รันเลขใหม่ตั้งแต่ 1 เป็นต้นไป
+                            currentTableData.forEach((item, idx) => {
+                                item.OrderList = idx + 1;
+                            });
+                        }
+
+                        // สั่งวาดตารางใหม่ด้วยข้อมูลที่ถูกลบออกไปแล้ว (และรันเลข OrderList ใหม่แล้ว)
                         if (sheetName === 'Events') applyEventFilters(); 
                         else if (sheetName === 'News') applyNewsFilters(); 
                         else if (sheetName === 'PassengerStats') filterStatsTable();
