@@ -506,27 +506,49 @@
             ul.innerHTML += `<li class="page-item ${nextClass}"><a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage + 1})">ถัดไป</a></li>`;
         }
 
-        // ================= เริ่มต้นฟังก์ชัน เปิดอ่านข่าวสาร (ก๊อปมาจากหน้าแรก) =================
+       // ================= เริ่มต้นฟังก์ชัน เปิดอ่านข่าวสาร และ นับยอดวิว =================
         function openNewsDetail(newsId) {
             const news = allNewsData.find(n => n.NewsID === newsId);
-            if (!news) return;
+            if (!news) {
+                Swal.fire('ข้อผิดพลาด', 'ไม่พบข้อมูลข่าวสารนี้', 'error');
+                return;
+            }
 
+            // 🟢 1. ระบบบันทึกยอดวิว (เช็คว่าเคยดูข่าวนี้นี้หรือยังใน Session นี้)
+            const sessionKey = 'viewed_news_' + newsId;
+            if (!sessionStorage.getItem(sessionKey)) {
+                sessionStorage.setItem(sessionKey, 'true'); // จำไว้ว่าดูแล้ว
+                news.ViewCount = (parseInt(news.ViewCount) || 0) + 1; // บวกยอดวิวในหน้าจอทันที เพื่อให้ผู้ใช้เห็นเลย
+                
+                // ยิง API ไปบวกเลขใน Google Sheets แบบเงียบๆ
+                fetch(API_URL, { 
+                    method: 'POST', 
+                    body: new URLSearchParams({ action: 'incrementNewsView', newsId: newsId }) 
+                }).catch(e => console.log("View count error", e));
+            }
+
+            // 2. นำข้อมูล Text ลง Modal
             document.getElementById('readNewsTitle').innerText = news.Title;
             let dateText = news.PublishDate ? news.PublishDate : news.CreateDate;
             document.getElementById('readNewsDate').innerHTML = `<i class="fa-regular fa-calendar text-primary me-1"></i> ${dateText}`;
             document.getElementById('readNewsAuthor').innerHTML = `<i class="fa-solid fa-pen-nib text-danger me-1"></i> ${news.Author || 'แอดมิน'}`;
+            // โชว์ยอดวิวที่อัปเดตแล้ว
             document.getElementById('readNewsViews').innerHTML = `<i class="fa-solid fa-eye text-success me-1"></i> ${news.ViewCount || 0} ครั้ง`;
             
-            let catObj = allCategoriesData.find(c => c.CategoryID === news.CategoryID);
+            let catObj = null;
+            if (typeof allCategoriesData !== 'undefined') catObj = allCategoriesData.find(c => c.CategoryID === news.CategoryID);
             document.getElementById('readNewsCategory').innerText = catObj ? catObj.CategoryName : 'ข่าวสาร';
             document.getElementById('readNewsCategory').style.backgroundColor = (catObj && catObj.ThemeColor !== 'transparent') ? catObj.ThemeColor : 'var(--primary-blue)';
 
+            // 3. นำเนื้อหาลง Modal
             document.getElementById('readNewsContent').innerHTML = news.Content || '<p class="text-muted text-center">ไม่มีเนื้อหา</p>';
 
+            // 4. จัดการรูปหน้าปก
             const coverEl = document.getElementById('readNewsCover');
             if (news.CoverImageURL) { coverEl.src = convertDriveImageLink(news.CoverImageURL); coverEl.style.display = 'block'; } 
             else { coverEl.style.display = 'none'; }
 
+            // 5. จัดการไฟล์แนบ
             const filesContainer = document.getElementById('readNewsFilesContainer');
             const filesDiv = document.getElementById('readNewsFiles');
             if (news.FilesURL) {
@@ -535,6 +557,7 @@
                 filesDiv.innerHTML = filesHtml; filesContainer.style.display = 'block';
             } else { filesContainer.style.display = 'none'; }
 
+            // 6. จัดการแกลลอรีรูปภาพ
             const galleryContainer = document.getElementById('readNewsGalleryContainer');
             const galleryDiv = document.getElementById('readNewsGallery');
             const carouselIndicators = document.getElementById('newsGalleryCarouselIndicators');
@@ -546,15 +569,16 @@
                     let displayUrl = convertDriveImageLink(url); let rawUrl = url.replace('?usp=sharing', ''); let activeClass = idx === 0 ? 'active' : '';
                     galleryHtml += `<img src="${displayUrl}" class="news-gallery-img" alt="แกลลอรี" onclick="openNewsGalleryViewer(${idx})">`;
                     indicatorsHtml += `<button type="button" data-bs-target="#newsGalleryCarousel" data-bs-slide-to="${idx}" class="${activeClass}"></button>`;
-                    slidesHtml += `<div class="carousel-item ${activeClass} h-100"><div class="d-flex justify-content-center align-items-center h-100 w-100 p-3"><img src="${displayUrl}" class="img-fluid" style="max-height: 100%; max-width: 100%; object-fit: contain;"></div><div class="position-absolute bottom-0 end-0 m-4" style="z-index: 10;"><a href="${rawUrl}" target="_blank" class="btn btn-primary rounded-pill shadow-lg"><i class="fa-solid fa-expand me-2"></i>ดูรูป/ดาวน์โหลด</a></div></div>`;
+                    slidesHtml += `<div class="carousel-item ${activeClass} h-100"><div class="d-flex justify-content-center align-items-center h-100 w-100 p-3"><img src="${displayUrl}" class="img-fluid" style="max-height: 100%; max-width: 100%; object-fit: contain;"></div><div class="position-absolute bottom-0 end-0 m-4" style="z-index: 10;"><a href="${rawUrl}" target="_blank" class="btn btn-primary rounded-pill shadow-lg"><i class="fa-solid fa-expand me-2"></i>ดูรูปขนาดเต็ม / ดาวน์โหลด</a></div></div>`;
                 });
                 galleryDiv.innerHTML = galleryHtml; galleryContainer.style.display = 'block';
                 carouselIndicators.innerHTML = indicatorsHtml; carouselInner.innerHTML = slidesHtml;
             } else { galleryContainer.style.display = 'none'; }
 
+            // แสดง Modal อ่านข่าว
             new bootstrap.Modal(document.getElementById('newsReadModal')).show();
         }
-
+        // ================= สิ้นสุดฟังก์ชัน เปิดอ่านข่าวสาร =================
         function openNewsGalleryViewer(startIndex) {
             const myCarousel = document.getElementById('newsGalleryCarousel');
             const carousel = new bootstrap.Carousel(myCarousel, { interval: false, ride: false });
