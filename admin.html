@@ -250,7 +250,7 @@
                     <h4 class="fw-bold text-dark mb-0"><i class="fa-solid fa-file-lines me-2 text-primary"></i> เนื้อหาข้อมูลหน่วยงาน</h4>
                     <div><button id="btnSaveOrder-AboutPages" class="btn btn-warning me-2 d-none" onclick="saveOrderAPI('AboutPages', 'PageID')"><i class="fa-solid fa-save me-1"></i> บันทึกลำดับ</button><button class="btn btn-success" onclick="openAboutPageModal()"><i class="fa-solid fa-plus me-1"></i> เพิ่มเนื้อหาใหม่</button></div>
                 </div>
-                <div class="card card-custom"><div class="card-body p-0 table-responsive"><table class="table table-hover align-middle mb-0"><thead class="table-light"><tr><th width="10%">ลำดับ</th><th width="35%">หัวข้อย่อย (Title)</th><th width="25%">อยู่ภายใต้หมวดหมู่</th><th width="15%">สถานะ</th><th width="15%" class="text-center">จัดการ</th></tr></thead><tbody id="tbody-aboutpages"></tbody></table></div></div>
+                <div class="card card-custom"><div class="card-body p-0 table-responsive"><table class="table table-hover align-middle mb-0"><thead class="table-light"><tr><th width="10%">ลำดับ</th><th width="15%">รูปหน้าปก</th><th width="30%">หัวข้อย่อย (Title)</th><th width="20%">อยู่ภายใต้หมวดหมู่</th><th width="10%">สถานะ</th><th width="15%" class="text-center">จัดการ</th></tr></thead><tbody id="tbody-aboutpages"></tbody></table></div></div>
             </div>
             
             <!-- ================= VIEW: Banners ================= -->
@@ -947,34 +947,36 @@
         }
 
         // ฟังก์ชันลบข้อมูล และโหลดตารางใหม่ให้ถูกต้อง
+        // ฟังก์ชันลบข้อมูล และโหลดตารางใหม่ให้ถูกต้อง
         function deleteRecord(sheetName, idColumn, idValue) {
             Swal.fire({ title: 'ยืนยันการลบ?', text: "หากลบแล้วจะไม่สามารถกู้คืนได้!", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ใช่, ลบทิ้ง!' }).then((result) => {
                 if (result.isConfirmed) {
                     
-                    // 🟢 เทคนิค UX: ลบข้อมูลออกจากตัวแปร currentTableData ทันที (เพื่อให้หน้าจออัปเดตก่อน ไม่ต้องรอเซิร์ฟเวอร์)
                     let indexToDelete = currentTableData.findIndex(item => item[idColumn] === idValue);
                     if (indexToDelete > -1) {
                         currentTableData.splice(indexToDelete, 1);
                         
-                        // สั่งวาดตารางใหม่ด้วยข้อมูลที่ถูกลบออกไปแล้ว
+                        // 🟢 เพิ่มการอัปเดตตารางของ AboutCategories และ AboutPages
                         if (sheetName === 'Events') applyEventFilters(); 
                         else if (sheetName === 'News') applyNewsFilters(); 
                         else if (sheetName === 'PassengerStats') filterStatsTable();
                         else if (sheetName === 'Users') applyUserFilters();
                         else {
-                            const renderMap = { 'Banners': renderBannersTable, 'Departments': renderDeptsTable, 'EServices': renderEServicesTable, 'Airlines': renderAirlinesTable, 'NewsCategories': renderNewsCatsTable, 'FlightSchedules': renderFlightsTable };
+                            const renderMap = { 
+                                'Banners': renderBannersTable, 'Departments': renderDeptsTable, 
+                                'EServices': renderEServicesTable, 'Airlines': renderAirlinesTable, 
+                                'NewsCategories': renderNewsCatsTable, 'FlightSchedules': renderFlightsTable,
+                                'AboutCategories': renderAboutCatsTable, 'AboutPages': renderAboutPagesTable 
+                            };
                             if (renderMap[sheetName]) renderMap[sheetName](currentTableData);
                         }
                     }
 
-                    // ค่อยโชว์ป๊อปอัปโหลด แล้วส่งคำสั่งไปลบที่ฐานข้อมูลเบื้องหลัง
                     Swal.fire({ title: 'กำลังจัดการฐานข้อมูล...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
                     const formData = new URLSearchParams({ action: 'deleteRecord', sheetName: sheetName, idColumn: idColumn, idValue: idValue });
                     fetch(API_URL, { method: 'POST', body: formData }).then(res => res.json()).then(res => {
                         if (res.status === 'success') {
                             Swal.fire({ icon: 'success', title: 'ลบสำเร็จ', showConfirmButton: false, timer: 1000 });
-                            
-                            // ไม่ต้องโหลดตารางใหม่แล้ว เพราะเราแอบลบออกจากหน้าจอไปแล้วก่อนหน้านี้
                         } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
                     }).catch(() => Swal.fire('ผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'error'));
                 }
@@ -996,7 +998,17 @@
             fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'updateOrder', sheetName: sheetName, idColumn: idColumn, orderJSON: JSON.stringify(orderPayload) }) }).then(res=>res.json()).then(res=>{ 
                 if (res.status === 'success') { 
                     Swal.fire({ icon: 'success', title: 'บันทึกลำดับสำเร็จ!', showConfirmButton: false, timer: 1500 }); 
-                    document.getElementById(`btnSaveOrder-${sheetName === 'NewsCategories' ? 'NewsCats' : sheetName}`).classList.add('d-none'); 
+                    
+                    // 🟢 แมพชื่อ Sheet ให้ตรงกับ ID ของปุ่มบันทึกลำดับ
+                    let btnIdMap = { 
+                        'Banners': 'btnSaveOrder-Banners', 'Departments': 'btnSaveOrder-Departments', 
+                        'EServices': 'btnSaveOrder-EServices', 'Airlines': 'btnSaveOrder-Airlines', 
+                        'NewsCategories': 'btnSaveOrder-NewsCats', 'AboutCategories': 'btnSaveOrder-AboutCats', 
+                        'AboutPages': 'btnSaveOrder-AboutPages' 
+                    };
+                    
+                    let targetBtn = document.getElementById(btnIdMap[sheetName]);
+                    if (targetBtn) targetBtn.classList.add('d-none'); 
                 } 
             });
         }
@@ -2658,17 +2670,77 @@
         }
 
         // ================= ระบบ About Pages =================
+        // ================= ระบบ About Pages =================
         function renderAboutPagesTable() {
             const tbody = document.getElementById('tbody-aboutpages'); tbody.innerHTML = '';
             if (currentTableData.length === 0) return;
             currentTableData.sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList)).forEach((item, index) => {
                 let badge = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิด</span>' : '<span class="badge bg-secondary">ปิด</span>';
-                let catObj = allAboutCats.find(c => c.CategoryID === item.CategoryID); let catName = catObj ? catObj.CategoryName : '-';
+                let catObj = allAboutCats.find(c => c.CategoryID === item.CategoryID); 
+                let catName = catObj ? catObj.CategoryName : '-';
+                
+                // 🟢 จัดการรูปหน้าปก และ แกลลอรี/ไฟล์แนบ ให้เหมือนตารางข่าว
+                let coverUrl = convertDriveImageLink(item.CoverImageURL);
+                let imgHtml = coverUrl ? `<img src="${coverUrl}" style="width:100px; height:60px; object-fit:cover; border-radius:5px; border: 1px solid #e2e8f0;">` : `<div style="width:100px; height:60px; background:#e2e8f0; border-radius:5px; display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-image text-muted"></i></div>`;
+                
+                let filesArr = item.FilesURL ? item.FilesURL.split(', ') : [];
+                let galArr = item.GalleryURLs ? item.GalleryURLs.split(', ') : [];
+                let btnAttachment = filesArr.length > 0 ? `<button class="btn btn-sm btn-outline-danger mt-1 me-1" onclick="openAboutFilesModal('${item.PageID}')"><i class="fa-solid fa-file-pdf"></i> ${filesArr.length} ไฟล์</button>` : '';
+                let btnGallery = galArr.length > 0 ? `<button class="btn btn-sm btn-outline-success mt-1" onclick="openAboutGalleryModal('${item.PageID}')"><i class="fa-solid fa-images"></i> ${galArr.length} รูป</button>` : '';
+
                 let btnUp = index > 0 ? `<button class="btn btn-sm btn-light text-primary me-1" onclick="moveOrder('AboutPages', ${index}, -1, renderAboutPagesTable)"><i class="fa-solid fa-arrow-up"></i></button>` : `<button class="btn btn-sm btn-light me-1" style="visibility:hidden;"><i class="fa-solid fa-arrow-up"></i></button>`; 
                 let btnDown = index < currentTableData.length - 1 ? `<button class="btn btn-sm btn-light text-primary me-2" onclick="moveOrder('AboutPages', ${index}, 1, renderAboutPagesTable)"><i class="fa-solid fa-arrow-down"></i></button>` : `<button class="btn btn-sm btn-light me-2" style="visibility:hidden;"><i class="fa-solid fa-arrow-down"></i></button>`; 
-                tbody.innerHTML += `<tr><td class="fw-bold text-center">${item.OrderList}</td><td class="fw-bold text-primary">${item.Title}</td><td><span class="badge bg-light text-dark border">${catName}</span></td><td>${badge}</td><td class="text-center text-nowrap">${btnUp}${btnDown} <button class="btn btn-sm btn-outline-warning" onclick="openAboutPageModal('${item.PageID}')"><i class="fa-solid fa-pen"></i></button> <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('AboutPages', 'PageID', '${item.PageID}')"><i class="fa-solid fa-trash"></i></button></td></tr>`;
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="fw-bold text-center h5 text-muted">${item.OrderList}</td>
+                        <td class="text-center">${imgHtml}</td>
+                        <td>
+                            <div class="fw-bold text-primary">${item.Title}</div>
+                            <div class="mt-1">${btnAttachment} ${btnGallery}</div>
+                        </td>
+                        <td><span class="badge bg-light text-dark border">${catName}</span></td>
+                        <td>${badge}</td>
+                        <td class="text-center text-nowrap">
+                            ${btnUp}${btnDown}
+                            <button class="btn btn-sm btn-outline-warning me-1" onclick="openAboutPageModal('${item.PageID}')"><i class="fa-solid fa-pen"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('AboutPages', 'PageID', '${item.PageID}')"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
             });
         }
+
+        // 🟢 ฟังก์ชันเปิดดูไฟล์/แกลลอรี ของ AboutPages (เรียกใช้ Modal ตัวเดียวกับของข่าวสาร)
+        function openAboutFilesModal(pageId) {
+            const item = currentTableData.find(x => x.PageID === pageId);
+            const container = document.getElementById('viewFiles_List'); container.innerHTML = '';
+            if (item && item.FilesURL) {
+                let files = item.FilesURL.split(', ');
+                files.forEach((url, idx) => {
+                    let viewUrl = url.replace('?usp=sharing', '');
+                    container.innerHTML += `<a href="${viewUrl}" target="_blank" class="btn btn-outline-danger"><i class="fa-solid fa-file-pdf me-2"></i> เปิดดูไฟล์เอกสารที่ ${idx + 1}</a>`;
+                });
+            }
+            new bootstrap.Modal(document.getElementById('viewFilesModal')).show();
+        }
+
+        function openAboutGalleryModal(pageId) {
+            const item = currentTableData.find(x => x.PageID === pageId);
+            const inner = document.getElementById('gallery-inner'); const indicators = document.getElementById('gallery-indicators');
+            inner.innerHTML = ''; indicators.innerHTML = '';
+
+            if (item && item.GalleryURLs) {
+                let images = item.GalleryURLs.split(', ');
+                images.forEach((url, index) => {
+                    let displayUrl = convertDriveImageLink(url); let rawUrl = url.replace('?usp=sharing', ''); let activeClass = index === 0 ? 'active' : ''; 
+                    indicators.innerHTML += `<button type="button" data-bs-target="#galleryCarousel" data-bs-slide-to="${index}" class="${activeClass}"></button>`;
+                    inner.innerHTML += `<div class="carousel-item ${activeClass} h-100 w-100"><div class="d-flex justify-content-center align-items-center h-100 w-100 p-3"><img src="${displayUrl}" class="img-fluid" style="max-height: 100%; max-width: 100%; object-fit: contain;"></div><div class="position-absolute bottom-0 end-0 m-4" style="z-index: 10;"><a href="${rawUrl}" target="_blank" class="btn btn-primary rounded-pill shadow"><i class="fa-solid fa-expand me-1"></i> ดูรูปขนาดเต็ม</a></div></div>`;
+                });
+            }
+            new bootstrap.Modal(document.getElementById('viewGalleryModal')).show();
+        }
+        
         function openAboutPageModal(id = '') {
             document.getElementById('formAboutPage').reset(); document.getElementById('abtP_PageID').value = ''; aboutQuillEditor.root.innerHTML = '';
             document.getElementById('abtP_CoverStatus').innerText = 'ไม่ได้เลือกไฟล์'; document.getElementById('abtP_FileStatus').innerText = 'ไม่ได้เลือกไฟล์'; document.getElementById('abtP_GalleryStatus').innerText = 'ไม่ได้เลือกไฟล์';
