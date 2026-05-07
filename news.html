@@ -477,7 +477,8 @@
                                 <h5 class="news-title">${news.Title}</h5>
                                 <div class="news-meta">
                                     <span><i class="fa-regular fa-calendar me-1"></i> ${dateText}</span>
-                                    <span><i class="fa-solid fa-eye me-1"></i> ${views} ครั้ง</span>
+                                    <!-- 🟢 เพิ่ม ID ให้มัน เพื่อรอรับตัวเลขใหม่จาก JavaScript -->
+                                    <span id="viewcount-${news.NewsID}"><i class="fa-solid fa-eye me-1"></i> ${views} ครั้ง</span>
                                 </div>
                             </div>
                         </div>
@@ -518,7 +519,13 @@
             const sessionKey = 'viewed_news_' + newsId;
             if (!sessionStorage.getItem(sessionKey)) {
                 sessionStorage.setItem(sessionKey, 'true'); // จำไว้ว่าดูแล้ว
-                news.ViewCount = (parseInt(news.ViewCount) || 0) + 1; // บวกยอดวิวในหน้าจอทันที เพื่อให้ผู้ใช้เห็นเลย
+                news.ViewCount = (parseInt(news.ViewCount) || 0) + 1; // บวกยอดวิวในหน้าจอทันที
+                
+                // 🟢 อัปเดตตัวเลขบนการ์ดข่าวด้านนอกทันที (ถ้าเปิดหาเจอ)
+                const cardViewSpan = document.getElementById('viewcount-' + newsId);
+                if (cardViewSpan) {
+                    cardViewSpan.innerHTML = `<i class="fa-solid fa-eye me-1"></i> ${news.ViewCount} ครั้ง`;
+                }
                 
                 // ยิง API ไปบวกเลขใน Google Sheets แบบเงียบๆ
                 fetch(API_URL, { 
