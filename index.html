@@ -1480,7 +1480,15 @@
             const sessionKey = 'viewed_news_' + newsId;
             if (!sessionStorage.getItem(sessionKey)) {
                 sessionStorage.setItem(sessionKey, 'true'); // จำไว้ว่าดูแล้ว
-                news.ViewCount = (parseInt(news.ViewCount) || 0) + 1; // บวกยอดวิวในหน้าจอทันที เพื่อให้ผู้ใช้เห็นเลย
+                news.ViewCount = (parseInt(news.ViewCount) || 0) + 1; // บวกยอดวิวในหน้าจอทันที
+                
+                // 🟢 อัปเดตตัวเลขบนการ์ดข่าวด้านนอกทันที (ถ้าเปิดหาเจอ)
+                const cardViewSpan = document.getElementById('viewcount-' + newsId);
+                if (cardViewSpan) {
+                    cardViewSpan.innerHTML = `<i class="fa-solid fa-eye me-1"></i> ${news.ViewCount} ครั้ง`;
+                }
+
+                // ยิง API ไปบวกเลขใน Google Sheets แบบเงียบๆ
                 
                 // ยิง API ไปบวกเลขใน Google Sheets แบบเงียบๆ
                 fetch(API_URL, { 
