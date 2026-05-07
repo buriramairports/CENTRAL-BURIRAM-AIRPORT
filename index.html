@@ -1383,35 +1383,33 @@
         // ================= สิ้นสุดฟังก์ชัน 2. ส่วนปฏิทินกิจกรรม =================
 
         // ================= เริ่มต้นฟังก์ชัน วาดข่าวสารหน้าหลัก =================
-        // 🟢 เพิ่มพารามิเตอร์ settingsData เข้ามาเพื่อดึงจำนวนลิมิตข่าว
         function renderDynamicNews(catsData, newsData, settingsData) {
             const container = document.getElementById('dynamic-news-container'); container.innerHTML = '';
             
-            // 🟢 กรองเอาเฉพาะที่เปิดใช้งาน และ อนุญาตให้โชว์หน้าแรก (ShowOnHome)
+            // กรองเอาเฉพาะที่เปิดใช้งาน และ อนุญาตให้โชว์หน้าแรก (ShowOnHome)
             const activeCats = catsData.filter(c => c.IsActive === 'TRUE' && c.ShowOnHome !== 'FALSE').sort((a,b) => a.OrderList - b.OrderList);
             let validNews = newsData.filter(n => isReadyToPublish(n)); 
 
-            // 🟢 ดึงลิมิตจาก Settings ถ้าไม่ได้ตั้งไว้ให้ดึงมาหมวดละ 5 ข่าว
+            // ดึงลิมิตจาก Settings ถ้าไม่ได้ตั้งไว้ให้ดึงมาหมวดละ 5 ข่าว
             let newsLimit = settingsData && settingsData.NewsLimitHome ? parseInt(settingsData.NewsLimitHome) : 5;
 
             activeCats.forEach(cat => {
                 let catNews = validNews.filter(n => n.CategoryID === cat.CategoryID);
-                // 🟢 [แก้ไข] เรียงลำดับข่าว: เอาข่าว NEW ขึ้นก่อน (เรียงตามวันหมดอายุมากไปน้อย) -> แล้วค่อยเรียงตามวันที่โพสต์ (ใหม่ไปเก่า)
+                
+                // เรียงลำดับข่าว: เอาข่าว NEW ขึ้นก่อน (เรียงตามวันหมดอายุ) -> แล้วตามด้วยวันที่โพสต์
                 catNews.sort((a,b) => {
                     let aIsNew = isStillNew(a.ExpireDate);
                     let bIsNew = isStillNew(b.ExpireDate);
 
-                    if (aIsNew && !bIsNew) return -1; // a เป็น NEW ให้ a ขึ้นก่อน
-                    if (!aIsNew && bIsNew) return 1;  // b เป็น NEW ให้ b ขึ้นก่อน
+                    if (aIsNew && !bIsNew) return -1; 
+                    if (!aIsNew && bIsNew) return 1;  
 
                     if (aIsNew && bIsNew) {
-                        // ถ้าเป็น NEW ทั้งคู่ ให้ดูว่าใครหมดอายุทีหลัง (วันหมดอายุมากกว่าอยู่บน)
                         let expA = parseDateTimeString(a.ExpireDate + ' 23:59').getTime();
                         let expB = parseDateTimeString(b.ExpireDate + ' 23:59').getTime();
                         return expB - expA; 
                     }
 
-                    // ถ้าไม่เป็น NEW ทั้งคู่ (ข่าวปกติ) ให้เรียงตามวันที่โพสต์ (ใหม่สุดอยู่บน)
                     let d1 = parseDateTimeString(b.PublishDate || b.CreateDate).getTime();
                     let d2 = parseDateTimeString(a.PublishDate || a.CreateDate).getTime();
                     return d1 - d2;
@@ -1425,20 +1423,20 @@
                 else if (cat.LayoutType === 'slider-vertical') colSize = 'col-lg-5';
 
                 let html = '';
-                // 🟢 [แก้ไข] เพิ่ม target="_blank" เพื่อให้เปิดแท็บใหม่
                 let btnViewAllHTML = `<a href="news.html?category=${cat.CategoryID}" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-3" style="font-size: 0.75rem;">ดูทั้งหมด <i class="fa-solid fa-arrow-right"></i></a>`;
                 
+                // 🟢 กรณีเป็น Layout แบบ Slider
                 if(cat.LayoutType.includes('slider')) {
                     let slides = '';
-                    if(catNews.length === 0) { slides = `<div class="swiper-slide"><div class="p-5 text-center text-muted">ไม่มีข่าวสารในหมวดหมู่นี้</div></div>`; } 
-                    else {
+                    if(catNews.length === 0) { 
+                        slides = `<div class="swiper-slide"><div class="p-5 text-center text-muted">ไม่มีข่าวสารในหมวดหมู่นี้</div></div>`; 
+                    } else {
                         catNews.forEach(n => {
                             let imgUrl = convertDriveImageLink(n.CoverImageURL) || 'https://via.placeholder.com/600x400?text=ไม่มีรูปหน้าปก';
                             let newBadge = isStillNew(n.ExpireDate) ? `<span class="badge bg-danger ms-2 blink">NEW</span>` : '';
                             let dateText = n.PublishDate ? n.PublishDate.split(' ')[0] : n.CreateDate.split(' ')[0];
-                            let views = n.ViewCount || 0; // 🟢 ดึงยอดวิวมา
+                            let views = n.ViewCount || 0; 
 
-                            // 🟢 เพิ่ม <span id="viewcount-${n.NewsID}"> เข้าไปต่อท้ายวันที่
                             if(cat.LayoutType === 'slider') {
                                 slides += `<div class="swiper-slide" onclick="openNewsDetail('${n.NewsID}')"><div class="news-horizontal"><img src="${imgUrl}"><div class="content"><h6 class="fw-bold" style="display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">${n.Title} ${newBadge}</h6><div class="text-secondary small mt-2 d-flex justify-content-between"><span><i class="fa-regular fa-calendar"></i> ${dateText}</span><span id="viewcount-${n.NewsID}"><i class="fa-solid fa-eye"></i> ${views}</span></div></div></div></div>`;
                             } else {
@@ -1446,39 +1444,31 @@
                             }
                         });
                     }
-
                     html = `<div class="${colSize} mb-4"><div class="card shadow-sm h-100 border-0"><div class="card-header-custom"><h5>${cat.CategoryName}</h5> ${btnViewAllHTML}</div><div class="card-body p-0 pb-4"><div class="swiper swiper-${cat.CategoryID}"><div class="swiper-wrapper">${slides}</div><div class="swiper-pagination"></div></div></div></div></div>`;
+                
+                // 🟢 กรณีเป็น Layout แบบ List ปกติ
                 } else {
                     let list = '';
-                    if(catNews.length === 0) { list = `<div class="text-center text-muted py-3">ไม่มีข้อมูล</div>`; } 
-                    else {
+                    if(catNews.length === 0) { 
+                        list = `<div class="text-center text-muted py-3">ไม่มีข้อมูล</div>`; 
+                    } else {
                         catNews.forEach(n => { 
                             let newBadge = isStillNew(n.ExpireDate) ? `<span class="badge bg-danger ms-2 blink" style="font-size:0.65rem; padding: 2px 5px;">NEW</span>` : '';
                             let dateText = n.PublishDate ? n.PublishDate.split(' ')[0] : n.CreateDate.split(' ')[0];
                             let themeColor = cat.ThemeColor !== 'transparent' ? cat.ThemeColor : '#0A3161';
-                            let views = n.ViewCount || 0; // 🟢 ดึงยอดวิวมา
+                            let views = n.ViewCount || 0; 
 
-                            // 🟢 เพิ่มยอดวิวในลิสต์
                             list += `<a href="javascript:void(0)" onclick="openNewsDetail('${n.NewsID}')" class="text-list-item"><i class="fa-solid fa-caret-right text-list-icon" style="color:${themeColor}; font-size:1.2rem;"></i><div class="w-100"><div class="text-list-title text-dark">${n.Title} ${newBadge}</div><div class="text-list-date d-flex justify-content-between"><span><i class="fa-regular fa-calendar me-1"></i> ${dateText}</span><span id="viewcount-${n.NewsID}"><i class="fa-solid fa-eye me-1"></i> ${views}</span></div></div></a>`;
                         });
                     }
                     html = `<div class="${colSize} mb-4"><div class="card shadow-sm h-100 border-0 overflow-hidden"><div class="card-header-solid" style="background-color:${cat.ThemeColor !== 'transparent' ? cat.ThemeColor : '#0A3161'}; border-radius:0;"><span>${cat.CategoryName}</span> ${btnViewAllHTML.replace('btn-outline-primary', 'btn-light')}</div><div class="card-body text-list-container pb-4 pt-2">${list}</div></div></div>`;
-                } else {
-                    let list = '';
-                    if(catNews.length === 0) { list = `<div class="text-center text-muted py-3">ไม่มีข้อมูล</div>`; } 
-                    else {
-                        catNews.forEach(n => { 
-                            let newBadge = isStillNew(n.ExpireDate) ? `<span class="badge bg-danger ms-2 blink" style="font-size:0.65rem; padding: 2px 5px;">NEW</span>` : '';
-                            let dateText = n.PublishDate ? n.PublishDate.split(' ')[0] : n.CreateDate.split(' ')[0];
-                            let themeColor = cat.ThemeColor !== 'transparent' ? cat.ThemeColor : '#0A3161';
-                            list += `<a href="javascript:void(0)" onclick="openNewsDetail('${n.NewsID}')" class="text-list-item"><i class="fa-solid fa-caret-right text-list-icon" style="color:${themeColor}; font-size:1.2rem;"></i><div><div class="text-list-title text-dark">${n.Title} ${newBadge}</div><div class="text-list-date"><i class="fa-regular fa-calendar me-1"></i> ${dateText}</div></div></a>`;
-                        });
-                    }
-                    html = `<div class="${colSize} mb-4"><div class="card shadow-sm h-100 border-0 overflow-hidden"><div class="card-header-solid" style="background-color:${cat.ThemeColor !== 'transparent' ? cat.ThemeColor : '#0A3161'}; border-radius:0;"><span>${cat.CategoryName}</span> ${btnViewAllHTML.replace('btn-outline-primary', 'btn-light')}</div><div class="card-body text-list-container pb-4 pt-2">${list}</div></div></div>`;
                 }
+
+                // นำ html ไปต่อท้าย container ใหญ่
                 container.innerHTML += html;
             });
 
+            // เปิดใช้งาน Swiper สำหรับ Slider
             activeCats.filter(c => c.LayoutType.includes('slider')).forEach(c => {
                 new Swiper(`.swiper-${c.CategoryID}`, { loop: true, pagination: { el: '.swiper-pagination', clickable: true }, autoplay: { delay: 4000, disableOnInteraction: false } });
             });
