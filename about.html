@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เกี่ยวกับหน่วยงาน | ท่าอากาศยานบุรีรัมย์</title>
+    <link id="dynamic-favicon" rel="icon" href="https://cdn-icons-png.flaticon.com/512/3125/3125713.png" type="image/png">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6.5.1 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts (Kanit) -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-blue: #0A3161; 
+            --secondary-blue: #155297;
+            --light-bg: #F4F7F6;
+        }
+
+        body { font-family: 'Kanit', sans-serif; background-color: var(--light-bg); background-image: url('https://www.transparenttextures.com/patterns/cubes.png'); }
+        .navbar { background-color: var(--primary-blue); box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .navbar-brand img { height: 40px; margin-right: 10px; }
+
+        /* ================= Preloader ================= */
+        #preloader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--primary-blue); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.6s ease, visibility 0.6s ease; }
+        .loader-spinner { width: 50px; height: 50px; border: 5px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: white; animation: spin 1s ease-in-out infinite; margin-bottom: 20px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ================= Sidebar หมวดหมู่ ================= */
+        .sidebar-card { border: none; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; background: white; }
+        .sidebar-header { background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue)); color: white; padding: 15px 20px; font-weight: bold; font-size: 1.1rem; }
+        .cat-title { font-weight: bold; color: #475569; padding: 12px 20px; background: #f1f5f9; border-bottom: 1px solid #e2e8f0; font-size: 0.95rem; margin-top: 0; display: flex; align-items: center;}
+        .cat-title i { color: var(--primary-blue); margin-right: 8px; }
+        .page-list { list-style: none; padding: 0; margin: 0; }
+        .page-item { padding: 10px 20px 10px 35px; border-bottom: 1px dashed #e2e8f0; cursor: pointer; transition: 0.2s; color: #334155; font-size: 0.95rem; position: relative; }
+        .page-item::before { content: "\f105"; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; left: 18px; color: #cbd5e1; transition: 0.2s;}
+        .page-item:hover { background-color: #f8fafc; color: var(--primary-blue); padding-left: 40px; }
+        .page-item.active { background-color: #eff6ff; color: var(--primary-blue); font-weight: bold; border-left: 4px solid var(--primary-blue); }
+        .page-item.active::before { color: var(--primary-blue); }
+
+        .sidebar-scrollable::-webkit-scrollbar { width: 6px; }
+        .sidebar-scrollable::-webkit-scrollbar-track { background: transparent; }
+        .sidebar-scrollable::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .sidebar-scrollable::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* ================= Content Area ================= */
+        .content-card { border: none; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); background: white; padding: 30px; min-height: 500px;}
+        .content-title { font-weight: 700; color: var(--primary-blue); line-height: 1.4; margin-bottom: 15px; border-bottom: 2px solid var(--primary-blue); padding-bottom: 15px; display: inline-block;}
+        .content-cover { width: 100%; max-height: 400px; object-fit: cover; border-radius: 10px; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .content-html { font-size: 1.05rem; line-height: 1.8; color: #334155; }
+        .content-html img { max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0; }
+
+        /* ================= สไตล์แกลลอรี & ไฟล์แนบ ================= */
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 20px; }
+        .gallery-img { width: 100%; height: 120px; object-fit: cover; border-radius: 8px; cursor: pointer; transition: 0.3s; border: 1px solid #e2e8f0; }
+        .gallery-img:hover { transform: scale(1.05); filter: brightness(0.9); }
+        
+        .attachment-box { background: #f8fafc; border-left: 4px solid #ef4444; padding: 15px; border-radius: 5px; margin-top: 25px; }
+        .attachment-item { display: inline-flex; align-items: center; background: white; border: 1px solid #cbd5e1; padding: 8px 15px; border-radius: 20px; color: #475569; text-decoration: none; font-size: 0.9rem; margin: 5px 5px 5px 0; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.05);}
+        .attachment-item:hover { background: #ef4444; color: white; border-color: #ef4444; }
+
+        /* ================= Footer ================= */
+        .footer-top-logos { background: white; padding: 15px 0; border-bottom: 2px solid var(--primary-blue); }
+        .footer-main { background-color: var(--primary-blue); color: white; padding: 40px 0 30px; font-size: 0.9rem; }
+        .footer-contact-logo { height: 65px; width: auto; max-width: 80px; object-fit: contain; transition: transform 0.3s ease; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3)); }
+        .footer-contact-logo:hover { transform: scale(1.1); }
+    </style>
+</head>
+<body>
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text">กำลังโหลดข้อมูล...</div>
+    </div>
+
+    <!-- แถบเมนูด้านบน -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="index.html">
+                <img id="navLogoImg" src="" style="height: 40px; margin-right: 10px; display: none;" alt="Logo">
+                <i id="navLogoIcon" class="fa-solid fa-plane-departure me-2"></i> 
+                <span id="navAirportName">ท่าอากาศยานบุรีรัมย์</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">หน้าหลัก</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="#">เกี่ยวกับหน่วยงาน</a></li>
+                    <li class="nav-item"><a class="nav-link" target="_blank" href="news.html">ข่าวสารและประชาสัมพันธ์</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Page -->
+    <div style="background: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=2000&auto=format&fit=crop') center/cover; position: relative;">
+        <div style="background: rgba(10, 49, 97, 0.85); padding: 50px 0;">
+            <div class="container text-center text-white">
+                <h2 class="fw-bold mb-2">เกี่ยวกับหน่วยงาน</h2>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb justify-content-center mb-0">
+                        <li class="breadcrumb-item"><a href="index.html" class="text-white-50 text-decoration-none">หน้าหลัก</a></li>
+                        <li class="breadcrumb-item active text-white" aria-current="page">เกี่ยวกับหน่วยงาน</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- ส่วนเนื้อหาหลัก -->
+    <div class="container mt-5 mb-5">
+        <div class="row g-4">
+            
+            <!-- ฝั่งซ้าย: Sidebar เมนูข้อมูล -->
+            <div class="col-lg-3 align-self-start" style="position: sticky; top: 110px; z-index: 10;">
+                <div class="sidebar-card" style="max-height: calc(100vh - 130px); display: flex; flex-direction: column;">
+                    <div class="sidebar-header flex-shrink-0">
+                        <i class="fa-solid fa-bars-staggered me-2"></i> หัวข้อข้อมูล
+                    </div>
+                    <div class="flex-grow-1 sidebar-scrollable" style="overflow-y: auto;" id="sidebar-menus">
+                        <!-- เมนูต่างๆ จะถูกสร้างด้วย JS ตรงนี้ -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- ฝั่งขวา: รายละเอียดข้อมูลที่เลือก -->
+            <div class="col-lg-9">
+                <div class="content-card">
+                    <!-- จะแสดงข้อความโหลดก่อนที่ JS จะทำงานเสร็จ -->
+                    <div id="content-display">
+                        <div class="text-center text-muted py-5">
+                            <div class="spinner-border text-primary mb-3" role="status"></div>
+                            <h5>กำลังโหลดเนื้อหา...</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- FOOTER (แบบย่อ มีแค่โลโก้และชื่อ) -->
+    <footer class="mt-5">
+        <div class="footer-top-logos text-center overflow-hidden">
+            <div class="container d-flex justify-content-center align-items-center flex-wrap" style="gap: 20px;">
+                <img id="footerLogoMinistry" src="" style="display: none; height: 50px;">
+                <img id="footerLogoDept" src="" style="display: none; height: 50px;">
+                <img id="footerLogoAirport" src="" style="display: none; height: 50px;">
+                <span id="footerLogoFallback" class="text-muted small">กำลังโหลดสัญลักษณ์หน่วยงาน...</span>
+            </div>
+        </div>
+        <div class="text-center py-3 border-top border-secondary small text-white" style="background-color: #213C6D;">
+            © 2567 สงวนลิขสิทธิ์ตามพระราชบัญญัติลิขสิทธิ์โดย <span id="footerSystemName2">ท่าอากาศยานบุรีรัมย์</span>
+        </div>
+    </footer>
+
+    <!-- ================= เริ่มต้น Modal สไลด์โชว์รูปภาพแกลลอรี ================= -->
+    <div class="modal fade" id="galleryViewerModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content border-0 bg-dark">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h6 class="text-white mb-0"><i class="fa-solid fa-images text-success me-2"></i> แกลลอรีรูปภาพ</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0 relative">
+                    <div id="galleryCarousel" class="carousel slide" data-bs-interval="false">
+                        <div class="carousel-indicators" id="galleryCarouselIndicators"></div>
+                        <div class="carousel-inner" id="galleryCarouselInner" style="height: 75vh; background-color: #111;"></div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#galleryCarousel" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#galleryCarousel" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ================= สิ้นสุด Modal สไลด์โชว์รูปภาพแกลลอรี ================= -->
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // 🔴 อย่าลืมวางลิงก์ API ของคุณตรงนี้
+        const API_URL = "https://script.google.com/macros/s/AKfycbx_KEKYYe2Mu1vTORWF8GZnV4zuOku_4IqEvwhZ4q556ggVOHjy-blHKvY_IuYOfGHqaA/exec";
+
+        let allAboutCats = [];
+        let allAboutPages = [];
+        let activePageId = '';
+
+        function convertDriveImageLink(url) {
+            if(!url) return "";
+            let id = ""; const regexView = /\/file\/d\/([a-zA-Z0-9_-]+)/; const regexId = /id=([a-zA-Z0-9_-]+)/; 
+            if (url.match(regexView)) id = url.match(regexView)[1]; else if (url.match(regexId)) id = url.match(regexId)[1];
+            if (id) return `https://drive.google.com/thumbnail?id=${id}&sz=w1920`;
+            return url; 
+        }
+
+        // โหลดข้อมูลเมื่อเปิดหน้าเว็บ
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const passedPageId = urlParams.get('page');
+            if (passedPageId) activePageId = passedPageId;
+
+            try {
+                const [settingsRes, catsRes, pagesRes] = await Promise.all([
+                    fetch(API_URL + '?action=getSettings').then(r => r.json()),
+                    fetch(API_URL + '?action=getTableData&sheetName=AboutCategories').then(r => r.json()),
+                    fetch(API_URL + '?action=getTableData&sheetName=AboutPages').then(r => r.json())
+                ]);
+
+                // 1. นำข้อมูลตั้งค่า (โลโก้/ชื่อ) ไปใส่
+                if(settingsRes.status === 'success') {
+                    const settings = settingsRes.data;
+                    if(settings.SystemName) document.title = "เกี่ยวกับหน่วยงาน | " + settings.SystemName;
+                    let dName = settings.AirportName || settings.SystemName || 'ท่าอากาศยานบุรีรัมย์';
+                    document.getElementById('navAirportName').innerText = dName;
+                    document.getElementById('footerSystemName2').innerText = dName;
+
+                    if (settings.LogoAirport) {
+                        let airportLogoUrl = convertDriveImageLink(settings.LogoAirport);
+                        document.getElementById('dynamic-favicon').href = airportLogoUrl;
+                        document.getElementById('navLogoImg').src = airportLogoUrl;
+                        document.getElementById('navLogoImg').style.display = 'block';
+                        document.getElementById('navLogoIcon').style.display = 'none';
+                        document.getElementById('footerLogoAirport').src = airportLogoUrl;
+                        document.getElementById('footerLogoAirport').style.display = 'inline-block';
+                    }
+                    let hasFooterLogos = false;
+                    if (settings.LogoMinistry) { document.getElementById('footerLogoMinistry').src = convertDriveImageLink(settings.LogoMinistry); document.getElementById('footerLogoMinistry').style.display = 'inline-block'; hasFooterLogos = true; }
+                    if (settings.LogoDept) { document.getElementById('footerLogoDept').src = convertDriveImageLink(settings.LogoDept); document.getElementById('footerLogoDept').style.display = 'inline-block'; hasFooterLogos = true; }
+                    if ((hasFooterLogos || settings.LogoAirport)) document.getElementById('footerLogoFallback').style.display = 'none';
+                }
+
+                // 2. ดึงข้อมูลเนื้อหา
+                if (catsRes.status === 'success') allAboutCats = catsRes.data.filter(c => c.IsActive === 'TRUE').sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList));
+                if (pagesRes.status === 'success') allAboutPages = pagesRes.data.filter(p => p.IsActive === 'TRUE').sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList));
+
+                renderSidebar();
+
+            } catch (error) {
+                console.error("Error loading about data:", error);
+                document.getElementById('content-display').innerHTML = `<div class="text-center text-danger py-5"><i class="fa-solid fa-triangle-exclamation fa-3x mb-3"></i><h5>ไม่สามารถโหลดข้อมูลได้</h5></div>`;
+            } finally {
+                const preloader = document.getElementById('preloader');
+                if (preloader) { preloader.style.opacity = '0'; setTimeout(() => { preloader.style.visibility = 'hidden'; }, 600); }
+            }
+        });
+
+        // ฟังก์ชันวาดเมนูซ้ายมือ
+        function renderSidebar() {
+            const container = document.getElementById('sidebar-menus');
+            container.innerHTML = '';
+            
+            // หาว่ามีหน้าเนื้อหาไหนเป็นหน้าแรกสุด (กรณีไม่มีการระบุ URL Parameter มา)
+            if (!activePageId && allAboutPages.length > 0) {
+                activePageId = allAboutPages[0].PageID;
+            }
+
+            allAboutCats.forEach(cat => {
+                let pagesInCat = allAboutPages.filter(p => p.CategoryID === cat.CategoryID);
+                if (pagesInCat.length === 0) return; // ข้ามหมวดหมู่ที่ไม่มีเนื้อหาข้างใน
+
+                let html = `<div class="cat-title"><i class="fa-solid fa-folder-open"></i> ${cat.CategoryName}</div><ul class="page-list">`;
+                
+                pagesInCat.forEach(page => {
+                    let activeClass = (page.PageID === activePageId) ? 'active' : '';
+                    html += `<li class="page-item ${activeClass}" id="menu-${page.PageID}" onclick="loadPageContent('${page.PageID}')">${page.Title}</li>`;
+                });
+                
+                html += `</ul>`;
+                container.innerHTML += html;
+            });
+
+            // สั่งให้โหลดเนื้อหาฝั่งขวาตาม activePageId
+            if (activePageId) loadPageContent(activePageId, false);
+            else document.getElementById('content-display').innerHTML = `<div class="text-center text-muted py-5"><i class="fa-solid fa-box-open fa-3x mb-3 opacity-25"></i><h5>ยังไม่มีข้อมูลในระบบ</h5></div>`;
+        }
+
+        // ฟังก์ชันเมื่อคลิกเลือกเมนู (เพื่อวาดเนื้อหาฝั่งขวา)
+        function loadPageContent(pageId, shouldScroll = true) {
+            const page = allAboutPages.find(p => p.PageID === pageId);
+            if (!page) return;
+
+            // 1. อัปเดตไฮไลต์เมนู
+            activePageId = pageId;
+            document.querySelectorAll('.page-item').forEach(el => el.classList.remove('active'));
+            const targetMenu = document.getElementById(`menu-${pageId}`);
+            if (targetMenu) targetMenu.classList.add('active');
+
+            // 2. อัปเดต URL เงียบๆ เพื่อให้คนก๊อปปี้ลิงก์ส่งให้เพื่อนได้
+            const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?page=' + pageId;
+            window.history.pushState({path:newUrl}, '', newUrl);
+
+            // 3. วาดเนื้อหาลงในจอ
+            const display = document.getElementById('content-display');
+            
+            // เตรียมรูปหน้าปก
+            let coverHtml = '';
+            if (page.CoverImageURL) {
+                coverHtml = `<img src="${convertDriveImageLink(page.CoverImageURL)}" class="content-cover" alt="รูปภาพปก">`;
+            }
+
+            // เตรียมไฟล์แนบ
+            let filesHtml = '';
+            if (page.FilesURL) {
+                let fileLinks = '';
+                page.FilesURL.split(', ').forEach((url, idx) => {
+                    let viewUrl = url.replace('?usp=sharing', '');
+                    fileLinks += `<a href="${viewUrl}" target="_blank" class="attachment-item"><i class="fa-solid fa-file-arrow-down text-danger me-2"></i> เอกสารแนบที่ ${idx + 1}</a>`;
+                });
+                filesHtml = `
+                    <div class="attachment-box">
+                        <h6 class="fw-bold text-danger mb-3"><i class="fa-solid fa-paperclip me-2"></i> เอกสารอ้างอิง / ดาวน์โหลด</h6>
+                        <div>${fileLinks}</div>
+                    </div>`;
+            }
+
+            // เตรียมแกลลอรี และสร้าง Modal Slideshow
+            let galleryHtml = '';
+            if (page.GalleryURLs) {
+                let images = page.GalleryURLs.split(', ');
+                let gridHtml = ''; let indicatorsHtml = ''; let slidesHtml = '';
+
+                images.forEach((url, idx) => {
+                    let displayUrl = convertDriveImageLink(url);
+                    let rawUrl = url.replace('?usp=sharing', '');
+                    let activeClass = idx === 0 ? 'active' : '';
+
+                    gridHtml += `<img src="${displayUrl}" class="gallery-img" alt="แกลลอรี" onclick="openGalleryViewer(${idx})">`;
+                    indicatorsHtml += `<button type="button" data-bs-target="#galleryCarousel" data-bs-slide-to="${idx}" class="${activeClass}"></button>`;
+                    slidesHtml += `<div class="carousel-item ${activeClass} h-100"><div class="d-flex justify-content-center align-items-center h-100 w-100 p-3"><img src="${displayUrl}" class="img-fluid" style="max-height: 100%; max-width: 100%; object-fit: contain;"></div><div class="position-absolute bottom-0 end-0 m-4" style="z-index: 10;"><a href="${rawUrl}" target="_blank" class="btn btn-primary rounded-pill shadow-lg"><i class="fa-solid fa-expand me-2"></i>ดูรูปขนาดเต็ม / ดาวน์โหลด</a></div></div>`;
+                });
+
+                galleryHtml = `
+                    <div style="border-top: 1px dashed #ccc; padding-top: 20px; margin-top: 40px;">
+                        <h5 class="fw-bold text-dark"><i class="fa-solid fa-images text-success me-2"></i> รูปภาพประกอบเพิ่มเติม</h5>
+                        <div class="gallery-grid">${gridHtml}</div>
+                    </div>`;
+                
+                // นำไปยัดใส่ Modal
+                document.getElementById('galleryCarouselIndicators').innerHTML = indicatorsHtml;
+                document.getElementById('galleryCarouselInner').innerHTML = slidesHtml;
+            }
+
+            // นำทุกอย่างมารวมกันและแสดงผล
+            display.innerHTML = `
+                ${coverHtml}
+                <h2 class="content-title">${page.Title}</h2>
+                <div class="content-html">${page.Content || '<p class="text-muted">กำลังปรับปรุงข้อมูล...</p>'}</div>
+                ${galleryHtml}
+                ${filesHtml}
+            `;
+
+            // เลื่อนจอขึ้นบนสุดเพื่อให้เห็นหัวข้อใหม่
+            if (shouldScroll) window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ฟังก์ชันเปิดดูรูปสไลด์โชว์
+        function openGalleryViewer(startIndex) {
+            const myCarousel = document.getElementById('galleryCarousel');
+            const carousel = new bootstrap.Carousel(myCarousel, { interval: false, ride: false });
+            carousel.to(startIndex);
+            new bootstrap.Modal(document.getElementById('galleryViewerModal')).show();
+        }
+    </script>
+</body>
+</html>
