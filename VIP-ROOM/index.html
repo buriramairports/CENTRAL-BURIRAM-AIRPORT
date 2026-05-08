@@ -1920,16 +1920,98 @@ function getAvailableDatesSummary() {
         document.getElementById('roomModal').classList.remove('hidden');
     }
     function closeRoomModal() { document.getElementById('roomModal').classList.add('hidden'); }
+
+	// 🟢 1. ฟังก์ชันสร้างกล่องอัปโหลดรูปภาพ
     function addRoomImageInput(val = '') {
         const c = document.getElementById('roomImagesContainer');
-        const d = document.createElement('div'); d.className = 'flex gap-2';
+        const d = document.createElement('div'); 
+        d.className = 'flex gap-3 items-center bg-white p-2 rounded-xl border border-gray-200 shadow-sm';
         
         let previewHtml = '';
-        if(val) previewHtml = `<img src="${convertDriveImageLink(val)}" class="w-10 h-10 object-cover rounded border">`;
+        if(val) {
+            // ถ้ารูปเดิมมีอยู่แล้ว ให้โชว์รูปเล็กๆ
+            previewHtml = `<img src="${convertDriveImageLink(val)}" class="w-12 h-12 object-cover rounded-lg border">`;
+        } else {
+            // ถ้าเพิ่มใหม่ ให้โชว์กล่องเทาๆ
+            previewHtml = `<div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400"><i data-lucide="image" class="w-5 h-5"></i></div>`;
+        }
         
-        d.innerHTML = `${previewHtml}<input type="url" value="${val}" class="room-img-input flex-1 border p-2 rounded-lg text-sm outline-none focus:ring-2" placeholder="วางลิงก์รูปภาพ เช่น https://..."><button onclick="this.parentElement.remove()" class="text-red-500 hover:bg-red-50 px-2 rounded-lg"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
-        c.appendChild(d); lucide.createIcons();
+        d.innerHTML = `
+            ${previewHtml}
+            <div class="flex-1">
+                <input type="hidden" class="existing-room-img" value="${val}">
+                <input type="file" accept="image/png, image/jpeg" class="new-room-img w-full text-sm border p-1.5 rounded-lg outline-none focus:ring-2 focus:ring-green-500 bg-gray-50">
+            </div>
+            <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:bg-red-100 p-2 rounded-lg transition" title="ลบรูปนี้"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+        `;
+        c.appendChild(d); 
+        lucide.createIcons();
     }
+
+    // 🟢 2. ฟังก์ชันเซฟข้อมูลห้อง (อัปเกรดให้อัปโหลดรูปลง Drive)
+    async function saveRoom() {
+        const id = document.getElementById('editRoomId').value;
+        const name = document.getElementById('roomName').value.trim(), cap = parseInt(document.getElementById('roomCapacity').value)||0;
+        if(!name || cap<=0) return showToast('กรุณากรอกชื่อห้องและความจุให้ถูกต้อง', 'error');
+        
+        showLoader('กำลังอัปโหลดรูปภาพและบันทึกข้อมูล...');
+        document.getElementById('btnSaveRoom') ? document.getElementById('btnSaveRoom').disabled = true : null;
+
+        try {
+            let finalImages = [];
+            // วนลูปหากล่องรูปภาพทั้งหมดที่มีในหน้าต่าง
+            const imageRows = document.getElementById('roomImagesContainer').children;
+            
+            for(let i=0; i<imageRows.length; i++) {
+                const existingVal = imageRows[i].querySelector('.existing-room-img').value;
+                const fileInput = imageRows[i].querySelector('.new-room-img');
+
+                if (fileInput && fileInput.files.length > 0) {
+                    // ถ้ามีการเลือกไฟล์ใหม่จากคอม ให้อัปโหลดเข้า Drive ทันที
+                    showLoader(`กำลังอัปโหลดรูปภาพที่ ${i+1}...`);
+                    let uploadedUrl = await uploadSingleFile(fileInput.files[0], 'image');
+                    if (uploadedUrl) finalImages.push(uploadedUrl);
+                } else if (existingVal) {
+                    // ถ้าไม่ได้เลือกไฟล์ใหม่ แต่มีของเดิมอยู่แล้ว ให้ดึงลิงก์เดิมมาใช้
+                    finalImages.push(existingVal);
+                }
+            }
+            
+            showLoader('กำลังบันทึกฐานข้อมูล...');
+
+            // รวบรวมข้อมูลส่งเข้า API
+            const d = { 
+                name: name, 
+                location: document.getElementById('roomLocation').value.trim(), 
+                capacity: cap, 
+                amenities: document.getElementById('roomAmenities').value.trim(), 
+                images: JSON.stringify(finalImages), 
+                status: document.querySelector('input[name="roomStatus"]:checked').value 
+            };
+            
+            if(id) { 
+                d.id = parseInt(id); 
+                await apiCall('updateRoom', d); 
+                const idx = allRooms.findIndex(x=>x.id===d.id); 
+                if(idx!==-1) allRooms[idx]={...allRooms[idx], ...d}; 
+                showToast('แก้ไขข้อมูลห้องสำเร็จ', 'success'); 
+            } else { 
+                const res = await apiCall('addRoom', d); 
+                allRooms.push(res); 
+                showToast('เพิ่มห้องรับรองสำเร็จ', 'success'); 
+            }
+            
+            closeRoomModal(); 
+            renderRoomCards();
+
+        } catch(e) {
+            showAlert('เกิดข้อผิดพลาด', 'ไม่สามารถบันทึกข้อมูลห้องรับรองได้', 'error');
+        } finally {
+            hideLoader();
+            document.getElementById('btnSaveRoom') ? document.getElementById('btnSaveRoom').disabled = false : null;
+        }
+    }
+	  
     function editRoom(id) {
         const r = allRooms.find(x=>x.id===id);
         document.getElementById('roomModalTitle').innerHTML = '<i data-lucide="edit" class="w-5 h-5"></i> แก้ไขห้องรับรอง';
@@ -1940,20 +2022,7 @@ function getAvailableDatesSummary() {
         document.querySelector(`input[name="roomStatus"][value="${r.status}"]`).checked = true;
         document.getElementById('roomModal').classList.remove('hidden');
     }
-     async function saveRoom() {
-        const id = document.getElementById('editRoomId').value;
-        const name = document.getElementById('roomName').value.trim(), cap = parseInt(document.getElementById('roomCapacity').value)||0;
-        if(!name || cap<=0) return showToast('กรุณากรอกชื่อห้องและความจุให้ถูกต้อง', 'error');
-        
-        const imgInputs = document.querySelectorAll('.room-img-input');
-        const imgs = Array.from(imgInputs).map(inp => inp.value.trim()).filter(val => val !== '');
-        
-        const d = { name: name, location: document.getElementById('roomLocation').value.trim(), capacity: cap, amenities: document.getElementById('roomAmenities').value.trim(), images: JSON.stringify(imgs), status: document.querySelector('input[name="roomStatus"]:checked').value };
-        
-        if(id) { d.id = parseInt(id); await apiCall('updateRoom', d); const idx = allRooms.findIndex(x=>x.id===d.id); if(idx!==-1) allRooms[idx]={...allRooms[idx], ...d}; showToast('แก้ไขสำเร็จ', 'success'); }
-        else { const res = await apiCall('addRoom', d); allRooms.push(res); showToast('เพิ่มห้องสำเร็จ', 'success'); }
-        closeRoomModal(); renderRoomCards();
-    }
+   
     async function deleteRoom(id) {
         if(confirm('ยืนยันลบห้องรับรองนี้? (ประวัติการจองของห้องนี้จะยังคงอยู่ แต่ชื่อห้องอาจแสดงเป็นไอดี)')) {
             await apiCall('deleteRoom', {id}); allRooms = allRooms.filter(r=>r.id!==id); renderRoomCards(); showToast('ลบสำเร็จ', 'success');
