@@ -1132,7 +1132,8 @@ function closePdpaModal() {
         const cachedBookings = localStorage.getItem('cache_bookings');
         if(cachedBookings) allBookings = JSON.parse(cachedBookings);
 
-        lucide.createIcons(); 
+        lucide.createIcons();
+		initBanner();
         fetchDataInBackground();
     }
 
