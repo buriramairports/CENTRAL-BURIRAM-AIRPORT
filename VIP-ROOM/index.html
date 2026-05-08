@@ -2412,43 +2412,63 @@ function getAvailableDatesSummary() {
     }
 
     // --- Admin: Settings ---
+   // --- Admin: Settings ---
     function loadSettings() {
         document.getElementById('bannerEnabled').checked = systemSettings.bannerEnabled;
         document.getElementById('bannerSpeed').value = systemSettings.bannerSpeed || 3;
-        document.getElementById('advanceDays').value = systemSettings.advanceDays;
+        document.getElementById('advanceDays').value = systemSettings.advanceDays || 0;
         document.getElementById('systemName').value = systemSettings.systemName || '';
         document.getElementById('systemSubName').value = systemSettings.systemSubName || '';
         document.getElementById('footerText').value = systemSettings.footerText || '';
-        document.getElementById('logoUrl').value = systemSettings.logoUrl || '';
-        document.getElementById('loginBgUrl').value = systemSettings.loginBgUrl || '';
-        document.getElementById('faviconUrl').value = systemSettings.faviconUrl || '';
-		document.getElementById('settingPdpaText').value = systemSettings.pdpaText || '';
+        document.getElementById('settingPdpaText').value = systemSettings.pdpaText || '';
 
-		// 2. ตั้งค่าบอท (ที่เพิ่มใหม่)
-    document.getElementById('botEnabled').checked = systemSettings.botEnabled !== false;
-    document.getElementById('botName').value = systemSettings.botName || 'น้องแอร์พอร์ต';
-    document.getElementById('botAvatar').value = systemSettings.botAvatar || '';
-    document.getElementById('botBadgeText').value = systemSettings.botBadgeText || 'สอบถามข้อมูลห้องรับรองที่นี่';
-    document.getElementById('botGreeting').value = systemSettings.botGreeting || '';
-    document.getElementById('adminContactInfo').value = systemSettings.adminContactInfo || '';
-
-		// ฟังก์ชันช่วยแสดงลิงก์เดิมและเคลียร์ช่องไฟล์
+        // 🟢 ฟังก์ชันช่วยแสดงลิงก์รูป (เพิ่มการตรวจสอบ error แบบรัดกุม)
         const setImgPreview = (id, val) => {
-            document.getElementById(id).value = val || '';
-            document.getElementById('upload' + id.charAt(0).toUpperCase() + id.slice(1)).value = '';
-            document.getElementById('status' + id.charAt(0).toUpperCase() + id.slice(1)).innerHTML = val ? `<a href="${convertDriveImageLink(val)}" target="_blank" class="text-sky-600 underline">คลิกดูรูปปัจจุบัน</a> (อัปโหลดรูปใหม่เพื่อแทนที่)` : 'ยังไม่ได้อัปโหลดรูป';
+            let hiddenInput = document.getElementById(id);
+            let fileInput = document.getElementById('upload' + id.charAt(0).toUpperCase() + id.slice(1));
+            let statusDiv = document.getElementById('status' + id.charAt(0).toUpperCase() + id.slice(1));
+            
+            // เช็คว่ามี HTML Element อยู่จริงไหม
+            if(hiddenInput) hiddenInput.value = val || '';
+            if(fileInput) fileInput.value = '';
+            
+            if(statusDiv) {
+                if(val) {
+                    // ถ้ามีรูปลิงก์จาก Drive ให้แสดงลิงก์
+                    let driveUrl = convertDriveImageLink(val);
+                    statusDiv.innerHTML = `<a href="${driveUrl}" target="_blank" class="text-green-600 underline font-medium">คลิกดูรูปปัจจุบัน</a> (อัปโหลดรูปใหม่เพื่อแทนที่)`;
+                } else {
+                    statusDiv.innerHTML = 'ยังไม่ได้อัปโหลดรูปภาพ';
+                }
+            }
         };
 
+        // 🟢 ดึงข้อมูลรูปภาพมาแสดง
         setImgPreview('logoUrl', systemSettings.logoUrl);
         setImgPreview('loginBgUrl', systemSettings.loginBgUrl);
         setImgPreview('faviconUrl', systemSettings.faviconUrl);
         setImgPreview('botAvatar', systemSettings.botAvatar);
+
+        // 🟢 ตั้งค่าบอท
+        document.getElementById('botEnabled').checked = systemSettings.botEnabled !== false;
+        document.getElementById('botName').value = systemSettings.botName || 'น้องแอร์พอร์ต';
+        document.getElementById('botBadgeText').value = systemSettings.botBadgeText || 'สอบถามข้อมูลห้องรับรองที่นี่';
+        document.getElementById('botGreeting').value = systemSettings.botGreeting || '';
+        document.getElementById('adminContactInfo').value = systemSettings.adminContactInfo || '';
         
-        document.querySelector(`input[name="bookingDayType"][value="${systemSettings.bookingDayType}"]`).checked = true;
+        // 🟢 ตั้งค่าปฏิทิน และ เวลา
+        const dayTypeRadio = document.querySelector(`input[name="bookingDayType"][value="${systemSettings.bookingDayType || 'weekly'}"]`);
+        if(dayTypeRadio) dayTypeRadio.checked = true;
         changeBookingDayType();
-        document.querySelectorAll('.weekday-checkbox').forEach(cb => cb.checked = (systemSettings.weeklyDays||[]).includes(parseInt(cb.value)));
         
-        renderBannerList(); renderTimeSlots(); renderSettingsCalendar();
+        document.querySelectorAll('.weekday-checkbox').forEach(cb => {
+            cb.checked = (systemSettings.weeklyDays || []).includes(parseInt(cb.value));
+        });
+        
+        // 🟢 เรนเดอร์ส่วนต่างๆ
+        renderBannerList(); 
+        renderTimeSlots(); 
+        renderSettingsCalendar();
     }
     
     // Time Slots (ปรับปรุงใหม่)
@@ -2518,18 +2538,29 @@ function getAvailableDatesSummary() {
 
     // Banners (แก้ให้สอดคล้องกับระบบเดิม)
     function renderBannerList() { 
-        document.getElementById('bannerList').innerHTML = (systemSettings.banners||[]).map((b,i) => `
+        const listContainer = document.getElementById('bannerList');
+        if(!listContainer) return;
+
+        listContainer.innerHTML = (systemSettings.banners||[]).map((b,i) => {
+            // 🟢 ป้องกันกรณีไม่มีรูป
+            let previewUrl = b.url ? convertDriveImageLink(b.url) : 'https://via.placeholder.com/150';
+            
+            // 🟢 เปลี่ยนจาก Text Input ให้เป็นช่อง File Input สำหรับ Banner ด้วยเลย (เพื่อความสะดวก)
+            return `
             <div class="flex items-center gap-3 p-3 bg-gray-50 border border-gray-100 rounded-lg mb-2">
-                <img src="${b.url}" class="w-16 h-10 object-cover rounded shadow-sm" onerror="this.src='https://via.placeholder.com/150'">
+                <img src="${previewUrl}" class="w-16 h-10 object-cover rounded shadow-sm" onerror="this.src='https://via.placeholder.com/150'">
                 <div class="flex-1">
-                    <input type="text" value="${b.url}" onchange="systemSettings.banners[${i}].url=this.value;" class="w-full text-sm p-2 border rounded-lg outline-none focus:ring-2" placeholder="ใส่ลิงก์รูปภาพ...">
+                    <input type="text" value="${b.url}" onchange="systemSettings.banners[${i}].url=this.value;syncSettingsToDB();initBanner();" class="w-full text-sm p-2 border rounded-lg outline-none focus:ring-2" placeholder="วางลิงก์รูปภาพ (หรือจะทำปุ่มอัปโหลดเพิ่มก็ได้)">
                 </div>
                 <label class="text-sm font-medium flex items-center gap-1 cursor-pointer">
-                    <input type="checkbox" ${b.active?'checked':''} onchange="systemSettings.banners[${i}].active=this.checked;" class="w-4 h-4 text-green-600"> แสดง
+                    <input type="checkbox" ${b.active?'checked':''} onchange="systemSettings.banners[${i}].active=this.checked;syncSettingsToDB();initBanner();" class="w-4 h-4 text-green-600"> แสดง
                 </label>
-                <button onclick="systemSettings.banners.splice(${i},1);renderBannerList();" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-            </div>
-        `).join(''); 
+                <button onclick="systemSettings.banners.splice(${i},1);renderBannerList();syncSettingsToDB();initBanner();" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+            </div>`;
+        }).join(''); 
+        
         lucide.createIcons(); 
     }
     function addBannerSlot() { 
