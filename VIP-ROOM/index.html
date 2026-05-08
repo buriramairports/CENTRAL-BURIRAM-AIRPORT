@@ -86,80 +86,17 @@
       <h1 class="text-2xl font-bold text-gray-800" id="loginTitle">ระบบจองห้องรับรองพิเศษ (VIP)</h1>
       <p class="text-gray-500 mt-1" id="loginSubTitle">เข้าสู่ระบบ</p>
      </div>
-     <div id="loginForm">
-      <div class="mb-4">
-       <label class="block text-sm font-medium text-gray-700 mb-2">ชื่อผู้ใช้</label> 
-       <input type="text" id="loginUsername" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none" placeholder="กรอกชื่อผู้ใช้">
-      </div>
-      <div class="mb-6">
-       <label class="block text-sm font-medium text-gray-700 mb-2">รหัสผ่าน</label> 
-       <input type="password" id="loginPassword" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none" placeholder="กรอกรหัสผ่าน">
-      </div>
-      <button onclick="handleLogin()" class="w-full btn-primary text-white py-3 rounded-xl font-medium shadow-lg shadow-green-500/30"> เข้าสู่ระบบ </button>
-      <p class="text-center mt-4 text-gray-500">ยังไม่มีบัญชี? <button onclick="showRegister()" class="text-green-600 font-medium hover:underline">สมัครสมาชิก</button></p>
-     </div>
-     <div id="registerForm" class="hidden">
+
+		<!-- 🟢 หน้าจอเชื่อมต่อระบบกลาง (SSO) -->
+     <div id="loginForm" class="text-center animate-fadeIn">
+      <p class="text-gray-600 mb-6 text-sm">ระบบนี้เชื่อมต่อกับฐานข้อมูลกลางของท่าอากาศยานบุรีรัมย์<br>กรุณาเข้าสู่ระบบผ่านเว็บไซต์หลักเพื่อใช้งาน</p>
       
-      <!-- ปรับให้ใช้ Grid 2 คอลัมน์ (sm:grid-cols-2) เพื่อประหยัดพื้นที่แนวตั้ง -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3 mb-4">
-       
-       <!-- ชื่อ & นามสกุล -->
-       <div>
-           <label class="block text-xs font-medium text-gray-700 mb-1">ชื่อ <span class="text-red-500">*</span></label> 
-           <input type="text" id="regFirstName" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 outline-none text-sm" placeholder="ชื่อจริง">
-       </div>
-       <div>
-           <label class="block text-xs font-medium text-gray-700 mb-1">นามสกุล</label> 
-           <input type="text" id="regLastName" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 outline-none text-sm" placeholder="นามสกุล">
-       </div>
-
-       <!-- เบอร์โทร & อีเมล -->
-       <div>
-           <label class="block text-xs font-medium text-gray-700 mb-1">เบอร์โทรศัพท์ <span class="text-red-500">*</span></label> 
-           <input type="tel" id="regPhone" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 outline-none text-sm" placeholder="08xxxxxxxx">
-       </div>
-       <div>
-           <label class="block text-xs font-medium text-gray-700 mb-1">Email</label> 
-           <input type="email" id="regEmail" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 outline-none text-sm" placeholder="อีเมล">
-       </div>
-
-       <!-- หน่วยงาน (กินพื้นที่ 2 คอลัมน์) -->
-       <div class="sm:col-span-2">
-           <label class="block text-xs font-medium text-gray-700 mb-1">หน่วยงาน / องค์กร <span class="text-red-500">*</span></label> 
-           <input type="text" id="regOrganization" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 outline-none text-sm" placeholder="ระบุชื่อหน่วยงาน หรือ บริษัท">
-       </div>
-
-       <!-- ข้อมูลเข้าสู่ระบบ (Username & Password) -->
-       <div class="sm:col-span-2 mt-2 pt-3 border-t border-gray-100 flex items-center gap-2">
-           <i data-lucide="key" class="w-4 h-4 text-green-600"></i>
-           <span class="text-xs font-bold text-gray-800">ข้อมูลเข้าสู่ระบบ</span>
-       </div>
-       
-       <div>
-           <label class="block text-xs font-medium text-gray-700 mb-1">ชื่อผู้ใช้ (Username) <span class="text-red-500">*</span></label> 
-           <input type="text" id="regUsername" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 outline-none text-sm bg-green-50/50" placeholder="ใช้สำหรับ Login">
-       </div>
-       <div>
-           <label class="block text-xs font-medium text-gray-700 mb-1">รหัสผ่าน <span class="text-red-500">*</span></label> 
-           <input type="password" id="regPassword" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 outline-none text-sm bg-green-50/50" placeholder="อย่างน้อย 6 ตัวอักษร">
-       </div>
-
-      </div> <!-- จบ Grid -->
-
-      <!-- ส่วนที่เพิ่มใหม่: PDPA Checkbox (ย่อขนาด Padding ลง) -->
-      <div class="mb-5 bg-gray-50 p-2.5 rounded-lg border border-gray-200">
-          <label class="flex items-start gap-2 cursor-pointer">
-              <input type="checkbox" id="regPdpa" class="mt-0.5 w-4 h-4 text-green-600 rounded border-gray-300 focus:ring-green-500 shrink-0">
-              <span class="text-xs text-gray-600 leading-relaxed">
-                  ข้าพเจ้าได้อ่านและยอมรับ 
-                  <button type="button" onclick="openPdpaModal()" class="text-green-600 font-bold hover:underline">นโยบายความเป็นส่วนตัว (PDPA)</button>
-              </span>
-          </label>
-      </div>
-
-      <button onclick="handleRegister()" class="w-full btn-primary text-white py-2.5 rounded-xl font-medium shadow-lg shadow-green-500/30 text-sm"> สมัครสมาชิก </button>
-      <p class="text-center mt-3 text-xs text-gray-500">มีบัญชีแล้ว? <button onclick="showLogin()" class="text-green-600 font-medium hover:underline">เข้าสู่ระบบ</button></p>
+      <!-- ลิงก์กลับไปหน้าหลัก (เว้นไว้ว่าระบบนี้อยู่ในโฟลเดอร์ย่อย) -->
+      <a href="../index.html" class="w-full btn-primary text-white py-3 rounded-xl font-medium shadow-lg flex items-center justify-center gap-2 hover:text-white transition"> 
+          <i data-lucide="shield-check" class="w-5 h-5"></i> กลับไปหน้าเข้าสู่ระบบกลาง 
+      </a>
      </div>
+     
     </div>
    </div>
 
@@ -944,7 +881,7 @@
     let wizState = { step: 1, date: null, roomId: null, roomName: null, capacity: 0, slots: [] };
     let tempBookingData = null; 
 	// 👇 นำ URL ที่ได้จาก GAS มาใส่ตรงนี้
-	const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbymc2vIiUgk91qshok1TtSQY4OgSj61QXHHZXyZTVHH_uxCrX2dnUX1IEtpFvmCyoDs/exec'; 
+	const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx_7B9ck-z4Gegvhc9LtVXHaM_pHPwAIobm1kPY_Z0WkFEh9MvkaO1GqZpy2a5ALbXJ/exec'; 
     const thaiMonthsNames = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
     const thaiMonthsShort = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
 
@@ -1297,13 +1234,63 @@ function getAvailableDatesSummary() {
     function hideInitialSplash() { const s = document.getElementById('initialSplash'); if(s) { s.style.opacity = '0'; setTimeout(()=>s.style.display='none', 700); } }
 
     // --- Init App ---
+    // ================= ระบบเชื่อมต่อส่วนกลาง (SSO Bridge) =================
     function initApp(){
       setTimeout(hideInitialSplash, 5000); 
-      lucide.createIcons();
-      const sUser = localStorage.getItem('vrm_currentUser');
-      if(sUser){ currentUser = JSON.parse(sUser); showMainApp(false); }
+
+      // 🟢 1. เช็คว่าล็อกอินจากเว็บหลักมาหรือยัง
+      const mainUserDataStr = localStorage.getItem('userData');
+      if(mainUserDataStr) {
+          const mainUser = JSON.parse(mainUserDataStr);
+          
+          // แปลงสิทธิ์ (Role)
+          let subRole = 'user';
+          if (mainUser.role === 'SuperAdmin' || (mainUser.role === 'SubAdmin' && mainUser.allowedMenus && mainUser.allowedMenus.includes('eservices'))) {
+              subRole = 'admin';
+          }
+
+          // นำข้อมูลจากเว็บหลักมาใช้ในระบบย่อย
+          currentUser = {
+              id: mainUser.id, 
+              firstName: mainUser.fname || mainUser.fullname.split(' ')[0],
+              lastName: mainUser.lname || '',
+              role: subRole,
+              email: mainUser.email || '',
+              organization: mainUser.org || mainUser.department || '',
+              phone: mainUser.phone || ''
+          };
+          showMainApp(false); 
+      } else {
+          // ถ้ายังไม่ล็อกอิน ให้โชว์หน้าปุ่มลิงก์ไปเว็บหลัก
+          document.getElementById('loginPage').classList.remove('hidden');
+          hideInitialSplash();
+          lucide.createIcons();
+          return;
+      }
+
       fetchDataInBackground();
-  }
+    }
+
+    function handleLogout(){ 
+        currentUser = null; 
+        if(notifInterval) clearInterval(notifInterval); 
+        
+        localStorage.removeItem('userData'); // 🟢 ลบความจำที่ได้จากเว็บหลักทิ้ง
+        window.location.href = '../index.html'; // 🟢 เด้งกลับไปหน้าเว็บหลัก
+    }
+
+    function renderSidebar(){
+        // 🟢 เอาเมนู จัดการผู้ใช้งาน และ โปรไฟล์ ออกไป (ไปทำที่เว็บหลักแทน)
+        const m = [
+            {id:'home',icon:'home',label:'หน้าหลัก / ปฏิทิน',r:['user','admin']},
+            {id:'manageBooking',icon:'clipboard',label:'ประวัติการจอง',r:['user','admin']},
+            {id:'manageRoom',icon:'door-open',label:'จัดการห้องรับรอง',r:['admin']},
+            {id:'reports',icon:'bar-chart',label:'รายงานสรุป',r:['admin']},
+            {id:'settings',icon:'settings',label:'ตั้งค่าระบบ',r:['admin']}
+        ];
+        document.getElementById('sidebarNav').innerHTML = m.filter(i=>i.r.includes(currentUser.role)).map(i=>`<button onclick="navigateTo('${i.id}')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 text-white rounded-lg transition font-medium" data-page="${i.id}"><i data-lucide="${i.icon}" class="w-5 h-5"></i><span>${i.label}</span></button>`).join('');
+        lucide.createIcons();
+    }
 
      // --- เปลี่ยน google.script.run เป็น apiCallSilent ---
   function fetchDataInBackground() {
@@ -1408,22 +1395,7 @@ function getAvailableDatesSummary() {
             showLogin();
         } catch(e) { hideLoader(); }
     }
-    function handleLogout(){ 
-        currentUser=null; 
-        if(notifInterval) clearInterval(notifInterval); // หยุดเช็คการแจ้งเตือน
-        
-        localStorage.removeItem('vrm_currentUser'); // ลบเซสชั่นในเครื่อง
-        
-        // เคลียร์ช่องล็อกอินให้ว่างเปล่า
-        document.getElementById('loginUsername').value = '';
-        document.getElementById('loginPassword').value = '';
-        
-        // สลับหน้าจอ
-        document.getElementById('mainApp').classList.add('hidden'); 
-        document.getElementById('loginPage').classList.remove('hidden'); 
-        
-        showToast('ออกจากระบบเรียบร้อย', 'success');
-    }
+  
     function showLogin(){ document.getElementById('loginForm').classList.remove('hidden'); document.getElementById('registerForm').classList.add('hidden'); } 
     function showRegister(){ document.getElementById('loginForm').classList.add('hidden'); document.getElementById('registerForm').classList.remove('hidden'); }
 
@@ -1451,19 +1423,7 @@ function getAvailableDatesSummary() {
         startRealtimeSync();     
         // -----------------------------
     }
-    function renderSidebar(){
-        const m = [
-            {id:'home',icon:'home',label:'หน้าหลัก / ปฏิทิน',r:['user','admin']},
-            {id:'manageBooking',icon:'clipboard',label:'ประวัติการจอง',r:['user','admin']},
-            {id:'manageRoom',icon:'door-open',label:'จัดการห้องรับรอง',r:['admin']},
-            {id:'userManagement',icon:'users',label:'ผู้ใช้งานระบบ',r:['admin']},
-            {id:'reports',icon:'bar-chart',label:'รายงานสรุป',r:['admin']},
-            {id:'settings',icon:'settings',label:'ตั้งค่าระบบ',r:['admin']},
-            {id:'profile',icon:'user',label:'โปรไฟล์',r:['user','admin']}
-        ];
-        document.getElementById('sidebarNav').innerHTML = m.filter(i=>i.r.includes(currentUser.role)).map(i=>`<button onclick="navigateTo('${i.id}')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 text-white rounded-lg transition font-medium" data-page="${i.id}"><i data-lucide="${i.icon}" class="w-5 h-5"></i><span>${i.label}</span></button>`).join('');
-        lucide.createIcons();
-    }
+  
     function navigateTo(p){
         currentPage=p; document.querySelectorAll('.page').forEach(x=>x.classList.add('hidden')); document.getElementById(p+'Page').classList.remove('hidden');
         document.querySelectorAll('.sidebar-item').forEach(i => { i.classList.remove('active'); if(i.dataset.page===p) i.classList.add('active'); });
