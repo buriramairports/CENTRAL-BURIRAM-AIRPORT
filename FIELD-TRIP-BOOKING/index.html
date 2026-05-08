@@ -427,57 +427,6 @@
                 </div>
             </div>
         </div>
-        
-        
-		  <!-- ตั้งค่า ChatBOT -->
-		<!-- ส่วนตั้งค่า Chatbot แบบละเอียด -->
-<div class="bg-white rounded-xl card-shadow p-6 mt-6">
-    <div class="flex items-center justify-between mb-6">
-        <h3 class="font-semibold flex items-center gap-2 text-sky-600">
-            <i data-lucide="bot" class="w-6 h-6"></i> ตั้งค่าน้องแอร์พอร์ต (Chatbot)
-        </h3>
-        <!-- สวิตช์ เปิด/ปิด ระบบบอท -->
-        <label class="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" id="botEnabled" class="sr-only peer" onchange="toggleBotStatus()">
-            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sky-500"></div>
-            <span class="ml-3 text-sm font-medium text-gray-700">เปิดใช้งานบอท</span>
-        </label>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- ข้อมูลพื้นฐาน -->
-        <div class="space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อของบอท</label>
-                <input type="text" id="botName" class="w-full border p-2 rounded-lg outline-none focus:ring-2 focus:ring-sky-500" placeholder="เช่น น้องแอร์พอร์ต">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">คำบนป้าย Badge (ข้างไอคอน)</label>
-                <input type="text" id="botBadgeText" class="w-full border p-2 rounded-lg outline-none focus:ring-2 focus:ring-sky-500" placeholder="เช่น คุยกับน้องแอร์พอร์ตที่นี่">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">ลิงก์รูปบอท (Avatar)</label>
-                <input type="url" id="botAvatar" class="w-full border p-2 rounded-lg outline-none focus:ring-2 focus:ring-sky-500" placeholder="https://...">
-            </div>
-        </div>
-
-        <!-- ข้อความและการติดต่อ -->
-        <div class="space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">ข้อความทักทายเริ่มต้น</label>
-                <textarea id="botGreeting" class="w-full border p-2 rounded-lg outline-none focus:ring-2 focus:ring-sky-500 min-h-[80px]" placeholder="สวัสดีครับ มีอะไรให้ช่วยไหมครับ?"></textarea>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-orange-600 mb-1 flex items-center gap-1">
-                    <i data-lucide="phone-call" class="w-4 h-4"></i> ข้อมูลติดต่อแอดมิน (Manual Contact)
-                </label>
-                <textarea id="adminContactInfo" class="w-full border p-2 rounded-lg outline-none focus:ring-2 focus:ring-orange-500 min-h-[150px]" placeholder="ใส่ข้อมูลเบอร์โทรหรือไลน์ที่ต้องการให้ผู้ใช้ติดต่อแอดมินโดยตรง..."></textarea>
-            </div>
-        </div>
-    </div>
-
-    
-</div>
 		  <!-- ปิดส่วนตั้งค่าบอท -->
 		  <!-- 🟢 ปุ่มรวมบันทึกทั้งหมด (Sticky Bottom) -->
         <div class="sticky bottom-4 z-40 bg-white/90 backdrop-blur p-4 rounded-xl shadow-lg border border-sky-100 flex justify-end">
