@@ -2412,15 +2412,27 @@ function getAvailableDatesSummary() {
     }
 
     // --- Admin: Settings ---
-   // --- Admin: Settings ---
+ // --- Admin: Settings ---
     function loadSettings() {
-        document.getElementById('bannerEnabled').checked = systemSettings.bannerEnabled;
-        document.getElementById('bannerSpeed').value = systemSettings.bannerSpeed || 3;
-        document.getElementById('advanceDays').value = systemSettings.advanceDays || 0;
-        document.getElementById('systemName').value = systemSettings.systemName || '';
-        document.getElementById('systemSubName').value = systemSettings.systemSubName || '';
-        document.getElementById('footerText').value = systemSettings.footerText || '';
-        document.getElementById('settingPdpaText').value = systemSettings.pdpaText || '';
+        // 🟢 ฟังก์ชันป้องกันบั๊ก: เช็คก่อนว่ามี ID นี้อยู่จริงไหม ถ้ามีค่อยใส่ค่า
+        const setValueSafe = (id, val) => {
+            const el = document.getElementById(id);
+            if (el) {
+                if (el.type === 'checkbox') el.checked = val;
+                else el.value = val;
+            }
+        };
+
+        // โหลดข้อมูล Text และ Checkbox ปกติ
+        setValueSafe('bannerEnabled', systemSettings.bannerEnabled !== false);
+        setValueSafe('bannerSpeed', systemSettings.bannerSpeed || 3);
+        setValueSafe('advanceDays', systemSettings.advanceDays || 0);
+        setValueSafe('systemName', systemSettings.systemName || '');
+        setValueSafe('systemSubName', systemSettings.systemSubName || '');
+        setValueSafe('footerText', systemSettings.footerText || '');
+        
+        // 🟢 แก้ไข ID ให้ตรงกับ HTML (pdpaTextSetting)
+        setValueSafe('pdpaTextSetting', systemSettings.pdpaText || ''); 
 
         // 🟢 ฟังก์ชันช่วยแสดงลิงก์รูป (เพิ่มการตรวจสอบ error แบบรัดกุม)
         const setImgPreview = (id, val) => {
@@ -2428,13 +2440,11 @@ function getAvailableDatesSummary() {
             let fileInput = document.getElementById('upload' + id.charAt(0).toUpperCase() + id.slice(1));
             let statusDiv = document.getElementById('status' + id.charAt(0).toUpperCase() + id.slice(1));
             
-            // เช็คว่ามี HTML Element อยู่จริงไหม
-            if(hiddenInput) hiddenInput.value = val || '';
-            if(fileInput) fileInput.value = '';
+            if (hiddenInput) hiddenInput.value = val || '';
+            if (fileInput) fileInput.value = ''; // ล้างช่องอัปโหลดเมื่อเปิดหน้าต่างใหม่
             
-            if(statusDiv) {
-                if(val) {
-                    // ถ้ามีรูปลิงก์จาก Drive ให้แสดงลิงก์
+            if (statusDiv) {
+                if (val) {
                     let driveUrl = convertDriveImageLink(val);
                     statusDiv.innerHTML = `<a href="${driveUrl}" target="_blank" class="text-green-600 underline font-medium">คลิกดูรูปปัจจุบัน</a> (อัปโหลดรูปใหม่เพื่อแทนที่)`;
                 } else {
@@ -2450,11 +2460,11 @@ function getAvailableDatesSummary() {
         setImgPreview('botAvatar', systemSettings.botAvatar);
 
         // 🟢 ตั้งค่าบอท
-        document.getElementById('botEnabled').checked = systemSettings.botEnabled !== false;
-        document.getElementById('botName').value = systemSettings.botName || 'น้องแอร์พอร์ต';
-        document.getElementById('botBadgeText').value = systemSettings.botBadgeText || 'สอบถามข้อมูลห้องรับรองที่นี่';
-        document.getElementById('botGreeting').value = systemSettings.botGreeting || '';
-        document.getElementById('adminContactInfo').value = systemSettings.adminContactInfo || '';
+        setValueSafe('botEnabled', systemSettings.botEnabled !== false);
+        setValueSafe('botName', systemSettings.botName || 'น้องแอร์พอร์ต');
+        setValueSafe('botBadgeText', systemSettings.botBadgeText || 'สอบถามข้อมูลห้องรับรองที่นี่');
+        setValueSafe('botGreeting', systemSettings.botGreeting || '');
+        setValueSafe('adminContactInfo', systemSettings.adminContactInfo || '');
         
         // 🟢 ตั้งค่าปฏิทิน และ เวลา
         const dayTypeRadio = document.querySelector(`input[name="bookingDayType"][value="${systemSettings.bookingDayType || 'weekly'}"]`);
