@@ -2148,7 +2148,29 @@ document.getElementById('adminContactInfo').value = systemSettings.adminContactI
         syncSettingsToDB(); 
         initBanner(); 
     }
-    function renderBannerList(){document.getElementById('bannerList').innerHTML=(systemSettings.banners||[]).map((b,i)=>`<div class="flex items-center gap-3 p-3 bg-gray-50 border border-gray-100 rounded-lg mb-2"><img src="${b.url}" class="w-16 h-10 object-cover rounded shadow-sm" onerror="this.src='https://via.placeholder.com/150'"><div class="flex-1"><input type="text" value="${b.url}" onchange="systemSettings.banners[${i}].url=this.value;syncSettingsToDB();initBanner()" class="w-full text-sm p-2 border rounded-lg outline-none focus:ring-2" placeholder="ใส่ลิงก์รูปภาพ..."></div><label class="text-sm font-medium flex items-center gap-1 cursor-pointer"><input type="checkbox" ${b.active?'checked':''} onchange="systemSettings.banners[${i}].active=this.checked;syncSettingsToDB();initBanner()"> แสดง</label><button onclick="systemSettings.banners.splice(${i},1);renderBannerList();syncSettingsToDB();initBanner();" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>`).join(''); lucide.createIcons();}
+    function renderBannerList() {
+        document.getElementById('bannerList').innerHTML = (systemSettings.banners||[]).map((b,i) => {
+            // 🟢 1. นำลิงก์ดิบมาผ่านฟังก์ชันแปลงลิงก์ Google Drive ก่อนแสดงผล
+            let previewUrl = convertDriveImageLink(b.url) || 'https://via.placeholder.com/150';
+            
+            return `
+            <div class="flex items-center gap-3 p-3 bg-gray-50 border border-gray-100 rounded-lg mb-2">
+                <!-- 🟢 2. เอา previewUrl ไปใส่ใน src -->
+                <img src="${previewUrl}" class="w-16 h-10 object-cover rounded shadow-sm" onerror="this.src='https://via.placeholder.com/150'">
+                <div class="flex-1">
+                    <input type="text" value="${b.url}" onchange="systemSettings.banners[${i}].url=this.value;syncSettingsToDB();initBanner()" class="w-full text-sm p-2 border rounded-lg outline-none focus:ring-2" placeholder="ใส่ลิงก์รูปภาพ...">
+                </div>
+                <label class="text-sm font-medium flex items-center gap-1 cursor-pointer">
+                    <input type="checkbox" ${b.active?'checked':''} onchange="systemSettings.banners[${i}].active=this.checked;syncSettingsToDB();initBanner()"> แสดง
+                </label>
+                <button onclick="systemSettings.banners.splice(${i},1);renderBannerList();syncSettingsToDB();initBanner();" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+            </div>`;
+        }).join(''); 
+        
+        lucide.createIcons();
+    }
     
     function changeBookingDayType(){ systemSettings.bookingDayType=document.querySelector('input[name="bookingDayType"]:checked').value; document.getElementById('weeklySettings').classList.toggle('hidden',systemSettings.bookingDayType!=='weekly'); document.getElementById('customCalendarSettings').classList.toggle('hidden',systemSettings.bookingDayType==='weekly'); }
     function saveBookingDays(){ if(systemSettings.bookingDayType==='weekly')systemSettings.weeklyDays=Array.from(document.querySelectorAll('.weekday-checkbox:checked')).map(x=>parseInt(x.value)); syncSettingsToDB(); renderCalendar(); }
