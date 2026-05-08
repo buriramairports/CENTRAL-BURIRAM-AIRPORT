@@ -845,7 +845,10 @@ function appendMessage(sender, text) {
     const div = document.createElement('div');
     div.className = sender === 'bot' ? 'bot-msg flex items-start gap-2' : 'user-msg flex flex-row-reverse items-start gap-2';
     
-    const avatar = sender === 'bot' ? `<div class="w-8 h-8 rounded-full bg-sky-100 p-1 shrink-0"><img src="${systemSettings.botAvatar || botSettings.avatar}" class="w-full h-full object-contain"></div>` : '';
+    // 🟢 แก้ไข: นำลิงก์อวตารมาแปลงผ่าน convertDriveImageLink ก่อนแสดงผล
+    const botImgUrl = convertDriveImageLink(systemSettings.botAvatar || botSettings.avatar);
+    
+    const avatar = sender === 'bot' ? `<div class="w-8 h-8 rounded-full bg-sky-100 p-1 shrink-0"><img src="${botImgUrl}" class="w-full h-full object-contain"></div>` : '';
     
     div.innerHTML = `
         ${avatar}
@@ -922,7 +925,12 @@ function showBotTyping() {
     const div = document.createElement('div');
     div.id = 'botTyping';
     div.className = 'bot-msg flex items-start gap-2';
-    div.innerHTML = `<div class="w-8 h-8 rounded-full bg-sky-100 p-1 shrink-0"><img src="${systemSettings.botAvatar || botSettings.avatar}" class="w-full h-full object-contain"></div><div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex gap-1"><span class="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce"></span><span class="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce [animation-delay:0.2s]"></span><span class="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce [animation-delay:0.4s]"></span></div>`;
+    
+    // 🟢 แก้ไข: นำลิงก์อวตารมาแปลงก่อนแสดงผล
+    const botImgUrl = convertDriveImageLink(systemSettings.botAvatar || botSettings.avatar);
+    
+    div.innerHTML = `<div class="w-8 h-8 rounded-full bg-sky-100 p-1 shrink-0"><img src="${botImgUrl}" class="w-full h-full object-contain"></div><div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex gap-1"><span class="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce"></span><span class="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce [animation-delay:0.2s]"></span><span class="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce [animation-delay:0.4s]"></span></div>`;
+    
     document.getElementById('chatMessages').appendChild(div);
     document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
 }
