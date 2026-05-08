@@ -2159,7 +2159,7 @@ document.getElementById('adminContactInfo').value = systemSettings.adminContactI
                 <!-- 🟢 2. เอา previewUrl ไปใส่ใน src -->
                 <img src="${previewUrl}" class="w-16 h-10 object-cover rounded shadow-sm" onerror="this.src='https://via.placeholder.com/150'">
                 <div class="flex-1">
-                    <input type="text" value="${b.url}" onchange="systemSettings.banners[${i}].url=this.value;syncSettingsToDB();initBanner()" class="w-full text-sm p-2 border rounded-lg outline-none focus:ring-2" placeholder="ใส่ลิงก์รูปภาพ...">
+                    <input type="text" value="${b.url}" onchange="systemSettings.banners[${i}].url=this.value;syncSettingsToDB();renderBannerList();initBanner()" class="w-full text-sm p-2 border rounded-lg outline-none focus:ring-2" placeholder="ใส่ลิงก์รูปภาพ...">
                 </div>
                 <label class="text-sm font-medium flex items-center gap-1 cursor-pointer">
                     <input type="checkbox" ${b.active?'checked':''} onchange="systemSettings.banners[${i}].active=this.checked;syncSettingsToDB();initBanner()"> แสดง
