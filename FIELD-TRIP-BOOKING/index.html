@@ -2189,50 +2189,65 @@ async function confirmCancelBooking(id) {
    function renderBannerList() { 
         const listContainer = document.getElementById('bannerList');
         if(!listContainer) return;
-        
+
         listContainer.innerHTML = (systemSettings.banners||[]).map((b,i) => {
-            let previewUrl = b.url ? convertDriveImageLink(b.url) : 'https://via.placeholder.com/150';
+            let previewUrl = b.url ? convertDriveImageLink(b.url) : '';
             let previewBtn = b.url ? `<a href="${previewUrl}" target="_blank" class="text-sky-600 underline font-medium text-xs mt-1 block">ดูรูปปัจจุบัน</a>` : '';
             
             return `
-            <div class="flex items-center gap-3 p-3 bg-gray-50 border border-gray-100 rounded-lg mb-2">
-                <img src="${previewUrl}" class="w-16 h-10 object-cover rounded shadow-sm" onerror="this.src='https://via.placeholder.com/150'">
+            <div class="banner-row flex items-center gap-3 p-3 bg-gray-50 border border-gray-100 rounded-lg mb-2">
+                <div class="preview-container w-16 h-10 rounded shrink-0 relative bg-gray-200 border border-gray-300 flex items-center justify-center overflow-hidden shadow-sm">
+                    <i data-lucide="image" class="w-5 h-5 text-gray-400 absolute"></i>
+                    <img src="${previewUrl}" class="w-full h-full object-cover relative z-10 ${previewUrl ? '' : 'hidden'}" onerror="this.classList.add('hidden')">
+                </div>
                 <div class="flex-1">
                     <input type="hidden" class="existing-banner-img" value="${b.url}">
-                    <!-- เพิ่ม onchange พรีวิวรูป -->
-                    <input type="file" accept="image/png, image/jpeg" class="new-banner-img w-full text-sm p-1.5 border rounded-lg outline-none focus:ring-2 focus:ring-sky-500 bg-white" onchange="previewBannerImage(this)">
+                    <input type="file" accept="image/png, image/jpeg" class="new-banner-img w-full text-sm p-1.5 border rounded-lg outline-none focus:ring-2 focus:ring-sky-500 bg-white" onchange="previewBannerImage(this); checkSettingsChanged();">
                     ${previewBtn}
                 </div>
                 <label class="text-sm font-medium flex items-center gap-1 cursor-pointer">
-                    <input type="checkbox" ${b.active?'checked':''} onchange="systemSettings.banners[${i}].active=this.checked;" class="w-4 h-4 text-sky-600"> แสดง
+                    <input type="checkbox" ${b.active?'checked':''} class="banner-active-cb w-4 h-4 text-sky-600" onchange="checkSettingsChanged();"> แสดง
                 </label>
-                <!-- เปลี่ยนฟังก์ชันลบ -->
-                <button onclick="deleteBannerSlot(${i})" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition" title="ลบแบนเนอร์นี้">
+                <button type="button" onclick="deleteBannerRow(this)" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition" title="ลบแบนเนอร์นี้">
                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                 </button>
             </div>`;
         }).join(''); 
         lucide.createIcons(); 
     }
-
+    
     function addBannerSlot() { 
-        if(!systemSettings.banners) systemSettings.banners=[]; 
-        systemSettings.banners.push({id: Date.now(), url: '', active: true}); 
-        renderBannerList(); 
-		checkSettingsChanged();
+        const listContainer = document.getElementById('bannerList');
+        const newRow = document.createElement('div');
+        newRow.className = 'banner-row flex items-center gap-3 p-3 bg-gray-50 border border-gray-100 rounded-lg mb-2 animate-fadeIn';
+        newRow.innerHTML = `
+            <div class="preview-container w-16 h-10 rounded shrink-0 relative bg-gray-200 border border-gray-300 flex items-center justify-center overflow-hidden shadow-sm">
+                <i data-lucide="image" class="w-5 h-5 text-gray-400 absolute"></i>
+                <img src="" class="w-full h-full object-cover relative z-10 hidden" onerror="this.classList.add('hidden')">
+            </div>
+            <div class="flex-1">
+                <input type="hidden" class="existing-banner-img" value="">
+                <input type="file" accept="image/png, image/jpeg" class="new-banner-img w-full text-sm p-1.5 border rounded-lg outline-none focus:ring-2 focus:ring-sky-500 bg-white" onchange="previewBannerImage(this); checkSettingsChanged();">
+            </div>
+            <label class="text-sm font-medium flex items-center gap-1 cursor-pointer">
+                <input type="checkbox" checked class="banner-active-cb w-4 h-4 text-sky-600" onchange="checkSettingsChanged();"> แสดง
+            </label>
+            <button type="button" onclick="deleteBannerRow(this)" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition" title="ลบแบนเนอร์นี้">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+        `;
+        listContainer.appendChild(newRow);
+        lucide.createIcons();
+        checkSettingsChanged();
     }
 
-    // แค่ซ่อนออกจากการแสดงผล และเก็บรอลบจริง
-    function deleteBannerSlot(index) {
+    function deleteBannerRow(btn) {
         if(confirm('คุณต้องการลบรูป Banner นี้ออกใช่หรือไม่? (รูปจะถูกลบจริงเมื่อกด "บันทึกการตั้งค่า")')) {
-            const urlToDelete = systemSettings.banners[index].url;
-            // ถ้ารูปนี้เคยมีในฐานข้อมูล ให้เก็บคิวไว้รอลบจริงจาก Drive
-            if(urlToDelete) {
-                pendingDeleteDriveUrls.push(urlToDelete);
-            }
-            systemSettings.banners.splice(index, 1);
-            renderBannerList();
-			checkSettingsChanged();
+            const row = btn.closest('.banner-row');
+            const existingUrl = row.querySelector('.existing-banner-img').value;
+            if(existingUrl) pendingDeleteDriveUrls.push(existingUrl);
+            row.remove();
+            checkSettingsChanged();
         }
     }
 
@@ -2299,7 +2314,20 @@ async function confirmCancelBooking(id) {
         if (JSON.stringify(currentWeekly) !== JSON.stringify(backupSystemSettings.weeklyDays || [])) isChanged = true;
 
         // 5. เช็คพวกรายการแบนเนอร์และช่วงเวลา
-        if (JSON.stringify(systemSettings.banners) !== JSON.stringify(backupSystemSettings.banners)) isChanged = true;
+        // เช็คการตั้งค่าแบนเนอร์ที่อยู่บนหน้าจอ
+        const currentBannerRows = document.querySelectorAll('#bannerList .banner-row');
+        if (currentBannerRows.length !== (backupSystemSettings.banners || []).length) {
+            isChanged = true;
+        } else {
+            currentBannerRows.forEach((row, i) => {
+                const active = row.querySelector('.banner-active-cb').checked;
+                const existingUrl = row.querySelector('.existing-banner-img').value;
+                const backupBanner = backupSystemSettings.banners[i];
+                if (!backupBanner || backupBanner.active !== active || backupBanner.url !== existingUrl) {
+                    isChanged = true;
+                }
+            });
+        }
         if (JSON.stringify(systemSettings.timeSlots) !== JSON.stringify(backupSystemSettings.timeSlots)) isChanged = true;
         if (JSON.stringify(systemSettings.customDays) !== JSON.stringify(backupSystemSettings.customDays)) isChanged = true;
 
@@ -2320,8 +2348,14 @@ async function confirmCancelBooking(id) {
         if (input.files && input.files[0]) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                const img = input.parentElement.previousElementSibling;
-                if(img && img.tagName === 'IMG') img.src = e.target.result;
+                const container = input.parentElement.previousElementSibling;
+                if(container && container.classList.contains('preview-container')) {
+                    const img = container.querySelector('img');
+                    if(img) {
+                        img.src = e.target.result;
+                        img.classList.remove('hidden');
+                    }
+                }
             }
             reader.readAsDataURL(input.files[0]);
         }
@@ -2357,26 +2391,27 @@ async function confirmCancelBooking(id) {
             systemSettings.faviconUrl = await checkAndUpload('faviconUrl');
             systemSettings.botAvatar = await checkAndUpload('botAvatar');
 
-            // 2. อัปโหลดรูปภาพแบนเนอร์ (วนลูปทุกช่อง)
-            const bannerRows = document.getElementById('bannerList').children;
+            // 2. อัปโหลดรูปภาพแบนเนอร์ และสร้าง Array ใหม่
+            let newBannersConfig = [];
+            const bannerRows = document.querySelectorAll('#bannerList .banner-row');
             for(let i=0; i<bannerRows.length; i++) {
                 const existingVal = bannerRows[i].querySelector('.existing-banner-img').value;
                 const fileInput = bannerRows[i].querySelector('.new-banner-img');
+                const isActive = bannerRows[i].querySelector('.banner-active-cb').checked;
 
+                let finalUrl = existingVal;
                 if (fileInput && fileInput.files.length > 0) {
                     showLoader(`กำลังอัปโหลดแบนเนอร์รูปที่ ${i+1}...`);
                     let newUrl = await uploadSingleFile(fileInput.files[0], 'image');
                     
                     if (newUrl) {
-                        // 🟢 ถ้าอัปโหลดสำเร็จและมีรูปแบนเนอร์เดิมอยู่ ให้ยิงลบรูปเดิมทิ้ง
                         if(existingVal) apiCallSilent('deleteFile', { url: existingVal });
-                        systemSettings.banners[i].url = newUrl;
+                        finalUrl = newUrl;
                     }
-                } else {
-                    // 🟢 ถ้าไม่ได้เลือกไฟล์ใหม่ ก็ให้ใช้ลิงก์เดิมไปเลย
-                    systemSettings.banners[i].url = existingVal;
                 }
+                newBannersConfig.push({ id: Date.now() + i, url: finalUrl, active: isActive });
             }
+            systemSettings.banners = newBannersConfig;
 
             // 3. รวบรวมข้อมูล Text และ Checkbox
             showLoader('กำลังบันทึกฐานข้อมูล...');
