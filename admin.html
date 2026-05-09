@@ -70,6 +70,7 @@
             
             <li id="menuSuperAdminGroup">
                 <div class="mt-4 px-3"><small class="text-uppercase fw-bold" style="color: #64748b; font-size: 0.7rem;">ตั้งค่าระบบ (SuperAdmin)</small></div>
+                <a href="#" onclick="switchView('sitemenus', this)"><i class="fa-solid fa-link"></i> จัดการเมนูและลิงก์เว็บไซต์</a>
                 <a href="#" onclick="switchView('departments', this)"><i class="fa-solid fa-sitemap"></i> กลุ่มงาน (Departments)</a>
                 <a href="#" onclick="switchView('users', this)"><i class="fa-solid fa-users-gear"></i> จัดการผู้ใช้งาน</a>
                 <a href="#" onclick="switchView('settings', this)"><i class="fa-solid fa-gear"></i> ตั้งค่าเว็บไซต์</a>
@@ -144,6 +145,19 @@
                         <div class="row g-4" id="dash_newsByDeptContainer"><div class="col-12 text-center text-muted py-3">กำลังโหลดข้อมูล...</div></div>
                     </div></div></div>
                 </div>
+            </div>
+
+            <!-- ================= VIEW: Site Menus ================= -->
+            <div id="view-sitemenus" class="admin-view" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold text-dark mb-0"><i class="fa-solid fa-link me-2 text-primary"></i> จัดการเมนูและแผนผังเว็บไซต์ (Sitemap)</h4>
+                    <div>
+                        <button id="btnSaveOrder-SiteMenus" class="btn btn-warning me-2 d-none" onclick="saveSiteMenuOrder()"><i class="fa-solid fa-save me-1"></i> บันทึกลำดับ</button>
+                        <button class="btn btn-success" onclick="openSiteMenuModal()"><i class="fa-solid fa-plus me-1"></i> เพิ่มเมนูใหม่</button>
+                    </div>
+                </div>
+                <div class="alert alert-light border shadow-sm mb-4"><i class="fa-solid fa-circle-info text-info me-2"></i> <b>เมนูด้านบน (Top Navbar)</b> ไม่จำเป็นต้องระบุชื่อกลุ่ม / ส่วน <b>แผนผังด้านล่าง (Footer)</b> ให้พิมพ์ชื่อกลุ่มให้เหมือนกันเพื่อจัดหมวดหมู่ (เช่น บริการประชาชน, สารสนเทศกรมฯ)</div>
+                <div class="card card-custom"><div class="card-body p-0 table-responsive"><table class="table table-hover align-middle mb-0"><thead class="table-light"><tr><th width="10%">ลำดับ</th><th width="15%" class="text-center">ตำแหน่ง</th><th width="20%">ชื่อกลุ่ม (เฉพาะ Footer)</th><th width="25%">ชื่อลิงก์เมนู / URL</th><th width="15%" class="text-center">สถานะ</th><th width="15%" class="text-center">จัดการ</th></tr></thead><tbody id="tbody-sitemenus"></tbody></table></div></div>
             </div>
 
             <!-- ================= VIEW: Settings ================= -->
@@ -609,6 +623,55 @@
     </div>
     <!-- ================= สิ้นสุด Modal: My Profile (ข้อมูลส่วนตัว) ================= -->
 
+    <!-- Modal: Site Menus -->
+    <div class="modal fade" id="siteMenuModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold" id="siteMenuModalTitle">เพิ่ม/แก้ไข เมนูเว็บไซต์</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="formSiteMenu" onsubmit="saveSiteMenu(event)">
+                        <input type="hidden" id="mnu_MenuID"><input type="hidden" id="mnu_OrderList">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">ตำแหน่งแสดงผล <span class="text-danger">*</span></label>
+                            <select class="form-select text-primary fw-bold" id="mnu_MenuPosition" onchange="toggleMenuPosition()" required>
+                                <option value="TopNav">แถบเมนูด้านบน (Top Navbar)</option>
+                                <option value="Footer">แผนผังด้านล่าง (Footer Sitemap)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3 bg-light p-3 border rounded" id="div_GroupName" style="display: none;">
+                            <label class="form-label fw-bold text-dark">ชื่อกลุ่มหัวข้อ (คอลัมน์) <span class="text-danger">*</span></label>
+                            <input class="form-control" list="groupOptions" id="mnu_GroupName" placeholder="เช่น บริการประชาชน, สารสนเทศกรมฯ">
+                            <datalist id="groupOptions"></datalist>
+                            <small class="text-muted">พิมพ์ชื่อกลุ่ม หรือเลือกจากรายการที่มีอยู่แล้ว</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">ชื่อลิงก์เมนู (ข้อความที่จะให้คลิก) <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="mnu_MenuName" placeholder="เช่น หน้าหลัก, กฎระเบียบ" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">URL ปลายทาง <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control font-monospace" id="mnu_URL" placeholder="เช่น index.html หรือ https://..." required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">การเปิดลิงก์</label>
+                                <select class="form-select" id="mnu_Target"><option value="_self">หน้าเดิม (_self)</option><option value="_blank">แท็บใหม่ (_blank)</option></select>
+                            </div>
+                            <div class="col-md-6 mb-3 d-flex align-items-end pb-2">
+                                <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="mnu_IsActive" style="transform: scale(1.2);" checked><label class="form-check-label ms-2 fw-bold text-success" for="mnu_IsActive">เปิดใช้งาน</label></div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mt-2" id="btnSaveSiteMenu">บันทึกข้อมูลเมนู</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ================= สิ้นสุด Modal: SiteMenu ================= -->
+
     <!-- Modal: About Categories -->
     <div class="modal fade" id="aboutCatModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0"><div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold" id="aboutCatModalTitle">เพิ่ม/แก้ไข หมวดหมู่ข้อมูล</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><form id="formAboutCat" onsubmit="saveAboutCat(event)"><input type="hidden" id="abtC_CategoryID"><input type="hidden" id="abtC_OrderList"><div class="mb-3"><label class="form-label fw-bold">ชื่อหมวดหมู่ใหญ่ <span class="text-danger">*</span></label><input type="text" class="form-control" id="abtC_CategoryName" placeholder="เช่น เกี่ยวกับหน่วยงาน" required></div><div class="form-check form-switch mb-3"><input class="form-check-input" type="checkbox" id="abtC_IsActive" style="transform: scale(1.2);" checked><label class="form-check-label ms-2 fw-bold text-success" for="abtC_IsActive">เปิดใช้งาน</label></div><button type="submit" class="btn btn-primary w-100" id="btnSaveAboutCat">บันทึกข้อมูล</button></form></div></div></div></div>
 
@@ -791,6 +854,12 @@
                         else throw new Error(res.message);
                     }).catch(handleError);
                 }
+                else if (viewId === 'sitemenus') {
+                    fetch(`${API_URL}?action=getTableData&sheetName=SiteMenus`).then(res=>res.json()).then(res => {
+                        if(res.status === 'success') { currentTableData = res.data || []; renderSiteMenusTable(currentTableData); Swal.close(); }
+                        else throw new Error(res.message);
+                    }).catch(handleError);
+                }
                 else if (viewId === 'departments') {
                     fetch(`${API_URL}?action=getTableData&sheetName=Departments`).then(res=>res.json()).then(res => {
                         if(res.status === 'success') { currentTableData = res.data || []; renderDeptsTable(currentTableData); Swal.close(); }
@@ -955,28 +1024,30 @@
                     if (indexToDelete > -1) {
                         currentTableData.splice(indexToDelete, 1);
                         
-                        // 🟢 เพิ่ม: รันเลขลำดับ OrderList ให้ใหม่ทั้งหมด เพื่อไม่ให้เกิดเลขกระโดด เช่น 1, 2, 4
-                        // เช็คก่อนว่าข้อมูลชุดนี้มีคอลัมน์ OrderList ไหม
+                        // รันเลขลำดับ OrderList ให้ใหม่ทั้งหมด เพื่อไม่ให้เกิดเลขกระโดด
                         if (currentTableData.length > 0 && currentTableData[0].hasOwnProperty('OrderList')) {
-                            // เรียงข้อมูลตาม OrderList เดิมก่อน (กันพลาด)
                             currentTableData.sort((a, b) => parseInt(a.OrderList) - parseInt(b.OrderList));
-                            // รันเลขใหม่ตั้งแต่ 1 เป็นต้นไป
                             currentTableData.forEach((item, idx) => {
                                 item.OrderList = idx + 1;
                             });
                         }
 
-                        // สั่งวาดตารางใหม่ด้วยข้อมูลที่ถูกลบออกไปแล้ว (และรันเลข OrderList ใหม่แล้ว)
+                        // สั่งวาดตารางใหม่ด้วยข้อมูลที่ถูกลบออกไปแล้ว
                         if (sheetName === 'Events') applyEventFilters(); 
                         else if (sheetName === 'News') applyNewsFilters(); 
                         else if (sheetName === 'PassengerStats') filterStatsTable();
                         else if (sheetName === 'Users') applyUserFilters();
                         else {
                             const renderMap = { 
-                                'Banners': renderBannersTable, 'Departments': renderDeptsTable, 
-                                'EServices': renderEServicesTable, 'Airlines': renderAirlinesTable, 
-                                'NewsCategories': renderNewsCatsTable, 'FlightSchedules': renderFlightsTable,
-                                'AboutCategories': renderAboutCatsTable, 'AboutPages': renderAboutPagesTable 
+                                'Banners': renderBannersTable, 
+                                'Departments': renderDeptsTable, 
+                                'EServices': renderEServicesTable, 
+                                'Airlines': renderAirlinesTable, 
+                                'NewsCategories': renderNewsCatsTable, 
+                                'FlightSchedules': renderFlightsTable,
+                                'AboutCategories': renderAboutCatsTable, 
+                                'AboutPages': renderAboutPagesTable,
+                                'SiteMenus': renderSiteMenusTable // 🟢 เพิ่มการอัปเดตตารางเมนูตรงนี้
                             };
                             if (renderMap[sheetName]) renderMap[sheetName](currentTableData);
                         }
@@ -2790,6 +2861,102 @@
             } catch(err) { Swal.fire('ผิดพลาด', 'อัปโหลดไม่สำเร็จ', 'error'); } finally { btn.innerHTML = '<i class="fa-solid fa-save me-2"></i> บันทึกข้อมูล'; btn.disabled = false; }
         }
         // ---------------------- สิ้นสุดฟังชั่น จัดการเกี่ยวหน่วยงาน -----------------------
+        // ================= เริ่มต้น ระบบจัดการ เมนูและลิงก์ (SiteMenus) =================
+        function renderSiteMenusTable(data) {
+            const tbody = document.getElementById('tbody-sitemenus'); tbody.innerHTML = '';
+            if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">ไม่มีข้อมูล</td></tr>'; return; }
+            
+            data.sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList)).forEach((item, index) => {
+                let badge = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิด</span>' : '<span class="badge bg-secondary">ซ่อน</span>';
+                let posBadge = item.MenuPosition === 'TopNav' ? '<span class="badge bg-primary"><i class="fa-solid fa-arrow-up"></i> เมนูด้านบน</span>' : '<span class="badge bg-dark"><i class="fa-solid fa-arrow-down"></i> Footer</span>';
+                let targetText = item.Target === '_blank' ? '<i class="fa-solid fa-arrow-up-right-from-square text-info ms-1"></i>' : '';
+
+                let btnUp = index > 0 ? `<button class="btn btn-sm btn-light text-primary me-1" onclick="moveOrder('SiteMenus', ${index}, -1, renderSiteMenusTable)"><i class="fa-solid fa-arrow-up"></i></button>` : `<button class="btn btn-sm btn-light me-1" style="visibility:hidden;"><i class="fa-solid fa-arrow-up"></i></button>`; 
+                let btnDown = index < data.length - 1 ? `<button class="btn btn-sm btn-light text-primary me-2" onclick="moveOrder('SiteMenus', ${index}, 1, renderSiteMenusTable)"><i class="fa-solid fa-arrow-down"></i></button>` : `<button class="btn btn-sm btn-light me-2" style="visibility:hidden;"><i class="fa-solid fa-arrow-down"></i></button>`; 
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="fw-bold text-center h5 text-muted">${item.OrderList}</td>
+                        <td class="text-center">${posBadge}</td>
+                        <td class="fw-bold text-secondary">${item.MenuPosition === 'Footer' ? (item.GroupName || '<span class="text-danger">ไม่ได้ระบุกลุ่ม</span>') : '<span class="text-muted opacity-50">-</span>'}</td>
+                        <td>
+                            <div class="fw-bold text-dark fs-6">${item.MenuName} ${targetText}</div>
+                            <div class="small text-primary text-truncate font-monospace" style="max-width: 250px;" title="${item.URL}">${item.URL}</div>
+                        </td>
+                        <td class="text-center">${badge}</td>
+                        <td class="text-center text-nowrap">
+                            ${btnUp}${btnDown}
+                            <button class="btn btn-sm btn-outline-warning me-1" onclick="openSiteMenuModal('${item.MenuID}')"><i class="fa-solid fa-pen"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('SiteMenus', 'MenuID', '${item.MenuID}')"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+            lucide.createIcons && typeof lucide.createIcons === 'function' ? lucide.createIcons() : null;
+        }
+
+        function toggleMenuPosition() {
+            const pos = document.getElementById('mnu_MenuPosition').value;
+            const grpDiv = document.getElementById('div_GroupName');
+            const grpInput = document.getElementById('mnu_GroupName');
+            if(pos === 'Footer') {
+                grpDiv.style.display = 'block'; grpInput.required = true;
+                // ดึงรายชื่อกลุ่มที่มีอยู่แล้วมาใส่ Datalist ให้เลือกง่ายๆ
+                const groups = [...new Set(currentTableData.filter(m => m.MenuPosition === 'Footer' && m.GroupName).map(m => m.GroupName))];
+                document.getElementById('groupOptions').innerHTML = groups.map(g => `<option value="${g}">`).join('');
+            } else {
+                grpDiv.style.display = 'none'; grpInput.required = false; grpInput.value = '';
+            }
+        }
+
+        function openSiteMenuModal(id = '') {
+            document.getElementById('formSiteMenu').reset();
+            document.getElementById('mnu_MenuID').value = '';
+            document.getElementById('siteMenuModalTitle').innerHTML = '<i class="fa-solid fa-link"></i> เพิ่มเมนู/ลิงก์ใหม่';
+            toggleMenuPosition();
+
+            if (id) {
+                document.getElementById('siteMenuModalTitle').innerHTML = '<i class="fa-solid fa-pen"></i> แก้ไขเมนู/ลิงก์';
+                const item = currentTableData.find(x => x.MenuID === id);
+                document.getElementById('mnu_MenuID').value = item.MenuID;
+                document.getElementById('mnu_MenuPosition').value = item.MenuPosition;
+                toggleMenuPosition(); 
+                document.getElementById('mnu_GroupName').value = item.GroupName || '';
+                document.getElementById('mnu_MenuName').value = item.MenuName;
+                document.getElementById('mnu_URL').value = item.URL;
+                document.getElementById('mnu_Target').value = item.Target || '_self';
+                document.getElementById('mnu_OrderList').value = item.OrderList;
+                document.getElementById('mnu_IsActive').checked = (item.IsActive === 'TRUE');
+            }
+            new bootstrap.Modal(document.getElementById('siteMenuModal')).show();
+        }
+
+        function saveSiteMenu(e) {
+            e.preventDefault(); const btn = document.getElementById('btnSaveSiteMenu'); btn.disabled = true;
+            let ord = document.getElementById('mnu_OrderList').value;
+            if (!document.getElementById('mnu_MenuID').value) ord = currentTableData.length + 1;
+
+            const rData = {
+                MenuID: document.getElementById('mnu_MenuID').value,
+                MenuPosition: document.getElementById('mnu_MenuPosition').value,
+                GroupName: document.getElementById('mnu_MenuPosition').value === 'Footer' ? document.getElementById('mnu_GroupName').value : '',
+                MenuName: document.getElementById('mnu_MenuName').value,
+                URL: document.getElementById('mnu_URL').value,
+                Target: document.getElementById('mnu_Target').value,
+                OrderList: ord, IsActive: document.getElementById('mnu_IsActive').checked ? 'TRUE' : 'FALSE'
+            };
+
+            fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'SiteMenus', idColumn: 'MenuID', recordJSON: JSON.stringify(rData) }) })
+            .then(res=>res.json()).then(res=>{
+                if(res.status === 'success') {
+                    bootstrap.Modal.getInstance(document.getElementById('siteMenuModal')).hide();
+                    Swal.fire({ icon: 'success', showConfirmButton: false, timer: 1500 }); switchView('sitemenus', null);
+                }
+            }).finally(() => btn.disabled = false);
+        }
+
+        function saveSiteMenuOrder() { saveOrderAPI('SiteMenus', 'MenuID'); }
+        // ================= สิ้นสุด ระบบจัดการ เมนูและลิงก์ =================
     </script>
 </body>
 </html>
