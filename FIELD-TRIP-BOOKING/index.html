@@ -428,8 +428,9 @@
             </div>
         </div>
 		  <!-- ปิดส่วนตั้งค่าบอท -->
-		  <!-- 🟢 ปุ่มรวมบันทึกทั้งหมด (Sticky Bottom) -->
-        <div class="sticky bottom-4 z-40 bg-white/90 backdrop-blur p-4 rounded-xl shadow-lg border border-sky-100 flex justify-end">
+<!-- 🟢 ปุ่มรวมบันทึกทั้งหมด (Sticky Bottom) -->
+        <div class="sticky bottom-4 z-40 bg-white/90 backdrop-blur p-4 rounded-xl shadow-lg border border-sky-100 flex justify-end gap-3">
+           <button onclick="cancelSettingsChanges()" class="px-6 py-3 bg-white border-2 border-gray-200 hover:bg-gray-50 text-gray-700 rounded-xl shadow-sm font-bold text-lg flex items-center gap-2 transition"><i data-lucide="rotate-ccw" class="w-5 h-5"></i> ยกเลิกการแก้ไข</button>
            <button onclick="saveAllSettings()" class="btn-primary text-white px-8 py-3 rounded-xl shadow-lg font-bold text-lg flex items-center gap-2"><i data-lucide="save" class="w-5 h-5"></i> บันทึกการตั้งค่าทั้งหมด</button>
         </div>
 		  
@@ -2129,6 +2130,9 @@ async function confirmCancelBooking(id) {
 
     // --- Admin: Settings ---
     function loadSettings() {
+		// 🟢 สร้างตัวสำรองข้อมูลทันทีที่เปิดหน้านี้ (หรือโหลดใหม่)
+        backupSystemSettings = JSON.parse(JSON.stringify(systemSettings));
+        pendingDeleteDriveUrls = [];
         const setValueSafe = (id, val) => {
             const el = document.getElementById(id);
             if (el) { if (el.type === 'checkbox') el.checked = val; else el.value = val; }
@@ -2180,33 +2184,33 @@ async function confirmCancelBooking(id) {
 
    // Banners
    function renderBannerList() { 
-    const listContainer = document.getElementById('bannerList');
-    if(!listContainer) return;
-    
-    listContainer.innerHTML = (systemSettings.banners||[]).map((b,i) => {
-        let previewUrl = b.url ? convertDriveImageLink(b.url) : 'https://via.placeholder.com/150';
-        let previewBtn = b.url ? `<a href="${previewUrl}" target="_blank" class="text-sky-600 underline font-medium text-xs mt-1 block">ดูรูปปัจจุบัน</a>` : '';
+        const listContainer = document.getElementById('bannerList');
+        if(!listContainer) return;
         
-        return `
-        <div class="flex items-center gap-3 p-3 bg-gray-50 border border-gray-100 rounded-lg mb-2">
-            <img src="${previewUrl}" class="w-16 h-10 object-cover rounded shadow-sm" onerror="this.src='https://via.placeholder.com/150'">
-            <div class="flex-1">
-                <!-- ซ่อน URL เดิมไว้ และใช้ File Input รับรูปใหม่ -->
-                <input type="hidden" class="existing-banner-img" value="${b.url}">
-                <!-- 🟢 เติม onchange="previewBannerImage(this)" ตรงนี้ 🟢 -->
-                <input type="file" accept="image/png, image/jpeg" class="new-banner-img w-full text-sm p-1.5 border rounded-lg outline-none focus:ring-2 focus:ring-sky-500 bg-white" onchange="previewBannerImage(this)">
-                ${previewBtn}
-            </div>
-            <label class="text-sm font-medium flex items-center gap-1 cursor-pointer">
-                <input type="checkbox" ${b.active?'checked':''} onchange="systemSettings.banners[${i}].active=this.checked;" class="w-4 h-4 text-sky-600"> แสดง
-            </label>
-            <button onclick="deleteBannerSlot(${i})" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition" title="ลบแบนเนอร์นี้">
-                <i data-lucide="trash-2" class="w-4 h-4"></i>
-            </button>
-        </div>`;
-    }).join(''); 
-    lucide.createIcons(); 
-}
+        listContainer.innerHTML = (systemSettings.banners||[]).map((b,i) => {
+            let previewUrl = b.url ? convertDriveImageLink(b.url) : 'https://via.placeholder.com/150';
+            let previewBtn = b.url ? `<a href="${previewUrl}" target="_blank" class="text-sky-600 underline font-medium text-xs mt-1 block">ดูรูปปัจจุบัน</a>` : '';
+            
+            return `
+            <div class="flex items-center gap-3 p-3 bg-gray-50 border border-gray-100 rounded-lg mb-2">
+                <img src="${previewUrl}" class="w-16 h-10 object-cover rounded shadow-sm" onerror="this.src='https://via.placeholder.com/150'">
+                <div class="flex-1">
+                    <input type="hidden" class="existing-banner-img" value="${b.url}">
+                    <!-- เพิ่ม onchange พรีวิวรูป -->
+                    <input type="file" accept="image/png, image/jpeg" class="new-banner-img w-full text-sm p-1.5 border rounded-lg outline-none focus:ring-2 focus:ring-sky-500 bg-white" onchange="previewBannerImage(this)">
+                    ${previewBtn}
+                </div>
+                <label class="text-sm font-medium flex items-center gap-1 cursor-pointer">
+                    <input type="checkbox" ${b.active?'checked':''} onchange="systemSettings.banners[${i}].active=this.checked;" class="w-4 h-4 text-sky-600"> แสดง
+                </label>
+                <!-- เปลี่ยนฟังก์ชันลบ -->
+                <button onclick="deleteBannerSlot(${i})" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition" title="ลบแบนเนอร์นี้">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+            </div>`;
+        }).join(''); 
+        lucide.createIcons(); 
+    }
 
     function addBannerSlot() { 
         if(!systemSettings.banners) systemSettings.banners=[]; 
@@ -2214,42 +2218,54 @@ async function confirmCancelBooking(id) {
         renderBannerList(); 
     }
 
-    // 🟢 ฟังก์ชันใหม่: เลือกลบแบนเนอร์ (ถ้ามีไฟล์ในไดรฟ์ จะถูกสั่งลบทิ้งด้วย)
+    // แค่ซ่อนออกจากการแสดงผล และเก็บรอลบจริง
     function deleteBannerSlot(index) {
-        if(confirm('ยืนยันที่จะลบรูป Banner นี้ใช่หรือไม่?')) {
+        if(confirm('คุณต้องการลบรูป Banner นี้ออกใช่หรือไม่? (รูปจะถูกลบจริงเมื่อกด "บันทึกการตั้งค่า")')) {
             const urlToDelete = systemSettings.banners[index].url;
-            if(urlToDelete) apiCallSilent('deleteFile', { url: urlToDelete }); // ยิงไปลบเงียบๆ
-            
+            // ถ้ารูปนี้เคยมีในฐานข้อมูล ให้เก็บคิวไว้รอลบจริงจาก Drive
+            if(urlToDelete) {
+                pendingDeleteDriveUrls.push(urlToDelete);
+            }
             systemSettings.banners.splice(index, 1);
             renderBannerList();
-            initBanner();
         }
     }
 
 	// ฟังก์ชันส่งข้อมูลไปหลังบ้านแบบเงียบๆ (ไม่แสดงหน้าต่างโหลด)
-function apiCallSilent(action, data={}) {
-    fetch(WEB_APP_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: action, data: data }),
-        redirect: 'follow'
-    }).catch(e => console.error("Background API Error:", e));
-}
-
-// ฟังก์ชันสำหรับพรีวิวรูป Banner ทันทีที่เลือกไฟล์
-function previewBannerImage(input) {
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            // หาแท็ก <img> ที่อยู่ตรงข้ามกับ input นี้แล้วเปลี่ยน src เป็นรูปที่เลือก
-            const img = input.parentElement.previousElementSibling;
-            if(img && img.tagName === 'IMG') {
-                img.src = e.target.result;
-            }
-        }
-        reader.readAsDataURL(input.files[0]);
+    function apiCallSilent(action, data={}) {
+        fetch(WEB_APP_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: action, data: data }),
+            redirect: 'follow'
+        }).catch(e => console.error("Background API Error:", e));
     }
-}
+
+    // ตัวแปรเก็บข้อมูลสำรอง และคิวรูปรอลบ
+    let backupSystemSettings = null;
+    let pendingDeleteDriveUrls = [];
+
+    // ฟังก์ชันยกเลิกการแก้ไข (ย้อนกลับทุกอย่างในหน้าตั้งค่า)
+    function cancelSettingsChanges() {
+        if(confirm('คุณต้องการยกเลิกการแก้ไขทั้งหมดที่ยังไม่ได้บันทึก และดึงข้อมูลเดิมกลับมาใช่หรือไม่?')) {
+            systemSettings = JSON.parse(JSON.stringify(backupSystemSettings)); // คืนค่าข้อมูลเดิม
+            pendingDeleteDriveUrls = []; // ล้างคิวการลบรูปรอไว้
+            loadSettings(); // รีเฟรชหน้าจอตั้งค่า
+            showToast('ยกเลิกการแก้ไข และดึงข้อมูลเดิมกลับมาแล้ว', 'info');
+        }
+    }
+
+    // ฟังก์ชันพรีวิวรูป Banner ทันทีที่กดเลือกไฟล์
+    function previewBannerImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = input.parentElement.previousElementSibling;
+                if(img && img.tagName === 'IMG') img.src = e.target.result;
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
 
    // Save All (แก้ไขบั๊กหาช่อง Text ไม่เจอ)
     async function saveAllSettings() {
@@ -2323,7 +2339,13 @@ function previewBannerImage(input) {
 
             // 4. บันทึกเข้า API (Google Sheets)
             await apiCall('saveSettings', systemSettings);
-            
+
+			// 🟢 เคลียร์ขยะ: สั่งลบรูป Banner ใน Drive ที่ผู้ใช้กดยืนยันแล้ว
+            if (pendingDeleteDriveUrls.length > 0) {
+                pendingDeleteDriveUrls.forEach(url => apiCallSilent('deleteFile', { url: url }));
+                pendingDeleteDriveUrls = []; // ล้างคิว
+            }
+			
             applySettingsToUI(); 
             updateBotUI(); 
             renderCalendar(); 
