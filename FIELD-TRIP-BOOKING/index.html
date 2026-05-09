@@ -430,7 +430,8 @@
 		  <!-- ปิดส่วนตั้งค่าบอท -->
 <!-- 🟢 ปุ่มรวมบันทึกทั้งหมด (Sticky Bottom) -->
         <div class="sticky bottom-4 z-40 bg-white/90 backdrop-blur p-4 rounded-xl shadow-lg border border-sky-100 flex justify-end gap-3">
-           <button onclick="cancelSettingsChanges()" class="px-6 py-3 bg-white border-2 border-gray-200 hover:bg-gray-50 text-gray-700 rounded-xl shadow-sm font-bold text-lg flex items-center gap-2 transition"><i data-lucide="rotate-ccw" class="w-5 h-5"></i> ยกเลิกการแก้ไข</button>
+           <!-- เติม id และ hidden ตรงนี้ 👇 -->
+           <button id="cancelSettingsBtn" onclick="cancelSettingsChanges()" class="hidden px-6 py-3 bg-white border-2 border-gray-200 hover:bg-gray-50 text-gray-700 rounded-xl shadow-sm font-bold text-lg flex items-center gap-2 transition"><i data-lucide="rotate-ccw" class="w-5 h-5"></i> ยกเลิกการแก้ไข</button>
            <button onclick="saveAllSettings()" class="btn-primary text-white px-8 py-3 rounded-xl shadow-lg font-bold text-lg flex items-center gap-2"><i data-lucide="save" class="w-5 h-5"></i> บันทึกการตั้งค่าทั้งหมด</button>
         </div>
 		  
@@ -2180,6 +2181,8 @@ async function confirmCancelBooking(id) {
         renderBannerList(); 
         renderTimeSlots(); 
         renderSettingsCalendar();
+		// 🟢 เติมบรรทัดนี้ลงไป เพื่อให้เช็คว่าตอนนี้ข้อมูลไม่มีอะไรเปลี่ยน ให้ซ่อนปุ่ม
+        checkSettingsChanged(); 
     }
 
    // Banners
@@ -2216,6 +2219,7 @@ async function confirmCancelBooking(id) {
         if(!systemSettings.banners) systemSettings.banners=[]; 
         systemSettings.banners.push({id: Date.now(), url: '', active: true}); 
         renderBannerList(); 
+		checkSettingsChanged();
     }
 
     // แค่ซ่อนออกจากการแสดงผล และเก็บรอลบจริง
@@ -2228,6 +2232,7 @@ async function confirmCancelBooking(id) {
             }
             systemSettings.banners.splice(index, 1);
             renderBannerList();
+			checkSettingsChanged();
         }
     }
 
@@ -2254,6 +2259,61 @@ async function confirmCancelBooking(id) {
             showToast('ยกเลิกการแก้ไข และดึงข้อมูลเดิมกลับมาแล้ว', 'info');
         }
     }
+
+	// 🟢 ฟังก์ชันตรวจสอบว่าหน้าตั้งค่ามีการเปลี่ยนแปลงหรือไม่
+    function checkSettingsChanged() {
+        if (!backupSystemSettings) return;
+        const btn = document.getElementById('cancelSettingsBtn');
+        let isChanged = false;
+
+        // 1. เช็คว่ามีการเลือกไฟล์รูปภาพใหม่ค้างไว้หรือไม่
+        const fileInputs = document.querySelectorAll('#settingsPage input[type="file"]');
+        fileInputs.forEach(fi => { if (fi.files.length > 0) isChanged = true; });
+
+        // 2. เช็คว่ามีคิวกดลบรูป Banner ไว้หรือไม่
+        if (pendingDeleteDriveUrls.length > 0) isChanged = true;
+
+        // 3. ดึงค่าช่องกรอกต่างๆ มาเทียบกับ Backup
+        const getVal = id => { const el = document.getElementById(id); return el ? el.value : ''; }
+        const getCheck = id => { const el = document.getElementById(id); return el ? el.checked : false; }
+
+        if (getCheck('bannerEnabled') !== (backupSystemSettings.bannerEnabled !== false)) isChanged = true;
+        if ((parseFloat(getVal('bannerSpeed')) || 3) !== (backupSystemSettings.bannerSpeed || 3)) isChanged = true;
+        if ((parseInt(getVal('advanceDays')) || 0) !== (backupSystemSettings.advanceDays || 0)) isChanged = true;
+        if ((parseInt(getVal('maxPeople')) || 120) !== (backupSystemSettings.maxPeople || 120)) isChanged = true;
+        if (getVal('systemName') !== (backupSystemSettings.systemName || '')) isChanged = true;
+        if (getVal('systemSubName') !== (backupSystemSettings.systemSubName || '')) isChanged = true;
+        if (getVal('footerText') !== (backupSystemSettings.footerText || '')) isChanged = true;
+        if (getVal('pdpaTextSetting') !== (backupSystemSettings.pdpaText || '')) isChanged = true;
+        if (getCheck('botEnabled') !== (backupSystemSettings.botEnabled !== false)) isChanged = true;
+        if (getVal('botName') !== (backupSystemSettings.botName || 'น้องแอร์พอร์ต')) isChanged = true;
+        if (getVal('botBadgeText') !== (backupSystemSettings.botBadgeText || 'คุยกับน้องแอร์พอร์ตที่นี่')) isChanged = true;
+        if (getVal('botGreeting') !== (backupSystemSettings.botGreeting || '')) isChanged = true;
+        if (getVal('adminContactInfo') !== (backupSystemSettings.adminContactInfo || '')) isChanged = true;
+
+        // 4. เช็คปฏิทิน และวันเปิดจอง
+        const currentDayType = document.querySelector('input[name="bookingDayType"]:checked');
+        if (currentDayType && currentDayType.value !== (backupSystemSettings.bookingDayType || 'weekly')) isChanged = true;
+        
+        const currentWeekly = Array.from(document.querySelectorAll('.weekday-checkbox:checked')).map(x => parseInt(x.value));
+        if (JSON.stringify(currentWeekly) !== JSON.stringify(backupSystemSettings.weeklyDays || [])) isChanged = true;
+
+        // 5. เช็คพวกรายการแบนเนอร์และช่วงเวลา
+        if (JSON.stringify(systemSettings.banners) !== JSON.stringify(backupSystemSettings.banners)) isChanged = true;
+        if (JSON.stringify(systemSettings.timeSlots) !== JSON.stringify(backupSystemSettings.timeSlots)) isChanged = true;
+        if (JSON.stringify(systemSettings.customDays) !== JSON.stringify(backupSystemSettings.customDays)) isChanged = true;
+
+        // 🟢 แสดงหรือซ่อนปุ่ม
+        if (isChanged) {
+            btn.classList.remove('hidden');
+        } else {
+            btn.classList.add('hidden');
+        }
+    }
+
+    // 🟢 ดักจับการพิมพ์และการคลิกทุกอย่างในหน้าจอ ถ้าอยู่ในหน้าตั้งค่าให้ตรวจสอบทันที
+    document.addEventListener('input', () => { if (currentPage === 'settings') checkSettingsChanged(); });
+    document.addEventListener('change', () => { if (currentPage === 'settings') checkSettingsChanged(); });
 
     // ฟังก์ชันพรีวิวรูป Banner ทันทีที่กดเลือกไฟล์
     function previewBannerImage(input) {
@@ -2378,10 +2438,21 @@ async function confirmCancelBooking(id) {
     
     function renderSettingsCalendar(){ const y=settingsCalendarDate.getFullYear(), m=settingsCalendarDate.getMonth(), k=`${y}-${String(m+1).padStart(2,'0')}`, d=new Date(y,m+1,0).getDate(), cd=systemSettings.customDays[k]||[]; document.getElementById('settingsCalendarTitle').textContent=`เดือน ${thaiMonthsNames[m]} ${y+543}`; let h=''; for(let i=0;i<new Date(y,m,1).getDay();i++)h+='<div></div>'; for(let i=1;i<=d;i++){const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`; h+=`<button onclick="toggleSettingsDay('${ds}')" class="p-2 text-sm font-medium rounded-lg transition ${cd.includes(ds)?'bg-sky-500 text-white shadow':'bg-gray-100 hover:bg-gray-200 text-gray-700'}">${i}</button>`;} document.getElementById('settingsCalendarGrid').innerHTML=h; }
     function prevSettingsMonth(){settingsCalendarDate.setMonth(settingsCalendarDate.getMonth()-1);renderSettingsCalendar();} function nextSettingsMonth(){settingsCalendarDate.setMonth(settingsCalendarDate.getMonth()+1);renderSettingsCalendar();} 
-    function toggleSettingsDay(ds){ const k=ds.substring(0,7); if(!systemSettings.customDays)systemSettings.customDays={}; if(!systemSettings.customDays[k])systemSettings.customDays[k]=[]; const i=systemSettings.customDays[k].indexOf(ds); if(i===-1)systemSettings.customDays[k].push(ds);else systemSettings.customDays[k].splice(i,1); renderSettingsCalendar(); }
+    function toggleSettingsDay(ds){
+		const k=ds.substring(0,7); 
+		if(!systemSettings.customDays)systemSettings.customDays={}; 
+		if(!systemSettings.customDays[k])systemSettings.customDays[k]=[]; 
+		const i=systemSettings.customDays[k].indexOf(ds); 
+		if(i===-1)systemSettings.customDays[k].push(ds);else systemSettings.customDays[k].splice(i,1); renderSettingsCalendar(); checkSettingsChanged();
+	}
     
-    function renderTimeSlots(){document.getElementById('timeSlotsList').innerHTML=(systemSettings.timeSlots||[]).map((t,i)=>`<div class="flex items-center gap-2 mb-2"><input type="time" value="${t}" onchange="systemSettings.timeSlots[${i}]=this.value" class="border border-gray-200 p-2 rounded-lg flex-1 outline-none focus:ring-2"><button onclick="systemSettings.timeSlots.splice(${i},1);renderTimeSlots()" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"><i data-lucide="trash-2" class="w-5 h-5"></i></button></div>`).join(''); lucide.createIcons();} 
-    function addTimeSlot(){if(!systemSettings.timeSlots)systemSettings.timeSlots=[]; systemSettings.timeSlots.push('12:00');renderTimeSlots();} function saveTimeSlots(){syncSettingsToDB();}
+    function renderTimeSlots(){document.getElementById('timeSlotsList').innerHTML=(systemSettings.timeSlots||[]).map((t,i)=>`<div class="flex items-center gap-2 mb-2"><input type="time" value="${t}" onchange="systemSettings.timeSlots[${i}]=this.value; checkSettingsChanged();" class="border border-gray-200 p-2 rounded-lg flex-1 outline-none focus:ring-2"><button onclick="systemSettings.timeSlots.splice(${i},1);renderTimeSlots()" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"><i data-lucide="trash-2" class="w-5 h-5"></i></button></div>`).join(''); lucide.createIcons();} 
+    function addTimeSlot(){
+		if(!systemSettings.timeSlots)systemSettings.timeSlots=[]; systemSettings.timeSlots.push('12:00');
+		renderTimeSlots();
+		checkSettingsChanged();
+	} 
+	function saveTimeSlots(){syncSettingsToDB();}
     
     
 
