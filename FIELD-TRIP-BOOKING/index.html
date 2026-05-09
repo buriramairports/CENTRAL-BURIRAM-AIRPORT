@@ -2206,7 +2206,7 @@ async function confirmCancelBooking(id) {
                     ${previewBtn}
                 </div>
                 <label class="text-sm font-medium flex items-center gap-1 cursor-pointer">
-                    <input type="checkbox" ${b.active?'checked':''} class="banner-active-cb w-4 h-4 text-sky-600" onchange="checkSettingsChanged();"> แสดง
+                    <input type="checkbox" ${b.active !== false ? 'checked':''} class="banner-active-cb w-4 h-4 text-sky-600" onchange="checkSettingsChanged();"> แสดง
                 </label>
                 <button type="button" onclick="deleteBannerRow(this)" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition" title="ลบแบนเนอร์นี้">
                     <i data-lucide="trash-2" class="w-4 h-4"></i>
@@ -2459,7 +2459,7 @@ async function confirmCancelBooking(id) {
     }
     
     async function syncSettingsToDB(){ await apiCall('saveSettings',systemSettings); localStorage.setItem('cache_settings', JSON.stringify(systemSettings)); applySettingsToUI(); showToast('บันทึกการตั้งค่าสำเร็จ','success'); }
-    function toggleBanner(){systemSettings.bannerEnabled=document.getElementById('bannerEnabled').checked;syncSettingsToDB();initBanner();} function addBannerSlot(){if(!systemSettings.banners)systemSettings.banners=[];systemSettings.banners.push({id:Date.now(),url:'',active:true});renderBannerList();} 
+    function toggleBanner(){systemSettings.bannerEnabled=document.getElementById('bannerEnabled').checked;syncSettingsToDB();initBanner();}  
     /* ฟังชั่นปรับความเร็ว BANNER*/
     function updateBannerSpeed() { 
         systemSettings.bannerSpeed = parseFloat(document.getElementById('bannerSpeed').value) || 3; 
