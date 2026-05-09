@@ -2227,17 +2227,18 @@ async function confirmCancelBooking(id) {
         }
     }
 
-   // Save All (เพิ่มการดักจับและลบรูปเก่าทิ้ง)
+   // Save All (แก้ไขบั๊กหาช่อง Text ไม่เจอ)
     async function saveAllSettings() {
         showLoader('กำลังอัปโหลดรูปภาพและการตั้งค่า...');
         
         // ฟังก์ชันช่วยเช็คไฟล์, อัปโหลด, และลบรูปเก่าทิ้ง (สำหรับรูปทั่วไป 4 จุด)
         const checkAndUpload = async (id) => {
             const fileInput = document.getElementById('upload' + id.charAt(0).toUpperCase() + id.slice(1));
-            const existingUrl = document.getElementById(id).value; 
+            const hiddenInput = document.getElementById(id);
+            const existingUrl = hiddenInput ? hiddenInput.value : ''; 
             
             if (fileInput && fileInput.files.length > 0) {
-                showLoader(`กำลังอัปโหลดรูป ${id}...`);
+                showLoader(`กำลังอัปโหลดรูป...`);
                 let newUrl = await uploadSingleFile(fileInput.files[0], 'image');
                 
                 // 🟢 ถ้ายอมอัปรูปใหม่สำเร็จ และมีรูปลิงก์เดิมอยู่ ให้ยิง API ไปลบรูปเก่าทิ้ง
@@ -2272,9 +2273,8 @@ async function confirmCancelBooking(id) {
                         systemSettings.banners[i].url = newUrl;
                     }
                 } else {
-                    // ถ้าแอดมินเผลอแก้ลิงก์ด้วยมือเปล่าตรงๆ (ไม่เอาไฟล์) ให้ยึดตามนั้น
-                    const textInputUrl = bannerRows[i].querySelector('input[type="text"]').value;
-                    systemSettings.banners[i].url = textInputUrl || existingVal;
+                    // 🟢 ถ้าไม่ได้เลือกไฟล์ใหม่ ก็ให้ใช้ลิงก์เดิมไปเลย
+                    systemSettings.banners[i].url = existingVal;
                 }
             }
 
@@ -2307,6 +2307,7 @@ async function confirmCancelBooking(id) {
             
             showToast('บันทึกการตั้งค่าระบบเรียบร้อย', 'success');
         } catch(e) { 
+            console.error("Save Settings Error:", e); // พิมพ์ Error ลง Console เผื่อเกิดปัญหาจะได้ดูได้
             showAlert('เกิดข้อผิดพลาด', 'ไม่สามารถบันทึกการตั้งค่าได้', 'error');
         } finally {
             hideLoader();
