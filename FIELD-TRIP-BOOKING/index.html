@@ -2179,35 +2179,34 @@ async function confirmCancelBooking(id) {
     }
 
    // Banners
-    function renderBannerList() { 
-        const listContainer = document.getElementById('bannerList');
-        if(!listContainer) return;
+   function renderBannerList() { 
+    const listContainer = document.getElementById('bannerList');
+    if(!listContainer) return;
+    
+    listContainer.innerHTML = (systemSettings.banners||[]).map((b,i) => {
+        let previewUrl = b.url ? convertDriveImageLink(b.url) : 'https://via.placeholder.com/150';
+        let previewBtn = b.url ? `<a href="${previewUrl}" target="_blank" class="text-sky-600 underline font-medium text-xs mt-1 block">ดูรูปปัจจุบัน</a>` : '';
         
-        listContainer.innerHTML = (systemSettings.banners||[]).map((b,i) => {
-            let previewUrl = b.url ? convertDriveImageLink(b.url) : 'https://via.placeholder.com/150';
-            let previewBtn = b.url ? `<a href="${previewUrl}" target="_blank" class="text-sky-600 underline font-medium text-xs mt-1 block">ดูรูปปัจจุบัน</a>` : '';
-            
-            return `
-            <div class="flex items-center gap-3 p-3 bg-gray-50 border border-gray-100 rounded-lg mb-2">
-                <img src="${previewUrl}" class="w-16 h-10 object-cover rounded shadow-sm" onerror="this.src='https://via.placeholder.com/150'">
-                <div class="flex-1">
-                    <!-- 🟢 ซ่อน URL เดิมไว้ และใช้ File Input รับรูปใหม่ -->
-                    <input type="hidden" class="existing-banner-img" value="${b.url}">
-                    <input type="file" accept="image/png, image/jpeg" class="new-banner-img w-full text-sm p-1.5 border rounded-lg outline-none focus:ring-2 focus:ring-sky-500 bg-white">
-                    ${previewBtn}
-                </div>
-                <label class="text-sm font-medium flex items-center gap-1 cursor-pointer">
-                    <input type="checkbox" ${b.active?'checked':''} onchange="systemSettings.banners[${i}].active=this.checked;" class="w-4 h-4 text-sky-600"> แสดง
-                </label>
-				<!-- 🟢 เปลี่ยนฟังก์ชันปุ่มลบ ให้เรียก deleteBannerSlot แทนการ splice ตรงๆ -->
-                <button onclick="deleteBannerSlot(${i})" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition" title="ลบแบนเนอร์นี้">
-                
-                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                </button>
-            </div>`;
-        }).join(''); 
-        lucide.createIcons(); 
-    }
+        return `
+        <div class="flex items-center gap-3 p-3 bg-gray-50 border border-gray-100 rounded-lg mb-2">
+            <img src="${previewUrl}" class="w-16 h-10 object-cover rounded shadow-sm" onerror="this.src='https://via.placeholder.com/150'">
+            <div class="flex-1">
+                <!-- ซ่อน URL เดิมไว้ และใช้ File Input รับรูปใหม่ -->
+                <input type="hidden" class="existing-banner-img" value="${b.url}">
+                <!-- 🟢 เติม onchange="previewBannerImage(this)" ตรงนี้ 🟢 -->
+                <input type="file" accept="image/png, image/jpeg" class="new-banner-img w-full text-sm p-1.5 border rounded-lg outline-none focus:ring-2 focus:ring-sky-500 bg-white" onchange="previewBannerImage(this)">
+                ${previewBtn}
+            </div>
+            <label class="text-sm font-medium flex items-center gap-1 cursor-pointer">
+                <input type="checkbox" ${b.active?'checked':''} onchange="systemSettings.banners[${i}].active=this.checked;" class="w-4 h-4 text-sky-600"> แสดง
+            </label>
+            <button onclick="deleteBannerSlot(${i})" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition" title="ลบแบนเนอร์นี้">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+        </div>`;
+    }).join(''); 
+    lucide.createIcons(); 
+}
 
     function addBannerSlot() { 
         if(!systemSettings.banners) systemSettings.banners=[]; 
@@ -2226,6 +2225,31 @@ async function confirmCancelBooking(id) {
             initBanner();
         }
     }
+
+	// ฟังก์ชันส่งข้อมูลไปหลังบ้านแบบเงียบๆ (ไม่แสดงหน้าต่างโหลด)
+function apiCallSilent(action, data={}) {
+    fetch(WEB_APP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: action, data: data }),
+        redirect: 'follow'
+    }).catch(e => console.error("Background API Error:", e));
+}
+
+// ฟังก์ชันสำหรับพรีวิวรูป Banner ทันทีที่เลือกไฟล์
+function previewBannerImage(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // หาแท็ก <img> ที่อยู่ตรงข้ามกับ input นี้แล้วเปลี่ยน src เป็นรูปที่เลือก
+            const img = input.parentElement.previousElementSibling;
+            if(img && img.tagName === 'IMG') {
+                img.src = e.target.result;
+            }
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
 
    // Save All (แก้ไขบั๊กหาช่อง Text ไม่เจอ)
     async function saveAllSettings() {
