@@ -1976,7 +1976,7 @@
         }
         // ================= สิ้นสุด ระบบจัดการการคลิก E-Services =================
 
-        // ================= เริ่มต้น ระบบเก็บสถิติผู้เข้าชมเว็บไซต์ =================
+       // ================= เริ่มต้น ระบบเก็บสถิติผู้เข้าชมเว็บไซต์ =================
         let allWebStatsData = [];
 
         async function processWebStats() {
@@ -1987,9 +1987,13 @@
             const monthNames = { "01": "มกราคม", "02": "กุมภาพันธ์", "03": "มีนาคม", "04": "เมษายน", "05": "พฤษภาคม", "06": "มิถุนายน", "07": "กรกฎาคม", "08": "สิงหาคม", "09": "กันยายน", "10": "ตุลาคม", "11": "พฤศจิกายน", "12": "ธันวาคม" };
             document.getElementById('statCurrentMonthLabel').innerHTML = `<i class="fa-regular fa-calendar me-2"></i> ${monthNames[currentMonth]} ${currentYear}`;
 
+            let isNewVisit = false;
+
             // 1. นับผู้เข้าชมใหม่ (ใช้ SessionStorage เพื่อนับแค่ 1 ครั้งต่อ 1 การเปิดเบราว์เซอร์)
             if (!sessionStorage.getItem('visited_this_session')) {
                 sessionStorage.setItem('visited_this_session', 'true');
+                isNewVisit = true; // 🟢 จำไว้ว่ารอบนี้เพิ่งยิงบวกยอดไปสดๆ ร้อนๆ
+                
                 // ยิง API แบบเงียบๆ เพื่อบวกเลขใน Google Sheet
                 fetch(API_URL, { 
                     method: 'POST', 
@@ -2002,21 +2006,29 @@
                 const res = await fetch(API_URL + '?action=getWebStats').then(r => r.json());
                 if (res.status === 'success') {
                     allWebStatsData = res.data;
-                    document.getElementById('statTotalAll').innerText = (res.total || 0).toLocaleString('th-TH');
+                    let totalAll = parseInt(res.total) || 0;
                     
-                    let thisMonthStat = allWebStatsData.find(s => s.year === currentYear && s.month === currentMonth);
-                    // บวก 1 กรณีเพิ่งเข้าครั้งแรกของ Session เพื่อให้เลขตรงกับความจริง
+                    // 🟢 แก้บั๊ก: แปลงปีและเดือนให้เป็น String และบังคับมี 0 นำหน้าให้เหมือนกัน ป้องกันปัญหา 5 กับ 05
+                    let thisMonthStat = allWebStatsData.find(s => String(s.year) === currentYear && String(s.month).padStart(2, '0') === currentMonth);
+                    
                     let thisMonthCount = thisMonthStat ? parseInt(thisMonthStat.count) : 0;
-                    if(sessionStorage.getItem('visited_this_session') === 'true' && !thisMonthStat) thisMonthCount++; 
                     
+                    // 🟢 ถ้าเพิ่งเข้ามาใหม่สดๆ ร้อนๆ ให้บวกเลขหน้าเว็บไปเลย 1 
+                    // (เพราะบางที API ดึงข้อมูลมาไวกว่าตอนที่ Sheet เซฟบรรทัดใหม่เสร็จ)
+                    if(isNewVisit) {
+                        thisMonthCount++;
+                        totalAll++;
+                    } 
+                    
+                    document.getElementById('statTotalAll').innerText = totalAll.toLocaleString('th-TH');
                     document.getElementById('statTotalMonth').innerText = thisMonthCount.toLocaleString('th-TH');
                     
                     // นำ ปี ที่มีในระบบไปใส่ Modal ย้อนหลัง
-                    let uniqueYears = [...new Set(allWebStatsData.map(item => item.year))].sort().reverse();
+                    let uniqueYears = [...new Set(allWebStatsData.map(item => String(item.year)))].sort().reverse();
                     if(uniqueYears.length === 0) uniqueYears = [currentYear];
                     document.getElementById('filterWebStatYear').innerHTML = uniqueYears.map(y => `<option value="${y}">ประจำปี พ.ศ. ${y}</option>`).join('');
                 }
-            } catch(e) {}
+            } catch(e) { console.error("Error loading web stats:", e); }
 
             // 3. จำลองคนออนไลน์ (Random ตามเวลาของวัน ให้ดูสมจริง)
             const hour = d.getHours();
