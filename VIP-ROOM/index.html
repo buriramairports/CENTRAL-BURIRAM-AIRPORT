@@ -1218,13 +1218,20 @@ function getAvailableDatesSummary() {
         }
     }
 
-    // ฟังก์ชันพรีวิวรูปภาพ
+// ฟังก์ชันพรีวิวรูปภาพ
     function previewBannerImage(input) {
         if (input.files && input.files[0]) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                const img = input.parentElement.previousElementSibling;
-                if(img && img.tagName === 'IMG') img.src = e.target.result;
+                // ค้นหากล่องพรีวิวที่อยู่ก่อนหน้า input
+                const container = input.parentElement.previousElementSibling;
+                if(container && container.classList.contains('preview-container')) {
+                    const img = container.querySelector('img');
+                    if(img) {
+                        img.src = e.target.result;
+                        img.classList.remove('hidden'); // แสดงรูปทับไอคอน
+                    }
+                }
             }
             reader.readAsDataURL(input.files[0]);
         }
@@ -2512,17 +2519,23 @@ function getAvailableDatesSummary() {
 	}
 
     // Banners
-    function renderBannerList() { 
+   function renderBannerList() { 
         const listContainer = document.getElementById('bannerList');
         if(!listContainer) return;
 
         listContainer.innerHTML = (systemSettings.banners||[]).map((b,i) => {
-            let previewUrl = b.url ? convertDriveImageLink(b.url) : 'https://via.placeholder.com/150';
+            let previewUrl = b.url ? convertDriveImageLink(b.url) : '';
             let previewBtn = b.url ? `<a href="${previewUrl}" target="_blank" class="text-green-600 underline font-medium text-xs mt-1 block">ดูรูปปัจจุบัน</a>` : '';
             
             return `
             <div class="banner-row flex items-center gap-3 p-3 bg-gray-50 border border-gray-100 rounded-lg mb-2">
-                <img src="${previewUrl}" class="w-16 h-10 object-cover rounded shadow-sm" onerror="this.src='https://via.placeholder.com/150'">
+                
+                <!-- 🟢 กล่องพรีวิวรูปแบบใหม่ มีไอคอนรองรับ -->
+                <div class="preview-container w-16 h-10 rounded shrink-0 relative bg-gray-200 border border-gray-300 flex items-center justify-center overflow-hidden shadow-sm">
+                    <i data-lucide="image" class="w-5 h-5 text-gray-400 absolute"></i>
+                    <img src="${previewUrl}" class="w-full h-full object-cover relative z-10 ${previewUrl ? '' : 'hidden'}" onerror="this.classList.add('hidden')">
+                </div>
+
                 <div class="flex-1">
                     <input type="hidden" class="existing-banner-img" value="${b.url}">
                     <input type="file" accept="image/png, image/jpeg" class="new-banner-img w-full text-sm p-1.5 border rounded-lg outline-none focus:ring-2 focus:ring-green-500 bg-white" onchange="previewBannerImage(this); checkSettingsChanged();">
@@ -2545,7 +2558,12 @@ function getAvailableDatesSummary() {
         const newRow = document.createElement('div');
         newRow.className = 'banner-row flex items-center gap-3 p-3 bg-gray-50 border border-gray-100 rounded-lg mb-2 animate-fadeIn';
         newRow.innerHTML = `
-            <img src="https://via.placeholder.com/150" class="w-16 h-10 object-cover rounded shadow-sm">
+            <!-- 🟢 กล่องพรีวิวเพิ่มใหม่ (ไม่มีรูป มีแต่ไอคอน) -->
+            <div class="preview-container w-16 h-10 rounded shrink-0 relative bg-gray-200 border border-gray-300 flex items-center justify-center overflow-hidden shadow-sm">
+                <i data-lucide="image" class="w-5 h-5 text-gray-400 absolute"></i>
+                <img src="" class="w-full h-full object-cover relative z-10 hidden" onerror="this.classList.add('hidden')">
+            </div>
+
             <div class="flex-1">
                 <input type="hidden" class="existing-banner-img" value="">
                 <input type="file" accept="image/png, image/jpeg" class="new-banner-img w-full text-sm p-1.5 border rounded-lg outline-none focus:ring-2 focus:ring-green-500 bg-white" onchange="previewBannerImage(this); checkSettingsChanged();">
