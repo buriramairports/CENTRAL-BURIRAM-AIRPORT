@@ -2327,7 +2327,10 @@ function previewBannerImage(input) {
             applySettingsToUI(); 
             updateBotUI(); 
             renderCalendar(); 
-            initBanner();        
+            initBanner();      
+
+			// 🟢 เติมคำสั่งนี้ลงไป 1 บรรทัด เพื่อรีเซ็ตหน้าตั้งค่าและล้างชื่อไฟล์ที่ค้างอยู่
+            loadSettings();
             
             showToast('บันทึกการตั้งค่าระบบเรียบร้อย', 'success');
         } catch(e) { 
