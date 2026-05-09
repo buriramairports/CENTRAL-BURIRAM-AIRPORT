@@ -512,7 +512,8 @@
     
 </div>
 
-       <div class="sticky bottom-4 z-40 bg-white/90 backdrop-blur p-4 rounded-xl shadow-lg border border-green-100 flex justify-end">
+       <div class="sticky bottom-4 z-40 bg-white/90 backdrop-blur p-4 rounded-xl shadow-lg border border-green-100 flex justify-end gap-3">
+           <button id="cancelSettingsBtn" onclick="cancelSettingsChanges()" class="hidden px-6 py-3 bg-white border-2 border-gray-200 hover:bg-gray-50 text-gray-700 rounded-xl shadow-sm font-bold text-lg flex items-center gap-2 transition"><i data-lucide="rotate-ccw" class="w-5 h-5"></i> ยกเลิกการแก้ไข</button>
            <button onclick="saveAllSettings()" class="btn-primary text-white px-8 py-3 rounded-xl shadow-lg font-bold text-lg flex items-center gap-2"><i data-lucide="save" class="w-5 h-5"></i> บันทึกการตั้งค่าทั้งหมด</button>
        </div>
       </div>
@@ -1203,6 +1204,76 @@ function getAvailableDatesSummary() {
         });
     }
 
+	// ตัวแปรสำหรับระบบ Backup และลบไฟล์
+    let backupSystemSettings = null;
+    let pendingDeleteDriveUrls = [];
+
+    // ฟังก์ชันยกเลิกการแก้ไข
+    function cancelSettingsChanges() {
+        if(confirm('คุณต้องการยกเลิกการแก้ไขทั้งหมดที่ยังไม่ได้บันทึก และดึงข้อมูลเดิมกลับมาใช่หรือไม่?')) {
+            systemSettings = JSON.parse(JSON.stringify(backupSystemSettings));
+            pendingDeleteDriveUrls = [];
+            loadSettings(); 
+            showToast('ยกเลิกการแก้ไข และดึงข้อมูลเดิมกลับมาแล้ว', 'info');
+        }
+    }
+
+    // ฟังก์ชันพรีวิวรูปภาพ
+    function previewBannerImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = input.parentElement.previousElementSibling;
+                if(img && img.tagName === 'IMG') img.src = e.target.result;
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // ฟังก์ชันตรวจสอบการเปลี่ยนแปลง (โชว์/ซ่อน ปุ่มยกเลิก)
+    function checkSettingsChanged() {
+        if (!backupSystemSettings) return;
+        const btn = document.getElementById('cancelSettingsBtn');
+        let isChanged = false;
+
+        const fileInputs = document.querySelectorAll('#settingsPage input[type="file"]');
+        fileInputs.forEach(fi => { if (fi.files.length > 0) isChanged = true; });
+
+        if (pendingDeleteDriveUrls.length > 0) isChanged = true;
+
+        const getVal = id => { const el = document.getElementById(id); return el ? el.value : ''; }
+        const getCheck = id => { const el = document.getElementById(id); return el ? el.checked : false; }
+
+        if (getCheck('bannerEnabled') !== (backupSystemSettings.bannerEnabled !== false)) isChanged = true;
+        if ((parseFloat(getVal('bannerSpeed')) || 3) !== (backupSystemSettings.bannerSpeed || 3)) isChanged = true;
+        if ((parseInt(getVal('advanceDays')) || 0) !== (backupSystemSettings.advanceDays || 0)) isChanged = true;
+        if (getVal('systemName') !== (backupSystemSettings.systemName || '')) isChanged = true;
+        if (getVal('systemSubName') !== (backupSystemSettings.systemSubName || '')) isChanged = true;
+        if (getVal('footerText') !== (backupSystemSettings.footerText || '')) isChanged = true;
+        if (getVal('settingPdpaText') !== (backupSystemSettings.pdpaText || '')) isChanged = true;
+        if (getCheck('botEnabled') !== (backupSystemSettings.botEnabled !== false)) isChanged = true;
+        if (getVal('botName') !== (backupSystemSettings.botName || 'น้องแอร์พอร์ต')) isChanged = true;
+        if (getVal('botBadgeText') !== (backupSystemSettings.botBadgeText || 'สอบถามข้อมูลห้องรับรองที่นี่')) isChanged = true;
+        if (getVal('botGreeting') !== (backupSystemSettings.botGreeting || '')) isChanged = true;
+        if (getVal('adminContactInfo') !== (backupSystemSettings.adminContactInfo || '')) isChanged = true;
+
+        const currentDayType = document.querySelector('input[name="bookingDayType"]:checked');
+        if (currentDayType && currentDayType.value !== (backupSystemSettings.bookingDayType || 'weekly')) isChanged = true;
+        
+        const currentWeekly = Array.from(document.querySelectorAll('.weekday-checkbox:checked')).map(x => parseInt(x.value));
+        if (JSON.stringify(currentWeekly) !== JSON.stringify(backupSystemSettings.weeklyDays || [])) isChanged = true;
+
+        if (JSON.stringify(systemSettings.banners) !== JSON.stringify(backupSystemSettings.banners)) isChanged = true;
+        if (JSON.stringify(systemSettings.timeSlots) !== JSON.stringify(backupSystemSettings.timeSlots)) isChanged = true;
+        if (JSON.stringify(systemSettings.customDays) !== JSON.stringify(backupSystemSettings.customDays)) isChanged = true;
+
+        if (isChanged) btn.classList.remove('hidden');
+        else btn.classList.add('hidden');
+    }
+
+    document.addEventListener('input', () => { if (currentPage === 'settings') checkSettingsChanged(); });
+    document.addEventListener('change', () => { if (currentPage === 'settings') checkSettingsChanged(); });
+	  
     // --- Utils (เปลี่ยนมาใช้ fetch API) ---
   function apiCall(action, data={}) {
       showLoader();
@@ -2299,6 +2370,8 @@ function getAvailableDatesSummary() {
 
     // --- Admin: Settings ---
     function loadSettings() {
+		backupSystemSettings = JSON.parse(JSON.stringify(systemSettings));
+        pendingDeleteDriveUrls = [];
         const setValueSafe = (id, val) => {
             const el = document.getElementById(id);
             if (el) {
@@ -2355,6 +2428,7 @@ function getAvailableDatesSummary() {
         renderBannerList(); 
         renderTimeSlots(); 
         renderSettingsCalendar();
+		checkSettingsChanged();
     }
 
     // Time Slots 
@@ -2395,6 +2469,7 @@ function getAvailableDatesSummary() {
         
         systemSettings.timeSlots[index] = newVal;
         renderTimeSlots(); 
+		checkSettingsChanged();
     }
 
     function addTimeSlot() { 
@@ -2412,13 +2487,16 @@ function getAvailableDatesSummary() {
         document.getElementById('newTimeStart').value = ''; 
         document.getElementById('newTimeEnd').value = ''; 
         renderTimeSlots(); 
+		checkSettingsChanged();
     }
     
     // Day Types
     function changeBookingDayType() { systemSettings.bookingDayType=document.querySelector('input[name="bookingDayType"]:checked').value; document.getElementById('weeklySettings').classList.toggle('hidden',systemSettings.bookingDayType!=='weekly'); document.getElementById('customCalendarSettings').classList.toggle('hidden',systemSettings.bookingDayType==='weekly'); }
     function renderSettingsCalendar() { const y=settingsCalendarDate.getFullYear(), m=settingsCalendarDate.getMonth(), k=`${y}-${String(m+1).padStart(2,'0')}`, d=new Date(y,m+1,0).getDate(), cd=systemSettings.customDays[k]||[]; document.getElementById('settingsCalendarTitle').textContent=`${thaiMonthsNames[m]} ${y+543}`; let h=''; for(let i=0;i<new Date(y,m,1).getDay();i++)h+='<div></div>'; for(let i=1;i<=d;i++){const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`; h+=`<button onclick="toggleSettingsDay('${ds}')" class="p-2 text-sm font-bold rounded-lg transition ${cd.includes(ds)?'bg-green-600 text-white shadow':'bg-white hover:bg-gray-100 text-gray-600 border'}">${i}</button>`;} document.getElementById('settingsCalendarGrid').innerHTML=h; }
     function prevSettingsMonth() { settingsCalendarDate.setMonth(settingsCalendarDate.getMonth()-1); renderSettingsCalendar(); } function nextSettingsMonth() { settingsCalendarDate.setMonth(settingsCalendarDate.getMonth()+1); renderSettingsCalendar(); }
-    function toggleSettingsDay(ds) { const k=ds.substring(0,7); if(!systemSettings.customDays)systemSettings.customDays={}; if(!systemSettings.customDays[k])systemSettings.customDays[k]=[]; const i=systemSettings.customDays[k].indexOf(ds); if(i===-1)systemSettings.customDays[k].push(ds);else systemSettings.customDays[k].splice(i,1); renderSettingsCalendar(); }
+    function toggleSettingsDay(ds) { 
+		const k=ds.substring(0,7); if(!systemSettings.customDays)systemSettings.customDays={}; if(!systemSettings.customDays[k])systemSettings.customDays[k]=[]; const i=systemSettings.customDays[k].indexOf(ds); if(i===-1)systemSettings.customDays[k].push(ds);else systemSettings.customDays[k].splice(i,1); renderSettingsCalendar(); checkSettingsChanged();
+	}
 
     // Banners
     function renderBannerList() { 
@@ -2427,22 +2505,24 @@ function getAvailableDatesSummary() {
 
         listContainer.innerHTML = (systemSettings.banners||[]).map((b,i) => {
             let previewUrl = b.url ? convertDriveImageLink(b.url) : 'https://via.placeholder.com/150';
+            let previewBtn = b.url ? `<a href="${previewUrl}" target="_blank" class="text-green-600 underline font-medium text-xs mt-1 block">ดูรูปปัจจุบัน</a>` : '';
             
             return `
             <div class="flex items-center gap-3 p-3 bg-gray-50 border border-gray-100 rounded-lg mb-2">
                 <img src="${previewUrl}" class="w-16 h-10 object-cover rounded shadow-sm" onerror="this.src='https://via.placeholder.com/150'">
                 <div class="flex-1">
-                    <input type="text" value="${b.url}" onchange="systemSettings.banners[${i}].url=this.value;initBanner();" class="w-full text-sm p-2 border rounded-lg outline-none focus:ring-2" placeholder="วางลิงก์รูปภาพ (หรือจะทำปุ่มอัปโหลดเพิ่มก็ได้)">
+                    <input type="hidden" class="existing-banner-img" value="${b.url}">
+                    <input type="file" accept="image/png, image/jpeg" class="new-banner-img w-full text-sm p-1.5 border rounded-lg outline-none focus:ring-2 focus:ring-green-500 bg-white" onchange="previewBannerImage(this); checkSettingsChanged();">
+                    ${previewBtn}
                 </div>
                 <label class="text-sm font-medium flex items-center gap-1 cursor-pointer">
-                    <input type="checkbox" ${b.active?'checked':''} onchange="systemSettings.banners[${i}].active=this.checked;initBanner();" class="w-4 h-4 text-green-600"> แสดง
+                    <input type="checkbox" ${b.active?'checked':''} onchange="systemSettings.banners[${i}].active=this.checked; initBanner(); checkSettingsChanged();" class="w-4 h-4 text-green-600"> แสดง
                 </label>
-                <button onclick="systemSettings.banners.splice(${i},1);renderBannerList();initBanner();" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition">
+                <button onclick="deleteBannerSlot(${i})" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition" title="ลบแบนเนอร์นี้">
                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                 </button>
             </div>`;
         }).join(''); 
-        
         lucide.createIcons(); 
     }
     
@@ -2450,6 +2530,18 @@ function getAvailableDatesSummary() {
         if(!systemSettings.banners) systemSettings.banners=[]; 
         systemSettings.banners.push({id: Date.now(), url: '', active: true}); 
         renderBannerList(); 
+        checkSettingsChanged();
+    }
+
+    // แค่ซ่อนออกจากการแสดงผล และเก็บรอลบจริง
+    function deleteBannerSlot(index) {
+        if(confirm('คุณต้องการลบรูป Banner นี้ออกใช่หรือไม่? (รูปจะถูกลบจริงเมื่อกด "บันทึกการตั้งค่า")')) {
+            const urlToDelete = systemSettings.banners[index].url;
+            if(urlToDelete) { pendingDeleteDriveUrls.push(urlToDelete); }
+            systemSettings.banners.splice(index, 1);
+            renderBannerList();
+            checkSettingsChanged();
+        }
     }
 
     // Save All
@@ -2458,14 +2550,41 @@ function getAvailableDatesSummary() {
         
         const checkAndUpload = async (id) => {
             const fileInput = document.getElementById('upload' + id.charAt(0).toUpperCase() + id.slice(1));
-            if (fileInput && fileInput.files.length > 0) return await uploadSingleFile(fileInput.files[0], 'image');
-            return document.getElementById(id).value; 
+            const hiddenInput = document.getElementById(id);
+            const existingUrl = hiddenInput ? hiddenInput.value : '';
+
+            if (fileInput && fileInput.files.length > 0) {
+                showLoader(`กำลังอัปโหลดรูป...`);
+                let newUrl = await uploadSingleFile(fileInput.files[0], 'image');
+                if (newUrl && existingUrl) apiCallSilent('deleteFile', { url: existingUrl });
+                return newUrl;
+            }
+            return existingUrl; 
         };
 
         systemSettings.logoUrl = await checkAndUpload('logoUrl');
         systemSettings.loginBgUrl = await checkAndUpload('loginBgUrl');
         systemSettings.faviconUrl = await checkAndUpload('faviconUrl');
         systemSettings.botAvatar = await checkAndUpload('botAvatar');
+
+        // 🟢 จัดการอัปโหลดแบนเนอร์ใหม่
+        const bannerRows = document.getElementById('bannerList').children;
+        for(let i=0; i<bannerRows.length; i++) {
+            const existingVal = bannerRows[i].querySelector('.existing-banner-img').value;
+            const fileInput = bannerRows[i].querySelector('.new-banner-img');
+
+            if (fileInput && fileInput.files.length > 0) {
+                showLoader(`กำลังอัปโหลดแบนเนอร์รูปที่ ${i+1}...`);
+                let newUrl = await uploadSingleFile(fileInput.files[0], 'image');
+                
+                if (newUrl) {
+                    if(existingVal) apiCallSilent('deleteFile', { url: existingVal });
+                    systemSettings.banners[i].url = newUrl;
+                }
+            } else {
+                systemSettings.banners[i].url = existingVal;
+            }
+        }
 
         systemSettings.bannerEnabled = document.getElementById('bannerEnabled').checked;
         systemSettings.bannerSpeed = parseFloat(document.getElementById('bannerSpeed').value) || 3;
@@ -2484,12 +2603,27 @@ function getAvailableDatesSummary() {
 
         try {
             await apiCall('saveSettings', systemSettings);
+
+            // 🟢 เคลียร์ขยะ (ลบรูปใน Drive)
+            if (pendingDeleteDriveUrls.length > 0) {
+                pendingDeleteDriveUrls.forEach(url => apiCallSilent('deleteFile', { url: url }));
+                pendingDeleteDriveUrls = [];
+            }
+
             applySettingsToUI(); 
             updateBotUI();       
             renderCalendar();    
             initBanner();        
+            
+            // 🟢 โหลดค่าใหม่ เพื่อรีเซ็ตหน้าจอ (เคลียร์ชื่อไฟล์และทำ Backup ใหม่)
+            loadSettings();
+
             showToast('บันทึกการตั้งค่าระบบเรียบร้อย', 'success');
-        } catch(e) { }
+        } catch(e) { 
+            showAlert('เกิดข้อผิดพลาด', 'ไม่สามารถบันทึกการตั้งค่าได้', 'error');
+        } finally {
+            hideLoader();
+        }
     }
 // --- Room Gallery Logic ---
     let currentGalleryImages = [];
