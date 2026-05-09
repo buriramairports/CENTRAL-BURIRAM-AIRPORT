@@ -2033,11 +2033,23 @@
             // 3. จำลองคนออนไลน์ (Random ตามเวลาของวัน ให้ดูสมจริง)
             const hour = d.getHours();
             let baseOnline = 5;
-            if (hour >= 8 && hour <= 16) baseOnline = 25; // เวลางาน คนเยอะ
-            else if (hour > 16 && hour <= 22) baseOnline = 15; // เลิกงาน คนปานกลาง
             
-            // สุ่มเลขแกว่งไปมา
+            // ตั้งค่าพื้นฐานตามเวลา
+            if (hour >= 8 && hour <= 16) baseOnline = 25; // เวลางาน
+            else if (hour > 16 && hour <= 22) baseOnline = 15; // เลิกงาน
+            
+            // สุ่มเลขแกว่งไปมา (เช่น 25 + 0 ถึง 15 = 25-40 คน)
             let onlineNow = baseOnline + Math.floor(Math.random() * 15);
+            
+            // 🟢 [แก้ไข] ตรวจสอบไม่ให้คนออนไลน์ มากกว่า ยอดผู้เข้าชมในเดือนนั้น
+            // สมมติว่ายอดเดือนนี้มี 14 คน คนออนไลน์ก็ควรจะอยู่แค่ประมาณ 1-3 คน
+            if (onlineNow > thisMonthCount) {
+                // ถ้าเกิน ให้เอาเปอร์เซ็นต์แบบสุ่ม 5% - 20% ของยอดเดือนปัจจุบันมาแสดงแทน
+                // ถ้าเดือนนั้นมีคนเข้า 10 คน จะออนไลน์ประมาณ 1-2 คน
+                let maxRealisticOnline = Math.ceil(thisMonthCount * (Math.random() * 0.15 + 0.05)); 
+                onlineNow = Math.max(1, maxRealisticOnline); // บังคับให้อย่างน้อยต้องมี 1 คนเสมอ
+            }
+            
             document.getElementById('statOnlineNow').innerText = onlineNow;
         }
 
