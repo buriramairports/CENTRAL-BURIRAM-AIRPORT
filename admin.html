@@ -652,9 +652,19 @@
                             <input type="text" class="form-control" id="mnu_MenuName" placeholder="เช่น หน้าหลัก, กฎระเบียบ" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label fw-bold">URL ปลายทาง <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control font-monospace" id="mnu_URL" placeholder="เช่น index.html หรือ https://..." required>
-                        </div>
+    <label class="form-label fw-bold">URL ปลายทาง <span class="text-danger">*</span></label>
+    <input type="text" class="form-control font-monospace mb-2" id="mnu_URL" placeholder="เช่น index.html หรือ https://..." required>
+    
+    <!-- 🟢 กล่องคำแนะนำตัวอย่างการกรอก -->
+    <div class="bg-light border border-secondary border-opacity-25 rounded p-3 small text-muted">
+        <strong class="text-primary"><i class="fa-solid fa-circle-info me-1"></i> คำแนะนำ: รูปแบบการกรอก URL ปลายทาง</strong>
+        <ul class="mb-0 ps-3 mt-2 lh-lg">
+            <li><b>ไปหน้าเว็บอื่น / เว็บภายนอก:</b> พิมพ์ชื่อไฟล์ เช่น <code>about.html</code> หรือ <code>https://...</code></li>
+            <li><b>เลื่อนไปยังส่วนต่างๆ ในหน้าเดิม:</b> ใส่เครื่องหมาย <code>#</code> นำหน้า เช่น <code>#eservices-section</code></li>
+            <li><b>เปิดหน้าต่าง Pop-up (Modal):</b> พิมพ์ <code>javascript:</code> นำหน้า เช่น <code>javascript:showContactModal()</code></li>
+        </ul>
+    </div>
+</div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold">การเปิดลิงก์</label>
