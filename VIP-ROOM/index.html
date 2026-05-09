@@ -1263,7 +1263,20 @@ function getAvailableDatesSummary() {
         const currentWeekly = Array.from(document.querySelectorAll('.weekday-checkbox:checked')).map(x => parseInt(x.value));
         if (JSON.stringify(currentWeekly) !== JSON.stringify(backupSystemSettings.weeklyDays || [])) isChanged = true;
 
-        if (JSON.stringify(systemSettings.banners) !== JSON.stringify(backupSystemSettings.banners)) isChanged = true;
+        // 5. เช็คพวกรายการแบนเนอร์และช่วงเวลา
+        const currentBannerRows = document.querySelectorAll('#bannerList .banner-row');
+        if (currentBannerRows.length !== (backupSystemSettings.banners || []).length) {
+            isChanged = true;
+        } else {
+            currentBannerRows.forEach((row, i) => {
+                const active = row.querySelector('.banner-active-cb').checked;
+                const existingUrl = row.querySelector('.existing-banner-img').value;
+                const backupBanner = backupSystemSettings.banners[i];
+                if (!backupBanner || backupBanner.active !== active || backupBanner.url !== existingUrl) {
+                    isChanged = true;
+                }
+            });
+        }
         if (JSON.stringify(systemSettings.timeSlots) !== JSON.stringify(backupSystemSettings.timeSlots)) isChanged = true;
         if (JSON.stringify(systemSettings.customDays) !== JSON.stringify(backupSystemSettings.customDays)) isChanged = true;
 
@@ -2508,7 +2521,7 @@ function getAvailableDatesSummary() {
             let previewBtn = b.url ? `<a href="${previewUrl}" target="_blank" class="text-green-600 underline font-medium text-xs mt-1 block">ดูรูปปัจจุบัน</a>` : '';
             
             return `
-            <div class="flex items-center gap-3 p-3 bg-gray-50 border border-gray-100 rounded-lg mb-2">
+            <div class="banner-row flex items-center gap-3 p-3 bg-gray-50 border border-gray-100 rounded-lg mb-2">
                 <img src="${previewUrl}" class="w-16 h-10 object-cover rounded shadow-sm" onerror="this.src='https://via.placeholder.com/150'">
                 <div class="flex-1">
                     <input type="hidden" class="existing-banner-img" value="${b.url}">
@@ -2516,9 +2529,9 @@ function getAvailableDatesSummary() {
                     ${previewBtn}
                 </div>
                 <label class="text-sm font-medium flex items-center gap-1 cursor-pointer">
-                    <input type="checkbox" ${b.active?'checked':''} onchange="systemSettings.banners[${i}].active=this.checked; initBanner(); checkSettingsChanged();" class="w-4 h-4 text-green-600"> แสดง
+                    <input type="checkbox" ${b.active?'checked':''} class="banner-active-cb w-4 h-4 text-green-600" onchange="checkSettingsChanged();"> แสดง
                 </label>
-                <button onclick="deleteBannerSlot(${i})" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition" title="ลบแบนเนอร์นี้">
+                <button type="button" onclick="deleteBannerRow(this)" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition" title="ลบแบนเนอร์นี้">
                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                 </button>
             </div>`;
@@ -2526,20 +2539,39 @@ function getAvailableDatesSummary() {
         lucide.createIcons(); 
     }
     
+    // 🟢 เปลี่ยนวิธีเพิ่มแถว: ใช้การแทรก DOM ทีละแถวแทน เพื่อไม่กระทบรูปช่องอื่น
     function addBannerSlot() { 
-        if(!systemSettings.banners) systemSettings.banners=[]; 
-        systemSettings.banners.push({id: Date.now(), url: '', active: true}); 
-        renderBannerList(); 
+        const listContainer = document.getElementById('bannerList');
+        const newRow = document.createElement('div');
+        newRow.className = 'banner-row flex items-center gap-3 p-3 bg-gray-50 border border-gray-100 rounded-lg mb-2 animate-fadeIn';
+        newRow.innerHTML = `
+            <img src="https://via.placeholder.com/150" class="w-16 h-10 object-cover rounded shadow-sm">
+            <div class="flex-1">
+                <input type="hidden" class="existing-banner-img" value="">
+                <input type="file" accept="image/png, image/jpeg" class="new-banner-img w-full text-sm p-1.5 border rounded-lg outline-none focus:ring-2 focus:ring-green-500 bg-white" onchange="previewBannerImage(this); checkSettingsChanged();">
+            </div>
+            <label class="text-sm font-medium flex items-center gap-1 cursor-pointer">
+                <input type="checkbox" checked class="banner-active-cb w-4 h-4 text-green-600" onchange="checkSettingsChanged();"> แสดง
+            </label>
+            <button type="button" onclick="deleteBannerRow(this)" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition" title="ลบแบนเนอร์นี้">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+        `;
+        listContainer.appendChild(newRow);
+        lucide.createIcons();
         checkSettingsChanged();
     }
 
-    // แค่ซ่อนออกจากการแสดงผล และเก็บรอลบจริง
-    function deleteBannerSlot(index) {
+    // 🟢 เปลี่ยนวิธีลบแถว: เลือกลบเฉพาะแถวที่กด (DOM) เท่านั้น
+    function deleteBannerRow(btn) {
         if(confirm('คุณต้องการลบรูป Banner นี้ออกใช่หรือไม่? (รูปจะถูกลบจริงเมื่อกด "บันทึกการตั้งค่า")')) {
-            const urlToDelete = systemSettings.banners[index].url;
-            if(urlToDelete) { pendingDeleteDriveUrls.push(urlToDelete); }
-            systemSettings.banners.splice(index, 1);
-            renderBannerList();
+            const row = btn.closest('.banner-row'); // หาแถวที่คลุมปุ่มนี้อยู่
+            const existingUrl = row.querySelector('.existing-banner-img').value;
+            
+            // ถ้ารูปนี้เคยเซฟไว้แล้ว ให้เก็บลงคิวรอการลบ
+            if(existingUrl) pendingDeleteDriveUrls.push(existingUrl);
+            
+            row.remove(); // ลบแถวทิ้ง
             checkSettingsChanged();
         }
     }
@@ -2567,24 +2599,27 @@ function getAvailableDatesSummary() {
         systemSettings.faviconUrl = await checkAndUpload('faviconUrl');
         systemSettings.botAvatar = await checkAndUpload('botAvatar');
 
-        // 🟢 จัดการอัปโหลดแบนเนอร์ใหม่
-        const bannerRows = document.getElementById('bannerList').children;
+        // 🟢 จัดการอัปโหลดแบนเนอร์ใหม่ และสร้าง Array ข้อมูลใหม่
+        let newBannersConfig = [];
+        const bannerRows = document.querySelectorAll('#bannerList .banner-row');
         for(let i=0; i<bannerRows.length; i++) {
             const existingVal = bannerRows[i].querySelector('.existing-banner-img').value;
             const fileInput = bannerRows[i].querySelector('.new-banner-img');
+            const isActive = bannerRows[i].querySelector('.banner-active-cb').checked;
 
+            let finalUrl = existingVal;
             if (fileInput && fileInput.files.length > 0) {
                 showLoader(`กำลังอัปโหลดแบนเนอร์รูปที่ ${i+1}...`);
                 let newUrl = await uploadSingleFile(fileInput.files[0], 'image');
                 
                 if (newUrl) {
                     if(existingVal) apiCallSilent('deleteFile', { url: existingVal });
-                    systemSettings.banners[i].url = newUrl;
+                    finalUrl = newUrl;
                 }
-            } else {
-                systemSettings.banners[i].url = existingVal;
             }
+            newBannersConfig.push({ id: Date.now() + i, url: finalUrl, active: isActive });
         }
+        systemSettings.banners = newBannersConfig; // นำ Array ใหม่ไปบันทึก
 
         systemSettings.bannerEnabled = document.getElementById('bannerEnabled').checked;
         systemSettings.bannerSpeed = parseFloat(document.getElementById('bannerSpeed').value) || 3;
