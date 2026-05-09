@@ -2199,7 +2199,9 @@ async function confirmCancelBooking(id) {
                 <label class="text-sm font-medium flex items-center gap-1 cursor-pointer">
                     <input type="checkbox" ${b.active?'checked':''} onchange="systemSettings.banners[${i}].active=this.checked;" class="w-4 h-4 text-sky-600"> แสดง
                 </label>
-                <button onclick="systemSettings.banners.splice(${i},1);renderBannerList();initBanner();" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition" title="ลบแบนเนอร์นี้">
+				<!-- 🟢 เปลี่ยนฟังก์ชันปุ่มลบ ให้เรียก deleteBannerSlot แทนการ splice ตรงๆ -->
+                <button onclick="deleteBannerSlot(${i})" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition" title="ลบแบนเนอร์นี้">
+                <!-- button onclick="systemSettings.banners.splice(${i},1);renderBannerList();initBanner();" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition" title="ลบแบนเนอร์นี้" -->
                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                 </button>
             </div>`;
@@ -2213,28 +2215,48 @@ async function confirmCancelBooking(id) {
         renderBannerList(); 
     }
 
-    // Save All
+    // 🟢 ฟังก์ชันใหม่: เลือกลบแบนเนอร์ (ถ้ามีไฟล์ในไดรฟ์ จะถูกสั่งลบทิ้งด้วย)
+    function deleteBannerSlot(index) {
+        if(confirm('ยืนยันที่จะลบรูป Banner นี้ใช่หรือไม่?')) {
+            const urlToDelete = systemSettings.banners[index].url;
+            if(urlToDelete) apiCallSilent('deleteFile', { url: urlToDelete }); // ยิงไปลบเงียบๆ
+            
+            systemSettings.banners.splice(index, 1);
+            renderBannerList();
+            initBanner();
+        }
+    }
+
+   // Save All (เพิ่มการดักจับและลบรูปเก่าทิ้ง)
     async function saveAllSettings() {
         showLoader('กำลังอัปโหลดรูปภาพและการตั้งค่า...');
         
-        // ฟังก์ชันช่วยเช็คไฟล์และอัปโหลด (สำหรับตั้งค่าทั่วไป)
+        // ฟังก์ชันช่วยเช็คไฟล์, อัปโหลด, และลบรูปเก่าทิ้ง (สำหรับรูปทั่วไป 4 จุด)
         const checkAndUpload = async (id) => {
             const fileInput = document.getElementById('upload' + id.charAt(0).toUpperCase() + id.slice(1));
+            const existingUrl = document.getElementById(id).value; 
+            
             if (fileInput && fileInput.files.length > 0) {
                 showLoader(`กำลังอัปโหลดรูป ${id}...`);
-                return await uploadSingleFile(fileInput.files[0], 'image');
+                let newUrl = await uploadSingleFile(fileInput.files[0], 'image');
+                
+                // 🟢 ถ้ายอมอัปรูปใหม่สำเร็จ และมีรูปลิงก์เดิมอยู่ ให้ยิง API ไปลบรูปเก่าทิ้ง
+                if (newUrl && existingUrl) {
+                    apiCallSilent('deleteFile', { url: existingUrl });
+                }
+                return newUrl;
             }
-            return document.getElementById(id).value; 
+            return existingUrl; 
         };
 
         try {
-            // 🟢 1. อัปโหลดรูปภาพการตั้งค่าทั่วไป
+            // 1. อัปโหลดรูปภาพการตั้งค่าทั่วไป
             systemSettings.logoUrl = await checkAndUpload('logoUrl');
             systemSettings.loginBgUrl = await checkAndUpload('loginBgUrl');
             systemSettings.faviconUrl = await checkAndUpload('faviconUrl');
             systemSettings.botAvatar = await checkAndUpload('botAvatar');
 
-            // 🟢 2. อัปโหลดรูปภาพแบนเนอร์ (วนลูปทุกช่อง)
+            // 2. อัปโหลดรูปภาพแบนเนอร์ (วนลูปทุกช่อง)
             const bannerRows = document.getElementById('bannerList').children;
             for(let i=0; i<bannerRows.length; i++) {
                 const existingVal = bannerRows[i].querySelector('.existing-banner-img').value;
@@ -2242,10 +2264,17 @@ async function confirmCancelBooking(id) {
 
                 if (fileInput && fileInput.files.length > 0) {
                     showLoader(`กำลังอัปโหลดแบนเนอร์รูปที่ ${i+1}...`);
-                    let uploadedUrl = await uploadSingleFile(fileInput.files[0], 'image');
-                    if (uploadedUrl) systemSettings.banners[i].url = uploadedUrl;
+                    let newUrl = await uploadSingleFile(fileInput.files[0], 'image');
+                    
+                    if (newUrl) {
+                        // 🟢 ถ้าอัปโหลดสำเร็จและมีรูปแบนเนอร์เดิมอยู่ ให้ยิงลบรูปเดิมทิ้ง
+                        if(existingVal) apiCallSilent('deleteFile', { url: existingVal });
+                        systemSettings.banners[i].url = newUrl;
+                    }
                 } else {
-                    systemSettings.banners[i].url = existingVal;
+                    // ถ้าแอดมินเผลอแก้ลิงก์ด้วยมือเปล่าตรงๆ (ไม่เอาไฟล์) ให้ยึดตามนั้น
+                    const textInputUrl = bannerRows[i].querySelector('input[type="text"]').value;
+                    systemSettings.banners[i].url = textInputUrl || existingVal;
                 }
             }
 
@@ -2268,13 +2297,12 @@ async function confirmCancelBooking(id) {
             systemSettings.botGreeting = document.getElementById('botGreeting').value;
             systemSettings.adminContactInfo = document.getElementById('adminContactInfo').value;
 
-            // 4. บันทึกเข้า API
+            // 4. บันทึกเข้า API (Google Sheets)
             await apiCall('saveSettings', systemSettings);
             
             applySettingsToUI(); 
             updateBotUI(); 
             renderCalendar(); 
-			renderBannerList();
             initBanner();        
             
             showToast('บันทึกการตั้งค่าระบบเรียบร้อย', 'success');
