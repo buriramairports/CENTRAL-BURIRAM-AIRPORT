@@ -264,12 +264,8 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link active" href="#">หน้าหลัก</a></li>
-                    <li class="nav-item"><a class="nav-link" target="_blank" href="about.html">เกี่ยวกับหน่วยงาน</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#eservices-section">บริการประชาชน</a></li>
-                    <li class="nav-item"><a class="nav-link" target="_blank" href="news.html">ข่าวสารและประชาสัมพันธ์</a></li>
-                    <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="showContactModal()">ติดต่อเรา</a></li>
+                <ul class="navbar-nav me-auto" id="dynamicTopNav">
+                    <!-- เมนูด้านบนจะถูกดึงมาจากระบบหลังบ้านและวาดตรงนี้ -->
                 </ul>
                 <div id="userMenu">
                     <button class="btn btn-outline-light rounded-pill px-4" onclick="showAuthModal()">
@@ -487,31 +483,16 @@
             <i class="fa-solid fa-chevron-down me-2"></i> แสดง/ซ่อน แผนผังเว็บไซต์
         </button>
 
-        <div class="collapse" id="footerSitemapContainer">
+       <div class="collapse" id="footerSitemapContainer">
             <div class="footer-sitemap">
                 <div class="container">
-                    <div class="row text-center text-md-start">
-                        <div class="col-md-12 mb-4 text-center">
-                            <a href="#" class="text-muted small me-3">เงื่อนไขการให้บริการเว็บไซต์</a> | 
-                            <a href="#" class="text-muted small mx-3">นโยบายคุ้มครองข้อมูลส่วนบุคคล</a> | 
-                            <a href="#" class="text-muted small mx-3">นโยบายความปลอดภัย</a>
-                        </div>
-                        <div class="col-md-3 col-6">
-                            <h6>ข่าวสารกรมฯ</h6><ul><li><a href="#">ข่าวเด่น DOA</a></li><li><a href="#">แวดวงข่าว</a></li></ul>
-                        </div>
-                        <div class="col-md-3 col-6">
-                            <h6>บริการประชาชน</h6><ul><li><a href="#">ข้อมูลเปิดภาครัฐ</a></li><li><a href="#">ระบบ E-Services</a></li></ul>
-                        </div>
-                        <div class="col-md-3 col-6">
-                            <h6>สารสนเทศกรมฯ</h6><ul><li><a href="#">กฎ ระเบียบ</a></li><li><a href="#">แบบฟอร์ม</a></li></ul>
-                        </div>
-                        <div class="col-md-3 col-6">
-                            <h6>เว็บไซต์ที่น่าสนใจ</h6><ul><li><a href="#">กระทรวงคมนาคม</a></li><li><a href="#">กรมการบินพลเรือน</a></li></ul>
-                        </div>
+                    <div class="row text-center text-md-start" id="dynamicFooterSitemap">
+                        <!-- แผนผังเว็บ (Sitemap) จะถูกดึงมาจากระบบหลังบ้านและจัดกลุ่มที่นี่ -->
                     </div>
                 </div>
             </div>
         </div>
+        
         <div class="text-center py-3 border-top border-secondary small text-white" style="background-color: #213C6D;">
             © 2569 สงวนลิขสิทธิ์ตามพระราชบัญญัติลิขสิทธิ์โดย ท่าอากาศยานบุรีรัมย์<br>
             รองรับการแสดงผลบนเบราว์เซอร์ Chrome, Firefox, Safari, Edge
@@ -989,8 +970,8 @@
 
         async function loadInitialData() {
             try {
-                // 🟢 ดึงข้อมูลทีเดียว 9 ตารางรวด เพื่อให้หน้าเว็บโหลดเต็มรูปแบบ
-                const [settingsRes, bannersRes, eservicesRes, newsCatsRes, newsRes, eventsRes, airlinesRes, statsRes, flightsRes] = await Promise.all([
+               // 🟢 ดึงข้อมูลทีเดียว 10 ตารางรวด เพื่อให้หน้าเว็บโหลดเต็มรูปแบบ
+                const [settingsRes, bannersRes, eservicesRes, newsCatsRes, newsRes, eventsRes, airlinesRes, statsRes, flightsRes, siteMenusRes] = await Promise.all([
                     fetch(API_URL + '?action=getSettings').then(r => r.json()),
                     fetch(API_URL + '?action=getTableData&sheetName=Banners').then(r => r.json()),
                     fetch(API_URL + '?action=getTableData&sheetName=EServices').then(r => r.json()),
@@ -999,7 +980,8 @@
                     fetch(API_URL + '?action=getTableData&sheetName=Events').then(r => r.json()),
                     fetch(API_URL + '?action=getTableData&sheetName=Airlines').then(r => r.json()),
                     fetch(API_URL + '?action=getTableData&sheetName=PassengerStats').then(r => r.json()),
-                    fetch(API_URL + '?action=getTableData&sheetName=FlightSchedules').then(r => r.json())
+                    fetch(API_URL + '?action=getTableData&sheetName=FlightSchedules').then(r => r.json()),
+                    fetch(API_URL + '?action=getTableData&sheetName=SiteMenus').then(r => r.json()) // 🟢 เพิ่มบรรทัดนี้
                 ]);
 
                 // 1. ตั้งค่าเว็บไซต์
@@ -1086,6 +1068,8 @@
                 if(statsRes.status === 'success') renderPassengerStats(statsRes.data);
                 if(flightsRes.status === 'success') renderFlights(flightsRes.data, settingsRes.data);
 
+                // 🟢 ส่วนที่เพิ่มใหม่ (เมนูและแผนผังเว็บ)
+                if(siteMenusRes.status === 'success') renderSiteMenus(siteMenusRes.data);
             } catch(error) { 
                 console.error("Error loading initial data:", error); 
             } finally {
@@ -2250,6 +2234,66 @@
             document.getElementById('userMenu').innerHTML = `<button class="btn btn-outline-light rounded-pill px-4" onclick="showAuthModal()"><i class="fa-solid fa-user me-2"></i> เข้าสู่ระบบ</button>`; 
             Swal.fire({ icon: 'info', title: 'ออกจากระบบแล้ว', showConfirmButton: false, timer: 1000 });
         }
+
+        // ================= เริ่มต้นฟังก์ชัน วาดเมนูด้านบน และ แผนผังเว็บ (Sitemap) =================
+        function renderSiteMenus(menusData) {
+            // กรองเฉพาะเมนูที่เปิดใช้งาน และเรียงลำดับ
+            const activeMenus = menusData.filter(m => m.IsActive === 'TRUE').sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList));
+
+            // --- 1. จัดการเมนูด้านบน (TopNav) ---
+            const topNavContainer = document.getElementById('dynamicTopNav');
+            if (topNavContainer) {
+                const topMenus = activeMenus.filter(m => m.MenuPosition === 'TopNav');
+                let topHtml = '';
+                
+                // ตรวจสอบชื่อไฟล์ปัจจุบันเพื่อทำไฮไลต์เมนู (Active)
+                let currentPath = window.location.pathname.split('/').pop() || 'index.html';
+
+                topMenus.forEach(m => {
+                    let targetAttr = m.Target === '_blank' ? 'target="_blank"' : '';
+                    let isActive = (currentPath === m.URL || (currentPath === '' && m.URL === 'index.html')) ? 'active' : '';
+                    
+                    topHtml += `<li class="nav-item"><a class="nav-link ${isActive}" href="${m.URL}" ${targetAttr}>${m.MenuName}</a></li>`;
+                });
+                topNavContainer.innerHTML = topHtml;
+            }
+
+            // --- 2. จัดการแผนผังด้านล่าง (Footer Sitemap) ---
+            const footerContainer = document.getElementById('dynamicFooterSitemap');
+            if (footerContainer) {
+                const footerMenus = activeMenus.filter(m => m.MenuPosition === 'Footer');
+                
+                // จัดกลุ่มเมนูตามชื่อกลุ่ม (GroupName)
+                let groupedMenus = {};
+                footerMenus.forEach(m => {
+                    let gName = m.GroupName || 'กลุ่มอื่นๆ';
+                    if (!groupedMenus[gName]) groupedMenus[gName] = [];
+                    groupedMenus[gName].push(m);
+                });
+
+                // วาดลิงก์เงื่อนไขนโยบายพื้นฐานไว้ตรงกลางด้านบนสุด
+                let footerHtml = `
+                    <div class="col-md-12 mb-4 text-center border-bottom border-secondary pb-3">
+                        <a href="#" class="text-muted small mx-2 fw-bold"><i class="fa-solid fa-file-contract"></i> เงื่อนไขการให้บริการเว็บไซต์</a>
+                        <a href="#" class="text-muted small mx-2 fw-bold" onclick="showPdpaModal(event)"><i class="fa-solid fa-shield-halved"></i> นโยบายคุ้มครองข้อมูลส่วนบุคคล</a>
+                        <a href="#" class="text-muted small mx-2 fw-bold"><i class="fa-solid fa-lock"></i> นโยบายความปลอดภัย</a>
+                    </div>
+                `;
+
+                // วนลูปวาดกลุ่มเมนูที่จัดไว้
+                for (const [groupName, links] of Object.entries(groupedMenus)) {
+                    footerHtml += `<div class="col-md-3 col-6 mb-4"><h6>${groupName}</h6><ul class="list-unstyled">`;
+                    links.forEach(link => {
+                        let targetAttr = link.Target === '_blank' ? 'target="_blank"' : '';
+                        footerHtml += `<li><a href="${link.URL}" ${targetAttr}>${link.MenuName}</a></li>`;
+                    });
+                    footerHtml += `</ul></div>`;
+                }
+
+                footerContainer.innerHTML = footerHtml;
+            }
+        }
+        // ================= สิ้นสุดฟังก์ชัน วาดเมนูด้านบน และ แผนผังเว็บ =================
     </script>
 </body>
 </html>
