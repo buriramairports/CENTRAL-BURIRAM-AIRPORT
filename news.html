@@ -779,6 +779,66 @@
             carousel.to(startIndex);
             new bootstrap.Modal(document.getElementById('newsGalleryViewerModal')).show();
         }
+
+        // ================= เริ่มต้นฟังก์ชัน วาดเมนูด้านบน และ แผนผังเว็บ (Sitemap) =================
+        function renderSiteMenus(menusData) {
+            // กรองเฉพาะเมนูที่เปิดใช้งาน และเรียงลำดับ
+            const activeMenus = menusData.filter(m => m.IsActive === 'TRUE').sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList));
+
+            // --- 1. จัดการเมนูด้านบน (TopNav) ---
+            const topNavContainer = document.getElementById('dynamicTopNav');
+            if (topNavContainer) {
+                const topMenus = activeMenus.filter(m => m.MenuPosition === 'TopNav');
+                let topHtml = '';
+                
+                // ตรวจสอบชื่อไฟล์ปัจจุบันเพื่อทำไฮไลต์เมนู (Active)
+                let currentPath = window.location.pathname.split('/').pop() || 'index.html';
+
+                topMenus.forEach(m => {
+                    let targetAttr = m.Target === '_blank' ? 'target="_blank"' : '';
+                    let isActive = (currentPath === m.URL || (currentPath === '' && m.URL === 'index.html')) ? 'active' : '';
+                    
+                    topHtml += `<li class="nav-item"><a class="nav-link ${isActive}" href="${m.URL}" ${targetAttr}>${m.MenuName}</a></li>`;
+                });
+                topNavContainer.innerHTML = topHtml;
+            }
+
+            // --- 2. จัดการแผนผังด้านล่าง (Footer Sitemap) ---
+            const footerContainer = document.getElementById('dynamicFooterSitemap');
+            if (footerContainer) {
+                const footerMenus = activeMenus.filter(m => m.MenuPosition === 'Footer');
+                
+                // จัดกลุ่มเมนูตามชื่อกลุ่ม (GroupName)
+                let groupedMenus = {};
+                footerMenus.forEach(m => {
+                    let gName = m.GroupName || 'กลุ่มอื่นๆ';
+                    if (!groupedMenus[gName]) groupedMenus[gName] = [];
+                    groupedMenus[gName].push(m);
+                });
+
+                // วาดลิงก์เงื่อนไขนโยบายพื้นฐานไว้ตรงกลางด้านบนสุด
+                let footerHtml = `
+                    <div class="col-md-12 mb-4 text-center border-bottom border-secondary pb-3">
+                        <a href="#" class="text-muted small mx-2 fw-bold"><i class="fa-solid fa-file-contract"></i> เงื่อนไขการให้บริการเว็บไซต์</a>
+                        <a href="#" class="text-muted small mx-2 fw-bold" onclick="showPdpaModal(event)"><i class="fa-solid fa-shield-halved"></i> นโยบายคุ้มครองข้อมูลส่วนบุคคล</a>
+                        <a href="#" class="text-muted small mx-2 fw-bold"><i class="fa-solid fa-lock"></i> นโยบายความปลอดภัย</a>
+                    </div>
+                `;
+
+                // วนลูปวาดกลุ่มเมนูที่จัดไว้
+                for (const [groupName, links] of Object.entries(groupedMenus)) {
+                    footerHtml += `<div class="col-md-3 col-6 mb-4"><h6>${groupName}</h6><ul class="list-unstyled">`;
+                    links.forEach(link => {
+                        let targetAttr = link.Target === '_blank' ? 'target="_blank"' : '';
+                        footerHtml += `<li><a href="${link.URL}" ${targetAttr}>${link.MenuName}</a></li>`;
+                    });
+                    footerHtml += `</ul></div>`;
+                }
+
+                footerContainer.innerHTML = footerHtml;
+            }
+        }
+        // ================= สิ้นสุดฟังก์ชัน วาดเมนูด้านบน และ แผนผังเว็บ =================
     </script>
 </body>
 </html>
