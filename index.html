@@ -914,6 +914,51 @@
         </div>
     </div>
     <!-- ================= สิ้นสุด Modal ติดต่อเรา ================= -->
+
+    <!-- ================= เริ่มต้น Modal โปรไฟล์ส่วนตัว ================= -->
+    <div class="modal fade" id="myProfileModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header text-white" style="background-color: var(--primary-blue);">
+                    <h5 class="modal-title fw-bold"><i class="fa-regular fa-id-card me-2"></i> ข้อมูลส่วนตัวของฉัน</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4 bg-light">
+                    <form id="formMyProfile" onsubmit="saveMyProfile(event)">
+                        <input type="hidden" id="myProf_ID">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-secondary small mb-1">ชื่อ</label>
+                                <input type="text" class="form-control" id="myProf_Fname" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-secondary small mb-1">นามสกุล</label>
+                                <input type="text" class="form-control" id="myProf_Lname" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-secondary small mb-1">อีเมล</label>
+                                <input type="email" class="form-control" id="myProf_Email" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-secondary small mb-1">เบอร์โทรศัพท์</label>
+                                <input type="tel" class="form-control" id="myProf_Phone" required>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold text-secondary small mb-1">สถานศึกษา / หน่วยงาน</label>
+                                <input type="text" class="form-control" id="myProf_Org" required>
+                            </div>
+                        </div>
+                        <div class="p-3 border rounded bg-white mt-4">
+                            <label class="form-label fw-bold text-danger small mb-1"><i class="fa-solid fa-key"></i> เปลี่ยนรหัสผ่าน</label>
+                            <input type="text" class="form-control" id="myProf_Password" placeholder="เว้นว่างไว้หากไม่ต้องการเปลี่ยนรหัสผ่าน">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mt-4 py-2 fw-bold" id="btnSaveMyProfile">บันทึกการเปลี่ยนแปลง</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ================= สิ้นสุด Modal โปรไฟล์ส่วนตัว ================= -->
     
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -2112,23 +2157,41 @@
         function showContactModal() { new bootstrap.Modal(document.getElementById('contactModal')).show(); }
 // ================= สิ้นสุด modal ติดต่อ =================
         // 🟢 [เพิ่มใหม่] ฟังก์ชันสำหรับเปลี่ยนปุ่มมุมขวาบน (ใช้ซ้ำได้)
+        // 🟢 ดิกชันนารีแปลภาษาประเภทผู้ใช้
+        const roleNamesTH = {
+            'SuperAdmin': 'ผู้ดูแลระบบสูงสุด',
+            'SubAdmin': 'ผู้ดูแลระบบ',
+            'Staff': 'เจ้าหน้าที่',
+            'User': 'ประชาชนทั่วไป'
+        };
+
+        // 🟢 ฟังก์ชันอัปเดตปุ่มมุมขวาบน (เพิ่มโชว์ประเภทผู้ใช้)
         function updateUserMenuUI(user) {
+            if(!document.getElementById('userMenu')) return;
+
             let adminMenu = '';
-            // ถ้าเป็นแอดมิน ให้เพิ่มปุ่มลัดไปหน้าหลังบ้าน
             if (user.role === 'SuperAdmin' || user.role === 'SubAdmin') {
                 adminMenu = `<li><a class="dropdown-item text-success fw-bold" href="admin.html"><i class="fa-solid fa-gauge-high me-2"></i>ไปที่ระบบหลังบ้าน</a></li><li><hr class="dropdown-divider"></li>`;
             }
 
+            // แปลงสิทธิ์เป็นภาษาไทย
+            const roleTH = roleNamesTH[user.role] || 'ประชาชนทั่วไป';
+            const roleDisplay = `${user.role} (${roleTH})`;
+
             document.getElementById('userMenu').innerHTML = `
                 <div class="dropdown">
-                    <button class="btn btn-light rounded-pill px-4 dropdown-toggle" data-bs-toggle="dropdown">
-                        <i class="fa-solid fa-circle-user text-primary"></i> ${user.fullname}
+                    <button class="btn btn-light rounded-pill px-3 py-1 dropdown-toggle d-flex align-items-center gap-2 border-0 shadow-sm" data-bs-toggle="dropdown">
+                        <i class="fa-solid fa-circle-user text-primary fs-4"></i> 
+                        <div class="text-start lh-1 pe-1">
+                            <div class="fw-bold text-dark" style="font-size: 0.9rem;">${user.fullname}</div>
+                            <small class="text-muted" style="font-size: 0.7rem;">${roleDisplay}</small>
+                        </div>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow">
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
                         ${adminMenu}
-                        <li><a class="dropdown-item" href="#"><i class="fa-regular fa-id-card me-2"></i>โปรไฟล์ส่วนตัว</a></li>
+                        <li><a class="dropdown-item py-2" href="javascript:void(0)" onclick="openMyProfileModal()"><i class="fa-regular fa-id-card me-2 text-primary"></i> โปรไฟล์ส่วนตัว</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-danger" href="#" onclick="mockLogout()"><i class="fa-solid fa-right-from-bracket me-2"></i>ออกจากระบบ</a></li>
+                        <li><a class="dropdown-item py-2 text-danger" href="javascript:void(0)" onclick="mockLogout()"><i class="fa-solid fa-right-from-bracket me-2"></i> ออกจากระบบ</a></li>
                     </ul>
                 </div>
             `;
@@ -2236,10 +2299,87 @@
         // ==================== ออกจากระบบ ====================
         function mockLogout() { 
             isLoggedIn = false; 
-            localStorage.removeItem('userData'); // 🟢 ลบความจำทิ้ง
-            document.getElementById('formLogin').reset(); 
-            document.getElementById('userMenu').innerHTML = `<button class="btn btn-outline-light rounded-pill px-4" onclick="showAuthModal()"><i class="fa-solid fa-user me-2"></i> เข้าสู่ระบบ</button>`; 
+            localStorage.removeItem('userData'); 
+            
+            // รีเซ็ตปุ่มกลับเป็นปุ่มเข้าสู่ระบบ
+            const userMenu = document.getElementById('userMenu');
+            if(userMenu) {
+                userMenu.innerHTML = `<button class="btn btn-outline-light rounded-pill px-4" onclick="showAuthModal()"><i class="fa-solid fa-user me-2"></i> เข้าสู่ระบบ</button>`; 
+            }
+            
             Swal.fire({ icon: 'info', title: 'ออกจากระบบแล้ว', showConfirmButton: false, timer: 1000 });
+        }
+
+        // 🟢 ฟังก์ชันเปิดหน้าโปรไฟล์ส่วนตัว
+        function openMyProfileModal() {
+            const user = JSON.parse(localStorage.getItem('userData'));
+            if(!user) return;
+
+            document.getElementById('myProf_ID').value = user.id;
+            document.getElementById('myProf_Fname').value = user.fname || '';
+            document.getElementById('myProf_Lname').value = user.lname || '';
+            document.getElementById('myProf_Email').value = user.email || '';
+            document.getElementById('myProf_Phone').value = user.phone || '';
+            document.getElementById('myProf_Org').value = user.org || '';
+            document.getElementById('myProf_Password').value = ''; // ปล่อยว่างไว้
+
+            new bootstrap.Modal(document.getElementById('myProfileModal')).show();
+        }
+
+        // 🟢 ฟังก์ชันบันทึกข้อมูลโปรไฟล์ส่วนตัว
+        function saveMyProfile(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSaveMyProfile');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังบันทึก...';
+            btn.disabled = true;
+
+            const updateData = {
+                UserID: document.getElementById('myProf_ID').value,
+                FirstName: document.getElementById('myProf_Fname').value.trim(),
+                LastName: document.getElementById('myProf_Lname').value.trim(),
+                Email: document.getElementById('myProf_Email').value.trim(),
+                Phone: document.getElementById('myProf_Phone').value.trim(),
+                Organization: document.getElementById('myProf_Org').value.trim()
+            };
+
+            // เช็คว่ามีการเปลี่ยนรหัสผ่านไหม
+            const newPass = document.getElementById('myProf_Password').value.trim();
+            if (newPass !== '') updateData.Password = newPass;
+
+            const formData = new URLSearchParams({ 
+                action: 'saveRecord', 
+                sheetName: 'Users', 
+                idColumn: 'UserID', 
+                recordJSON: JSON.stringify(updateData) 
+            });
+
+            fetch(API_URL, { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(res => {
+                if (res.status === 'success') {
+                    // อัปเดตข้อมูลใน LocalStorage ทันที
+                    let user = JSON.parse(localStorage.getItem('userData'));
+                    user.fname = updateData.FirstName;
+                    user.lname = updateData.LastName;
+                    user.fullname = updateData.FirstName + ' ' + updateData.LastName;
+                    user.email = updateData.Email;
+                    user.phone = updateData.Phone;
+                    user.org = updateData.Organization;
+                    localStorage.setItem('userData', JSON.stringify(user));
+
+                    updateUserMenuUI(user); // อัปเดตปุ่มมุมขวาบนให้ชื่อเปลี่ยนตาม
+                    
+                    bootstrap.Modal.getInstance(document.getElementById('myProfileModal')).hide();
+                    Swal.fire({ icon: 'success', title: 'อัปเดตข้อมูลสำเร็จ', showConfirmButton: false, timer: 1500 });
+                } else {
+                    Swal.fire('ผิดพลาด', res.message, 'error');
+                }
+            })
+            .catch(err => Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'error'))
+            .finally(() => {
+                btn.innerHTML = 'บันทึกการเปลี่ยนแปลง';
+                btn.disabled = false;
+            });
         }
 
         // ================= เริ่มต้นฟังก์ชัน วาดเมนูด้านบน และ แผนผังเว็บ (Sitemap) =================
