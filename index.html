@@ -509,8 +509,9 @@
             <div class="modal-content auth-modal-content mt-5">
                 <div class="modal-body">
                     <div class="auth-logo-wrapper">
-                        <!-- โลโก้ใหม่: เป็นไอคอนเครื่องบิน แทนรูปที่เสีย -->
-                        <i class="fa-solid fa-plane-departure fa-3x" style="color: var(--primary-blue);"></i>
+                        <!-- 🟢 เพิ่ม img ซ่อนไว้ เพื่อรอรับโลโก้จากระบบ -->
+                        <img id="authLoginLogoImg" src="" style="width: 80%; height: 80%; object-fit: contain; display: none;" alt="Logo">
+                        <i id="authLoginLogoIcon" class="fa-solid fa-plane-departure fa-3x" style="color: var(--primary-blue);"></i>
                     </div>
                     <h3 class="auth-title">เข้าสู่ระบบกลาง</h3>
                     <p class="auth-subtitle">ท่าอากาศยานบุรีรัมย์</p>
@@ -540,7 +541,9 @@
             <div class="modal-content auth-modal-content mt-5">
                 <div class="modal-body">
                     <div class="auth-logo-wrapper">
-                        <i class="fa-solid fa-plane-departure fa-3x" style="color: var(--primary-blue);"></i>
+                        <!-- 🟢 เพิ่ม img ซ่อนไว้ เพื่อรอรับโลโก้จากระบบ -->
+                        <img id="authRegLogoImg" src="" style="width: 80%; height: 80%; object-fit: contain; display: none;" alt="Logo">
+                        <i id="authRegLogoIcon" class="fa-solid fa-plane-departure fa-3x" style="color: var(--primary-blue);"></i>
                     </div>
                     <h3 class="auth-title">สมัครสมาชิกใหม่</h3>
                     <p class="auth-subtitle">เพื่อเข้าใช้งานระบบบริการอิเล็กทรอนิกส์ ท่าอากาศยานบุรีรัมย์</p>
@@ -1060,6 +1063,18 @@
                         if (document.getElementById('footerLogoAirport')) {
                             document.getElementById('footerLogoAirport').src = airportLogoUrl;
                             document.getElementById('footerLogoAirport').style.display = 'inline-block';
+                        }
+                        // 🟢 จัดการโลโก้ในหน้าต่าง Login
+                        if (document.getElementById('authLoginLogoImg')) {
+                            document.getElementById('authLoginLogoImg').src = airportLogoUrl;
+                            document.getElementById('authLoginLogoImg').style.display = 'block';
+                            document.getElementById('authLoginLogoIcon').style.display = 'none';
+                        }
+                        // 🟢 จัดการโลโก้ในหน้าต่าง Register
+                        if (document.getElementById('authRegLogoImg')) {
+                            document.getElementById('authRegLogoImg').src = airportLogoUrl;
+                            document.getElementById('authRegLogoImg').style.display = 'block';
+                            document.getElementById('authRegLogoIcon').style.display = 'none';
                         }
                     }
 
