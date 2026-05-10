@@ -84,6 +84,22 @@
         .footer-contact-logo:hover {
             transform: scale(1.1); /* ขยายขึ้นเล็กน้อยเมื่อเอาเมาส์ชี้ */
         }
+
+        /* ================= สไตล์ Footer ================= */
+        .footer-top-logos { background: white; padding: 15px 0; border-bottom: 2px solid var(--primary-blue); }
+        .footer-main { background-color: var(--primary-blue); color: white; padding: 40px 0 30px; font-size: 0.9rem; }
+        .airline-box { background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; margin-bottom: 10px; display: flex; align-items: center; }
+        .stats-box { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; }
+        .footer-sitemap { background-color: #E9ECEF; padding: 40px 0 20px; font-size: 0.85rem; }
+        .footer-sitemap h6 { font-weight: 600; color: var(--primary-blue); margin-bottom: 15px; border-bottom: 2px solid #ccc; padding-bottom: 10px; display: inline-block;}
+        .footer-sitemap ul { list-style: none; padding: 0; }
+        .footer-sitemap ul li { margin-bottom: 8px; }
+        .footer-sitemap a { color: #555; text-decoration: none; transition: 0.2s; }
+        .footer-sitemap a:hover { color: var(--primary-blue); padding-left: 5px;}
+        
+        /* ปุ่มเปิดปิด แผนผังเว็บ */
+        .toggle-sitemap-btn { background-color: #E9ECEF; border: none; width: 100%; padding: 10px; color: var(--primary-blue); font-weight: 600; border-top: 1px solid #ccc; transition: 0.2s; cursor: pointer; text-align: center; }
+        .toggle-sitemap-btn:hover { background-color: #d1d5da; }
     </style>
 </head>
 <body>
@@ -255,12 +271,12 @@
             </div>
         </div>
 
-        <button class="toggle-sitemap-btn w-100 p-2 border-0 fw-bold" style="background-color: #E9ECEF; color: var(--primary-blue);" type="button" data-bs-toggle="collapse" data-bs-target="#footerSitemapContainer">
+        <button class="toggle-sitemap-btn" type="button" data-bs-toggle="collapse" data-bs-target="#footerSitemapContainer">
             <i class="fa-solid fa-chevron-down me-2"></i> แสดง/ซ่อน แผนผังเว็บไซต์
         </button>
 
         <div class="collapse" id="footerSitemapContainer">
-            <div class="footer-sitemap" style="background-color: #E9ECEF; padding: 40px 0 20px;">
+            <div class="footer-sitemap">
                 <div class="container">
                     <div class="row text-center text-md-start" id="dynamicFooterSitemap">
                         <!-- แผนผังเว็บ (Sitemap) จะถูกดึงมาจากระบบหลังบ้านและจัดกลุ่มที่นี่ -->
@@ -269,7 +285,8 @@
             </div>
         </div>
         <div class="text-center py-3 border-top border-secondary small text-white" style="background-color: #213C6D;">
-            © 2569 สงวนลิขสิทธิ์ตามพระราชบัญญัติลิขสิทธิ์โดย <span id="footerSystemName2">ท่าอากาศยานบุรีรัมย์</span>
+            © 2569 สงวนลิขสิทธิ์ตามพระราชบัญญัติลิขสิทธิ์โดย <span id="footerSystemName2">ท่าอากาศยานบุรีรัมย์</span><br>
+            รองรับการแสดงผลบนเบราว์เซอร์ Chrome, Firefox, Safari, Edge
         </div>
     </footer>
 
