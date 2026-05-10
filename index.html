@@ -2144,9 +2144,14 @@
 
             // 🟢 เพิ่มส่วนนี้: ถ้ามีคำสั่งมาจากหน้าย่อยให้เปิด Popup ทันที
             const urlParams = new URLSearchParams(window.location.search);
+            
             if(urlParams.get('action') === 'showContact') {
-                setTimeout(() => showContactModal(), 1000); // รอให้ระบบโหลดเสร็จ 1 วิ แล้วเด้ง Popup
-                // ลบ url params ออกให้ดูสะอาด
+                setTimeout(() => showContactModal(), 800); 
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+            // 🟢 เพิ่มอันนี้เข้าไป: สำหรับสั่งเปิดหน้าต่าง Login
+            else if(urlParams.get('action') === 'login') {
+                setTimeout(() => showAuthModal(), 800); 
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
             // 🟢 เรียกฟังก์ชันดึงข้อมูลจาก API ทันทีที่เปิดหน้าเว็บ
