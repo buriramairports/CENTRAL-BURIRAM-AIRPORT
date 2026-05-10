@@ -1296,6 +1296,18 @@
             grid.innerHTML = html;
             document.getElementById('eventSelectedDate').innerText = '-';
             document.getElementById('eventDetailsResult').innerHTML = '<div class="text-center text-muted mt-5"><i class="fa-regular fa-hand-pointer fa-3x mb-3 opacity-25"></i><br>โปรดเลือกวันที่จากปฏิทินด้านซ้าย</div>';
+        
+            // 🟢 เพิ่มส่วนนี้: ค้นหากล่องของวันนี้ แล้วจำลองการคลิกอัตโนมัติ
+            setTimeout(() => {
+                const todayBox = grid.querySelector('.is-today');
+                if (todayBox) {
+                    todayBox.click(); // ถ้ามีวันนี้ในเดือนนี้ ให้คลิกเลย
+                } else {
+                    // ถ้าวันนี้ไม่อยู่ในเดือนที่เปิดดูอยู่ ก็ให้เคลียร์ข้อมูลทิ้ง
+                    document.getElementById('eventSelectedDate').innerText = '-';
+                    document.getElementById('eventDetailsResult').innerHTML = '<div class="text-center text-muted mt-5"><i class="fa-regular fa-hand-pointer fa-3x mb-3 opacity-25"></i><br>โปรดเลือกวันที่จากปฏิทินด้านซ้าย</div>';
+                }
+            }, 100);
         }
 
         // ฟังก์ชันเมื่อคลิกวันที่บนปฏิทิน (แสดงข้อมูลฝั่งขวา)
@@ -1903,6 +1915,18 @@
             grid.innerHTML = html;
             document.getElementById('flightSelectedDate').innerText = '-';
             document.getElementById('flightDetailsResult').innerHTML = '<div class="text-center text-muted mt-5"><i class="fa-regular fa-hand-pointer fa-3x mb-3 opacity-25"></i><br>โปรดเลือกวันที่จากปฏิทิน</div>';
+
+            // 🟢 เพิ่มส่วนนี้: ค้นหากล่องของวันนี้ แล้วจำลองการคลิกอัตโนมัติ
+            setTimeout(() => {
+                const todayBox = grid.querySelector('.is-today');
+                if (todayBox) {
+                    todayBox.click(); // ถ้ามีวันนี้ในเดือนนี้ ให้คลิกเลย
+                } else {
+                    // ถ้าวันนี้ไม่อยู่ในเดือนที่เปิดดูอยู่ ก็ให้เคลียร์ข้อมูลทิ้ง
+                    document.getElementById('flightSelectedDate').innerText = '-';
+                    document.getElementById('flightDetailsResult').innerHTML = '<div class="text-center text-muted mt-5"><i class="fa-regular fa-hand-pointer fa-3x mb-3 opacity-25"></i><br>โปรดเลือกวันที่จากปฏิทิน</div>';
+                }
+            }, 100);
         }
         // ================= สิ้นสุดฟังก์ชัน วาดตารางปฏิทินเที่ยวบิน =================
 
