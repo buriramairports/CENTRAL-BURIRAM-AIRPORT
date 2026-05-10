@@ -1065,6 +1065,11 @@
                 btn.disabled = false;
             });
         }
+
+        // 🟢 ฟังก์ชันเมื่อกดปุ่มเข้าสู่ระบบในหน้าย่อย (ให้เด้งไปเปิดที่หน้าหลัก)
+        function showAuthModal() {
+            window.location.href = 'index.html?action=login';
+        }
     </script>
 </body>
 </html>
