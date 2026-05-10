@@ -290,7 +290,7 @@
         </div>
     </div>
 
-    <!-- Modal ติดต่อเรา (เพิ่มใหม่) -->
+    <!-- ================= เริ่มต้น Modal ติดต่อเรา ================= -->
     <div class="modal fade" id="contactModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg">
@@ -325,8 +325,8 @@
             </div>
         </div>
     </div>
-
-    <!-- Modal รวมระบบ E-Services (เพิ่มใหม่) -->
+    
+    <!-- Modal รวมระบบ E-Services -->
     <div class="modal fade" id="allEServicesModal" tabindex="-1">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content border-0 bg-light">
@@ -524,9 +524,11 @@
         }
 
         // 🟢 ฟังก์ชันวาดเมนูด้านบน และ แผนผังเว็บ (Sitemap)
+       // 🟢 ฟังก์ชันวาดเมนูด้านบน และ แผนผังเว็บ (Sitemap)
         function renderSiteMenus(menusData) {
             const activeMenus = menusData.filter(m => m.IsActive === 'TRUE').sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList));
 
+            // --- 1. จัดการเมนูด้านบน (TopNav) ---
             const topNavContainer = document.getElementById('dynamicTopNav');
             if (topNavContainer) {
                 const topMenus = activeMenus.filter(m => m.MenuPosition === 'TopNav');
@@ -537,15 +539,18 @@
                     let targetAttr = m.Target === '_blank' ? 'target="_blank"' : '';
                     let isActive = currentPath === m.URL ? 'active' : '';
                     let finalUrl = m.URL;
-
-                    // ดักจับลิงก์ # ให้กลับไปหน้าหลัก
-                    if (finalUrl.startsWith('#')) finalUrl = 'index.html' + finalUrl;
+                    
+                    // 🟢 ปล่อยให้ลิงก์ javascript ทำงานในหน้านี้เลย ไม่เด้งกลับหน้าหลัก
+                    if (finalUrl.startsWith('#')) {
+                        finalUrl = 'index.html' + finalUrl;
+                    }
 
                     topHtml += `<li class="nav-item"><a class="nav-link ${isActive}" href="${finalUrl}" ${targetAttr}>${m.MenuName}</a></li>`;
                 });
                 topNavContainer.innerHTML = topHtml;
             }
 
+            // --- 2. จัดการแผนผังด้านล่าง (Footer Sitemap) ---
             const footerContainer = document.getElementById('dynamicFooterSitemap');
             if (footerContainer) {
                 const footerMenus = activeMenus.filter(m => m.MenuPosition === 'Footer');
@@ -556,7 +561,6 @@
                     groupedMenus[gName].push(m);
                 });
 
-                // ซ่อนข้อตกลงและนโยบายด้วย d-none
                 let footerHtml = `<div class="d-none col-md-12 mb-4 text-center border-bottom border-secondary pb-3"><a href="#" class="text-muted small mx-2 fw-bold"><i class="fa-solid fa-file-contract"></i> เงื่อนไขการให้บริการเว็บไซต์</a><a href="javascript:void(0)" class="text-muted small mx-2 fw-bold"><i class="fa-solid fa-shield-halved"></i> นโยบายคุ้มครองข้อมูลส่วนบุคคล</a><a href="#" class="text-muted small mx-2 fw-bold"><i class="fa-solid fa-lock"></i> นโยบายความปลอดภัย</a></div>`;
                 
                 for (const [groupName, links] of Object.entries(groupedMenus)) {
@@ -564,7 +568,12 @@
                     links.forEach(link => {
                         let targetAttr = link.Target === '_blank' ? 'target="_blank"' : '';
                         let finalUrl = link.URL;
-                        if (finalUrl.startsWith('#')) finalUrl = 'index.html' + finalUrl;
+                        
+                        // 🟢 ปล่อยให้ลิงก์ javascript ทำงานในหน้านี้เลย
+                        if (finalUrl.startsWith('#')) {
+                            finalUrl = 'index.html' + finalUrl;
+                        }
+
                         footerHtml += `<li><a href="${finalUrl}" ${targetAttr} class="text-decoration-none text-muted">${link.MenuName}</a></li>`;
                     });
                     footerHtml += `</ul></div>`;
@@ -574,7 +583,9 @@
         }
 
         // 🟢 ฟังก์ชันสำหรับเปิด Modal ย่อยที่ฝังอยู่ในเมนู
-        function showContactModal() { new bootstrap.Modal(document.getElementById('contactModal')).show(); }
+        function showContactModal() { 
+            new bootstrap.Modal(document.getElementById('contactModal')).show(); 
+        }
         
         function showAllEServicesModal() {
             Swal.fire({title: 'กำลังโหลด...', didOpen: () => Swal.showLoading()});
