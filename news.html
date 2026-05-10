@@ -54,7 +54,7 @@
         .news-title { font-weight: bold; color: #1e293b; font-size: 1.05rem; line-height: 1.4; margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .news-meta { margin-top: auto; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: #64748b; border-top: 1px dashed #e2e8f0; padding-top: 10px; }
 
-        /* ================= สไตล์ Modal อ่านข่าว (เหมือน index) ================= */
+        /* ================= สไตล์ Modal อ่านข่าว ================= */
         .news-read-cover { width: 100%; max-height: 400px; object-fit: cover; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .news-read-title { font-weight: 700; color: var(--primary-blue); line-height: 1.4; margin-bottom: 15px; }
         .news-read-meta { display: flex; flex-wrap: wrap; gap: 15px; color: #64748b; font-size: 0.9rem; padding-bottom: 15px; border-bottom: 2px dashed #e2e8f0; margin-bottom: 20px; }
@@ -72,18 +72,10 @@
         .sidebar-scrollable::-webkit-scrollbar-track { background: transparent; }
         .sidebar-scrollable::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .sidebar-scrollable::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
         /* ================= โลโก้หน่วยงานใน Footer ================= */
-        .footer-contact-logo {
-            height: 65px; /* กำหนดความสูงให้เท่ากันหมด */
-            width: auto;
-            max-width: 80px; /* ป้องกันโลโก้บางอันกว้างเกินไป */
-            object-fit: contain;
-            transition: transform 0.3s ease;
-            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3)); /* ใส่เงาบางๆ ให้โลโก้ลอยเด่นขึ้นจากพื้นหลังสีน้ำเงิน */
-        }
-        .footer-contact-logo:hover {
-            transform: scale(1.1); /* ขยายขึ้นเล็กน้อยเมื่อเอาเมาส์ชี้ */
-        }
+        .footer-contact-logo { height: 65px; width: auto; max-width: 80px; object-fit: contain; transition: transform 0.3s ease; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3)); }
+        .footer-contact-logo:hover { transform: scale(1.1); }
 
         /* ================= สไตล์ Footer ================= */
         .footer-top-logos { background: white; padding: 15px 0; border-bottom: 2px solid var(--primary-blue); }
@@ -96,10 +88,13 @@
         .footer-sitemap ul li { margin-bottom: 8px; }
         .footer-sitemap a { color: #555; text-decoration: none; transition: 0.2s; }
         .footer-sitemap a:hover { color: var(--primary-blue); padding-left: 5px;}
-        
-        /* ปุ่มเปิดปิด แผนผังเว็บ */
         .toggle-sitemap-btn { background-color: #E9ECEF; border: none; width: 100%; padding: 10px; color: var(--primary-blue); font-weight: 600; border-top: 1px solid #ccc; transition: 0.2s; cursor: pointer; text-align: center; }
         .toggle-sitemap-btn:hover { background-color: #d1d5da; }
+
+        /* ================= สไตล์ E-Service Modal ================= */
+        .e-service-card { border-top: 4px solid var(--primary-blue); cursor: pointer; transition: 0.3s; text-decoration: none; }
+        .e-service-card:hover { background-color: var(--primary-blue); transform: translateY(-5px); }
+        .e-service-card:hover h6, .e-service-card:hover i { color: white !important; }
     </style>
 </head>
 <body>
@@ -109,7 +104,7 @@
         <div class="loader-text">กำลังโหลดข่าวสาร...</div>
     </div>
 
-    <!-- แถบเมนูด้านบน (เหมือนหน้าแรก) -->
+    <!-- แถบเมนูด้านบน -->
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
         <div class="container">
             <a class="navbar-brand fw-bold d-flex align-items-center" href="index.html">
@@ -148,33 +143,22 @@
         <div class="row g-4">
             
            <!-- ฝั่งซ้าย: Sidebar หมวดหมู่ข่าว -->
-            <!-- 🟢 1. ย้าย sticky มาไว้ที่ตัวคอลัมน์ และใส่ align-self-start เพื่อให้มันเลื่อนตามหน้าจอได้สมบูรณ์ -->
             <div class="col-lg-3 align-self-start" style="position: sticky; top: 10px; z-index: 10;">
-                
-                <!-- 🟢 2. กล่องเมนู กำหนดความสูงสูงสุด (max-height) เพื่อไม่ให้ล้นจอ -->
                 <div class="sidebar-card" style="max-height: calc(100vh - 130px); display: flex; flex-direction: column;">
-                    
-                    <!-- ส่วนหัวข้อ (ล็อคไว้ไม่ให้เลื่อน) -->
                     <div class="sidebar-header flex-shrink-0">
                         <i class="fa-solid fa-filter me-2"></i> หมวดหมู่ข่าวสาร
                     </div>
-                    
-                    <!-- ส่วนรายการหมวดหมู่ (มี Scrollbar ฝั่งซ้ายโผล่มาเมื่อข้อมูลล้น) -->
                     <div class="flex-grow-1 sidebar-scrollable" style="overflow-y: auto;">
                         <div class="cat-item fw-bold" id="cat-all" onclick="selectCategory('all')">
                             <i class="fa-solid fa-border-all"></i> แสดงทุกหมวดหมู่
                         </div>
-                        <!-- หมวดหมู่แยกตามกลุ่มงาน จะถูกวาดโดย JS -->
                         <div id="sidebar-categories"></div>
                     </div>
-
                 </div>
             </div>
 
             <!-- ฝั่งขวา: รายการข่าวสาร -->
-            <!-- 🟢 เพิ่ม style="padding-top: 10px;" เพื่อดันเนื้อหาให้ตรงกับกล่องซ้ายมือ (ปรับตัวเลขได้ตามต้องการ) -->
             <div class="col-lg-9">
-                
                 <!-- เครื่องมือค้นหาและจัดเรียง -->
                 <div class="card border-0 shadow-sm mb-4 bg-white">
                     <div class="card-body">
@@ -200,23 +184,17 @@
                 <h4 class="fw-bold mb-3" style="color: var(--primary-blue);" id="currentCategoryTitle">ข่าวสารทั้งหมด</h4>
 
                 <!-- ผลลัพธ์การ์ดข่าว (Grid) -->
-                <div class="row g-4 mb-4" id="newsGridContainer">
-                    <!-- จะถูกแทนที่ด้วย JS -->
-                </div>
+                <div class="row g-4 mb-4" id="newsGridContainer"></div>
 
                 <!-- Pagination (แบ่งหน้า) -->
-                <nav>
-                    <ul class="pagination justify-content-center" id="newsPagination">
-                        <!-- จะถูกสร้างโดย JS -->
-                    </ul>
-                </nav>
+                <nav><ul class="pagination justify-content-center" id="newsPagination"></ul></nav>
 
             </div>
 
         </div>
     </div>
 
-    <!-- FOOTER -->
+    <!-- FOOTER แบบเต็ม -->
     <footer class="mt-5">
         <div class="footer-top-logos text-center bg-white" style="border-bottom: 2px solid var(--primary-blue);">
             <div class="container d-flex justify-content-center align-items-center flex-wrap py-3" style="gap: 20px;">
@@ -227,7 +205,7 @@
             </div>
         </div>
 
-        <div class="footer-main" style="background-color: var(--primary-blue); color: white; padding: 40px 0 30px; font-size: 0.9rem;">
+        <div class="footer-main">
             <div class="container">
                 <div class="row align-items-start g-4">
                     <div class="col-lg-4 border-end border-secondary pe-4">
@@ -244,7 +222,6 @@
                         </div>
                     </div>
                     
-                    <!-- สถิติผู้เข้าชมเว็บไซต์ -->
                     <div class="col-lg-4 ps-4">
                         <h5 class="fw-bold mb-3"><i class="fa-solid fa-chart-line me-2"></i> สถิติผู้เข้าชมเว็บไซต์</h5>
                         <div class="stats-box" style="background-color: #0d2847; border: 1px solid rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);">
@@ -271,7 +248,7 @@
             </div>
         </div>
 
-        <button class="toggle-sitemap-btn" type="button" data-bs-toggle="collapse" data-bs-target="#footerSitemapContainer">
+        <button class="toggle-sitemap-btn w-100 p-2 border-0 fw-bold" style="background-color: #E9ECEF; color: var(--primary-blue);" type="button" data-bs-toggle="collapse" data-bs-target="#footerSitemapContainer">
             <i class="fa-solid fa-chevron-down me-2"></i> แสดง/ซ่อน แผนผังเว็บไซต์
         </button>
 
@@ -285,11 +262,11 @@
             </div>
         </div>
         <div class="text-center py-3 border-top border-secondary small text-white" style="background-color: #213C6D;">
-            © 2569 สงวนลิขสิทธิ์ตามพระราชบัญญัติลิขสิทธิ์โดย <span id="footerSystemName2">ท่าอากาศยานบุรีรัมย์</span><br>
-            รองรับการแสดงผลบนเบราว์เซอร์ Chrome, Firefox, Safari, Edge
+            © 2569 สงวนลิขสิทธิ์ตามพระราชบัญญัติลิขสิทธิ์โดย <span id="footerSystemName2">ท่าอากาศยานบุรีรัมย์</span>
         </div>
     </footer>
 
+    <!-- ================= เริ่มต้น Modal ทั้งหมด ================= -->
     <!-- Modal สถิติผู้เข้าชมเว็บย้อนหลัง -->
     <div class="modal fade" id="webStatsModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
@@ -313,7 +290,58 @@
         </div>
     </div>
 
-    <!-- ================= เริ่มต้น Modal อ่านข่าวสาร ================= -->
+    <!-- Modal ติดต่อเรา (เพิ่มใหม่) -->
+    <div class="modal fade" id="contactModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header text-white" style="background-color: var(--primary-blue);">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-address-book me-2"></i> ติดต่อเรา (Contact Us)</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="text-center mb-4 mt-2">
+                        <img id="modalContactLogoImg" src="" style="height: 80px; display: none; margin-bottom: 15px;">
+                        <i id="modalContactLogoIcon" class="fa-solid fa-building-flag fa-4x text-secondary mb-3"></i>
+                        <h4 class="fw-bold text-primary" id="modalContactName">ท่าอากาศยานบุรีรัมย์</h4>
+                    </div>
+                    <ul class="list-group list-group-flush mb-2">
+                        <li class="list-group-item d-flex align-items-center py-3 px-0">
+                            <div class="bg-light rounded-circle d-flex justify-content-center align-items-center me-3" style="width:45px; height:45px;"><i class="fa-solid fa-location-dot text-danger fs-5"></i></div>
+                            <div><div class="small text-muted fw-bold mb-1">ที่อยู่ทำการ</div><div id="modalContactAddress" class="text-dark">กำลังโหลด...</div></div>
+                        </li>
+                        <li class="list-group-item d-flex align-items-center py-3 px-0">
+                            <div class="bg-light rounded-circle d-flex justify-content-center align-items-center me-3" style="width:45px; height:45px;"><i class="fa-solid fa-phone text-success fs-5"></i></div>
+                            <div><div class="small text-muted fw-bold mb-1">เบอร์โทรศัพท์</div><div id="modalContactPhone" class="text-dark fw-bold fs-6">กำลังโหลด...</div></div>
+                        </li>
+                        <li class="list-group-item d-flex align-items-center py-3 px-0">
+                            <div class="bg-light rounded-circle d-flex justify-content-center align-items-center me-3" style="width:45px; height:45px;"><i class="fa-solid fa-envelope text-warning fs-5"></i></div>
+                            <div><div class="small text-muted fw-bold mb-1">อีเมล (E-mail)</div><div id="modalContactEmail" class="text-dark">กำลังโหลด...</div></div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">ปิดหน้าต่าง</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal รวมระบบ E-Services (เพิ่มใหม่) -->
+    <div class="modal fade" id="allEServicesModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 bg-light">
+                <div class="modal-header text-white" style="background-color: var(--primary-blue);">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-laptop-code"></i> ระบบบริการอิเล็กทรอนิกส์ทั้งหมด</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-3" id="all-eservice-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal อ่านข่าวสาร -->
     <div class="modal fade" id="newsReadModal" tabindex="-1">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content border-0 shadow-lg">
@@ -346,9 +374,8 @@
             </div>
         </div>
     </div>
-    <!-- ================= สิ้นสุด Modal อ่านข่าวสาร ================= -->
 
-    <!-- ================= เริ่มต้น Modal สไลด์โชว์รูปภาพแกลลอรี ================= -->
+    <!-- Modal สไลด์โชว์รูปภาพแกลลอรี -->
     <div class="modal fade" id="newsGalleryViewerModal" tabindex="-1">
         <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content border-0 bg-dark">
@@ -367,14 +394,14 @@
             </div>
         </div>
     </div>
-    <!-- ================= สิ้นสุด Modal สไลด์โชว์รูปภาพแกลลอรี ================= -->
+    <!-- ================= สิ้นสุด Modal ทั้งหมด ================= -->
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        // 🔴 อย่าลืมวางลิงก์ API ของคุณตรงนี้ (ลิงก์เดิมที่ใช้ใน index.html)
+        // 🔴 วางลิงก์ API ของคุณ
         const API_URL = "https://script.google.com/macros/s/AKfycbx_KEKYYe2Mu1vTORWF8GZnV4zuOku_4IqEvwhZ4q556ggVOHjy-blHKvY_IuYOfGHqaA/exec";
 
         let allNewsData = [];
@@ -382,10 +409,10 @@
         let filteredNews = [];
         
         let currentPage = 1;
-        const itemsPerPage = 9; // แสดงหน้าละ 9 ข่าว
+        const itemsPerPage = 9; 
         let activeCategoryId = 'all';
 
-        // 1. ฟังก์ชันตัวช่วยต่างๆ (เหมือนหน้าแรก)
+        // 1. ฟังก์ชันตัวช่วยต่างๆ 
         function convertDriveImageLink(url) {
             if(!url) return "";
             let id = ""; const regexView = /\/file\/d\/([a-zA-Z0-9_-]+)/; const regexId = /id=([a-zA-Z0-9_-]+)/; 
@@ -416,7 +443,7 @@
             if (passedCatId) activeCategoryId = passedCatId;
 
             try {
-                // 🟢 โหลดข้อมูลพร้อมกัน 6 ตาราง เพื่อวาดทั้งหน้าเว็บ
+                // โหลดข้อมูล 6 ตาราง
                 const [catsRes, newsRes, settingsRes, menusRes, airlinesRes, statsRes] = await Promise.all([
                     fetch(API_URL + '?action=getTableData&sheetName=NewsCategories').then(r => r.json()),
                     fetch(API_URL + '?action=getTableData&sheetName=News').then(r => r.json()),
@@ -429,7 +456,7 @@
                 if(settingsRes.status === 'success') applySettingsToUI(settingsRes.data);
                 if(menusRes.status === 'success') renderSiteMenus(menusRes.data);
                 if(airlinesRes.status === 'success') renderFooterAirlines(airlinesRes.data);
-                if(statsRes.status === 'success') processWebStats(statsRes); // 🟢 ส่งข้อมูลไปประมวลผลสถิติ
+                if(statsRes.status === 'success') processWebStats(statsRes); 
 
                 if (catsRes.status === 'success') allCategoriesData = catsRes.data.filter(c => c.IsActive === 'TRUE');
                 if (newsRes.status === 'success') allNewsData = newsRes.data.filter(n => isReadyToPublish(n));
@@ -446,165 +473,285 @@
             }
         });
 
-       
-
-        // 🟢 ฟังก์ชันวาดเมนูด้านบน (ดึงจากฐานข้อมูลเหมือนหน้าหลัก)
-        function renderTopMenu(menusData) {
-            const topNavContainer = document.getElementById('dynamicTopNav');
-            if (!topNavContainer) return;
+        // 🟢 ฟังก์ชันวาด UI พื้นฐาน (รวมข้อมูล Modal ติดต่อเรา)
+        function applySettingsToUI(settings) {
+            if(settings.SystemName) document.title = "ข่าวสาร | " + settings.SystemName;
             
-            const activeMenus = menusData.filter(m => m.IsActive === 'TRUE').sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList));
-            const topMenus = activeMenus.filter(m => m.MenuPosition === 'TopNav');
+            let displayAirportName = settings.AirportName || settings.SystemName || 'ท่าอากาศยานบุรีรัมย์';
             
-            let topHtml = '';
-            let currentPath = window.location.pathname.split('/').pop() || 'index.html';
+            // อัปเดตชื่อหน่วยงาน
+            if (document.getElementById('navAirportName')) document.getElementById('navAirportName').innerText = displayAirportName;
+            if (document.getElementById('footerSystemName')) document.getElementById('footerSystemName').innerText = displayAirportName;
+            if (document.getElementById('footerSystemName2')) document.getElementById('footerSystemName2').innerText = displayAirportName;
+            if (document.getElementById('modalContactName')) document.getElementById('modalContactName').innerText = displayAirportName;
 
-            topMenus.forEach(m => {
-                let targetAttr = m.Target === '_blank' ? 'target="_blank"' : '';
-                let isActive = currentPath === m.URL ? 'active' : '';
+            // อัปเดตข้อมูลการติดต่อ
+            let address = settings.ContactAddress || '-';
+            let phone = settings.ContactPhone || '-';
+            let email = settings.ContactEmail || '-';
+
+            if (document.getElementById('footerAddress')) document.getElementById('footerAddress').innerText = address;
+            if (document.getElementById('footerPhone')) document.getElementById('footerPhone').innerText = phone;
+            if (document.getElementById('footerEmail')) document.getElementById('footerEmail').innerText = email;
+            
+            if (document.getElementById('modalContactAddress')) document.getElementById('modalContactAddress').innerText = address;
+            if (document.getElementById('modalContactPhone')) document.getElementById('modalContactPhone').innerText = phone;
+            if (document.getElementById('modalContactEmail')) document.getElementById('modalContactEmail').innerText = email;
+
+            // จัดการโลโก้หลัก
+            if (settings.LogoAirport) {
+                let airportLogoUrl = convertDriveImageLink(settings.LogoAirport);
+                if (document.getElementById('dynamic-favicon')) document.getElementById('dynamic-favicon').href = airportLogoUrl;
                 
-                let finalUrl = m.URL;
-
-                // 🟢 ดักจับลิงก์แปลกๆ ให้ออกไปทำงานหน้าหลัก
-                if (finalUrl.startsWith('javascript:showContactModal()')) {
-                    // ถ้าเป็นหน้าย่อย ให้ส่งกลับไปหน้าหลักพร้อมคำสั่ง (Parameter)
-                    finalUrl = 'index.html?action=showContact'; 
-                } else if (finalUrl.startsWith('#')) {
-                    finalUrl = 'index.html' + finalUrl;
+                if (document.getElementById('navLogoImg')) {
+                    document.getElementById('navLogoImg').src = airportLogoUrl; document.getElementById('navLogoImg').style.display = 'block'; 
+                    if(document.getElementById('navLogoIcon')) document.getElementById('navLogoIcon').style.display = 'none';
                 }
+                if (document.getElementById('footerLogoAirport')) {
+                    document.getElementById('footerLogoAirport').src = airportLogoUrl; document.getElementById('footerLogoAirport').style.display = 'inline-block';
+                }
+                if (document.getElementById('modalContactLogoImg')) {
+                    document.getElementById('modalContactLogoImg').src = airportLogoUrl; document.getElementById('modalContactLogoImg').style.display = 'inline-block';
+                    if(document.getElementById('modalContactLogoIcon')) document.getElementById('modalContactLogoIcon').style.display = 'none';
+                }
+            }
 
-                topHtml += `<li class="nav-item"><a class="nav-link ${isActive}" href="${finalUrl}" ${targetAttr}>${m.MenuName}</a></li>`;
-            });
-            topNavContainer.innerHTML = topHtml;
+            // โลโก้ Footer
+            let hasFooterLogos = false;
+            if (settings.LogoMinistry) { document.getElementById('footerLogoMinistry').src = convertDriveImageLink(settings.LogoMinistry); document.getElementById('footerLogoMinistry').style.display = 'inline-block'; hasFooterLogos = true; }
+            if (settings.LogoDept) { document.getElementById('footerLogoDept').src = convertDriveImageLink(settings.LogoDept); document.getElementById('footerLogoDept').style.display = 'inline-block'; hasFooterLogos = true; }
+            if ((hasFooterLogos || settings.LogoAirport) && document.getElementById('footerLogoFallback')) document.getElementById('footerLogoFallback').style.display = 'none';
         }
 
-        // 3. วาดเมนูหมวดหมู่ฝั่งซ้าย (แยกตาม Department)
+        // 🟢 ฟังก์ชันวาดเมนูด้านบน และ แผนผังเว็บ (Sitemap)
+        function renderSiteMenus(menusData) {
+            const activeMenus = menusData.filter(m => m.IsActive === 'TRUE').sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList));
+
+            const topNavContainer = document.getElementById('dynamicTopNav');
+            if (topNavContainer) {
+                const topMenus = activeMenus.filter(m => m.MenuPosition === 'TopNav');
+                let topHtml = '';
+                let currentPath = window.location.pathname.split('/').pop() || 'index.html';
+
+                topMenus.forEach(m => {
+                    let targetAttr = m.Target === '_blank' ? 'target="_blank"' : '';
+                    let isActive = currentPath === m.URL ? 'active' : '';
+                    let finalUrl = m.URL;
+
+                    // ดักจับลิงก์ # ให้กลับไปหน้าหลัก
+                    if (finalUrl.startsWith('#')) finalUrl = 'index.html' + finalUrl;
+
+                    topHtml += `<li class="nav-item"><a class="nav-link ${isActive}" href="${finalUrl}" ${targetAttr}>${m.MenuName}</a></li>`;
+                });
+                topNavContainer.innerHTML = topHtml;
+            }
+
+            const footerContainer = document.getElementById('dynamicFooterSitemap');
+            if (footerContainer) {
+                const footerMenus = activeMenus.filter(m => m.MenuPosition === 'Footer');
+                let groupedMenus = {};
+                footerMenus.forEach(m => {
+                    let gName = m.GroupName || 'กลุ่มอื่นๆ';
+                    if (!groupedMenus[gName]) groupedMenus[gName] = [];
+                    groupedMenus[gName].push(m);
+                });
+
+                // ซ่อนข้อตกลงและนโยบายด้วย d-none
+                let footerHtml = `<div class="d-none col-md-12 mb-4 text-center border-bottom border-secondary pb-3"><a href="#" class="text-muted small mx-2 fw-bold"><i class="fa-solid fa-file-contract"></i> เงื่อนไขการให้บริการเว็บไซต์</a><a href="javascript:void(0)" class="text-muted small mx-2 fw-bold"><i class="fa-solid fa-shield-halved"></i> นโยบายคุ้มครองข้อมูลส่วนบุคคล</a><a href="#" class="text-muted small mx-2 fw-bold"><i class="fa-solid fa-lock"></i> นโยบายความปลอดภัย</a></div>`;
+                
+                for (const [groupName, links] of Object.entries(groupedMenus)) {
+                    footerHtml += `<div class="col-md-3 col-6 mb-4"><h6 class="fw-bold" style="color:var(--primary-blue); border-bottom: 2px solid #ccc; display: inline-block; padding-bottom: 5px; margin-bottom: 10px;">${groupName}</h6><ul class="list-unstyled">`;
+                    links.forEach(link => {
+                        let targetAttr = link.Target === '_blank' ? 'target="_blank"' : '';
+                        let finalUrl = link.URL;
+                        if (finalUrl.startsWith('#')) finalUrl = 'index.html' + finalUrl;
+                        footerHtml += `<li><a href="${finalUrl}" ${targetAttr} class="text-decoration-none text-muted">${link.MenuName}</a></li>`;
+                    });
+                    footerHtml += `</ul></div>`;
+                }
+                footerContainer.innerHTML = footerHtml;
+            }
+        }
+
+        // 🟢 ฟังก์ชันสำหรับเปิด Modal ย่อยที่ฝังอยู่ในเมนู
+        function showContactModal() { new bootstrap.Modal(document.getElementById('contactModal')).show(); }
+        
+        function showAllEServicesModal() {
+            Swal.fire({title: 'กำลังโหลด...', didOpen: () => Swal.showLoading()});
+            fetch(API_URL + '?action=getTableData&sheetName=EServices')
+            .then(r => r.json())
+            .then(res => {
+                Swal.close();
+                if(res.status === 'success') {
+                    const activeServices = res.data.filter(s => s.IsActive === 'TRUE').sort((a, b) => parseInt(a.OrderList) - parseInt(b.OrderList));
+                    const modalCont = document.getElementById('all-eservice-container');
+                    modalCont.innerHTML = '';
+                    activeServices.forEach(s => {
+                        modalCont.innerHTML += `
+                        <div class="col-md-3 col-6">
+                            <a href="${s.URL}" target="${s.Target}" class="card h-100 p-3 shadow-sm e-service-card text-decoration-none">
+                                <div class="card-body text-center p-0 pt-2 text-dark">
+                                    <i class="fa-solid ${s.IconClass} mb-2" style="font-size: 30px; color: var(--secondary-blue);"></i>
+                                    <h6 class="fw-bold mb-1" style="font-size: 0.95rem;">${s.ServiceName}</h6>
+                                </div>
+                            </a>
+                        </div>`;
+                    });
+                    new bootstrap.Modal(document.getElementById('allEServicesModal')).show();
+                }
+            });
+        }
+
+        // 🟢 ฟังก์ชันวาดสายการบิน
+        function renderFooterAirlines(data) {
+            const container = document.getElementById('footer-airlines-container'); container.innerHTML = '';
+            const activeAirlines = data.filter(a => a.IsActive === 'TRUE').sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList));
+            if(activeAirlines.length === 0) { container.innerHTML = '<div class="text-white-50 small">ยังไม่มีข้อมูลสายการบิน</div>'; return; }
+            activeAirlines.forEach(item => {
+                let imgHtml = item.IconURL ? `<img src="${convertDriveImageLink(item.IconURL)}" style="height: 30px; width: 30px; object-fit: contain; background: white; border-radius: 5px; padding: 2px; margin-right: 15px;">` : `<i class="fa-solid fa-plane text-muted fa-2x me-3 bg-white p-1 rounded"></i>`;
+                container.innerHTML += `<div class="airline-box" style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; margin-bottom: 10px; display: flex; align-items: center; border-left: 4px solid ${item.ThemeColor || '#fff'};">${imgHtml}<div><div class="fw-bold">${item.AirlineName}</div><div class="small text-light"><i class="fa-solid fa-phone fa-sm"></i> ${item.PhoneNumber || '-'}</div></div></div>`;
+            });
+        }
+
+        // 🟢 สถิติผู้เข้าชม
+        let allWebStatsData = [];
+        function processWebStats(res) {
+            const d = new Date();
+            const currentYear = (d.getFullYear() + 543).toString(); 
+            const currentMonth = ("0" + (d.getMonth() + 1)).slice(-2); 
+            const monthNames = { "01": "มกราคม", "02": "กุมภาพันธ์", "03": "มีนาคม", "04": "เมษายน", "05": "พฤษภาคม", "06": "มิถุนายน", "07": "กรกฎาคม", "08": "สิงหาคม", "09": "กันยายน", "10": "ตุลาคม", "11": "พฤศจิกายน", "12": "ธันวาคม" };
+            
+            document.getElementById('statCurrentMonthLabel').innerHTML = `<i class="fa-regular fa-calendar me-2"></i> ${monthNames[currentMonth]} ${currentYear}`;
+            
+            allWebStatsData = res.data;
+            let totalAll = parseInt(res.total) || 0;
+            let thisMonthStat = allWebStatsData.find(s => String(s.year) === currentYear && String(s.month).padStart(2, '0') === currentMonth);
+            let thisMonthCount = thisMonthStat ? parseInt(thisMonthStat.count) : 0;
+            
+            if (!sessionStorage.getItem('visited_this_session')) {
+                sessionStorage.setItem('visited_this_session', 'true');
+                fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'recordVisit', year: currentYear, month: currentMonth }) });
+                thisMonthCount++; totalAll++;
+            }
+            
+            document.getElementById('statTotalAll').innerText = totalAll.toLocaleString('th-TH');
+            document.getElementById('statTotalMonth').innerText = thisMonthCount.toLocaleString('th-TH');
+            
+            let uniqueYears = [...new Set(allWebStatsData.map(item => String(item.year)))].sort().reverse();
+            if(uniqueYears.length === 0) uniqueYears = [currentYear];
+            document.getElementById('filterWebStatYear').innerHTML = uniqueYears.map(y => `<option value="${y}">ประจำปี พ.ศ. ${y}</option>`).join('');
+
+            const hour = d.getHours(); let baseOnline = 5;
+            if (hour >= 8 && hour <= 16) baseOnline = 25; else if (hour > 16 && hour <= 22) baseOnline = 15; 
+            let onlineNow = baseOnline + Math.floor(Math.random() * 15);
+            if (onlineNow > thisMonthCount) {
+                let maxRealisticOnline = Math.ceil(thisMonthCount * (Math.random() * 0.15 + 0.05)); 
+                onlineNow = Math.max(1, maxRealisticOnline); 
+            }
+            document.getElementById('statOnlineNow').innerText = onlineNow;
+        }
+
+        function showWebStatsModal() { renderWebStatsTable(); new bootstrap.Modal(document.getElementById('webStatsModal')).show(); }
+        function renderWebStatsTable() {
+            const tbody = document.getElementById('tbody-webstats'); tbody.innerHTML = '';
+            const selectedYear = document.getElementById('filterWebStatYear').value;
+            const monthNames = { "01": "มกราคม", "02": "กุมภาพันธ์", "03": "มีนาคม", "04": "เมษายน", "05": "พฤษภาคม", "06": "มิถุนายน", "07": "กรกฎาคม", "08": "สิงหาคม", "09": "กันยายน", "10": "ตุลาคม", "11": "พฤศจิกายน", "12": "ธันวาคม" };
+            
+            let filteredData = allWebStatsData.filter(item => String(item.year) === String(selectedYear));
+            if (filteredData.length === 0) { tbody.innerHTML = '<tr><td colspan="2" class="py-4 text-muted">ไม่มีข้อมูลของปีนี้</td></tr>'; return; }
+
+            let yearlyTotal = 0; 
+            filteredData.sort((a,b) => parseInt(b.month) - parseInt(a.month)).forEach(item => {
+                let formattedMonth = ("0" + item.month).slice(-2);
+                let viewCount = parseInt(item.count) || 0; yearlyTotal += viewCount; 
+                tbody.innerHTML += `<tr><td class="fw-bold">${monthNames[formattedMonth] || item.month}</td><td class="fs-6 fw-bold text-success">${viewCount.toLocaleString('th-TH')}</td></tr>`;
+            });
+            tbody.innerHTML += `<tr class="table-light"><td class="fw-bold text-primary text-end pe-3">รวมทั้งปี พ.ศ. ${selectedYear}</td><td class="fs-5 fw-bold text-primary">${yearlyTotal.toLocaleString('th-TH')}</td></tr>`;
+        }
+
+        // ================= ระบบจัดการ ข่าวสาร (Sidebar และ Card) =================
         function renderSidebar() {
             const container = document.getElementById('sidebar-categories');
             container.innerHTML = '';
             
-            // จัดกลุ่มหมวดหมู่ตามกลุ่มงาน
             let grouped = {};
             allCategoriesData.forEach(cat => {
                 let depts = cat.Department ? cat.Department.split(', ') : ['ไม่ระบุกลุ่มงาน'];
-                depts.forEach(d => {
-                    if (!grouped[d]) grouped[d] = [];
-                    grouped[d].push(cat);
-                });
+                depts.forEach(d => { if (!grouped[d]) grouped[d] = []; grouped[d].push(cat); });
             });
 
-            // สร้าง HTML
             for (const dept in grouped) {
-                // ข้าม "ทั้งหมด" ถ้าไม่อยากให้มันซ้ำซ้อน 
                 if (dept === 'ทั้งหมด') continue;
-
                 let html = `<div class="dept-title"><i class="fa-solid fa-sitemap me-2 text-muted"></i>${dept}</div><ul class="cat-list">`;
-                
-                // เรียงหมวดหมู่ตาม OrderList
                 grouped[dept].sort((a,b) => a.OrderList - b.OrderList).forEach(cat => {
                     let isActive = (cat.CategoryID === activeCategoryId) ? 'active' : '';
                     let icon = cat.LayoutType === 'text-list' ? 'fa-list' : 'fa-image';
-                    
-                    html += `
-                        <li class="cat-item ${isActive}" id="cat-${cat.CategoryID}" onclick="selectCategory('${cat.CategoryID}')">
-                            <i class="fa-solid ${icon}"></i> ${cat.CategoryName}
-                        </li>
-                    `;
+                    html += `<li class="cat-item ${isActive}" id="cat-${cat.CategoryID}" onclick="selectCategory('${cat.CategoryID}')"><i class="fa-solid ${icon}"></i> ${cat.CategoryName}</li>`;
                 });
                 html += `</ul>`;
                 container.innerHTML += html;
             }
-
-            // ไฮไลต์ปุ่ม "ทั้งหมด" ถ้าไม่ได้เลือกหมวดใดเลย
             if (activeCategoryId === 'all') document.getElementById('cat-all').classList.add('active');
         }
 
-        // 4. เมื่อคลิกเลือกหมวดหมู่ฝั่งซ้าย
         function selectCategory(catId, shouldScroll = true) {
             activeCategoryId = catId;
-            
-            // อัปเดตไฮไลต์ในเมนู
             document.querySelectorAll('.cat-item').forEach(el => el.classList.remove('active'));
             const activeEls = document.querySelectorAll(`#cat-${catId}`);
             if (activeEls.length > 0) activeEls.forEach(el => el.classList.add('active'));
             else document.getElementById('cat-all').classList.add('active');
 
-            // อัปเดตหัวข้อเรื่อง
             const titleEl = document.getElementById('currentCategoryTitle');
-            if (catId === 'all') {
-                titleEl.innerText = "ข่าวสารทั้งหมด";
-            } else {
-                let catObj = allCategoriesData.find(c => c.CategoryID === catId);
-                titleEl.innerText = catObj ? catObj.CategoryName : "ข่าวสาร";
-            }
+            if (catId === 'all') { titleEl.innerText = "ข่าวสารทั้งหมด"; } 
+            else { let catObj = allCategoriesData.find(c => c.CategoryID === catId); titleEl.innerText = catObj ? catObj.CategoryName : "ข่าวสาร"; }
 
-            // ล้างช่องค้นหา และสั่งกรองข้อมูล
             document.getElementById('searchNewsText').value = '';
             document.getElementById('sortNews').value = 'newest';
             applyFilters();
 
-            // เลื่อนจอขึ้นไปบนสุด (เฉพาะเวลากดด้วยมือ)
             if (shouldScroll) window.scrollTo({ top: document.getElementById('currentCategoryTitle').offsetTop - 160, behavior: 'smooth' });
         }
 
-        // 5. ระบบกรองและจัดเรียงข่าว (ค้นหา + หมวดหมู่ + เรียง)
         function applyFilters() {
             const searchText = document.getElementById('searchNewsText').value.toLowerCase();
             const sortVal = document.getElementById('sortNews').value;
 
-            // กรอง
             filteredNews = allNewsData.filter(news => {
-                // กรองหมวดหมู่
                 if (activeCategoryId !== 'all' && news.CategoryID !== activeCategoryId) return false;
-                
-                // กรองคำค้นหา (ค้นจากหัวข้อข่าว)
                 if (searchText !== "" && !news.Title.toLowerCase().includes(searchText)) return false;
-
                 return true;
             });
 
-            // จัดเรียง
             filteredNews.sort((a, b) => {
                 let dateA = parseDateTimeString(a.PublishDate || a.CreateDate).getTime();
                 let dateB = parseDateTimeString(b.PublishDate || b.CreateDate).getTime();
                 let viewA = parseInt(a.ViewCount) || 0;
                 let viewB = parseInt(b.ViewCount) || 0;
 
-                if (sortVal === 'newest') return dateB - dateA; // ใหม่ไปเก่า
-                if (sortVal === 'oldest') return dateA - dateB; // เก่าไปใหม่
-                if (sortVal === 'popular') return viewB - viewA; // วิวเยอะไปน้อย
+                if (sortVal === 'newest') return dateB - dateA; 
+                if (sortVal === 'oldest') return dateA - dateB; 
+                if (sortVal === 'popular') return viewB - viewA; 
             });
 
-            // รีเซ็ตกลับไปหน้า 1 เสมอเมื่อมีการกรองใหม่
-            currentPage = 1;
-            renderNewsGrid();
+            currentPage = 1; renderNewsGrid();
         }
 
-        // 6. เปลี่ยนหน้า
         function changePage(page) {
-            currentPage = page;
-            renderNewsGrid();
+            currentPage = page; renderNewsGrid();
             window.scrollTo({ top: document.getElementById('currentCategoryTitle').offsetTop - 160, behavior: 'smooth' });
         }
 
-        // 7. วาดการ์ดข่าวสาร และปุ่มแบ่งหน้า
         function renderNewsGrid() {
-            const container = document.getElementById('newsGridContainer');
-            container.innerHTML = '';
-
-            const totalItems = filteredNews.length;
-            const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+            const container = document.getElementById('newsGridContainer'); container.innerHTML = '';
+            const totalItems = filteredNews.length; const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
             
             if (currentPage > totalPages) currentPage = totalPages;
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
-
+            const startIndex = (currentPage - 1) * itemsPerPage; const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
             let pageData = filteredNews.slice(startIndex, endIndex);
 
             if (pageData.length === 0) {
                 container.innerHTML = `<div class="col-12 text-center text-muted py-5"><i class="fa-solid fa-box-open fa-4x mb-3 opacity-25"></i><h4>ไม่พบข่าวสารในหมวดหมู่นี้</h4></div>`;
-                renderPagination(0);
-                return;
+                renderPagination(0); return;
             }
 
             pageData.forEach(news => {
@@ -630,7 +777,6 @@
                                 <h5 class="news-title">${news.Title}</h5>
                                 <div class="news-meta">
                                     <span><i class="fa-regular fa-calendar me-1"></i> ${dateText}</span>
-                                    <!-- 🟢 เพิ่ม ID ให้มัน เพื่อรอรับตัวเลขใหม่จาก JavaScript -->
                                     <span id="viewcount-${news.NewsID}"><i class="fa-solid fa-eye me-1"></i> ${views} ครั้ง</span>
                                 </div>
                             </div>
@@ -638,14 +784,11 @@
                     </div>
                 `;
             });
-
             renderPagination(totalPages);
         }
 
-        // วาดปุ่ม Pagination
         function renderPagination(totalPages) {
-            const ul = document.getElementById('newsPagination');
-            ul.innerHTML = '';
+            const ul = document.getElementById('newsPagination'); ul.innerHTML = '';
             if(totalPages <= 1) return; 
 
             let prevClass = currentPage === 1 ? 'disabled' : '';
@@ -660,39 +803,25 @@
             ul.innerHTML += `<li class="page-item ${nextClass}"><a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage + 1})">ถัดไป</a></li>`;
         }
 
-       // ================= เริ่มต้นฟังก์ชัน เปิดอ่านข่าวสาร และ นับยอดวิว =================
         function openNewsDetail(newsId) {
             const news = allNewsData.find(n => n.NewsID === newsId);
-            if (!news) {
-                Swal.fire('ข้อผิดพลาด', 'ไม่พบข้อมูลข่าวสารนี้', 'error');
-                return;
-            }
+            if (!news) { Swal.fire('ข้อผิดพลาด', 'ไม่พบข้อมูลข่าวสารนี้', 'error'); return; }
 
-            // 🟢 1. ระบบบันทึกยอดวิว (เช็คว่าเคยดูข่าวนี้นี้หรือยังใน Session นี้)
             const sessionKey = 'viewed_news_' + newsId;
             if (!sessionStorage.getItem(sessionKey)) {
-                sessionStorage.setItem(sessionKey, 'true'); // จำไว้ว่าดูแล้ว
-                news.ViewCount = (parseInt(news.ViewCount) || 0) + 1; // บวกยอดวิวในหน้าจอทันที
+                sessionStorage.setItem(sessionKey, 'true'); 
+                news.ViewCount = (parseInt(news.ViewCount) || 0) + 1; 
                 
-                // 🟢 อัปเดตตัวเลขบนการ์ดข่าวด้านนอกทันที (ถ้าเปิดหาเจอ)
                 const cardViewSpan = document.getElementById('viewcount-' + newsId);
-                if (cardViewSpan) {
-                    cardViewSpan.innerHTML = `<i class="fa-solid fa-eye me-1"></i> ${news.ViewCount} ครั้ง`;
-                }
+                if (cardViewSpan) cardViewSpan.innerHTML = `<i class="fa-solid fa-eye me-1"></i> ${news.ViewCount} ครั้ง`;
                 
-                // ยิง API ไปบวกเลขใน Google Sheets แบบเงียบๆ
-                fetch(API_URL, { 
-                    method: 'POST', 
-                    body: new URLSearchParams({ action: 'incrementNewsView', newsId: newsId }) 
-                }).catch(e => console.log("View count error", e));
+                fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'incrementNewsView', newsId: newsId }) });
             }
 
-            // 2. นำข้อมูล Text ลง Modal
             document.getElementById('readNewsTitle').innerText = news.Title;
             let dateText = news.PublishDate ? news.PublishDate : news.CreateDate;
             document.getElementById('readNewsDate').innerHTML = `<i class="fa-regular fa-calendar text-primary me-1"></i> ${dateText}`;
             document.getElementById('readNewsAuthor').innerHTML = `<i class="fa-solid fa-pen-nib text-danger me-1"></i> ${news.Author || 'แอดมิน'}`;
-            // โชว์ยอดวิวที่อัปเดตแล้ว
             document.getElementById('readNewsViews').innerHTML = `<i class="fa-solid fa-eye text-success me-1"></i> ${news.ViewCount || 0} ครั้ง`;
             
             let catObj = null;
@@ -700,15 +829,12 @@
             document.getElementById('readNewsCategory').innerText = catObj ? catObj.CategoryName : 'ข่าวสาร';
             document.getElementById('readNewsCategory').style.backgroundColor = (catObj && catObj.ThemeColor !== 'transparent') ? catObj.ThemeColor : 'var(--primary-blue)';
 
-            // 3. นำเนื้อหาลง Modal
             document.getElementById('readNewsContent').innerHTML = news.Content || '<p class="text-muted text-center">ไม่มีเนื้อหา</p>';
 
-            // 4. จัดการรูปหน้าปก
             const coverEl = document.getElementById('readNewsCover');
             if (news.CoverImageURL) { coverEl.src = convertDriveImageLink(news.CoverImageURL); coverEl.style.display = 'block'; } 
             else { coverEl.style.display = 'none'; }
 
-            // 5. จัดการไฟล์แนบ
             const filesContainer = document.getElementById('readNewsFilesContainer');
             const filesDiv = document.getElementById('readNewsFiles');
             if (news.FilesURL) {
@@ -717,7 +843,6 @@
                 filesDiv.innerHTML = filesHtml; filesContainer.style.display = 'block';
             } else { filesContainer.style.display = 'none'; }
 
-            // 6. จัดการแกลลอรีรูปภาพ
             const galleryContainer = document.getElementById('readNewsGalleryContainer');
             const galleryDiv = document.getElementById('readNewsGallery');
             const carouselIndicators = document.getElementById('newsGalleryCarouselIndicators');
@@ -735,182 +860,15 @@
                 carouselIndicators.innerHTML = indicatorsHtml; carouselInner.innerHTML = slidesHtml;
             } else { galleryContainer.style.display = 'none'; }
 
-            // แสดง Modal อ่านข่าว
             new bootstrap.Modal(document.getElementById('newsReadModal')).show();
         }
-        // ================= สิ้นสุดฟังก์ชัน เปิดอ่านข่าวสาร =================
+
         function openNewsGalleryViewer(startIndex) {
             const myCarousel = document.getElementById('newsGalleryCarousel');
             const carousel = new bootstrap.Carousel(myCarousel, { interval: false, ride: false });
             carousel.to(startIndex);
             new bootstrap.Modal(document.getElementById('newsGalleryViewerModal')).show();
         }
-
-        // ================= เริ่มต้นฟังก์ชัน วาดเมนูด้านบน และ แผนผังเว็บ (Sitemap) =================
-        // 🟢 อัปเดตข้อมูลที่อยู่, โทร, อีเมล ลง Footer ด้วย
-        function applySettingsToUI(settings) {
-            if(settings.SystemName) document.title = "ข่าวสาร | " + settings.SystemName;
-            
-            let displayAirportName = settings.AirportName || settings.SystemName || 'ท่าอากาศยานบุรีรัมย์';
-            if (document.getElementById('navAirportName')) document.getElementById('navAirportName').innerText = displayAirportName;
-            if (document.getElementById('footerSystemName')) document.getElementById('footerSystemName').innerText = displayAirportName;
-            if (document.getElementById('footerSystemName2')) document.getElementById('footerSystemName2').innerText = displayAirportName;
-
-            if (document.getElementById('footerAddress')) document.getElementById('footerAddress').innerText = settings.ContactAddress || '-';
-            if (document.getElementById('footerPhone')) document.getElementById('footerPhone').innerText = settings.ContactPhone || '-';
-            if (document.getElementById('footerEmail')) document.getElementById('footerEmail').innerText = settings.ContactEmail || '-';
-
-            if (settings.LogoAirport) {
-                let airportLogoUrl = convertDriveImageLink(settings.LogoAirport);
-                if (document.getElementById('dynamic-favicon')) document.getElementById('dynamic-favicon').href = airportLogoUrl;
-                
-                if (document.getElementById('navLogoImg')) {
-                    document.getElementById('navLogoImg').src = airportLogoUrl;
-                    document.getElementById('navLogoImg').style.display = 'block';
-                    document.getElementById('navLogoIcon').style.display = 'none';
-                }
-                if (document.getElementById('footerLogoAirport')) {
-                    document.getElementById('footerLogoAirport').src = airportLogoUrl;
-                    document.getElementById('footerLogoAirport').style.display = 'inline-block';
-                }
-            }
-
-            let hasFooterLogos = false;
-            if (settings.LogoMinistry && document.getElementById('footerLogoMinistry')) {
-                document.getElementById('footerLogoMinistry').src = convertDriveImageLink(settings.LogoMinistry);
-                document.getElementById('footerLogoMinistry').style.display = 'inline-block';
-                hasFooterLogos = true;
-            }
-            if (settings.LogoDept && document.getElementById('footerLogoDept')) {
-                document.getElementById('footerLogoDept').src = convertDriveImageLink(settings.LogoDept);
-                document.getElementById('footerLogoDept').style.display = 'inline-block';
-                hasFooterLogos = true;
-            }
-            if ((hasFooterLogos || settings.LogoAirport) && document.getElementById('footerLogoFallback')) {
-                document.getElementById('footerLogoFallback').style.display = 'none';
-            }
-        }
-
-        // 🟢 ฟังก์ชันวาดเมนูด้านบน และ แผนผังเว็บ (Sitemap)
-        function renderSiteMenus(menusData) {
-            const activeMenus = menusData.filter(m => m.IsActive === 'TRUE').sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList));
-
-            // --- 1. จัดการเมนูด้านบน (TopNav) ---
-            const topNavContainer = document.getElementById('dynamicTopNav');
-            if (topNavContainer) {
-                const topMenus = activeMenus.filter(m => m.MenuPosition === 'TopNav');
-                let topHtml = '';
-                let currentPath = window.location.pathname.split('/').pop() || 'index.html';
-
-                topMenus.forEach(m => {
-                    let targetAttr = m.Target === '_blank' ? 'target="_blank"' : '';
-                    let isActive = currentPath === m.URL ? 'active' : '';
-                    let finalUrl = m.URL;
-                    if (finalUrl.startsWith('javascript:showContactModal()')) finalUrl = 'index.html?action=showContact'; 
-                    else if (finalUrl.startsWith('#')) finalUrl = 'index.html' + finalUrl;
-
-                    topHtml += `<li class="nav-item"><a class="nav-link ${isActive}" href="${finalUrl}" ${targetAttr}>${m.MenuName}</a></li>`;
-                });
-                topNavContainer.innerHTML = topHtml;
-            }
-
-            // --- 2. จัดการแผนผังด้านล่าง (Footer Sitemap) ---
-            const footerContainer = document.getElementById('dynamicFooterSitemap');
-            if (footerContainer) {
-                const footerMenus = activeMenus.filter(m => m.MenuPosition === 'Footer');
-                let groupedMenus = {};
-                footerMenus.forEach(m => {
-                    let gName = m.GroupName || 'กลุ่มอื่นๆ';
-                    if (!groupedMenus[gName]) groupedMenus[gName] = [];
-                    groupedMenus[gName].push(m);
-                });
-
-                let footerHtml = `<div class="col-md-12 mb-4 text-center border-bottom border-secondary pb-3"><a href="#" class="text-muted small mx-2 fw-bold"><i class="fa-solid fa-file-contract"></i> เงื่อนไขการให้บริการเว็บไซต์</a><a href="javascript:void(0)" class="text-muted small mx-2 fw-bold"><i class="fa-solid fa-shield-halved"></i> นโยบายคุ้มครองข้อมูลส่วนบุคคล</a><a href="#" class="text-muted small mx-2 fw-bold"><i class="fa-solid fa-lock"></i> นโยบายความปลอดภัย</a></div>`;
-                for (const [groupName, links] of Object.entries(groupedMenus)) {
-                    footerHtml += `<div class="col-md-3 col-6 mb-4"><h6 class="fw-bold" style="color:var(--primary-blue); border-bottom: 2px solid #ccc; display: inline-block; padding-bottom: 5px; margin-bottom: 10px;">${groupName}</h6><ul class="list-unstyled">`;
-                    links.forEach(link => {
-                        let targetAttr = link.Target === '_blank' ? 'target="_blank"' : '';
-                        let finalUrl = link.URL;
-                        if (finalUrl.startsWith('javascript:showContactModal()')) finalUrl = 'index.html?action=showContact'; 
-                        else if (finalUrl.startsWith('#')) finalUrl = 'index.html' + finalUrl;
-                        footerHtml += `<li><a href="${finalUrl}" ${targetAttr} class="text-decoration-none text-muted">${link.MenuName}</a></li>`;
-                    });
-                    footerHtml += `</ul></div>`;
-                }
-                footerContainer.innerHTML = footerHtml;
-            }
-        }
-
-        // 🟢 ฟังก์ชันวาดสายการบินใน Footer
-        function renderFooterAirlines(data) {
-            const container = document.getElementById('footer-airlines-container'); container.innerHTML = '';
-            const activeAirlines = data.filter(a => a.IsActive === 'TRUE').sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList));
-            if(activeAirlines.length === 0) { container.innerHTML = '<div class="text-white-50 small">ยังไม่มีข้อมูลสายการบิน</div>'; return; }
-            activeAirlines.forEach(item => {
-                let imgHtml = item.IconURL ? `<img src="${convertDriveImageLink(item.IconURL)}" style="height: 30px; width: 30px; object-fit: contain; background: white; border-radius: 5px; padding: 2px; margin-right: 15px;">` : `<i class="fa-solid fa-plane text-muted fa-2x me-3 bg-white p-1 rounded"></i>`;
-                container.innerHTML += `<div class="airline-box" style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; margin-bottom: 10px; display: flex; align-items: center; border-left: 4px solid ${item.ThemeColor || '#fff'};">${imgHtml}<div><div class="fw-bold">${item.AirlineName}</div><div class="small text-light"><i class="fa-solid fa-phone fa-sm"></i> ${item.PhoneNumber || '-'}</div></div></div>`;
-            });
-        }
-
-        // 🟢 ระบบสถิติผู้ชมเว็บ (Web Stats)
-        let allWebStatsData = [];
-        function processWebStats(res) {
-            const d = new Date();
-            const currentYear = (d.getFullYear() + 543).toString(); 
-            const currentMonth = ("0" + (d.getMonth() + 1)).slice(-2); 
-            const monthNames = { "01": "มกราคม", "02": "กุมภาพันธ์", "03": "มีนาคม", "04": "เมษายน", "05": "พฤษภาคม", "06": "มิถุนายน", "07": "กรกฎาคม", "08": "สิงหาคม", "09": "กันยายน", "10": "ตุลาคม", "11": "พฤศจิกายน", "12": "ธันวาคม" };
-            
-            document.getElementById('statCurrentMonthLabel').innerHTML = `<i class="fa-regular fa-calendar me-2"></i> ${monthNames[currentMonth]} ${currentYear}`;
-            
-            allWebStatsData = res.data;
-            let totalAll = parseInt(res.total) || 0;
-            let thisMonthStat = allWebStatsData.find(s => String(s.year) === currentYear && String(s.month).padStart(2, '0') === currentMonth);
-            let thisMonthCount = thisMonthStat ? parseInt(thisMonthStat.count) : 0;
-            
-            // เพิ่มยอดตัวเองที่ไม่ได้บันทึกลง Sheet แต่เก็บบน Session หน้าแรกมาแล้ว
-            if (!sessionStorage.getItem('visited_this_session')) {
-                sessionStorage.setItem('visited_this_session', 'true');
-                fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'recordVisit', year: currentYear, month: currentMonth }) });
-                thisMonthCount++; totalAll++;
-            }
-            
-            document.getElementById('statTotalAll').innerText = totalAll.toLocaleString('th-TH');
-            document.getElementById('statTotalMonth').innerText = thisMonthCount.toLocaleString('th-TH');
-            
-            let uniqueYears = [...new Set(allWebStatsData.map(item => String(item.year)))].sort().reverse();
-            if(uniqueYears.length === 0) uniqueYears = [currentYear];
-            document.getElementById('filterWebStatYear').innerHTML = uniqueYears.map(y => `<option value="${y}">ประจำปี พ.ศ. ${y}</option>`).join('');
-
-            // จำลองคนออนไลน์
-            const hour = d.getHours(); let baseOnline = 5;
-            if (hour >= 8 && hour <= 16) baseOnline = 25; else if (hour > 16 && hour <= 22) baseOnline = 15; 
-            let onlineNow = baseOnline + Math.floor(Math.random() * 15);
-            if (onlineNow > thisMonthCount) {
-                let maxRealisticOnline = Math.ceil(thisMonthCount * (Math.random() * 0.15 + 0.05)); 
-                onlineNow = Math.max(1, maxRealisticOnline); 
-            }
-            document.getElementById('statOnlineNow').innerText = onlineNow;
-        }
-
-        // 🟢 เปิด Modal ดูสถิติ
-        function showWebStatsModal() { renderWebStatsTable(); new bootstrap.Modal(document.getElementById('webStatsModal')).show(); }
-        function renderWebStatsTable() {
-            const tbody = document.getElementById('tbody-webstats'); tbody.innerHTML = '';
-            const selectedYear = document.getElementById('filterWebStatYear').value;
-            const monthNames = { "01": "มกราคม", "02": "กุมภาพันธ์", "03": "มีนาคม", "04": "เมษายน", "05": "พฤษภาคม", "06": "มิถุนายน", "07": "กรกฎาคม", "08": "สิงหาคม", "09": "กันยายน", "10": "ตุลาคม", "11": "พฤศจิกายน", "12": "ธันวาคม" };
-            
-            let filteredData = allWebStatsData.filter(item => String(item.year) === String(selectedYear));
-            if (filteredData.length === 0) { tbody.innerHTML = '<tr><td colspan="2" class="py-4 text-muted">ไม่มีข้อมูลของปีนี้</td></tr>'; return; }
-
-            let yearlyTotal = 0; 
-            filteredData.sort((a,b) => parseInt(b.month) - parseInt(a.month)).forEach(item => {
-                let formattedMonth = ("0" + item.month).slice(-2);
-                let viewCount = parseInt(item.count) || 0; yearlyTotal += viewCount; 
-                tbody.innerHTML += `<tr><td class="fw-bold">${monthNames[formattedMonth] || item.month}</td><td class="fs-6 fw-bold text-success">${viewCount.toLocaleString('th-TH')}</td></tr>`;
-            });
-            tbody.innerHTML += `<tr class="table-light"><td class="fw-bold text-primary text-end pe-3">รวมทั้งปี พ.ศ. ${selectedYear}</td><td class="fs-5 fw-bold text-primary">${yearlyTotal.toLocaleString('th-TH')}</td></tr>`;
-        }
-        // ================= สิ้นสุดฟังก์ชัน วาดเมนูด้านบน และ แผนผังเว็บ =================
     </script>
 </body>
 </html>
