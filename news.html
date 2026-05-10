@@ -402,9 +402,13 @@
                 let targetAttr = m.Target === '_blank' ? 'target="_blank"' : '';
                 let isActive = currentPath === m.URL ? 'active' : '';
                 
-                // สำหรับลิงก์ Anchor (#) ให้ตีกลับไปหน้าหลัก (index.html) แทน
                 let finalUrl = m.URL;
-                if (finalUrl.startsWith('#')) {
+
+                // 🟢 ดักจับลิงก์แปลกๆ ให้ออกไปทำงานหน้าหลัก
+                if (finalUrl.startsWith('javascript:showContactModal()')) {
+                    // ถ้าเป็นหน้าย่อย ให้ส่งกลับไปหน้าหลักพร้อมคำสั่ง (Parameter)
+                    finalUrl = 'index.html?action=showContact'; 
+                } else if (finalUrl.startsWith('#')) {
                     finalUrl = 'index.html' + finalUrl;
                 }
 
