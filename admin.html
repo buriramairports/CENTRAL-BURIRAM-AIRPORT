@@ -743,7 +743,21 @@
     <div class="modal fade" id="mediaCatModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0"><div class="modal-header bg-danger text-white"><h5 class="modal-title fw-bold" id="mediaCatModalTitle">เพิ่ม/แก้ไข หมวดหมู่สื่อ</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><form id="formMediaCat" onsubmit="saveMediaCat(event)"><input type="hidden" id="mcat_CategoryID"><input type="hidden" id="mcat_OrderList"><div class="mb-3"><label class="form-label fw-bold">ชื่อหมวดหมู่ <span class="text-danger">*</span></label><input type="text" class="form-control" id="mcat_CategoryName" required></div><div class="row"><div class="col-6 mb-3"><label class="form-label fw-bold">สีของหมวดหมู่</label><input type="color" class="form-control form-control-color w-100" id="mcat_ThemeColor" value="#dc3545"></div><div class="col-6 mb-3 d-flex align-items-center"><div class="form-check form-switch mt-4"><input class="form-check-input" type="checkbox" id="mcat_IsActive" style="transform: scale(1.2);" checked><label class="form-check-label ms-2 fw-bold text-success" for="mcat_IsActive">เปิดใช้งาน</label></div></div></div><button type="submit" class="btn btn-danger w-100 mt-2" id="btnSaveMediaCat">บันทึกข้อมูล</button></form></div></div></div></div>
 
     <!-- Modal: Media -->
-    <div class="modal fade" id="mediaModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content border-0"><div class="modal-header bg-danger text-white"><h5 class="modal-title fw-bold" id="mediaModalTitle">เพิ่ม/แก้ไข สื่อมัลติมีเดีย</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><form id="formMedia" onsubmit="saveMediaRecord(event)"><input type="hidden" id="med_MediaID"><input type="hidden" id="med_OrderList"><input type="hidden" id="med_ExistingCoverURL"><div class="row g-3 mb-3"><div class="col-md-8"><label class="form-label fw-bold">ชื่อวิดีโอ <span class="text-danger">*</span></label><input type="text" class="form-control fw-bold text-primary" id="med_Title" required></div><div class="col-md-4"><label class="form-label fw-bold">หมวดหมู่ <span class="text-danger">*</span></label><select class="form-select" id="med_CategoryID" required></select></div><div class="col-md-12"><label class="form-label fw-bold text-danger"><i class="fa-brands fa-youtube"></i> YouTube URL <span class="text-danger">*</span></label><input type="url" class="form-control bg-light" id="med_VideoURL" placeholder="เช่น https://www.youtube.com/watch?v=..." required><div class="form-text">ก๊อปปี้ลิงก์จาก YouTube มาวางได้เลย ระบบจะดึงวิดีโอไปแสดงเอง</div></div><div class="col-md-12"><label class="form-label fw-bold"><i class="fa-solid fa-image text-warning"></i> อัปโหลดรูปหน้าปก (ตัวเลือกเสริม)</label><input type="file" class="form-control" id="med_UploadCover" accept="image/png, image/jpeg"><div class="form-text" id="med_CoverStatus">ถ้าไม่อัปโหลด ระบบจะพยายามดึงรูปปกจาก YouTube อัตโนมัติ</div></div><div class="col-md-12"><label class="form-label fw-bold">คำอธิบายเพิ่มเติม</label><textarea class="form-control" id="med_Description" rows="2"></textarea></div></div><div class="form-check form-switch mb-3"><input class="form-check-input" type="checkbox" id="med_IsActive" style="transform: scale(1.3);" checked><label class="form-check-label ms-2 fw-bold text-success" for="med_IsActive">เปิดใช้งานวิดีโอนี้</label></div><button type="submit" class="btn btn-danger w-100" id="btnSaveMedia">บันทึกสื่อมัลติมีเดีย</button></form></div></div></div></div>
+    <div class="modal fade" id="mediaModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content border-0"><div class="modal-header bg-danger text-white"><h5 class="modal-title fw-bold" id="mediaModalTitle">เพิ่ม/แก้ไข สื่อมัลติมีเดีย</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><form id="formMedia" onsubmit="saveMediaRecord(event)"><input type="hidden" id="med_MediaID"><input type="hidden" id="med_OrderList"><input type="hidden" id="med_ExistingCoverURL"><div class="row g-3 mb-3"><div class="col-md-8"><label class="form-label fw-bold">ชื่อวิดีโอ <span class="text-danger">*</span></label><input type="text" class="form-control fw-bold text-primary" id="med_Title" required></div><div class="col-md-4"><label class="form-label fw-bold">หมวดหมู่ <span class="text-danger">*</span></label><select class="form-select" id="med_CategoryID" required></select></div><div class="col-md-12"><label class="form-label fw-bold text-danger"><i class="fa-brands fa-youtube"></i> YouTube URL <span class="text-danger">*</span></label><input type="url" class="form-control bg-light" id="med_VideoURL" placeholder="เช่น https://www.youtube.com/watch?v=..." required><div class="form-text">ก๊อปปี้ลิงก์จาก YouTube มาวางได้เลย ระบบจะดึงวิดีโอไปแสดงเอง</div></div><div class="col-md-12"><label class="form-label fw-bold"><i class="fa-solid fa-image text-warning"></i> อัปโหลดรูปหน้าปก (ตัวเลือกเสริม)</label><input type="file" class="form-control" id="med_UploadCover" accept="image/png, image/jpeg"><div class="form-text" id="med_CoverStatus">ถ้าไม่อัปโหลด ระบบจะพยายามดึงรูปปกจาก YouTube อัตโนมัติ</div></div><div class="col-md-12"><label class="form-label fw-bold">คำอธิบายเพิ่มเติม</label><textarea class="form-control" id="med_Description" rows="2"></textarea></div></div>
+    
+    <!-- 🟢 ส่วนตัวเลือกสถานะและการแสดงผลหน้าแรก -->
+    <div class="p-3 bg-light border border-secondary border-opacity-25 rounded mb-3">
+        <div class="form-check form-switch mb-2">
+            <input class="form-check-input" type="checkbox" id="med_ShowOnHome" style="transform: scale(1.2);">
+            <label class="form-check-label ms-2 fw-bold text-primary" for="med_ShowOnHome">ตั้งเป็น "วิดีโอแนะนำหน้าแรก" (แสดงที่ index.html)</label>
+        </div>
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="med_IsActive" style="transform: scale(1.2);" checked>
+            <label class="form-check-label ms-2 fw-bold text-success" for="med_IsActive">เปิดใช้งานวิดีโอนี้</label>
+        </div>
+    </div>
+    
+    <button type="submit" class="btn btn-danger w-100" id="btnSaveMedia">บันทึกสื่อมัลติมีเดีย</button></form></div></div></div></div>
     
     <!-- ========================================================================= -->
     <!--                                 JAVASCRIPT                                  -->
@@ -3074,27 +3088,39 @@
         }
         function saveMediaCatOrder() { saveOrderAPI('MediaCategories', 'CategoryID'); }
 
-        // ================= เริ่มต้น ระบบจัดการ สื่อมัลติมีเดีย (Video) =================
+       // ================= เริ่มต้น ระบบจัดการ สื่อมัลติมีเดีย (Video) =================
         function getYouTubeId(url) {
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
             const match = url.match(regExp);
             return (match && match[2].length === 11) ? match[2] : null;
         }
 
-        function renderMediaTable(data) {
-            const tbody = document.getElementById('tbody-media'); tbody.innerHTML = '';
-            if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4">ไม่มีข้อมูล</td></tr>'; return; }
-
+        // 🟢 เพิ่มฟังก์ชันเติมข้อมูลลง Dropdown
+        function populateMediaCategoryDropdown() {
             const select = document.getElementById('med_CategoryID');
             select.innerHTML = '<option value="">-- เลือกหมวดหมู่ --</option>';
-            allCategoriesData.forEach(cat => { if (cat.IsActive === 'TRUE') select.innerHTML += `<option value="${cat.CategoryID}">${cat.CategoryName}</option>`; });
+            allCategoriesData.forEach(cat => { 
+                if (cat.IsActive === 'TRUE') select.innerHTML += `<option value="${cat.CategoryID}">${cat.CategoryName}</option>`; 
+            });
+        }
+
+        function renderMediaTable(data) {
+            const tbody = document.getElementById('tbody-media'); tbody.innerHTML = '';
+            
+            // เรียกฟังก์ชันยัดข้อมูลลง Dropdown ของฟอร์มทุกครั้งที่ตารางวาดใหม่
+            populateMediaCategoryDropdown(); 
+
+            if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4">ไม่มีข้อมูล</td></tr>'; return; }
 
             data.sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList)).forEach((item, index) => {
                 let badge = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิด</span>' : '<span class="badge bg-secondary">ปิด</span>';
+                
+                // 🟢 เพิ่มป้าย Badge สีน้ำเงิน ถ้าคลิปนี้โชว์ที่หน้าแรก
+                let homeBadge = item.ShowOnHome === 'TRUE' ? '<span class="badge bg-primary ms-1"><i class="fa-solid fa-star text-warning"></i> หน้าแรก</span>' : '';
+                
                 let catObj = allCategoriesData.find(c => c.CategoryID === item.CategoryID);
                 let catName = catObj ? catObj.CategoryName : '-';
                 
-                // ดึงรูปปกจาก YouTube อัตโนมัติถ้าไม่มีการอัปโหลดปก
                 let ytId = getYouTubeId(item.VideoURL);
                 let coverUrl = item.CoverImageURL ? convertDriveImageLink(item.CoverImageURL) : (ytId ? `https://img.youtube.com/vi/${ytId}/mqdefault.jpg` : 'https://via.placeholder.com/150x100?text=No+Video');
                 
@@ -3107,7 +3133,7 @@
                         <td class="fw-bold text-center">${item.OrderList}</td>
                         <td class="text-center position-relative">${imgHtml}<i class="fa-brands fa-youtube position-absolute text-danger fs-3" style="top:50%; left:50%; transform:translate(-50%, -50%); opacity:0.8;"></i></td>
                         <td>
-                            <div class="fw-bold text-dark">${item.Title}</div>
+                            <div class="fw-bold text-dark">${item.Title} ${homeBadge}</div>
                             <a href="${item.VideoURL}" target="_blank" class="small text-danger text-decoration-none"><i class="fa-solid fa-play"></i> เปิดดูคลิป</a>
                         </td>
                         <td><span class="badge bg-light text-dark border">${catName}</span></td>
@@ -3126,9 +3152,22 @@
             document.getElementById('formMedia').reset(); document.getElementById('med_MediaID').value = '';
             document.getElementById('med_ExistingCoverURL').value = ''; document.getElementById('med_CoverStatus').innerText = 'ถ้าไม่อัปโหลด ระบบจะพยายามดึงรูปปกจาก YouTube อัตโนมัติ';
             
+            // ค่าเริ่มต้นปิดการแสดงผลที่หน้าแรก
+            document.getElementById('med_ShowOnHome').checked = false;
+
             if (id) {
                 const i = currentTableData.find(x => x.MediaID === id);
-                document.getElementById('med_MediaID').value = i.MediaID; document.getElementById('med_Title').value = i.Title; document.getElementById('med_VideoURL').value = i.VideoURL; document.getElementById('med_CategoryID').value = i.CategoryID; document.getElementById('med_Description').value = i.Description || ''; document.getElementById('med_OrderList').value = i.OrderList; document.getElementById('med_IsActive').checked = (i.IsActive === 'TRUE');
+                document.getElementById('med_MediaID').value = i.MediaID; 
+                document.getElementById('med_Title').value = i.Title; 
+                document.getElementById('med_VideoURL').value = i.VideoURL; 
+                document.getElementById('med_CategoryID').value = i.CategoryID; 
+                document.getElementById('med_Description').value = i.Description || ''; 
+                document.getElementById('med_OrderList').value = i.OrderList; 
+                document.getElementById('med_IsActive').checked = (i.IsActive === 'TRUE');
+                
+                // 🟢 โหลดค่าเก่าว่าให้แสดงหน้าแรกไหม
+                document.getElementById('med_ShowOnHome').checked = (i.ShowOnHome === 'TRUE');
+
                 document.getElementById('med_ExistingCoverURL').value = i.CoverImageURL || '';
                 if(i.CoverImageURL) document.getElementById('med_CoverStatus').innerHTML = `<a href="${convertDriveImageLink(i.CoverImageURL)}" target="_blank">มีรูปปกเดิมอยู่แล้ว</a> (อัปโหลดใหม่เพื่อแทนที่)`;
             }
@@ -3144,20 +3183,36 @@
                 if (cInp.files.length > 0) { let url = await uploadSingleFile(cInp.files[0], 'image'); if (url) finalCover = url; }
 
                 let ord = document.getElementById('med_OrderList').value || (currentTableData.length + 1);
-                // 🟢 [แก้ไข] บันทึกวันที่สร้างลงฐานข้อมูลเป็น ค.ศ.
                 const formattedDate = Utilities_getNow_AD() + ":" + ("0" + new Date().getSeconds()).slice(-2);
 
                 const rData = { 
-                    MediaID: document.getElementById('med_MediaID').value, Title: document.getElementById('med_Title').value, VideoURL: document.getElementById('med_VideoURL').value, CategoryID: document.getElementById('med_CategoryID').value, CoverImageURL: finalCover, Description: document.getElementById('med_Description').value, OrderList: ord, IsActive: document.getElementById('med_IsActive').checked ? 'TRUE' : 'FALSE',
+                    MediaID: document.getElementById('med_MediaID').value, 
+                    Title: document.getElementById('med_Title').value, 
+                    VideoURL: document.getElementById('med_VideoURL').value, 
+                    CategoryID: document.getElementById('med_CategoryID').value, 
+                    CoverImageURL: finalCover, 
+                    Description: document.getElementById('med_Description').value, 
+                    ShowOnHome: document.getElementById('med_ShowOnHome').checked ? 'TRUE' : 'FALSE', // 🟢 บันทึกสถานะหน้าแรก
+                    OrderList: ord, 
+                    IsActive: document.getElementById('med_IsActive').checked ? 'TRUE' : 'FALSE',
                     CreateDate: document.getElementById('med_MediaID').value === "" ? formattedDate : undefined 
                 };
+
+                // ถ้ามีการสั่งให้โชว์หน้าแรก เราจะยิงไปอัปเดตคลิปอื่นๆ ทั้งตารางให้กลายเป็น 'FALSE' เพื่อให้มีแค่คลิปเดียวที่โชว์
+                if (rData.ShowOnHome === 'TRUE') {
+                    currentTableData.forEach(item => {
+                        if (item.MediaID !== rData.MediaID && item.ShowOnHome === 'TRUE') {
+                            item.ShowOnHome = 'FALSE'; // ยกเลิกคนอื่น
+                            fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'Media', idColumn: 'MediaID', recordJSON: JSON.stringify(item) }) });
+                        }
+                    });
+                }
 
                 fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'Media', idColumn: 'MediaID', recordJSON: JSON.stringify(rData) }) }).then(res=>res.json()).then(res=>{ if (res.status === 'success') { bootstrap.Modal.getInstance(document.getElementById('mediaModal')).hide(); Swal.fire({ icon: 'success', showConfirmButton: false, timer: 1500 }); switchView('media', null); } });
             } catch(err) { Swal.fire('ผิดพลาด', 'บันทึกไม่สำเร็จ', 'error'); } finally { btn.innerHTML = 'บันทึกสื่อมัลติมีเดีย'; btn.disabled = false; }
         }
         function saveMediaOrder() { saveOrderAPI('Media', 'MediaID'); }
-
-        // ================ สิ้นสุด จัดการ media ======================
+        // ================= สิ้นสุด ระบบจัดการ สื่อมัลติมีเดีย =================
     </script>
 </body>
 </html>
