@@ -62,11 +62,21 @@
         .attachment-item { display: inline-flex; align-items: center; background: white; border: 1px solid #cbd5e1; padding: 8px 15px; border-radius: 20px; color: #475569; text-decoration: none; font-size: 0.9rem; margin: 5px 5px 5px 0; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.05);}
         .attachment-item:hover { background: #ef4444; color: white; border-color: #ef4444; }
 
-        /* ================= Footer ================= */
+       /* ================= Footer ================= */
         .footer-top-logos { background: white; padding: 15px 0; border-bottom: 2px solid var(--primary-blue); }
         .footer-main { background-color: var(--primary-blue); color: white; padding: 40px 0 30px; font-size: 0.9rem; }
         .footer-contact-logo { height: 65px; width: auto; max-width: 80px; object-fit: contain; transition: transform 0.3s ease; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3)); }
         .footer-contact-logo:hover { transform: scale(1.1); }
+        .airline-box { background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; margin-bottom: 10px; display: flex; align-items: center; }
+        .stats-box { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; }
+        .footer-sitemap { background-color: #E9ECEF; padding: 40px 0 20px; font-size: 0.85rem; }
+        .footer-sitemap h6 { font-weight: 600; color: var(--primary-blue); margin-bottom: 15px; border-bottom: 2px solid #ccc; padding-bottom: 10px; display: inline-block;}
+        .footer-sitemap ul { list-style: none; padding: 0; }
+        .footer-sitemap ul li { margin-bottom: 8px; }
+        .footer-sitemap a { color: #555; text-decoration: none; transition: 0.2s; }
+        .footer-sitemap a:hover { color: var(--primary-blue); padding-left: 5px;}
+        .toggle-sitemap-btn { background-color: #E9ECEF; border: none; width: 100%; padding: 10px; color: var(--primary-blue); font-weight: 600; border-top: 1px solid #ccc; transition: 0.2s; cursor: pointer; text-align: center; }
+        .toggle-sitemap-btn:hover { background-color: #d1d5da; }
     </style>
 </head>
 <body>
@@ -76,7 +86,7 @@
         <div class="loader-text">กำลังโหลดข้อมูล...</div>
     </div>
 
-    <!-- แถบเมนูด้านบน -->
+   <!-- แถบเมนูด้านบน -->
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
         <div class="container">
             <a class="navbar-brand fw-bold d-flex align-items-center" href="index.html">
@@ -88,10 +98,8 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link" href="index.html">หน้าหลัก</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="#">เกี่ยวกับหน่วยงาน</a></li>
-                    <li class="nav-item"><a class="nav-link" target="_blank" href="news.html">ข่าวสารและประชาสัมพันธ์</a></li>
+                <ul class="navbar-nav me-auto" id="dynamicTopNav">
+                    <!-- เมนูด้านบนจะถูกดึงมาจากระบบหลังบ้านและวาดตรงนี้ -->
                 </ul>
             </div>
         </div>
@@ -144,20 +152,98 @@
         </div>
     </div>
 
-    <!-- FOOTER (แบบย่อ มีแค่โลโก้และชื่อ) -->
+    <!-- FOOTER แบบเต็ม -->
     <footer class="mt-5">
-        <div class="footer-top-logos text-center overflow-hidden">
-            <div class="container d-flex justify-content-center align-items-center flex-wrap" style="gap: 20px;">
-                <img id="footerLogoMinistry" src="" style="display: none; height: 50px;">
-                <img id="footerLogoDept" src="" style="display: none; height: 50px;">
-                <img id="footerLogoAirport" src="" style="display: none; height: 50px;">
-                <span id="footerLogoFallback" class="text-muted small">กำลังโหลดสัญลักษณ์หน่วยงาน...</span>
+        <div class="footer-top-logos text-center bg-white" style="border-bottom: 2px solid var(--primary-blue);">
+            <div class="container d-flex justify-content-center align-items-center flex-wrap py-3" style="gap: 20px;">
+                <img id="footerLogoMinistry" src="" class="footer-contact-logo" style="display: none;" alt="โลโก้กระทรวง">
+                <img id="footerLogoDept" src="" class="footer-contact-logo" style="display: none;" alt="โลโก้กรม">
+                <img id="footerLogoAirport" src="" class="footer-contact-logo" style="display: none;" alt="โลโก้สนามบิน">
+                <span id="footerLogoFallback" class="text-white-50 small">กำลังโหลดสัญลักษณ์หน่วยงาน...</span>
+            </div>
+        </div>
+
+        <div class="footer-main">
+            <div class="container">
+                <div class="row align-items-start g-4">
+                    <div class="col-lg-4 border-end border-secondary pe-4">
+                        <h5 class="fw-bold mb-3"><i class="fa-solid fa-building me-2"></i> <span id="footerSystemName">ท่าอากาศยานบุรีรัมย์</span></h5>
+                        <p class="mb-2"><i class="fa-solid fa-location-dot me-2 text-white-50"></i> <span id="footerAddress">-</span></p>
+                        <p class="mb-2"><i class="fa-solid fa-phone me-2 text-white-50"></i> <span id="footerPhone">-</span></p>
+                        <p class="mb-0"><i class="fa-solid fa-envelope me-2 text-white-50"></i> <span id="footerEmail">-</span></p>
+                    </div>
+                    
+                    <div class="col-lg-4 border-end border-secondary px-4">
+                        <h5 class="fw-bold mb-3 text-warning"><i class="fa-solid fa-plane-circle-check me-2"></i> สายการบินที่ให้บริการ</h5>
+                        <div id="footer-airlines-container">
+                            <span class="text-white-50 small">กำลังโหลดข้อมูล...</span>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4 ps-4">
+                        <h5 class="fw-bold mb-3"><i class="fa-solid fa-chart-line me-2"></i> สถิติผู้เข้าชมเว็บไซต์</h5>
+                        <div class="stats-box" style="background-color: #0d2847; border: 1px solid rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);">
+                            <div class="d-flex justify-content-between align-items-center border-bottom border-secondary border-opacity-25 pb-2 mb-2">
+                                <span class="fw-bold"><i class="fa-solid fa-users me-2"></i> ผู้เข้าชมทั้งหมด</span>
+                                <span class="fw-bold text-warning fs-5" id="statTotalAll">-</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center border-bottom border-secondary border-opacity-25 pb-2 mb-2">
+                                <span class="fw-bold" id="statCurrentMonthLabel"><i class="fa-regular fa-calendar me-2"></i> เดือนปัจจุบัน</span>
+                                <span class="fw-bold text-white fs-5" id="statTotalMonth">-</span>
+                            </div>
+                            <div class="border-0 pb-0 mt-2 d-flex justify-content-between align-items-center">
+                                <span class="text-success fw-bold"><i class="fa-solid fa-circle text-success fa-xs me-2 blink"></i> ออนไลน์ขณะนี้</span>
+                                <span class="badge rounded-pill px-3 py-1" style="background-color: #198754; font-size: 0.9rem;" id="statOnlineNow">1</span>
+                            </div>
+                        </div>
+                        <div class="text-end mt-3">
+                            <button class="btn btn-outline-light rounded-pill px-3 py-1 border-secondary" style="font-size: 0.85rem;" onclick="showWebStatsModal()">
+                                ดูข้อมูลย้อนหลัง <i class="fa-solid fa-clock-rotate-left ms-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="toggle-sitemap-btn w-100 p-2 border-0 fw-bold" style="background-color: #E9ECEF; color: var(--primary-blue);" type="button" data-bs-toggle="collapse" data-bs-target="#footerSitemapContainer">
+            <i class="fa-solid fa-chevron-down me-2"></i> แสดง/ซ่อน แผนผังเว็บไซต์
+        </button>
+
+        <div class="collapse" id="footerSitemapContainer">
+            <div class="footer-sitemap">
+                <div class="container">
+                    <div class="row text-center text-md-start" id="dynamicFooterSitemap">
+                        <!-- แผนผังเว็บ (Sitemap) จะถูกดึงมาจากระบบหลังบ้านและจัดกลุ่มที่นี่ -->
+                    </div>
+                </div>
             </div>
         </div>
         <div class="text-center py-3 border-top border-secondary small text-white" style="background-color: #213C6D;">
             © 2569 สงวนลิขสิทธิ์ตามพระราชบัญญัติลิขสิทธิ์โดย <span id="footerSystemName2">ท่าอากาศยานบุรีรัมย์</span>
         </div>
     </footer>
+
+    <!-- Modal สถิติผู้เข้าชมเว็บย้อนหลัง -->
+    <div class="modal fade" id="webStatsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0">
+                <div class="modal-header text-white" style="background-color: var(--primary-blue);">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-chart-line me-2"></i> สถิติผู้เข้าชมเว็บย้อนหลัง</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-2 mb-4">
+                        <div class="col-12"><select class="form-select fw-bold text-primary" id="filterWebStatYear" onchange="renderWebStatsTable()"></select></div>
+                    </div>
+                    <table class="table table-bordered table-striped text-center">
+                        <thead class="table-light"><tr><th>เดือน</th><th>จำนวนผู้เข้าชมเว็บ</th></tr></thead>
+                        <tbody id="tbody-webstats"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- ================= เริ่มต้น Modal สไลด์โชว์รูปภาพแกลลอรี ================= -->
     <div class="modal fade" id="galleryViewerModal" tabindex="-1">
@@ -200,41 +286,28 @@
             return url; 
         }
 
-        // โหลดข้อมูลเมื่อเปิดหน้าเว็บ
+       // โหลดข้อมูลเมื่อเปิดหน้าเว็บ
         document.addEventListener('DOMContentLoaded', async () => {
             const urlParams = new URLSearchParams(window.location.search);
             const passedPageId = urlParams.get('page');
             if (passedPageId) activePageId = passedPageId;
 
             try {
-                const [settingsRes, catsRes, pagesRes] = await Promise.all([
+                // 🟢 โหลดข้อมูลพร้อมกัน 6 ตาราง
+                const [settingsRes, catsRes, pagesRes, menusRes, airlinesRes, statsRes] = await Promise.all([
                     fetch(API_URL + '?action=getSettings').then(r => r.json()),
                     fetch(API_URL + '?action=getTableData&sheetName=AboutCategories').then(r => r.json()),
-                    fetch(API_URL + '?action=getTableData&sheetName=AboutPages').then(r => r.json())
+                    fetch(API_URL + '?action=getTableData&sheetName=AboutPages').then(r => r.json()),
+                    fetch(API_URL + '?action=getTableData&sheetName=SiteMenus').then(r => r.json()),
+                    fetch(API_URL + '?action=getTableData&sheetName=Airlines').then(r => r.json()),
+                    fetch(API_URL + '?action=getWebStats').then(r => r.json())
                 ]);
 
-                // 1. นำข้อมูลตั้งค่า (โลโก้/ชื่อ) ไปใส่
-                if(settingsRes.status === 'success') {
-                    const settings = settingsRes.data;
-                    if(settings.SystemName) document.title = "เกี่ยวกับหน่วยงาน | " + settings.SystemName;
-                    let dName = settings.AirportName || settings.SystemName || 'ท่าอากาศยานบุรีรัมย์';
-                    document.getElementById('navAirportName').innerText = dName;
-                    document.getElementById('footerSystemName2').innerText = dName;
-
-                    if (settings.LogoAirport) {
-                        let airportLogoUrl = convertDriveImageLink(settings.LogoAirport);
-                        document.getElementById('dynamic-favicon').href = airportLogoUrl;
-                        document.getElementById('navLogoImg').src = airportLogoUrl;
-                        document.getElementById('navLogoImg').style.display = 'block';
-                        document.getElementById('navLogoIcon').style.display = 'none';
-                        document.getElementById('footerLogoAirport').src = airportLogoUrl;
-                        document.getElementById('footerLogoAirport').style.display = 'inline-block';
-                    }
-                    let hasFooterLogos = false;
-                    if (settings.LogoMinistry) { document.getElementById('footerLogoMinistry').src = convertDriveImageLink(settings.LogoMinistry); document.getElementById('footerLogoMinistry').style.display = 'inline-block'; hasFooterLogos = true; }
-                    if (settings.LogoDept) { document.getElementById('footerLogoDept').src = convertDriveImageLink(settings.LogoDept); document.getElementById('footerLogoDept').style.display = 'inline-block'; hasFooterLogos = true; }
-                    if ((hasFooterLogos || settings.LogoAirport)) document.getElementById('footerLogoFallback').style.display = 'none';
-                }
+                // 1. นำข้อมูลลงหน้าเว็บหลัก
+                if(settingsRes.status === 'success') applySettingsToUI(settingsRes.data);
+                if(menusRes.status === 'success') renderSiteMenus(menusRes.data);
+                if(airlinesRes.status === 'success') renderFooterAirlines(airlinesRes.data);
+                if(statsRes.status === 'success') processWebStats(statsRes);
 
                 // 2. ดึงข้อมูลเนื้อหา
                 if (catsRes.status === 'success') allAboutCats = catsRes.data.filter(c => c.IsActive === 'TRUE').sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList));
@@ -366,6 +439,110 @@
             const carousel = new bootstrap.Carousel(myCarousel, { interval: false, ride: false });
             carousel.to(startIndex);
             new bootstrap.Modal(document.getElementById('galleryViewerModal')).show();
+        }
+
+        // ================= ฟังก์ชัน UI พื้นฐาน (เหมือนหน้าอื่นๆ) =================
+        function applySettingsToUI(settings) {
+            if(settings.SystemName) document.title = "เกี่ยวกับหน่วยงาน | " + settings.SystemName;
+            
+            let displayAirportName = settings.AirportName || settings.SystemName || 'ท่าอากาศยานบุรีรัมย์';
+            if (document.getElementById('navAirportName')) document.getElementById('navAirportName').innerText = displayAirportName;
+            if (document.getElementById('footerSystemName')) document.getElementById('footerSystemName').innerText = displayAirportName;
+            if (document.getElementById('footerSystemName2')) document.getElementById('footerSystemName2').innerText = displayAirportName;
+
+            if (document.getElementById('footerAddress')) document.getElementById('footerAddress').innerText = settings.ContactAddress || '-';
+            if (document.getElementById('footerPhone')) document.getElementById('footerPhone').innerText = settings.ContactPhone || '-';
+            if (document.getElementById('footerEmail')) document.getElementById('footerEmail').innerText = settings.ContactEmail || '-';
+
+            if (settings.LogoAirport) {
+                let airportLogoUrl = convertDriveImageLink(settings.LogoAirport);
+                document.getElementById('dynamic-favicon').href = airportLogoUrl;
+                document.getElementById('navLogoImg').src = airportLogoUrl; document.getElementById('navLogoImg').style.display = 'block'; document.getElementById('navLogoIcon').style.display = 'none';
+                document.getElementById('footerLogoAirport').src = airportLogoUrl; document.getElementById('footerLogoAirport').style.display = 'inline-block';
+            }
+
+            let hasFooterLogos = false;
+            if (settings.LogoMinistry) { document.getElementById('footerLogoMinistry').src = convertDriveImageLink(settings.LogoMinistry); document.getElementById('footerLogoMinistry').style.display = 'inline-block'; hasFooterLogos = true; }
+            if (settings.LogoDept) { document.getElementById('footerLogoDept').src = convertDriveImageLink(settings.LogoDept); document.getElementById('footerLogoDept').style.display = 'inline-block'; hasFooterLogos = true; }
+            if ((hasFooterLogos || settings.LogoAirport)) document.getElementById('footerLogoFallback').style.display = 'none';
+        }
+
+        function renderSiteMenus(menusData) {
+            const activeMenus = menusData.filter(m => m.IsActive === 'TRUE').sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList));
+            const topNavContainer = document.getElementById('dynamicTopNav');
+            if (topNavContainer) {
+                const topMenus = activeMenus.filter(m => m.MenuPosition === 'TopNav');
+                let topHtml = ''; let currentPath = window.location.pathname.split('/').pop() || 'index.html';
+                topMenus.forEach(m => {
+                    let targetAttr = m.Target === '_blank' ? 'target="_blank"' : '';
+                    let isActive = currentPath === m.URL ? 'active' : '';
+                    let finalUrl = m.URL;
+                    if (finalUrl.startsWith('javascript:showContactModal()')) finalUrl = 'index.html?action=showContact'; else if (finalUrl.startsWith('#')) finalUrl = 'index.html' + finalUrl;
+                    topHtml += `<li class="nav-item"><a class="nav-link ${isActive}" href="${finalUrl}" ${targetAttr}>${m.MenuName}</a></li>`;
+                });
+                topNavContainer.innerHTML = topHtml;
+            }
+
+            const footerContainer = document.getElementById('dynamicFooterSitemap');
+            if (footerContainer) {
+                const footerMenus = activeMenus.filter(m => m.MenuPosition === 'Footer');
+                let groupedMenus = {};
+                footerMenus.forEach(m => { let gName = m.GroupName || 'กลุ่มอื่นๆ'; if (!groupedMenus[gName]) groupedMenus[gName] = []; groupedMenus[gName].push(m); });
+
+                let footerHtml = `<div class="col-md-12 mb-4 text-center border-bottom border-secondary pb-3"><a href="#" class="text-muted small mx-2 fw-bold"><i class="fa-solid fa-file-contract"></i> เงื่อนไขการให้บริการเว็บไซต์</a><a href="javascript:void(0)" class="text-muted small mx-2 fw-bold"><i class="fa-solid fa-shield-halved"></i> นโยบายคุ้มครองข้อมูลส่วนบุคคล</a><a href="#" class="text-muted small mx-2 fw-bold"><i class="fa-solid fa-lock"></i> นโยบายความปลอดภัย</a></div>`;
+                for (const [groupName, links] of Object.entries(groupedMenus)) {
+                    footerHtml += `<div class="col-md-3 col-6 mb-4"><h6 class="fw-bold" style="color:var(--primary-blue); border-bottom: 2px solid #ccc; display: inline-block; padding-bottom: 5px; margin-bottom: 10px;">${groupName}</h6><ul class="list-unstyled">`;
+                    links.forEach(link => {
+                        let targetAttr = link.Target === '_blank' ? 'target="_blank"' : '';
+                        let finalUrl = link.URL;
+                        if (finalUrl.startsWith('javascript:showContactModal()')) finalUrl = 'index.html?action=showContact'; else if (finalUrl.startsWith('#')) finalUrl = 'index.html' + finalUrl;
+                        footerHtml += `<li><a href="${finalUrl}" ${targetAttr} class="text-decoration-none text-muted">${link.MenuName}</a></li>`;
+                    });
+                    footerHtml += `</ul></div>`;
+                }
+                footerContainer.innerHTML = footerHtml;
+            }
+        }
+
+        function renderFooterAirlines(data) {
+            const container = document.getElementById('footer-airlines-container'); container.innerHTML = '';
+            const activeAirlines = data.filter(a => a.IsActive === 'TRUE').sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList));
+            if(activeAirlines.length === 0) { container.innerHTML = '<div class="text-white-50 small">ยังไม่มีข้อมูลสายการบิน</div>'; return; }
+            activeAirlines.forEach(item => {
+                let imgHtml = item.IconURL ? `<img src="${convertDriveImageLink(item.IconURL)}" style="height: 30px; width: 30px; object-fit: contain; background: white; border-radius: 5px; padding: 2px; margin-right: 15px;">` : `<i class="fa-solid fa-plane text-muted fa-2x me-3 bg-white p-1 rounded"></i>`;
+                container.innerHTML += `<div class="airline-box" style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; margin-bottom: 10px; display: flex; align-items: center; border-left: 4px solid ${item.ThemeColor || '#fff'};">${imgHtml}<div><div class="fw-bold">${item.AirlineName}</div><div class="small text-light"><i class="fa-solid fa-phone fa-sm"></i> ${item.PhoneNumber || '-'}</div></div></div>`;
+            });
+        }
+
+        let allWebStatsData = [];
+        function processWebStats(res) {
+            const d = new Date(); const currentYear = (d.getFullYear() + 543).toString(); const currentMonth = ("0" + (d.getMonth() + 1)).slice(-2); 
+            const monthNames = { "01": "มกราคม", "02": "กุมภาพันธ์", "03": "มีนาคม", "04": "เมษายน", "05": "พฤษภาคม", "06": "มิถุนายน", "07": "กรกฎาคม", "08": "สิงหาคม", "09": "กันยายน", "10": "ตุลาคม", "11": "พฤศจิกายน", "12": "ธันวาคม" };
+            document.getElementById('statCurrentMonthLabel').innerHTML = `<i class="fa-regular fa-calendar me-2"></i> ${monthNames[currentMonth]} ${currentYear}`;
+            allWebStatsData = res.data;
+            let totalAll = parseInt(res.total) || 0;
+            let thisMonthStat = allWebStatsData.find(s => String(s.year) === currentYear && String(s.month).padStart(2, '0') === currentMonth);
+            let thisMonthCount = thisMonthStat ? parseInt(thisMonthStat.count) : 0;
+            if (!sessionStorage.getItem('visited_this_session')) { sessionStorage.setItem('visited_this_session', 'true'); fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'recordVisit', year: currentYear, month: currentMonth }) }); thisMonthCount++; totalAll++; }
+            document.getElementById('statTotalAll').innerText = totalAll.toLocaleString('th-TH'); document.getElementById('statTotalMonth').innerText = thisMonthCount.toLocaleString('th-TH');
+            let uniqueYears = [...new Set(allWebStatsData.map(item => String(item.year)))].sort().reverse(); if(uniqueYears.length === 0) uniqueYears = [currentYear]; document.getElementById('filterWebStatYear').innerHTML = uniqueYears.map(y => `<option value="${y}">ประจำปี พ.ศ. ${y}</option>`).join('');
+
+            const hour = d.getHours(); let baseOnline = 5; if (hour >= 8 && hour <= 16) baseOnline = 25; else if (hour > 16 && hour <= 22) baseOnline = 15; 
+            let onlineNow = baseOnline + Math.floor(Math.random() * 15);
+            if (onlineNow > thisMonthCount) { let maxRealisticOnline = Math.ceil(thisMonthCount * (Math.random() * 0.15 + 0.05)); onlineNow = Math.max(1, maxRealisticOnline); }
+            document.getElementById('statOnlineNow').innerText = onlineNow;
+        }
+
+        function showWebStatsModal() { renderWebStatsTable(); new bootstrap.Modal(document.getElementById('webStatsModal')).show(); }
+        function renderWebStatsTable() {
+            const tbody = document.getElementById('tbody-webstats'); tbody.innerHTML = '';
+            const selectedYear = document.getElementById('filterWebStatYear').value;
+            const monthNames = { "01": "มกราคม", "02": "กุมภาพันธ์", "03": "มีนาคม", "04": "เมษายน", "05": "พฤษภาคม", "06": "มิถุนายน", "07": "กรกฎาคม", "08": "สิงหาคม", "09": "กันยายน", "10": "ตุลาคม", "11": "พฤศจิกายน", "12": "ธันวาคม" };
+            let filteredData = allWebStatsData.filter(item => String(item.year) === String(selectedYear));
+            if (filteredData.length === 0) { tbody.innerHTML = '<tr><td colspan="2" class="py-4 text-muted">ไม่มีข้อมูลของปีนี้</td></tr>'; return; }
+            let yearlyTotal = 0; 
+            filteredData.sort((a,b) => parseInt(b.month) - parseInt(a.month)).forEach(item => { let formattedMonth = ("0" + item.month).slice(-2); let viewCount = parseInt(item.count) || 0; yearlyTotal += viewCount; tbody.innerHTML += `<tr><td class="fw-bold">${monthNames[formattedMonth] || item.month}</td><td class="fs-6 fw-bold text-success">${viewCount.toLocaleString('th-TH')}</td></tr>`; });
+            tbody.innerHTML += `<tr class="table-light"><td class="fw-bold text-primary text-end pe-3">รวมทั้งปี พ.ศ. ${selectedYear}</td><td class="fs-5 fw-bold text-primary">${yearlyTotal.toLocaleString('th-TH')}</td></tr>`;
         }
     </script>
 </body>
