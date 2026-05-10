@@ -54,6 +54,10 @@
             <li id="menu_news"><a href="#" onclick="switchView('news', this)"><i class="fa-solid fa-newspaper"></i> จัดการข่าวสาร</a></li>
             <li id="menu_newscategories"><a href="#" onclick="switchView('newscategories', this)"><i class="fa-solid fa-layer-group"></i> หมวดหมู่ข่าว</a></li>
             <li id="menu_events"><a href="#" onclick="switchView('events', this)"><i class="fa-regular fa-calendar-days"></i> ปฏิทินกิจกรรม</a></li>
+
+            <li id="header_media" class="mt-4 px-3"><small class="text-uppercase fw-bold" style="color: #64748b; font-size: 0.7rem;">จัดการสื่อมัลติมีเดีย</small></li>
+            <li id="menu_media"><a href="#" onclick="switchView('media', this)"><i class="fa-solid fa-photo-film"></i> สื่อมัลติมีเดีย (Video)</a></li>
+            <li id="menu_mediacategories"><a href="#" onclick="switchView('mediacategories', this)"><i class="fa-solid fa-folder-open"></i> หมวดหมู่สื่อมัลติมีเดีย</a></li>
             
             <li id="header_flights" class="mt-4 px-3"><small class="text-uppercase fw-bold" style="color: #64748b; font-size: 0.7rem;">จัดการข้อมูลเที่ยวบิน/ผู้โดยสาร</small></li>
             <li id="menu_flightschedules"><a href="#" onclick="switchView('flightschedules', this)"><i class="fa-solid fa-plane-arrival"></i> ตารางเที่ยวบิน</a></li>
@@ -404,6 +408,24 @@
                 <div class="card card-custom"><div class="card-body p-0"><div class="table-responsive"><table class="table table-hover align-middle mb-0"><thead class="table-light"><tr><th width="10%">วันที่จัด</th><th width="25%">ชื่อกิจกรรม</th><th width="15%">สถานที่</th><th width="20%">ผู้เข้าร่วม / รับผิดชอบ</th><th width="10%" class="text-center">ประเภท</th><th width="10%" class="text-center">สถานะ</th><th width="10%" class="text-center">จัดการ</th></tr></thead><tbody id="tbody-events"><tr><td colspan="7" class="text-center py-4">กำลังโหลดข้อมูล...</td></tr></tbody></table></div></div></div>
             </div>
 
+            <!-- ================= VIEW: Media Categories ================= -->
+            <div id="view-mediacategories" class="admin-view" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold text-dark mb-0"><i class="fa-solid fa-folder-open me-2 text-danger"></i> จัดการหมวดหมู่สื่อมัลติมีเดีย</h4>
+                    <div><button id="btnSaveOrder-MediaCats" class="btn btn-warning me-2 d-none" onclick="saveMediaCatOrder()"><i class="fa-solid fa-save me-1"></i> บันทึกลำดับ</button><button class="btn btn-success" onclick="openMediaCatModal()"><i class="fa-solid fa-plus me-1"></i> เพิ่มหมวดหมู่</button></div>
+                </div>
+                <div class="card card-custom"><div class="card-body p-0 table-responsive"><table class="table table-hover align-middle mb-0"><thead class="table-light"><tr><th width="10%">ลำดับ</th><th width="50%">ชื่อหมวดหมู่สื่อ</th><th width="15%" class="text-center">สถานะ</th><th width="25%" class="text-center">จัดการ</th></tr></thead><tbody id="tbody-mediacategories"></tbody></table></div></div>
+            </div>
+
+            <!-- ================= VIEW: Media ================= -->
+            <div id="view-media" class="admin-view" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold text-dark mb-0"><i class="fa-solid fa-photo-film me-2 text-danger"></i> จัดการสื่อมัลติมีเดีย (Video)</h4>
+                    <div><button id="btnSaveOrder-Media" class="btn btn-warning me-2 d-none" onclick="saveMediaOrder()"><i class="fa-solid fa-save me-1"></i> บันทึกลำดับ</button><button class="btn btn-success" onclick="openMediaModal()"><i class="fa-solid fa-plus me-1"></i> เพิ่มวิดีโอใหม่</button></div>
+                </div>
+                <div class="card card-custom"><div class="card-body p-0 table-responsive"><table class="table table-hover align-middle mb-0"><thead class="table-light"><tr><th width="10%">ลำดับ</th><th width="15%" class="text-center">หน้าปก</th><th width="35%">ชื่อวิดีโอ / YouTube URL</th><th width="15%">หมวดหมู่</th><th width="10%">สถานะ</th><th width="15%" class="text-center">จัดการ</th></tr></thead><tbody id="tbody-media"></tbody></table></div></div>
+            </div>
+
         </div>
         <div class="footer-text">&copy; 2569 ระบบจัดการหลังบ้าน - ท่าอากาศยานบุรีรัมย์</div>
     </div>
@@ -515,8 +537,37 @@
                                 <!-- 🟢 เพิ่มจุดแสดงข้อความ Real-time -->
                                 <small id="usernameStatusMsg" class="fw-bold mt-1 d-block"></small>
                             </div>
-<!-- ================= สิ้นสุด HTML ช่อง Username ================= -->
-                            <div class="col-md-6"><label class="form-label fw-bold">รหัสผ่าน (Password) <span class="text-danger">*</span></label><input type="text" class="form-control" id="usr_Password" required></div><div class="col-md-6"><label class="form-label fw-bold">กลุ่มงาน <small class="text-muted">(เลือกเฉพาะแอดมิน)</small></label><select class="form-select" id="usr_Department"><option value="">-- ไม่ระบุ (ประชาชนทั่วไป) --</option></select></div><div class="col-md-6"><label class="form-label fw-bold">สิทธิ์การใช้งาน (Role)</label><select class="form-select text-primary fw-bold" id="usr_Role" onchange="toggleAllowedMenusUI()"><option value="User">User (ประชาชน)</option><option value="Staff">Staff (เจ้าหน้าที่ทั่วไป)</option><option value="SubAdmin">SubAdmin (แอดมินกลุ่มงาน)</option><option value="SuperAdmin">SuperAdmin (ผู้ดูแลสูงสุด)</option></select></div><div class="col-md-12" id="usr_AllowedMenusContainer" style="display: none;"><div class="p-3 bg-light border border-warning rounded"><label class="form-label fw-bold text-warning-emphasis"><i class="fa-solid fa-shield-halved me-1"></i> กำหนดสิทธิ์การมองเห็นเมนู (เฉพาะ SubAdmin)</label><div class="d-flex flex-wrap gap-3 mt-2"><div class="form-check"><input class="form-check-input chk-menu" type="checkbox" id="chk_news" value="news"><label class="form-check-label" for="chk_news">จัดการข่าวสาร</label></div><div class="form-check"><input class="form-check-input chk-menu" type="checkbox" id="chk_newscategories" value="newscategories"><label class="form-check-label" for="chk_newscategories">หมวดหมู่ข่าว</label></div><div class="form-check"><input class="form-check-input chk-menu" type="checkbox" id="chk_events" value="events"><label class="form-check-label" for="chk_events">ปฏิทินกิจกรรม</label></div><div class="form-check"><input class="form-check-input chk-menu" type="checkbox" id="chk_flightschedules" value="flightschedules"><label class="form-check-label" for="chk_flightschedules">ตารางเที่ยวบิน</label></div><div class="form-check"><input class="form-check-input chk-menu" type="checkbox" id="chk_passengerstats" value="passengerstats"><label class="form-check-label" for="chk_passengerstats">สถิติผู้โดยสาร</label></div><div class="form-check"><input class="form-check-input chk-menu" type="checkbox" id="chk_eservices" value="eservices"><label class="form-check-label" for="chk_eservices">ระบบ E-Services</label></div><div class="form-check"><input class="form-check-input chk-menu" type="checkbox" id="chk_airlines" value="airlines"><label class="form-check-label" for="chk_airlines">สายการบิน</label></div><div class="form-check"><input class="form-check-input chk-menu" type="checkbox" id="chk_banners" value="banners"><label class="form-check-label" for="chk_banners">แบนเนอร์สไลด์</label></div></div><div class="text-end mt-2"><button type="button" class="btn btn-sm btn-outline-secondary" onclick="checkAllMenus(true)">เลือกทั้งหมด</button></div></div></div><div class="col-md-12 mt-3"><div class="form-check form-switch p-3 bg-light rounded border"><input class="form-check-input ms-0 me-3" type="checkbox" id="usr_Status" style="transform: scale(1.3);" checked><label class="form-check-label fw-bold text-success" id="usr_StatusLabel" for="usr_Status">บัญชีนี้พร้อมใช้งาน (Active)</label></div></div></div><button type="submit" class="btn btn-primary w-100 mt-2" id="btnSaveUser">บันทึกข้อมูลผู้ใช้งาน</button></form></div></div></div></div>
+                <!-- ================= สิ้นสุด HTML ช่อง Username ================= -->
+                            <div class="col-md-6"><label class="form-label fw-bold">รหัสผ่าน (Password) <span class="text-danger">*</span></label><input type="text" class="form-control" id="usr_Password" required></div><div class="col-md-6"><label class="form-label fw-bold">กลุ่มงาน <small class="text-muted">(เลือกเฉพาะแอดมิน)</small></label><select class="form-select" id="usr_Department"><option value="">-- ไม่ระบุ (ประชาชนทั่วไป) --</option></select></div><div class="col-md-6"><label class="form-label fw-bold">สิทธิ์การใช้งาน (Role)</label><select class="form-select text-primary fw-bold" id="usr_Role" onchange="toggleAllowedMenusUI()"><option value="User">User (ประชาชน)</option><option value="Staff">Staff (เจ้าหน้าที่ทั่วไป)</option><option value="SubAdmin">SubAdmin (แอดมินกลุ่มงาน)</option><option value="SuperAdmin">SuperAdmin (ผู้ดูแลสูงสุด)</option></select></div><div class="col-md-12" id="usr_AllowedMenusContainer" style="display: none;"><div class="p-3 bg-light border border-warning rounded"><label class="form-label fw-bold text-warning-emphasis"><i class="fa-solid fa-shield-halved me-1"></i> กำหนดสิทธิ์การมองเห็นเมนู (เฉพาะ SubAdmin)</label><div class="d-flex flex-wrap gap-3 mt-2"><div class="form-check"><input class="form-check-input chk-menu" type="checkbox" id="chk_news" value="news"><label class="form-check-label" for="chk_news">จัดการข่าวสาร</label></div><div class="form-check"><input class="form-check-input chk-menu" type="checkbox" id="chk_newscategories" value="newscategories"><label class="form-check-label" for="chk_newscategories">หมวดหมู่ข่าว</label></div>
+                                <div class="form-check">
+                                    <input class="form-check-input chk-menu" type="checkbox" id="chk_events" value="events"><label class="form-check-label" for="chk_events">ปฏิทินกิจกรรม</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input chk-menu" type="checkbox" id="chk_flightschedules" value="flightschedules"><label class="form-check-label" for="chk_flightschedules">ตารางเที่ยวบิน</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input chk-menu" type="checkbox" id="chk_passengerstats" value="passengerstats"><label class="form-check-label" for="chk_passengerstats">สถิติผู้โดยสาร</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input chk-menu" type="checkbox" id="chk_eservices" value="eservices"><label class="form-check-label" for="chk_eservices">ระบบ E-Services</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input chk-menu" type="checkbox" id="chk_airlines" value="airlines"><label class="form-check-label" for="chk_airlines">สายการบิน</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input chk-menu" type="checkbox" id="chk_banners" value="banners"><label class="form-check-label" for="chk_banners">แบนเนอร์สไลด์</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input chk-menu" type="checkbox" id="chk_media" value="media"><label class="form-check-label" for="chk_media">สื่อมัลติมีเดีย</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input chk-menu" type="checkbox" id="chk_mediacategories" value="mediacategories"><label class="form-check-label" for="chk_mediacategories">หมวดหมู่สื่อ</label>
+                                </div>
+                            </div>
+                                <div class="text-end mt-2"><button type="button" class="btn btn-sm btn-outline-secondary" onclick="checkAllMenus(true)">เลือกทั้งหมด</button></div>
+                            </div>
+                            </div>
+                            <div class="col-md-12 mt-3"><div class="form-check form-switch p-3 bg-light rounded border"><input class="form-check-input ms-0 me-3" type="checkbox" id="usr_Status" style="transform: scale(1.3);" checked><label class="form-check-label fw-bold text-success" id="usr_StatusLabel" for="usr_Status">บัญชีนี้พร้อมใช้งาน (Active)</label></div></div></div><button type="submit" class="btn btn-primary w-100 mt-2" id="btnSaveUser">บันทึกข้อมูลผู้ใช้งาน</button></form></div></div></div></div>
 
     <!-- Modal: Flight Schedules -->
     <div class="modal fade" id="flightModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content border-0"><div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold" id="flightModalTitle">เพิ่ม/แก้ไข ตารางเที่ยวบิน</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><form id="formFlight" onsubmit="saveFlightRecord(event)"><input type="hidden" id="flt_FlightID"><div class="row g-3 mb-3 border-bottom pb-3"><div class="col-md-6"><label class="form-label fw-bold">สายการบิน <span class="text-danger">*</span></label><select class="form-select" id="flt_AirlineID" required></select></div><div class="col-md-3"><label class="form-label fw-bold">หมายเลขเที่ยวบิน <span class="text-danger">*</span></label><input type="text" class="form-control text-uppercase fw-bold text-primary" id="flt_FlightNumber" placeholder="เช่น FD3522" required></div><div class="col-md-3"><label class="form-label fw-bold text-danger">ประเภทเที่ยวบิน <span class="text-danger">*</span></label><select class="form-select fw-bold" id="flt_FlightType" required><option value="Arrival">ขาเข้า (Arrival)</option><option value="Departure">ขาออก (Departure)</option></select></div></div><div class="row g-3 mb-3"><div class="col-md-6"><label class="form-label fw-bold">ต้นทาง (Origin) <span class="text-danger">*</span></label><input class="form-control" list="airportOptions" id="flt_Origin" required></div><div class="col-md-6"><label class="form-label fw-bold">ปลายทาง (Destination) <span class="text-danger">*</span></label><input class="form-control" list="airportOptions" id="flt_Destination" required></div><datalist id="airportOptions"><option value="ดอนเมือง (DMK)"></option><option value="สุวรรณภูมิ (BKK)"></option><option value="บุรีรัมย์ (BFV)"></option><option value="ภูเก็ต (HKT)"></option><option value="เชียงใหม่ (CNX)"></option></datalist><div class="col-md-6"><label class="form-label fw-bold">เวลาออก (Departure) <span class="text-danger">*</span></label><input type="time" class="form-control fw-bold" id="flt_DepartureTime" required></div><div class="col-md-6"><label class="form-label fw-bold">เวลาถึง (Arrival) <span class="text-danger">*</span></label><input type="time" class="form-control fw-bold" id="flt_ArrivalTime" required></div></div><div class="mb-4 bg-light p-3 rounded border"><label class="form-label fw-bold text-primary mb-2"><i class="fa-regular fa-calendar-check"></i> วันที่ทำการบิน <span class="text-danger">*</span></label><div class="form-text mb-2">สามารถคลิกเลือกได้หลายวันบนปฏิทิน หากต้องการลบให้คลิกซ้ำที่วันนั้น</div><input type="text" id="flt_FlightDates" class="form-control bg-white" placeholder="คลิกเพื่อเลือกวันที่บนปฏิทิน..." required readonly></div><div class="form-check form-switch mb-3"><input class="form-check-input" type="checkbox" id="flt_IsActive" style="transform: scale(1.3);" checked><label class="form-check-label ms-2 fw-bold text-success" for="flt_IsActive">เปิดให้บริการเที่ยวบินนี้</label></div><button type="submit" class="btn btn-primary w-100" id="btnSaveFlight">บันทึกเที่ยวบิน</button></form></div></div></div></div>
@@ -688,6 +739,12 @@
     <!-- Modal: About Pages -->
     <div class="modal fade" id="aboutPageModal" tabindex="-1"><div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"><div class="modal-content border-0"><div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold" id="aboutPageModalTitle">เพิ่ม/แก้ไข เนื้อหาข้อมูล</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4 bg-light"><form id="formAboutPage" onsubmit="saveAboutPage(event)"><input type="hidden" id="abtP_PageID"><input type="hidden" id="abtP_OrderList"><input type="hidden" id="abtP_ExistingCover"><input type="hidden" id="abtP_ExistingFiles"><input type="hidden" id="abtP_ExistingGallery"><div class="row g-4"><div class="col-lg-8"><div class="card border-0 shadow-sm h-100"><div class="card-body d-flex flex-column"><div class="mb-3"><label class="form-label fw-bold">หัวข้อย่อย <span class="text-danger">*</span></label><input type="text" class="form-control fs-5 fw-bold text-primary" id="abtP_Title" placeholder="เช่น วิสัยทัศน์/ค่านิยม" required></div><div class="mb-2 flex-grow-1 d-flex flex-column"><label class="form-label fw-bold">เนื้อหา <span class="text-danger">*</span></label><div id="abtP_Content_Editor" style="height: 400px; background: white;"></div></div></div></div></div><div class="col-lg-4"><div class="card border-0 shadow-sm mb-3"><div class="card-body"><label class="form-label fw-bold">หมวดหมู่ใหญ่ <span class="text-danger">*</span></label><select class="form-select mb-4" id="abtP_CategoryID" required></select><label class="form-label fw-bold"><i class="fa-solid fa-image text-warning"></i> อัปโหลดรูปปก (1 รูป)</label><input type="file" class="form-control mb-1" id="abtP_UploadCover" accept="image/png, image/jpeg"><div class="form-text mb-4" id="abtP_CoverStatus">ไม่ได้เลือกไฟล์</div><label class="form-label fw-bold"><i class="fa-solid fa-images text-success"></i> แกลลอรี (หลายรูป)</label><input type="file" class="form-control mb-1" id="abtP_UploadGallery" accept="image/png, image/jpeg" multiple><div class="form-text mb-4" id="abtP_GalleryStatus">ไม่ได้เลือกไฟล์</div><label class="form-label fw-bold"><i class="fa-solid fa-file-pdf text-danger"></i> ไฟล์เอกสาร (หลายไฟล์)</label><input type="file" class="form-control mb-1" id="abtP_UploadFile" accept=".pdf,.doc,.docx" multiple><div class="form-text mb-4" id="abtP_FileStatus">ไม่ได้เลือกไฟล์</div><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="abtP_IsActive" style="transform: scale(1.2);" checked><label class="form-check-label ms-2 fw-bold text-success" for="abtP_IsActive">เผยแพร่ข้อมูลนี้</label></div></div></div><button type="submit" class="btn btn-primary w-100 py-3 fw-bold fs-5" id="btnSaveAboutPage"><i class="fa-solid fa-save me-2"></i> บันทึกข้อมูล</button></div></div></form></div></div></div></div>
 
+    <!-- Modal: Media Categories -->
+    <div class="modal fade" id="mediaCatModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0"><div class="modal-header bg-danger text-white"><h5 class="modal-title fw-bold" id="mediaCatModalTitle">เพิ่ม/แก้ไข หมวดหมู่สื่อ</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><form id="formMediaCat" onsubmit="saveMediaCat(event)"><input type="hidden" id="mcat_CategoryID"><input type="hidden" id="mcat_OrderList"><div class="mb-3"><label class="form-label fw-bold">ชื่อหมวดหมู่ <span class="text-danger">*</span></label><input type="text" class="form-control" id="mcat_CategoryName" required></div><div class="row"><div class="col-6 mb-3"><label class="form-label fw-bold">สีของหมวดหมู่</label><input type="color" class="form-control form-control-color w-100" id="mcat_ThemeColor" value="#dc3545"></div><div class="col-6 mb-3 d-flex align-items-center"><div class="form-check form-switch mt-4"><input class="form-check-input" type="checkbox" id="mcat_IsActive" style="transform: scale(1.2);" checked><label class="form-check-label ms-2 fw-bold text-success" for="mcat_IsActive">เปิดใช้งาน</label></div></div></div><button type="submit" class="btn btn-danger w-100 mt-2" id="btnSaveMediaCat">บันทึกข้อมูล</button></form></div></div></div></div>
+
+    <!-- Modal: Media -->
+    <div class="modal fade" id="mediaModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content border-0"><div class="modal-header bg-danger text-white"><h5 class="modal-title fw-bold" id="mediaModalTitle">เพิ่ม/แก้ไข สื่อมัลติมีเดีย</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><form id="formMedia" onsubmit="saveMediaRecord(event)"><input type="hidden" id="med_MediaID"><input type="hidden" id="med_OrderList"><input type="hidden" id="med_ExistingCoverURL"><div class="row g-3 mb-3"><div class="col-md-8"><label class="form-label fw-bold">ชื่อวิดีโอ <span class="text-danger">*</span></label><input type="text" class="form-control fw-bold text-primary" id="med_Title" required></div><div class="col-md-4"><label class="form-label fw-bold">หมวดหมู่ <span class="text-danger">*</span></label><select class="form-select" id="med_CategoryID" required></select></div><div class="col-md-12"><label class="form-label fw-bold text-danger"><i class="fa-brands fa-youtube"></i> YouTube URL <span class="text-danger">*</span></label><input type="url" class="form-control bg-light" id="med_VideoURL" placeholder="เช่น https://www.youtube.com/watch?v=..." required><div class="form-text">ก๊อปปี้ลิงก์จาก YouTube มาวางได้เลย ระบบจะดึงวิดีโอไปแสดงเอง</div></div><div class="col-md-12"><label class="form-label fw-bold"><i class="fa-solid fa-image text-warning"></i> อัปโหลดรูปหน้าปก (ตัวเลือกเสริม)</label><input type="file" class="form-control" id="med_UploadCover" accept="image/png, image/jpeg"><div class="form-text" id="med_CoverStatus">ถ้าไม่อัปโหลด ระบบจะพยายามดึงรูปปกจาก YouTube อัตโนมัติ</div></div><div class="col-md-12"><label class="form-label fw-bold">คำอธิบายเพิ่มเติม</label><textarea class="form-control" id="med_Description" rows="2"></textarea></div></div><div class="form-check form-switch mb-3"><input class="form-check-input" type="checkbox" id="med_IsActive" style="transform: scale(1.3);" checked><label class="form-check-label ms-2 fw-bold text-success" for="med_IsActive">เปิดใช้งานวิดีโอนี้</label></div><button type="submit" class="btn btn-danger w-100" id="btnSaveMedia">บันทึกสื่อมัลติมีเดีย</button></form></div></div></div></div>
+    
     <!-- ========================================================================= -->
     <!--                                 JAVASCRIPT                                  -->
     <!-- ========================================================================= -->
@@ -744,7 +801,7 @@
                         document.getElementById('menuSuperAdminGroup').style.display = 'none';
                         
                         let allowed = user.allowedMenus ? user.allowedMenus.split(',') : [];
-                        const menuItems = ['news', 'newscategories', 'events', 'flightschedules', 'passengerstats', 'eservices', 'airlines', 'banners'];
+                        const menuItems = ['news', 'newscategories', 'events', 'flightschedules', 'passengerstats', 'eservices', 'airlines', 'banners', 'media', 'mediacategories'];
                         
                         menuItems.forEach(menu => {
                             if (!allowed.includes(menu)) {
@@ -979,6 +1036,25 @@
                         }
                     }).catch(handleError);
                 }
+                else if (viewId === 'mediacategories') {
+                    fetch(`${API_URL}?action=getTableData&sheetName=MediaCategories`).then(res=>res.json()).then(res => {
+                        if(res.status === 'success') { currentTableData = res.data || []; renderMediaCatsTable(currentTableData); Swal.close(); }
+                        else throw new Error(res.message);
+                    }).catch(handleError);
+                }
+                else if (viewId === 'media') {
+                    Promise.all([ 
+                        fetch(`${API_URL}?action=getTableData&sheetName=MediaCategories`).then(res=>res.json()), 
+                        fetch(`${API_URL}?action=getTableData&sheetName=Media`).then(res=>res.json()) 
+                    ]).then(([catsRes, mediaRes]) => {
+                        if(catsRes.status === 'success' && mediaRes.status === 'success') {
+                            allCategoriesData = catsRes.data || []; // ยืมตัวแปรนี้ใช้
+                            currentTableData = mediaRes.data || [];
+                            renderMediaTable(currentTableData);
+                            Swal.close();
+                        } else throw new Error("Data load failed");
+                    }).catch(handleError);
+                }
             } catch (error) {
                 console.error("Critical error in switchView:", error);
                 Swal.fire('ระบบขัดข้อง', 'โปรดรีเฟรชหน้าต่างใหม่', 'error');
@@ -1057,6 +1133,8 @@
                                 'FlightSchedules': renderFlightsTable,
                                 'AboutCategories': renderAboutCatsTable, 
                                 'AboutPages': renderAboutPagesTable,
+                                'MediaCategories': renderMediaCatsTable,
+                                'Media': renderMediaTable,
                                 'SiteMenus': renderSiteMenusTable // 🟢 เพิ่มการอัปเดตตารางเมนูตรงนี้
                             };
                             if (renderMap[sheetName]) renderMap[sheetName](currentTableData);
@@ -2967,6 +3045,119 @@
 
         function saveSiteMenuOrder() { saveOrderAPI('SiteMenus', 'MenuID'); }
         // ================= สิ้นสุด ระบบจัดการ เมนูและลิงก์ =================
+        // ================= เริ่มต้น ระบบจัดการ หมวดหมู่สื่อมัลติมีเดีย =================
+        function renderMediaCatsTable(data) {
+            const tbody = document.getElementById('tbody-mediacategories'); tbody.innerHTML = '';
+            if (data.length === 0) return;
+            data.sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList)).forEach((item, index) => {
+                let badge = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิด</span>' : '<span class="badge bg-secondary">ปิด</span>';
+                let colorBadge = item.ThemeColor ? `<span class="badge text-white" style="background-color:${item.ThemeColor};">${item.ThemeColor}</span>` : '';
+                let btnUp = index > 0 ? `<button class="btn btn-sm btn-light text-primary me-1" onclick="moveOrder('MediaCats', ${index}, -1, renderMediaCatsTable)"><i class="fa-solid fa-arrow-up"></i></button>` : `<button class="btn btn-sm btn-light me-1" style="visibility:hidden;"><i class="fa-solid fa-arrow-up"></i></button>`; 
+                let btnDown = index < data.length - 1 ? `<button class="btn btn-sm btn-light text-primary me-2" onclick="moveOrder('MediaCats', ${index}, 1, renderMediaCatsTable)"><i class="fa-solid fa-arrow-down"></i></button>` : `<button class="btn btn-sm btn-light me-2" style="visibility:hidden;"><i class="fa-solid fa-arrow-down"></i></button>`; 
+                
+                tbody.innerHTML += `<tr><td class="fw-bold text-center">${item.OrderList}</td><td class="fw-bold text-dark">${item.CategoryName} ${colorBadge}</td><td class="text-center">${badge}</td><td class="text-center text-nowrap">${btnUp}${btnDown} <button class="btn btn-sm btn-outline-warning me-1" onclick="openMediaCatModal('${item.CategoryID}')"><i class="fa-solid fa-pen"></i></button> <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('MediaCategories', 'CategoryID', '${item.CategoryID}')"><i class="fa-solid fa-trash"></i></button></td></tr>`;
+            });
+        }
+        function openMediaCatModal(id = '') {
+            document.getElementById('formMediaCat').reset(); document.getElementById('mcat_CategoryID').value = '';
+            if (id) {
+                const i = currentTableData.find(x => x.CategoryID === id);
+                document.getElementById('mcat_CategoryID').value = i.CategoryID; document.getElementById('mcat_CategoryName').value = i.CategoryName; document.getElementById('mcat_ThemeColor').value = i.ThemeColor || '#dc3545'; document.getElementById('mcat_OrderList').value = i.OrderList; document.getElementById('mcat_IsActive').checked = (i.IsActive === 'TRUE');
+            }
+            new bootstrap.Modal(document.getElementById('mediaCatModal')).show();
+        }
+        function saveMediaCat(e) {
+            e.preventDefault(); const btn = document.getElementById('btnSaveMediaCat'); btn.disabled = true;
+            let ord = document.getElementById('mcat_OrderList').value || (currentTableData.length + 1);
+            const rData = { CategoryID: document.getElementById('mcat_CategoryID').value, CategoryName: document.getElementById('mcat_CategoryName').value, ThemeColor: document.getElementById('mcat_ThemeColor').value, OrderList: ord, IsActive: document.getElementById('mcat_IsActive').checked ? 'TRUE' : 'FALSE' };
+            fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'MediaCategories', idColumn: 'CategoryID', recordJSON: JSON.stringify(rData) }) }).then(res=>res.json()).then(res=>{ if (res.status === 'success') { bootstrap.Modal.getInstance(document.getElementById('mediaCatModal')).hide(); Swal.fire({ icon: 'success', showConfirmButton: false, timer: 1500 }); switchView('mediacategories', null); } }).finally(() => btn.disabled = false);
+        }
+        function saveMediaCatOrder() { saveOrderAPI('MediaCategories', 'CategoryID'); }
+
+        // ================= เริ่มต้น ระบบจัดการ สื่อมัลติมีเดีย (Video) =================
+        function getYouTubeId(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        function renderMediaTable(data) {
+            const tbody = document.getElementById('tbody-media'); tbody.innerHTML = '';
+            if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4">ไม่มีข้อมูล</td></tr>'; return; }
+
+            const select = document.getElementById('med_CategoryID');
+            select.innerHTML = '<option value="">-- เลือกหมวดหมู่ --</option>';
+            allCategoriesData.forEach(cat => { if (cat.IsActive === 'TRUE') select.innerHTML += `<option value="${cat.CategoryID}">${cat.CategoryName}</option>`; });
+
+            data.sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList)).forEach((item, index) => {
+                let badge = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิด</span>' : '<span class="badge bg-secondary">ปิด</span>';
+                let catObj = allCategoriesData.find(c => c.CategoryID === item.CategoryID);
+                let catName = catObj ? catObj.CategoryName : '-';
+                
+                // ดึงรูปปกจาก YouTube อัตโนมัติถ้าไม่มีการอัปโหลดปก
+                let ytId = getYouTubeId(item.VideoURL);
+                let coverUrl = item.CoverImageURL ? convertDriveImageLink(item.CoverImageURL) : (ytId ? `https://img.youtube.com/vi/${ytId}/mqdefault.jpg` : 'https://via.placeholder.com/150x100?text=No+Video');
+                
+                let imgHtml = `<img src="${coverUrl}" style="width:120px; height:70px; object-fit:cover; border-radius:5px; border: 1px solid #ccc;">`;
+                let btnUp = index > 0 ? `<button class="btn btn-sm btn-light text-primary me-1" onclick="moveOrder('Media', ${index}, -1, renderMediaTable)"><i class="fa-solid fa-arrow-up"></i></button>` : `<button class="btn btn-sm btn-light me-1" style="visibility:hidden;"><i class="fa-solid fa-arrow-up"></i></button>`; 
+                let btnDown = index < data.length - 1 ? `<button class="btn btn-sm btn-light text-primary me-2" onclick="moveOrder('Media', ${index}, 1, renderMediaTable)"><i class="fa-solid fa-arrow-down"></i></button>` : `<button class="btn btn-sm btn-light me-2" style="visibility:hidden;"><i class="fa-solid fa-arrow-down"></i></button>`; 
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="fw-bold text-center">${item.OrderList}</td>
+                        <td class="text-center position-relative">${imgHtml}<i class="fa-brands fa-youtube position-absolute text-danger fs-3" style="top:50%; left:50%; transform:translate(-50%, -50%); opacity:0.8;"></i></td>
+                        <td>
+                            <div class="fw-bold text-dark">${item.Title}</div>
+                            <a href="${item.VideoURL}" target="_blank" class="small text-danger text-decoration-none"><i class="fa-solid fa-play"></i> เปิดดูคลิป</a>
+                        </td>
+                        <td><span class="badge bg-light text-dark border">${catName}</span></td>
+                        <td>${badge}</td>
+                        <td class="text-center text-nowrap">
+                            ${btnUp}${btnDown}
+                            <button class="btn btn-sm btn-outline-warning me-1" onclick="openMediaModal('${item.MediaID}')"><i class="fa-solid fa-pen"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('Media', 'MediaID', '${item.MediaID}')"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openMediaModal(id = '') {
+            document.getElementById('formMedia').reset(); document.getElementById('med_MediaID').value = '';
+            document.getElementById('med_ExistingCoverURL').value = ''; document.getElementById('med_CoverStatus').innerText = 'ถ้าไม่อัปโหลด ระบบจะพยายามดึงรูปปกจาก YouTube อัตโนมัติ';
+            
+            if (id) {
+                const i = currentTableData.find(x => x.MediaID === id);
+                document.getElementById('med_MediaID').value = i.MediaID; document.getElementById('med_Title').value = i.Title; document.getElementById('med_VideoURL').value = i.VideoURL; document.getElementById('med_CategoryID').value = i.CategoryID; document.getElementById('med_Description').value = i.Description || ''; document.getElementById('med_OrderList').value = i.OrderList; document.getElementById('med_IsActive').checked = (i.IsActive === 'TRUE');
+                document.getElementById('med_ExistingCoverURL').value = i.CoverImageURL || '';
+                if(i.CoverImageURL) document.getElementById('med_CoverStatus').innerHTML = `<a href="${convertDriveImageLink(i.CoverImageURL)}" target="_blank">มีรูปปกเดิมอยู่แล้ว</a> (อัปโหลดใหม่เพื่อแทนที่)`;
+            }
+            new bootstrap.Modal(document.getElementById('mediaModal')).show();
+        }
+
+        async function saveMediaRecord(e) {
+            e.preventDefault(); const btn = document.getElementById('btnSaveMedia'); btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังอัปโหลด...';
+
+            try {
+                let finalCover = document.getElementById('med_ExistingCoverURL').value;
+                const cInp = document.getElementById('med_UploadCover'); 
+                if (cInp.files.length > 0) { let url = await uploadSingleFile(cInp.files[0], 'image'); if (url) finalCover = url; }
+
+                let ord = document.getElementById('med_OrderList').value || (currentTableData.length + 1);
+                // 🟢 [แก้ไข] บันทึกวันที่สร้างลงฐานข้อมูลเป็น ค.ศ.
+                const formattedDate = Utilities_getNow_AD() + ":" + ("0" + new Date().getSeconds()).slice(-2);
+
+                const rData = { 
+                    MediaID: document.getElementById('med_MediaID').value, Title: document.getElementById('med_Title').value, VideoURL: document.getElementById('med_VideoURL').value, CategoryID: document.getElementById('med_CategoryID').value, CoverImageURL: finalCover, Description: document.getElementById('med_Description').value, OrderList: ord, IsActive: document.getElementById('med_IsActive').checked ? 'TRUE' : 'FALSE',
+                    CreateDate: document.getElementById('med_MediaID').value === "" ? formattedDate : undefined 
+                };
+
+                fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'Media', idColumn: 'MediaID', recordJSON: JSON.stringify(rData) }) }).then(res=>res.json()).then(res=>{ if (res.status === 'success') { bootstrap.Modal.getInstance(document.getElementById('mediaModal')).hide(); Swal.fire({ icon: 'success', showConfirmButton: false, timer: 1500 }); switchView('media', null); } });
+            } catch(err) { Swal.fire('ผิดพลาด', 'บันทึกไม่สำเร็จ', 'error'); } finally { btn.innerHTML = 'บันทึกสื่อมัลติมีเดีย'; btn.disabled = false; }
+        }
+        function saveMediaOrder() { saveOrderAPI('Media', 'MediaID'); }
+
+        // ================ สิ้นสุด จัดการ media ======================
     </script>
 </body>
 </html>
