@@ -96,7 +96,7 @@
     <!-- แถบเมนูด้านบน (เหมือนหน้าแรก) -->
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
         <div class="container">
-            <a class="navbar-brand fw-bold d-flex align-items-center" href="#">
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="index.html">
                 <img id="navLogoImg" src="" style="height: 40px; margin-right: 10px; display: none;" alt="Logo">
                 <i id="navLogoIcon" class="fa-solid fa-plane-departure me-2"></i> 
                 <span id="navAirportName">ท่าอากาศยานบุรีรัมย์</span>
@@ -105,9 +105,8 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link" href="index.html">หน้าหลัก</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="#">ข่าวสารและประชาสัมพันธ์</a></li>
+                <ul class="navbar-nav me-auto" id="dynamicTopNav">
+                    <!-- เมนูด้านบนจะถูกดึงมาจากระบบหลังบ้านและวาดตรงนี้ -->
                 </ul>
             </div>
         </div>
@@ -205,9 +204,9 @@
     <footer class="mt-5">
         <div class="footer-top-logos text-center overflow-hidden">
             <div class="container d-flex justify-content-center align-items-center flex-wrap" style="gap: 20px;">
-                <img id="footerLogoMinistry" src="" style="display: none; height: 50px;">
-                <img id="footerLogoDept" src="" style="display: none; height: 50px;">
-                <img id="footerLogoAirport" src="" style="display: none; height: 50px;">
+                <img id="footerLogoMinistry" src="" class="footer-contact-logo" style="display: none;" alt="โลโก้กระทรวง">
+                <img id="footerLogoDept" src="" class="footer-contact-logo" style="display: none;" alt="โลโก้กรม">
+                <img id="footerLogoAirport" src="" class="footer-contact-logo" style="display: none;" alt="โลโก้สนามบิน">
                 <span id="footerLogoFallback" class="text-muted small">กำลังโหลดสัญลักษณ์หน่วยงาน...</span>
             </div>
         </div>
@@ -313,18 +312,27 @@
         }
 
         // 2. ดึงข้อมูลเมื่อโหลดหน้า
+        // 2. ดึงข้อมูลเมื่อโหลดหน้า
         document.addEventListener('DOMContentLoaded', async () => {
-            // เช็คว่ามี Parameter หมวดหมู่ส่งมาด้วยไหม (เช่น news.html?category=CAT001)
+            // เช็คว่ามี Parameter หมวดหมู่ส่งมาด้วยไหม
             const urlParams = new URLSearchParams(window.location.search);
             const passedCatId = urlParams.get('category');
             if (passedCatId) activeCategoryId = passedCatId;
 
             try {
-                const [catsRes, newsRes] = await Promise.all([
+                // 🟢 โหลดข้อมูลพร้อมกัน 4 ตาราง เพื่อวาดทั้งหน้าเว็บ
+                const [catsRes, newsRes, settingsRes, menusRes] = await Promise.all([
                     fetch(API_URL + '?action=getTableData&sheetName=NewsCategories').then(r => r.json()),
-                    fetch(API_URL + '?action=getTableData&sheetName=News').then(r => r.json())
+                    fetch(API_URL + '?action=getTableData&sheetName=News').then(r => r.json()),
+                    fetch(API_URL + '?action=getSettings').then(r => r.json()),
+                    fetch(API_URL + '?action=getTableData&sheetName=SiteMenus').then(r => r.json())
                 ]);
 
+                // โหลดหน้าจอ: เมนู + Footer + โลโก้
+                if(settingsRes.status === 'success') applySettingsToUI(settingsRes.data);
+                if(menusRes.status === 'success') renderTopMenu(menusRes.data);
+
+                // โหลดเนื้อหา: ข่าวสาร
                 if (catsRes.status === 'success') allCategoriesData = catsRes.data.filter(c => c.IsActive === 'TRUE');
                 if (newsRes.status === 'success') allNewsData = newsRes.data.filter(n => isReadyToPublish(n));
 
@@ -339,6 +347,71 @@
                 if (preloader) { preloader.style.opacity = '0'; setTimeout(() => { preloader.style.visibility = 'hidden'; }, 600); }
             }
         });
+
+        // 🟢 ฟังก์ชันวาดโลโก้และชื่อเว็บ (เหมือนหน้าหลัก)
+        function applySettingsToUI(settings) {
+            if(settings.SystemName) document.title = "ข่าวสาร | " + settings.SystemName;
+            
+            let displayAirportName = settings.AirportName || settings.SystemName || 'ท่าอากาศยานบุรีรัมย์';
+            if (document.getElementById('navAirportName')) document.getElementById('navAirportName').innerText = displayAirportName;
+            if (document.getElementById('footerSystemName2')) document.getElementById('footerSystemName2').innerText = displayAirportName;
+
+            if (settings.LogoAirport) {
+                let airportLogoUrl = convertDriveImageLink(settings.LogoAirport);
+                if (document.getElementById('dynamic-favicon')) document.getElementById('dynamic-favicon').href = airportLogoUrl;
+                
+                if (document.getElementById('navLogoImg')) {
+                    document.getElementById('navLogoImg').src = airportLogoUrl;
+                    document.getElementById('navLogoImg').style.display = 'block';
+                    document.getElementById('navLogoIcon').style.display = 'none';
+                }
+                if (document.getElementById('footerLogoAirport')) {
+                    document.getElementById('footerLogoAirport').src = airportLogoUrl;
+                    document.getElementById('footerLogoAirport').style.display = 'inline-block';
+                }
+            }
+
+            let hasFooterLogos = false;
+            if (settings.LogoMinistry && document.getElementById('footerLogoMinistry')) {
+                document.getElementById('footerLogoMinistry').src = convertDriveImageLink(settings.LogoMinistry);
+                document.getElementById('footerLogoMinistry').style.display = 'inline-block';
+                hasFooterLogos = true;
+            }
+            if (settings.LogoDept && document.getElementById('footerLogoDept')) {
+                document.getElementById('footerLogoDept').src = convertDriveImageLink(settings.LogoDept);
+                document.getElementById('footerLogoDept').style.display = 'inline-block';
+                hasFooterLogos = true;
+            }
+            if ((hasFooterLogos || settings.LogoAirport) && document.getElementById('footerLogoFallback')) {
+                document.getElementById('footerLogoFallback').style.display = 'none';
+            }
+        }
+
+        // 🟢 ฟังก์ชันวาดเมนูด้านบน (ดึงจากฐานข้อมูลเหมือนหน้าหลัก)
+        function renderTopMenu(menusData) {
+            const topNavContainer = document.getElementById('dynamicTopNav');
+            if (!topNavContainer) return;
+            
+            const activeMenus = menusData.filter(m => m.IsActive === 'TRUE').sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList));
+            const topMenus = activeMenus.filter(m => m.MenuPosition === 'TopNav');
+            
+            let topHtml = '';
+            let currentPath = window.location.pathname.split('/').pop() || 'index.html';
+
+            topMenus.forEach(m => {
+                let targetAttr = m.Target === '_blank' ? 'target="_blank"' : '';
+                let isActive = currentPath === m.URL ? 'active' : '';
+                
+                // สำหรับลิงก์ Anchor (#) ให้ตีกลับไปหน้าหลัก (index.html) แทน
+                let finalUrl = m.URL;
+                if (finalUrl.startsWith('#')) {
+                    finalUrl = 'index.html' + finalUrl;
+                }
+
+                topHtml += `<li class="nav-item"><a class="nav-link ${isActive}" href="${finalUrl}" ${targetAttr}>${m.MenuName}</a></li>`;
+            });
+            topNavContainer.innerHTML = topHtml;
+        }
 
         // 3. วาดเมนูหมวดหมู่ฝั่งซ้าย (แยกตาม Department)
         function renderSidebar() {
