@@ -200,18 +200,113 @@
         </div>
     </div>
 
-    <!-- FOOTER (แบบย่อ มีแค่โลโก้และชื่อ) -->
+    <!-- FOOTER -->
     <footer class="mt-5">
-        <div class="footer-top-logos text-center overflow-hidden">
-            <div class="container d-flex justify-content-center align-items-center flex-wrap" style="gap: 20px;">
-                <img id="footerLogoMinistry" src="" class="footer-contact-logo" style="display: none;" alt="โลโก้กระทรวง">
-                <img id="footerLogoDept" src="" class="footer-contact-logo" style="display: none;" alt="โลโก้กรม">
-                <img id="footerLogoAirport" src="" class="footer-contact-logo" style="display: none;" alt="โลโก้สนามบิน">
-                <span id="footerLogoFallback" class="text-muted small">กำลังโหลดสัญลักษณ์หน่วยงาน...</span>
+        <!--div class="footer-top-logos text-center overflow-hidden">
+            <div class="container d-flex justify-content-center flex-wrap">
+                <i class="fa-solid fa-plane-up fa-2x mx-3 text-muted"></i>
+                <i class="fa-solid fa-shield-halved fa-2x mx-3 text-muted"></i>
+                <i class="fa-solid fa-building-shield fa-2x mx-3 text-muted"></i>
+                <i class="fa-solid fa-globe fa-2x mx-3 text-muted"></i>
+                <i class="fa-solid fa-passport fa-2x mx-3 text-muted"></i>
+                <i class="fa-solid fa-scale-balanced fa-2x mx-3 text-muted"></i>
+            </div>
+    </div-->
+        <div class="footer-top-logos text-center">
+            <!--div class="d-flex align-items-center mb-4" style="gap: 15px;"-->
+            <div class="container d-flex justify-content-center flex-wrap">
+                            <img id="footerLogoMinistry" src="" class="footer-contact-logo" style="display: none;" alt="โลโก้กระทรวง">
+                            <img id="footerLogoDept" src="" class="footer-contact-logo" style="display: none;" alt="โลโก้กรม">
+                            <img id="footerLogoAirport" src="" class="footer-contact-logo" style="display: none;" alt="โลโก้สนามบิน">
+                            <span id="footerLogoFallback" class="text-white-50 small">กำลังโหลดสัญลักษณ์หน่วยงาน...</span>
+                    </div>
+    </div>
+
+        <div class="footer-main">
+            <div class="container">
+                <div class="row align-items-start g-4">
+                    <div class="col-lg-4 border-end border-secondary pe-4">
+                        
+                        <!-- 🟢 กล่องใส่โลโก้ 3 อัน (ใช้ Flexbox จัดให้เรียงสวยๆ มีระยะห่าง) -->
+                        <!--div class="d-flex align-items-center mb-4" style="gap: 15px;">
+                            <img id="footerLogoMinistry" src="" class="footer-contact-logo" style="display: none;" alt="โลโก้กระทรวง">
+                            <img id="footerLogoDept" src="" class="footer-contact-logo" style="display: none;" alt="โลโก้กรม">
+                            <img id="footerLogoAirport" src="" class="footer-contact-logo" style="display: none;" alt="โลโก้สนามบิน">
+                            <span id="footerLogoFallback" class="text-white-50 small">กำลังโหลดสัญลักษณ์หน่วยงาน...</span>
+                    </div-->
+
+                        <!-- 🟢 ข้อมูลการติดต่อ -->
+                        <h5 class="fw-bold mb-3"><i class="fa-solid fa-building me-2"></i> <span id="footerSystemName">ท่าอากาศยานบุรีรัมย์</span></h5>
+                        <p class="mb-2"><i class="fa-solid fa-location-dot me-2 text-white-50"></i> <span id="footerAddress">-</span></p>
+                        <p class="mb-2"><i class="fa-solid fa-phone me-2 text-white-50"></i> <span id="footerPhone">-</span></p>
+                        <p class="mb-0"><i class="fa-solid fa-envelope me-2 text-white-50"></i> <span id="footerEmail">-</span></p>
+                        
+                    </div>
+                    <div class="col-lg-4 border-end border-secondary px-4">
+                        <h5 class="fw-bold mb-3 text-warning"><i class="fa-solid fa-plane-circle-check me-2"></i> สายการบินที่ให้บริการ</h5>
+                        <div id="footer-airlines-container">
+                            <div class="airline-box">
+                                <i class="fa-solid fa-plane text-danger fa-2x me-3 bg-white p-1 rounded"></i>
+                                <div>
+                                    <div class="fw-bold">Thai AirAsia (แอร์เอเชีย)</div>
+                                    <div class="small text-light"><i class="fa-solid fa-phone fa-sm"></i> 044-634-968</div>
+                                </div>
+                            </div>
+                            <div class="airline-box">
+                                <i class="fa-solid fa-plane text-warning fa-2x me-3 bg-white p-1 rounded"></i>
+                                <div>
+                                    <div class="fw-bold">Nok Air (นกแอร์)</div>
+                                    <div class="small text-light"><i class="fa-solid fa-phone fa-sm"></i> 044-666-721</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- สถิติผู้เข้าชมเว็บไซต์ -->
+                    <div class="col-lg-4 ps-4">
+                        <h5 class="fw-bold mb-3"><i class="fa-solid fa-chart-line me-2"></i> สถิติผู้เข้าชมเว็บไซต์</h5>
+                        
+                        <div class="stats-box" style="background-color: #0d2847; border: 1px solid rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);">
+                            <div class="stats-row d-flex justify-content-between align-items-center border-bottom border-secondary border-opacity-25 pb-2 mb-2">
+                                <span class="fw-bold"><i class="fa-solid fa-users me-2"></i> ผู้เข้าชมทั้งหมด</span>
+                                <span class="fw-bold text-warning fs-5" id="statTotalAll">-</span>
+                            </div>
+                            <div class="stats-row d-flex justify-content-between align-items-center border-bottom border-secondary border-opacity-25 pb-2 mb-2">
+                                <span class="fw-bold" id="statCurrentMonthLabel"><i class="fa-regular fa-calendar me-2"></i> เดือนปัจจุบัน</span>
+                                <span class="fw-bold text-white fs-5" id="statTotalMonth">-</span>
+                            </div>
+                            <div class="stats-row border-0 pb-0 mt-2 d-flex justify-content-between align-items-center">
+                                <span class="text-success fw-bold"><i class="fa-solid fa-circle text-success fa-xs me-2 blink"></i> ออนไลน์ขณะนี้</span>
+                                <span class="badge rounded-pill px-3 py-1" style="background-color: #198754; font-size: 0.9rem;" id="statOnlineNow">1</span>
+                            </div>
+                        </div>
+
+                        <div class="text-end mt-3">
+                            <button class="btn btn-outline-light rounded-pill px-3 py-1 border-secondary" style="font-size: 0.85rem;" onclick="showWebStatsModal()">
+                                ดูข้อมูลย้อนหลัง <i class="fa-solid fa-clock-rotate-left ms-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <button class="toggle-sitemap-btn" type="button" data-bs-toggle="collapse" data-bs-target="#footerSitemapContainer">
+            <i class="fa-solid fa-chevron-down me-2"></i> แสดง/ซ่อน แผนผังเว็บไซต์
+        </button>
+
+       <div class="collapse" id="footerSitemapContainer">
+            <div class="footer-sitemap">
+                <div class="container">
+                    <div class="row text-center text-md-start" id="dynamicFooterSitemap">
+                        <!-- แผนผังเว็บ (Sitemap) จะถูกดึงมาจากระบบหลังบ้านและจัดกลุ่มที่นี่ -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <div class="text-center py-3 border-top border-secondary small text-white" style="background-color: #213C6D;">
-            © 2569 สงวนลิขสิทธิ์ตามพระราชบัญญัติลิขสิทธิ์โดย <span id="footerSystemName2">ท่าอากาศยานบุรีรัมย์</span>
+            © 2569 สงวนลิขสิทธิ์ตามพระราชบัญญัติลิขสิทธิ์โดย ท่าอากาศยานบุรีรัมย์<br>
+            รองรับการแสดงผลบนเบราว์เซอร์ Chrome, Firefox, Safari, Edge
         </div>
     </footer>
 
