@@ -77,6 +77,11 @@
         .footer-sitemap a:hover { color: var(--primary-blue); padding-left: 5px;}
         .toggle-sitemap-btn { background-color: #E9ECEF; border: none; width: 100%; padding: 10px; color: var(--primary-blue); font-weight: 600; border-top: 1px solid #ccc; transition: 0.2s; cursor: pointer; text-align: center; }
         .toggle-sitemap-btn:hover { background-color: #d1d5da; }
+
+        /* ================= สไตล์ E-Service Modal ================= */
+        .e-service-card { border-top: 4px solid var(--primary-blue); cursor: pointer; transition: 0.3s; }
+        .e-service-card:hover { background-color: var(--primary-blue); transform: translateY(-5px); }
+        .e-service-card:hover h6, .e-service-card:hover i { color: white !important; }
     </style>
 </head>
 <body>
@@ -493,29 +498,56 @@
         }
 
         // ================= ฟังก์ชัน UI พื้นฐาน (เหมือนหน้าอื่นๆ) =================
+        // 🟢 ฟังก์ชันวาด UI พื้นฐาน (Navbar, Footer, Contact Modal)
         function applySettingsToUI(settings) {
-            if(settings.SystemName) document.title = "เกี่ยวกับหน่วยงาน | " + settings.SystemName;
+            if(settings.SystemName) document.title = document.title.split('|')[0] + "| " + settings.SystemName;
             
             let displayAirportName = settings.AirportName || settings.SystemName || 'ท่าอากาศยานบุรีรัมย์';
+            
+            // อัปเดตชื่อหน่วยงาน
             if (document.getElementById('navAirportName')) document.getElementById('navAirportName').innerText = displayAirportName;
             if (document.getElementById('footerSystemName')) document.getElementById('footerSystemName').innerText = displayAirportName;
             if (document.getElementById('footerSystemName2')) document.getElementById('footerSystemName2').innerText = displayAirportName;
+            if (document.getElementById('modalContactName')) document.getElementById('modalContactName').innerText = displayAirportName; // 🟢 ข้อมูล Modal
 
-            if (document.getElementById('footerAddress')) document.getElementById('footerAddress').innerText = settings.ContactAddress || '-';
-            if (document.getElementById('footerPhone')) document.getElementById('footerPhone').innerText = settings.ContactPhone || '-';
-            if (document.getElementById('footerEmail')) document.getElementById('footerEmail').innerText = settings.ContactEmail || '-';
+            // อัปเดตข้อมูลการติดต่อ
+            let address = settings.ContactAddress || '-';
+            let phone = settings.ContactPhone || '-';
+            let email = settings.ContactEmail || '-';
 
+            if (document.getElementById('footerAddress')) document.getElementById('footerAddress').innerText = address;
+            if (document.getElementById('footerPhone')) document.getElementById('footerPhone').innerText = phone;
+            if (document.getElementById('footerEmail')) document.getElementById('footerEmail').innerText = email;
+            
+            // 🟢 ข้อมูล Modal
+            if (document.getElementById('modalContactAddress')) document.getElementById('modalContactAddress').innerText = address;
+            if (document.getElementById('modalContactPhone')) document.getElementById('modalContactPhone').innerText = phone;
+            if (document.getElementById('modalContactEmail')) document.getElementById('modalContactEmail').innerText = email;
+
+            // จัดการโลโก้หลัก (สนามบิน)
             if (settings.LogoAirport) {
                 let airportLogoUrl = convertDriveImageLink(settings.LogoAirport);
-                document.getElementById('dynamic-favicon').href = airportLogoUrl;
-                document.getElementById('navLogoImg').src = airportLogoUrl; document.getElementById('navLogoImg').style.display = 'block'; document.getElementById('navLogoIcon').style.display = 'none';
-                document.getElementById('footerLogoAirport').src = airportLogoUrl; document.getElementById('footerLogoAirport').style.display = 'inline-block';
+                if (document.getElementById('dynamic-favicon')) document.getElementById('dynamic-favicon').href = airportLogoUrl;
+                
+                if (document.getElementById('navLogoImg')) {
+                    document.getElementById('navLogoImg').src = airportLogoUrl; document.getElementById('navLogoImg').style.display = 'block'; 
+                    if(document.getElementById('navLogoIcon')) document.getElementById('navLogoIcon').style.display = 'none';
+                }
+                if (document.getElementById('footerLogoAirport')) {
+                    document.getElementById('footerLogoAirport').src = airportLogoUrl; document.getElementById('footerLogoAirport').style.display = 'inline-block';
+                }
+                // 🟢 โลโก้ใน Modal ติดต่อเรา
+                if (document.getElementById('modalContactLogoImg')) {
+                    document.getElementById('modalContactLogoImg').src = airportLogoUrl; document.getElementById('modalContactLogoImg').style.display = 'inline-block';
+                    if(document.getElementById('modalContactLogoIcon')) document.getElementById('modalContactLogoIcon').style.display = 'none';
+                }
             }
 
+            // จัดการโลโก้ส่วน Footer (กระทรวง, กรม)
             let hasFooterLogos = false;
             if (settings.LogoMinistry) { document.getElementById('footerLogoMinistry').src = convertDriveImageLink(settings.LogoMinistry); document.getElementById('footerLogoMinistry').style.display = 'inline-block'; hasFooterLogos = true; }
             if (settings.LogoDept) { document.getElementById('footerLogoDept').src = convertDriveImageLink(settings.LogoDept); document.getElementById('footerLogoDept').style.display = 'inline-block'; hasFooterLogos = true; }
-            if ((hasFooterLogos || settings.LogoAirport)) document.getElementById('footerLogoFallback').style.display = 'none';
+            if ((hasFooterLogos || settings.LogoAirport) && document.getElementById('footerLogoFallback')) document.getElementById('footerLogoFallback').style.display = 'none';
         }
 
         function renderSiteMenus(menusData) {
