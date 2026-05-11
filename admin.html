@@ -2334,11 +2334,17 @@
         function openFlightModal(id = '') {
             document.getElementById('formFlight').reset(); document.getElementById('flt_FlightID').value = ''; document.getElementById('flightModalTitle').innerText = 'เพิ่มเที่ยวบินใหม่';
             flightDatepicker.clear(); currentStandDataObj = {}; document.getElementById('standAssignmentSection').style.display = 'none';
+            document.getElementById('flt_AirlineID').value = ""; // 🟢 รีเซ็ต Dropdown
 
             if (id) {
                 document.getElementById('flightModalTitle').innerText = 'แก้ไขเที่ยวบิน';
                 const item = currentTableData.find(x => x.FlightID === id);
-                document.getElementById('flt_FlightID').value = item.FlightID; document.getElementById('flt_AirlineID').value = item.AirlineID; document.getElementById('flt_FlightNumber').value = item.FlightNumber;
+                document.getElementById('flt_FlightID').value = item.FlightID; 
+                
+                // 🟢 ใช้ setTimeout ช่วยให้มั่นใจว่าข้อมูลยัดเข้า Dropdown แล้วค่อยเซ็ตค่า
+                setTimeout(() => { document.getElementById('flt_AirlineID').value = item.AirlineID; }, 50);
+                
+                document.getElementById('flt_FlightNumber').value = item.FlightNumber;
                 document.getElementById('flt_FlightType').value = item.FlightType; document.getElementById('flt_Origin').value = item.Origin; document.getElementById('flt_Destination').value = item.Destination;
                 document.getElementById('flt_DepartureTime').value = item.DepartureTime; document.getElementById('flt_ArrivalTime').value = item.ArrivalTime; document.getElementById('flt_IsActive').checked = (item.IsActive === 'TRUE');
                 
