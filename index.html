@@ -234,6 +234,12 @@
         .footer-contact-logo:hover {
             transform: scale(1.1); /* ขยายขึ้นเล็กน้อยเมื่อเอาเมาส์ชี้ */
         }
+
+        /* ================= ปรับแต่ง Scrollbar ในช่องรายการเที่ยวบิน ================= */
+        #flightDetailsResult::-webkit-scrollbar { width: 6px; }
+        #flightDetailsResult::-webkit-scrollbar-track { background: transparent; }
+        #flightDetailsResult::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        #flightDetailsResult::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
 <body>
@@ -740,7 +746,8 @@
                             <div class="text-muted small mb-3 flex-shrink-0">วันที่เลือก: <span id="flightSelectedDate" class="fw-bold text-dark fs-6">-</span></div>
                             
                             <!-- 🟢 2. ลบ max-height: 400px ออก แล้วใส่คลาส flex-grow-1 ให้มันขยายเต็มพื้นที่ว่างด้านล่าง -->
-                            <div id="flightDetailsResult" class="flex-grow-1" style="overflow-y: auto; overflow-x: hidden; padding-right: 10px; min-height: 400px;">
+                            <!--div id="flightDetailsResult" class="flex-grow-1" style="overflow-y: auto; overflow-x: hidden; padding-right: 10px; min-height: 400px;"-->
+                            <div id="flightDetailsResult" class="flex-grow-1 mt-2" style="overflow-y: auto; overflow-x: hidden; padding-right: 8px; height: 500px; max-height: 500px;">
                                 <div class="text-center text-muted mt-5"><i class="fa-regular fa-hand-pointer fa-3x mb-3 opacity-25"></i><br>โปรดเลือกวันที่จากปฏิทิน</div>
                             </div>
 
