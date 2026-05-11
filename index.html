@@ -2043,38 +2043,43 @@
                     : `<i class="fa-solid ${iconType} me-2"></i>`;
 
                 // 🟢 สร้างป้ายหลุมจอดแบบกล่องใหญ่ (คล้าย FIDS สนามบิน)
-                let standHtml = '';
+                 let standHtml = '';
                 if (showStandInfo) {
                     let standForToday = '-';
                     try {
                         let standMap = JSON.parse(f.StandAssignments || '{}');
-                        // ลองดึงแบบเป๊ะๆ ก่อน ถ้าไม่ได้ลองดึงแบบเติม 0 นำหน้า
                         standForToday = standMap[selectedDateKey] || standMap[`${d.padStart(2,'0')}/${m.padStart(2,'0')}/${y}`] || '-';
                     } catch(e) {}
                     
+                    // 🟢 [แก้ไข] สกัดเลขและตัวอักษร เช่น ดึง '4L' มาได้เลย
                     let standNumber = standForToday;
-                    let numMatch = standForToday.match(/\d+/);
-                    if(numMatch) standNumber = numMatch[0];
+                    let matchAlphaNum = standForToday.match(/[a-zA-Z0-9]+/g);
+                    if(matchAlphaNum) standNumber = matchAlphaNum.join(''); 
+
+                    // ปรับขนาดตัวอักษรให้เล็กลงอัตโนมัติถ้าหลุมจอดมีตัวอักษรเยอะ (เช่น 4L)
+                    let standFontSize = standNumber.length > 2 ? '1.6rem' : '2.2rem';
 
                     standHtml = `
                     <div class="bg-light border-start d-flex flex-column align-items-center justify-content-center p-2 flex-shrink-0" style="width: 80px;">
                         <div class="fw-bold" style="font-size: 0.65rem; color: ${airColor}; letter-spacing: 1px;">STAND</div>
-                        <div class="fw-bold text-dark lh-1 mt-1" style="font-size: 2.2rem;">${standForToday !== '-' ? standNumber : '<i class="fa-solid fa-minus fs-5 opacity-25"></i>'}</div>
+                        <div class="fw-bold text-dark lh-1 mt-1" style="font-size: ${standFontSize};">${standForToday !== '-' ? standNumber : '<i class="fa-solid fa-minus fs-5 opacity-25"></i>'}</div>
                     </div>`;
                 }
 
-                // 🟢 โครงสร้างการ์ดเที่ยวบินแบบใหม่ (Flexbox ปรับให้พอดี)
+                // 🟢 โครงสร้างการ์ดเที่ยวบินแบบใหม่ (เอา text-truncate ออกเพื่อให้ชื่อแสดงได้ 2 บรรทัดถ้ายาวเกินไป)
                 listHtml += `
                 <div class="card border-0 shadow-sm mb-3 border-start border-4 overflow-hidden" style="border-left-color: ${airColor} !important; border-radius: 8px;">
-                    <div class="card-body p-0 d-flex"> <!-- เอา p-3 ออก เปลี่ยนเป็น p-0 เพื่อให้เส้นแบ่งชัดเจน -->
+                    <div class="card-body p-0 d-flex">
                         
-                        <!-- ข้อมูลเที่ยวบินฝั่งซ้าย (ยืดหดได้ตามพื้นที่) -->
+                        <!-- ข้อมูลเที่ยวบินฝั่งซ้าย -->
                         <div class="flex-grow-1 p-3" style="min-width: 0;">
-                            <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
-                                <div class="fw-bold d-flex align-items-center text-truncate pe-2" style="color: ${airColor}; font-size: 1rem;">
-                                    ${logoHtml} <span class="text-truncate">${airName}</span>
+                            
+                            <div class="d-flex justify-content-between align-items-start mb-3 border-bottom pb-2">
+                                <!-- 🟢 เอา text-truncate ออก เพื่อให้ชื่อยาวๆ ขึ้นบรรทัดใหม่ได้ -->
+                                <div class="fw-bold d-flex align-items-center pe-2" style="color: ${airColor}; font-size: 1rem; line-height: 1.3;">
+                                    ${logoHtml} <span>${airName}</span>
                                 </div>
-                                <span class="badge rounded-pill fs-6 px-3 shadow-sm flex-shrink-0" style="background-color: ${airColor}">${f.FlightNumber}</span>
+                                <span class="badge rounded-pill fs-6 px-3 shadow-sm flex-shrink-0 mt-1" style="background-color: ${airColor}">${f.FlightNumber}</span>
                             </div>
                             
                             <div class="d-flex justify-content-between text-muted">
@@ -2088,9 +2093,10 @@
                                     <div class="display-6 fw-bold text-dark mt-1" style="font-size: 1.6rem;">${f.ArrivalTime}</div>
                                 </div>
                             </div>
+                            
                         </div>
 
-                        <!-- กล่องหลุมจอดฝั่งขวา (จะโชว์ก็ต่อเมื่อมีสิทธิ์) -->
+                        <!-- กล่องหลุมจอดฝั่งขวา -->
                         ${standHtml}
 
                     </div>
