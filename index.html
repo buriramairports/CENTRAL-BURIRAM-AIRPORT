@@ -19,7 +19,6 @@
         :root {
             --primary-blue: #0A3161; 
             --secondary-blue: #155297;
-            --primary-red: #dc3545;
             --light-bg: #F4F7F6;
         }
 
@@ -746,8 +745,8 @@
                         <!-- 🟢 1. เติมคลาส d-flex flex-column เข้าไปที่กล่องคลุมเพื่อให้มันจัดเรียงแบบยืดหยุ่น -->
                         <div class="col-lg-5 p-4 bg-light d-flex flex-column">
                             
-                            <h5 class="fw-bold mb-3 border-bottom pb-2 flex-shrink-0">
-                                <i class="fa-solid fa-list-check me-2"></i><span style="color: var(--primary-blue);"> รายการเที่ยวบิน </span><span class="fw-bold text-dark fs-6" style="color: var(--primary-red);">&nbsp;&nbsp;|&nbsp;&nbsp;วันที่เลือก: </span><span id="flightSelectedDate" class="fw-bold text-dark fs-6" style="color: var(--primary-red);">-</span>
+                            <h5 class="fw-bold mb-3 border-bottom pb-2 flex-shrink-0" style="color: var(--primary-blue);">
+                                <i class="fa-solid fa-list-check me-2"></i>รายการเที่ยวบิน <span class="fw-bold text-dark fs-6">&nbsp;&nbsp;|&nbsp;&nbsp;วันที่เลือก: </span><span id="flightSelectedDate" class="fw-bold text-dark fs-6">-</span>
                             </h5>
                             <!--div class="text-muted small mb-3 flex-shrink-0">วันที่เลือก: <span id="flightSelectedDate" class="fw-bold text-dark fs-6">-</span></div-->
                             
@@ -803,8 +802,8 @@
 
                         <!-- ฝั่งขวา: รายละเอียดกิจกรรมของวันที่เลือก -->
                         <div class="col-lg-7 p-4 bg-light">
-                            <h5 class="fw-bold mb-3 border-bottom pb-2" >
-                                <i class="fa-solid fa-list-ul me-2"></i> <span style="color: var(--primary-blue);">รายละเอียดกิจกรรม </span><span class="fw-bold text-dark fs-6" style="color: var(--primary-red);">&nbsp;&nbsp;|&nbsp;&nbsp;วันที่เลือก: </span><span id="eventSelectedDate" class="fw-bold text-dark fs-6" style="color: var(--primary-red);">-</span>
+                            <h5 class="fw-bold mb-3 border-bottom pb-2" style="color: var(--primary-blue);">
+                                <i class="fa-solid fa-list-ul me-2"></i> รายละเอียดกิจกรรม <span class="fw-bold text-dark fs-6">&nbsp;&nbsp;|&nbsp;&nbsp;วันที่เลือก: </span><span id="eventSelectedDate" class="fw-bold text-dark fs-6">-</span>
                             </h5>
                             <!--div class="text-muted small mb-3">วันที่เลือก: <span id="eventSelectedDate" class="fw-bold text-dark fs-6">-</span></div-->
                             <div id="eventDetailsResult" style="max-height: 450px; overflow-y: auto; overflow-x: hidden; padding-right: 10px;">
