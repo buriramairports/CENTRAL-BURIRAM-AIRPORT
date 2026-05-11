@@ -814,6 +814,42 @@
             </div>
         </div>
     </div>    
+
+    <!-- ================= เริ่มต้น Modal ดูสื่อมัลติมีเดีย (สำหรับหน้า Admin) ================= -->
+    <div class="modal fade" id="adminVideoModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content border-0 bg-dark">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h5 class="modal-title fw-bold text-white"><i class="fa-brands fa-youtube text-danger me-2"></i> ตัวอย่างวิดีโอ</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="ratio ratio-16x9">
+                        <iframe id="adminVideoPlayer" src="" title="YouTube" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="adminGalleryModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content border-0 bg-dark">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h5 class="modal-title fw-bold text-white"><i class="fa-solid fa-images text-success me-2"></i> ตัวอย่างแกลลอรี</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0 relative">
+                    <div id="adminGalleryCarousel" class="carousel slide" data-bs-interval="false">
+                        <div class="carousel-indicators" id="adminGalleryIndicators"></div>
+                        <div class="carousel-inner" id="adminGalleryInner" style="height: 75vh; background-color: #111;"></div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#adminGalleryCarousel" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#adminGalleryCarousel" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- ========================================================================= -->
     <!--                                 JAVASCRIPT                                  -->
     <!-- ========================================================================= -->
@@ -3205,7 +3241,14 @@
                         <td class="text-center position-relative">${imgHtml}</td>
                         <td>
                             <div class="fw-bold text-dark">${item.Title} ${homeBadge}</div>
-                            <div class="mt-1">${typeBadge}</div>
+                            <div class="mt-1 d-flex align-items-center gap-2">
+                                ${typeBadge}
+                                <!-- 🟢 เพิ่มปุ่มกดดูสื่อตามประเภท -->
+                                ${item.MediaType === 'image' 
+                                    ? `<button onclick="openAdminGallery('${item.MediaID}')" class="btn btn-sm btn-outline-info py-0"><i class="fa-solid fa-magnifying-glass"></i> ดูรูป</button>`
+                                    : `<button onclick="openAdminVideo('${item.MediaID}')" class="btn btn-sm btn-outline-danger py-0"><i class="fa-solid fa-play"></i> ดูคลิป</button>`
+                                }
+                            </div>
                         </td>
                         <td><span class="badge bg-light text-dark border">${catName}</span></td>
                         <td>${badge}</td>
@@ -3315,6 +3358,55 @@
         }
         function saveMediaOrder() { saveOrderAPI('Media', 'MediaID'); }
         // ================= สิ้นสุด ระบบจัดการ สื่อมัลติมีเดีย =================
+        //
+// 🟢 ฟังก์ชันสำหรับเปิดดูตัวอย่าง สื่อมัลติมีเดีย ในหน้าแอดมิน
+        function openAdminVideo(id) {
+            const m = currentTableData.find(x => x.MediaID === id);
+            let ytId = getYouTubeId(m.MediaURL);
+            if(ytId) {
+                document.getElementById('adminVideoPlayer').src = `https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0`;
+                new bootstrap.Modal(document.getElementById('adminVideoModal')).show();
+            } else {
+                Swal.fire('ข้อผิดพลาด', 'ลิงก์วิดีโอไม่ถูกต้อง', 'error');
+            }
+        }
+
+        // ดักจับการปิด Modal วิดีโอ ให้หยุดเล่นคลิป
+        document.getElementById('adminVideoModal').addEventListener('hidden.bs.modal', function () { 
+            document.getElementById('adminVideoPlayer').src = ''; 
+        });
+
+        function openAdminGallery(id) {
+            const m = currentTableData.find(x => x.MediaID === id);
+            if (!m || !m.GalleryURLs) return Swal.fire('แจ้งเตือน', 'ไม่มีรูปภาพในแกลลอรีนี้', 'warning');
+
+            const inner = document.getElementById('adminGalleryInner'); 
+            const indicators = document.getElementById('adminGalleryIndicators');
+            inner.innerHTML = ''; indicators.innerHTML = '';
+
+            let images = m.GalleryURLs.split(', ');
+            images.forEach((url, index) => {
+                let displayUrl = convertDriveImageLink(url); 
+                let rawUrl = url.replace('?usp=sharing', ''); 
+                let activeClass = index === 0 ? 'active' : ''; 
+                
+                indicators.innerHTML += `<button type="button" data-bs-target="#adminGalleryCarousel" data-bs-slide-to="${index}" class="${activeClass}"></button>`;
+                inner.innerHTML += `
+                    <div class="carousel-item ${activeClass} h-100 w-100">
+                        <div class="d-flex justify-content-center align-items-center h-100 w-100 p-3">
+                            <img src="${displayUrl}" class="img-fluid" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                        </div>
+                        <div class="position-absolute bottom-0 end-0 m-4" style="z-index: 10;">
+                            <a href="${rawUrl}" target="_blank" class="btn btn-primary rounded-pill shadow"><i class="fa-solid fa-expand me-1"></i> ขนาดเต็ม</a>
+                        </div>
+                    </div>`;
+            });
+
+            const myCarousel = document.getElementById('adminGalleryCarousel');
+            new bootstrap.Carousel(myCarousel, { interval: false, ride: false });
+            new bootstrap.Modal(document.getElementById('adminGalleryModal')).show();
+        }
+        // ================= ฟังก์ชันสำหรับเปิดดูตัวอย่าง สื่อมัลติมีเดีย ในหน้าแอดมิน =================
     </script>
 </body>
 </html>
