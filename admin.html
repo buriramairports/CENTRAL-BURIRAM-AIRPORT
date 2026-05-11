@@ -2242,7 +2242,12 @@
                 
                 let airlineObj = allAirlinesData.find(a => a.AirlineID === item.AirlineID);
                 let airlineName = airlineObj ? airlineObj.AirlineName : 'ไม่ทราบสายการบิน';
-                let airlineIcon = airlineObj && airlineObj.IconURL ? `<img src="${airlineObj.IconURL}" style="height:20px; margin-right:5px; border-radius:3px;">` : `<i class="fa-solid fa-plane me-1"></i>`;
+                
+                // 🟢 แก้ไขตรงนี้: เพิ่มการแปลงลิงก์ Drive (convertDriveImageLink) ก่อนนำไปแสดง
+                let convertedUrl = (airlineObj && airlineObj.IconURL) ? convertDriveImageLink(airlineObj.IconURL) : '';
+                let airlineIcon = convertedUrl 
+                    ? `<img src="${convertedUrl}" style="height:20px; width:20px; object-fit:contain; margin-right:5px; border-radius:3px; background:white;">` 
+                    : `<i class="fa-solid fa-plane me-2 text-muted"></i>`;
                 
                 let datesArr = item.FlightDates ? item.FlightDates.split(', ') : [];
                 let btnDates = datesArr.length > 0 
@@ -2251,7 +2256,7 @@
 
                 tbody.innerHTML += `
                     <tr>
-                        <td><div class="fw-bold text-danger fs-6">${item.FlightNumber}</div><div class="small text-muted">${airlineIcon} ${airlineName}</div></td>
+                        <td><div class="fw-bold text-danger fs-6">${item.FlightNumber}</div><div class="small text-muted d-flex align-items-center mt-1">${airlineIcon} ${airlineName}</div></td>
                         <td class="text-center">${typeBadge}</td>
                         <td class="fw-bold text-secondary"><div>${item.Origin}</div><div><i class="fa-solid fa-arrow-down text-muted"></i></div><div>${item.Destination}</div></td>
                         <td class="text-center"><span class="fw-bold text-dark fs-5">${item.DepartureTime}</span><br><span class="small text-muted">ถึง ${item.ArrivalTime}</span></td>
