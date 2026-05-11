@@ -41,14 +41,21 @@
         .cat-item.active { background-color: #eff6ff; color: var(--primary-blue); font-weight: bold; border-left: 4px solid var(--primary-blue); }
         .cat-item.active i { color: var(--primary-blue); }
 
+        /* ================= แท็บเมนู (Media Tabs) ================= */
+        .nav-pills .nav-link { color: #64748b; border-radius: 30px; transition: 0.3s; border: 1px solid transparent; }
+        .nav-pills .nav-link:hover { color: var(--primary-blue); background-color: #f1f5f9; }
+        .nav-pills .nav-link.active { background-color: var(--primary-blue); color: white; box-shadow: 0 4px 6px rgba(10, 49, 97, 0.2); }
+
         /* ================= การ์ด Media ================= */
         .media-card { border: none; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.3s; cursor: pointer; height: 100%; display: flex; flex-direction: column; background: white;}
         .media-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         .media-img-wrapper { position: relative; height: 200px; overflow: hidden; background-color: #000; }
         .media-img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; opacity: 0.85; }
         .media-card:hover .media-img { transform: scale(1.05); opacity: 0.5; }
-        .play-icon-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 3rem; opacity: 0.8; transition: 0.3s; text-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 2;}
-        .media-card:hover .play-icon-overlay { color: #ef4444; transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+        .play-icon-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 3.5rem; opacity: 0.8; transition: 0.3s; text-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 2;}
+        .media-card:hover .play-icon-overlay { transform: translate(-50%, -50%) scale(1.2); opacity: 1; color: #ef4444;}
+        .gallery-icon-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 3.5rem; opacity: 0.8; transition: 0.3s; text-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 2;}
+        .media-card:hover .gallery-icon-overlay { transform: translate(-50%, -50%) scale(1.2); opacity: 1; color: #3b82f6;}
         .media-badge { position: absolute; top: 10px; left: 10px; color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 2;}
         .media-body { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; }
         .media-title { font-weight: bold; color: #1e293b; font-size: 1.05rem; line-height: 1.4; margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
@@ -116,7 +123,7 @@
     <div style="background: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=2000&auto=format&fit=crop') center/cover; position: relative;">
         <div style="background: rgba(10, 49, 97, 0.85); padding: 50px 0;">
             <div class="container text-center text-white">
-                <h2 class="fw-bold mb-2">สื่อมัลติมีเดีย (Video Gallery)</h2>
+                <h2 class="fw-bold mb-2">สื่อมัลติมีเดีย (Media Gallery)</h2>
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb justify-content-center mb-0">
                         <li class="breadcrumb-item"><a href="index.html" class="text-white-50 text-decoration-none">หน้าหลัก</a></li>
@@ -128,24 +135,42 @@
     </div>
 
     <!-- ส่วนเนื้อหาหลัก -->
-    <div class="container mt-5 mb-5">
+    <div class="container mt-4 mb-5">
+        
+        <!-- 🟢 แท็บสลับโหมด Video / Image -->
+        <ul class="nav nav-pills mb-4 justify-content-center bg-white p-2 rounded-pill shadow-sm border mx-auto" style="max-width: 500px;">
+            <li class="nav-item flex-grow-1 text-center">
+                <a class="nav-link active fw-bold py-2" href="javascript:void(0)" onclick="selectMediaType('video')" id="tab-video">
+                    <i class="fa-brands fa-youtube me-2"></i> คลิปวิดีโอ
+                </a>
+            </li>
+            <li class="nav-item flex-grow-1 text-center">
+                <a class="nav-link fw-bold py-2" href="javascript:void(0)" onclick="selectMediaType('image')" id="tab-image">
+                    <i class="fa-solid fa-images me-2"></i> รูปภาพ / อินโฟกราฟิก
+                </a>
+            </li>
+        </ul>
+
         <div class="row g-4">
-            
            <!-- ฝั่งซ้าย: Sidebar หมวดหมู่ -->
             <div class="col-lg-3 align-self-start" style="position: sticky; top: 10px; z-index: 10;">
                 <div class="sidebar-card" style="max-height: calc(100vh - 130px); display: flex; flex-direction: column;">
                     <div class="sidebar-header flex-shrink-0">
-                        <i class="fa-solid fa-filter me-2"></i> หมวดหมู่วิดีโอ
+                        <i class="fa-solid fa-filter me-2"></i> หมวดหมู่
                     </div>
                     <div class="flex-grow-1 sidebar-scrollable" style="overflow-y: auto;">
-                        <ul class="cat-list" id="sidebar-categories">
-                            <!-- หมวดหมู่จะถูกวาดโดย JS -->
+                        <ul class="cat-list">
+                            <li class="cat-item fw-bold active" id="cat-all" onclick="selectCategory('all')">
+                                <i class="fa-solid fa-border-all"></i> แสดงทั้งหมด
+                            </li>
                         </ul>
+                        <!-- หมวดหมู่ย่อยจะถูกวาดตรงนี้ -->
+                        <div id="sidebar-categories"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- ฝั่งขวา: รายการวิดีโอ -->
+            <!-- ฝั่งขวา: รายการสื่อมัลติมีเดีย -->
             <div class="col-lg-9">
                 <!-- เครื่องมือค้นหาและจัดเรียง -->
                 <div class="card border-0 shadow-sm mb-4 bg-white">
@@ -154,7 +179,7 @@
                             <div class="col-md-7">
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
-                                    <input type="text" id="searchMediaText" class="form-control border-start-0 bg-light" placeholder="ค้นหาชื่อวิดีโอ..." oninput="applyFilters()">
+                                    <input type="text" id="searchMediaText" class="form-control border-start-0 bg-light" placeholder="ค้นหาชื่อเรื่อง..." oninput="applyFilters()">
                                 </div>
                             </div>
                             <div class="col-md-5">
@@ -168,16 +193,14 @@
                 </div>
 
                 <!-- หัวข้อหมวดหมู่ที่เลือก -->
-                <h4 class="fw-bold mb-3" style="color: var(--primary-blue);" id="currentCategoryTitle">วิดีโอทั้งหมด</h4>
+                <h4 class="fw-bold mb-3" style="color: var(--primary-blue);" id="currentCategoryTitle">รายการทั้งหมด</h4>
 
                 <!-- ผลลัพธ์การ์ด (Grid) -->
                 <div class="row g-4 mb-4" id="mediaGridContainer"></div>
 
                 <!-- Pagination (แบ่งหน้า) -->
                 <nav><ul class="pagination justify-content-center" id="mediaPagination"></ul></nav>
-
             </div>
-
         </div>
     </div>
 
@@ -263,7 +286,6 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-0">
-                    <!-- กำหนดอัตราส่วน 16:9 ให้วิดีโอ YouTube -->
                     <div class="ratio ratio-16x9">
                         <iframe id="videoPlayer" src="" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                     </div>
@@ -276,137 +298,58 @@
         </div>
     </div>
 
-    <!-- Modal สถิติผู้เข้าชมเว็บย้อนหลัง -->
-    <div class="modal fade" id="webStatsModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0">
-                <div class="modal-header text-white" style="background-color: var(--primary-blue);">
-                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-chart-line me-2"></i> สถิติผู้เข้าชมเว็บย้อนหลัง</h5>
+    <!-- Modal Image Gallery Viewer -->
+    <div class="modal fade" id="mediaGalleryModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content border-0 bg-dark">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h5 class="modal-title fw-bold text-white"><i class="fa-solid fa-images text-info me-2"></i> <span id="galleryModalTitle">ชื่ออัลบั้ม</span></h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body p-4">
-                    <div class="row g-2 mb-4">
-                        <div class="col-12"><select class="form-select fw-bold text-primary" id="filterWebStatYear" onchange="renderWebStatsTable()"></select></div>
+                <div class="modal-body p-0 relative">
+                    <div id="mediaGalleryCarousel" class="carousel slide" data-bs-interval="false">
+                        <div class="carousel-indicators" id="mediaGalleryCarouselIndicators"></div>
+                        <div class="carousel-inner" id="mediaGalleryCarouselInner" style="height: 75vh; background-color: #111;"></div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#mediaGalleryCarousel" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#mediaGalleryCarousel" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button>
                     </div>
-                    <table class="table table-bordered table-striped text-center">
-                        <thead class="table-light"><tr><th>เดือน</th><th>จำนวนผู้เข้าชมเว็บ</th></tr></thead>
-                        <tbody id="tbody-webstats"></tbody>
-                    </table>
+                    <div class="p-4 text-white bg-dark">
+                        <h6 class="fw-bold text-success mb-2">รายละเอียด:</h6>
+                        <p id="galleryModalDesc" class="mb-0 text-white-50" style="font-size: 0.95rem;"></p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal ติดต่อเรา (Popup) -->
-    <div class="modal fade" id="contactModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header text-white" style="background-color: var(--primary-blue);">
-                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-address-book me-2"></i> ติดต่อเรา (Contact Us)</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <div class="text-center mb-4 mt-2">
-                        <img id="modalContactLogoImg" src="" style="height: 80px; display: none; margin-bottom: 15px;">
-                        <i id="modalContactLogoIcon" class="fa-solid fa-building-flag fa-4x text-secondary mb-3"></i>
-                        <h4 class="fw-bold text-primary" id="modalContactName">ท่าอากาศยานบุรีรัมย์</h4>
-                    </div>
-                    <ul class="list-group list-group-flush mb-2">
-                        <li class="list-group-item d-flex align-items-center py-3 px-0">
-                            <div class="bg-light rounded-circle d-flex justify-content-center align-items-center me-3" style="width:45px; height:45px;"><i class="fa-solid fa-location-dot text-danger fs-5"></i></div>
-                            <div><div class="small text-muted fw-bold mb-1">ที่อยู่ทำการ</div><div id="modalContactAddress" class="text-dark">กำลังโหลด...</div></div>
-                        </li>
-                        <li class="list-group-item d-flex align-items-center py-3 px-0">
-                            <div class="bg-light rounded-circle d-flex justify-content-center align-items-center me-3" style="width:45px; height:45px;"><i class="fa-solid fa-phone text-success fs-5"></i></div>
-                            <div><div class="small text-muted fw-bold mb-1">เบอร์โทรศัพท์</div><div id="modalContactPhone" class="text-dark fw-bold fs-6">กำลังโหลด...</div></div>
-                        </li>
-                        <li class="list-group-item d-flex align-items-center py-3 px-0">
-                            <div class="bg-light rounded-circle d-flex justify-content-center align-items-center me-3" style="width:45px; height:45px;"><i class="fa-solid fa-envelope text-warning fs-5"></i></div>
-                            <div><div class="small text-muted fw-bold mb-1">อีเมล (E-mail)</div><div id="modalContactEmail" class="text-dark">กำลังโหลด...</div></div>
-                        </li>
-                    </ul>
-                </div>
-                <div class="modal-footer bg-light border-0">
-                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">ปิดหน้าต่าง</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Modal สถิติผู้เข้าชมเว็บย้อนหลัง -->
+    <div class="modal fade" id="webStatsModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0"><div class="modal-header text-white" style="background-color: var(--primary-blue);"><h5 class="modal-title fw-bold"><i class="fa-solid fa-chart-line me-2"></i> สถิติผู้เข้าชมเว็บย้อนหลัง</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><div class="row g-2 mb-4"><div class="col-12"><select class="form-select fw-bold text-primary" id="filterWebStatYear" onchange="renderWebStatsTable()"></select></div></div><table class="table table-bordered table-striped text-center"><thead class="table-light"><tr><th>เดือน</th><th>จำนวนผู้เข้าชมเว็บ</th></tr></thead><tbody id="tbody-webstats"></tbody></table></div></div></div></div>
+
+    <!-- Modal ติดต่อเรา -->
+    <div class="modal fade" id="contactModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow-lg"><div class="modal-header text-white" style="background-color: var(--primary-blue);"><h5 class="modal-title fw-bold"><i class="fa-solid fa-address-book me-2"></i> ติดต่อเรา (Contact Us)</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><div class="text-center mb-4 mt-2"><img id="modalContactLogoImg" src="" style="height: 80px; display: none; margin-bottom: 15px;"><i id="modalContactLogoIcon" class="fa-solid fa-building-flag fa-4x text-secondary mb-3"></i><h4 class="fw-bold text-primary" id="modalContactName">ท่าอากาศยานบุรีรัมย์</h4></div><ul class="list-group list-group-flush mb-2"><li class="list-group-item d-flex align-items-center py-3 px-0"><div class="bg-light rounded-circle d-flex justify-content-center align-items-center me-3" style="width:45px; height:45px;"><i class="fa-solid fa-location-dot text-danger fs-5"></i></div><div><div class="small text-muted fw-bold mb-1">ที่อยู่ทำการ</div><div id="modalContactAddress" class="text-dark">กำลังโหลด...</div></div></li><li class="list-group-item d-flex align-items-center py-3 px-0"><div class="bg-light rounded-circle d-flex justify-content-center align-items-center me-3" style="width:45px; height:45px;"><i class="fa-solid fa-phone text-success fs-5"></i></div><div><div class="small text-muted fw-bold mb-1">เบอร์โทรศัพท์</div><div id="modalContactPhone" class="text-dark fw-bold fs-6">กำลังโหลด...</div></div></li><li class="list-group-item d-flex align-items-center py-3 px-0"><div class="bg-light rounded-circle d-flex justify-content-center align-items-center me-3" style="width:45px; height:45px;"><i class="fa-solid fa-envelope text-warning fs-5"></i></div><div><div class="small text-muted fw-bold mb-1">อีเมล (E-mail)</div><div id="modalContactEmail" class="text-dark">กำลังโหลด...</div></div></li></ul></div><div class="modal-footer bg-light border-0"><button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">ปิดหน้าต่าง</button></div></div></div></div>
 
     <!-- Modal รวมระบบ E-Services -->
-    <div class="modal fade" id="allEServicesModal" tabindex="-1">
-        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content border-0 bg-light">
-                <div class="modal-header text-white" style="background-color: var(--primary-blue);">
-                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-laptop-code"></i> ระบบบริการอิเล็กทรอนิกส์ทั้งหมด</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <div class="row g-3" id="all-eservice-container"></div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div class="modal fade" id="allEServicesModal" tabindex="-1"><div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"><div class="modal-content border-0 bg-light"><div class="modal-header text-white" style="background-color: var(--primary-blue);"><h5 class="modal-title fw-bold"><i class="fa-solid fa-laptop-code"></i> ระบบบริการอิเล็กทรอนิกส์ทั้งหมด</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><div class="row g-3" id="all-eservice-container"></div></div></div></div></div>
 
     <!-- Modal โปรไฟล์ส่วนตัว -->
-    <div class="modal fade" id="myProfileModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header text-white" style="background-color: var(--primary-blue);">
-                    <h5 class="modal-title fw-bold"><i class="fa-regular fa-id-card me-2"></i> ข้อมูลส่วนตัวของฉัน</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-4 bg-light">
-                    <form id="formMyProfile" onsubmit="saveMyProfile(event)">
-                        <input type="hidden" id="myProf_ID">
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold text-secondary small mb-1">ชื่อ</label>
-                                <input type="text" class="form-control" id="myProf_Fname" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold text-secondary small mb-1">นามสกุล</label>
-                                <input type="text" class="form-control" id="myProf_Lname" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold text-secondary small mb-1">อีเมล</label>
-                                <input type="email" class="form-control" id="myProf_Email" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold text-secondary small mb-1">เบอร์โทรศัพท์</label>
-                                <input type="tel" class="form-control" id="myProf_Phone" required>
-                            </div>
-                            <div class="col-md-12">
-                                <label class="form-label fw-bold text-secondary small mb-1">สถานศึกษา / หน่วยงาน</label>
-                                <input type="text" class="form-control" id="myProf_Org" required>
-                            </div>
-                        </div>
-                        <div class="p-3 border rounded bg-white mt-4">
-                            <label class="form-label fw-bold text-danger small mb-1"><i class="fa-solid fa-key"></i> เปลี่ยนรหัสผ่าน</label>
-                            <input type="text" class="form-control" id="myProf_Password" placeholder="เว้นว่างไว้หากไม่ต้องการเปลี่ยนรหัสผ่าน">
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100 mt-4 py-2 fw-bold" id="btnSaveMyProfile">บันทึกการเปลี่ยนแปลง</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- ================= สิ้นสุด Modal ทั้งหมด ================= -->
+    <div class="modal fade" id="myProfileModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow-lg"><div class="modal-header text-white" style="background-color: var(--primary-blue);"><h5 class="modal-title fw-bold"><i class="fa-regular fa-id-card me-2"></i> ข้อมูลส่วนตัวของฉัน</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4 bg-light"><form id="formMyProfile" onsubmit="saveMyProfile(event)"><input type="hidden" id="myProf_ID"><div class="row g-3 mb-3"><div class="col-md-6"><label class="form-label fw-bold text-secondary small mb-1">ชื่อ</label><input type="text" class="form-control" id="myProf_Fname" required></div><div class="col-md-6"><label class="form-label fw-bold text-secondary small mb-1">นามสกุล</label><input type="text" class="form-control" id="myProf_Lname" required></div><div class="col-md-6"><label class="form-label fw-bold text-secondary small mb-1">อีเมล</label><input type="email" class="form-control" id="myProf_Email" required></div><div class="col-md-6"><label class="form-label fw-bold text-secondary small mb-1">เบอร์โทรศัพท์</label><input type="tel" class="form-control" id="myProf_Phone" required></div><div class="col-md-12"><label class="form-label fw-bold text-secondary small mb-1">สถานศึกษา / หน่วยงาน</label><input type="text" class="form-control" id="myProf_Org" required></div></div><div class="p-3 border rounded bg-white mt-4"><label class="form-label fw-bold text-danger small mb-1"><i class="fa-solid fa-key"></i> เปลี่ยนรหัสผ่าน</label><input type="text" class="form-control" id="myProf_Password" placeholder="เว้นว่างไว้หากไม่ต้องการเปลี่ยนรหัสผ่าน"></div><button type="submit" class="btn btn-primary w-100 mt-4 py-2 fw-bold" id="btnSaveMyProfile">บันทึกการเปลี่ยนแปลง</button></form></div></div></div></div>
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        // 🔴 อย่าลืมวางลิงก์ API ของคุณตรงนี้ (ใช้ลิงก์เดียวกับหน้าหลักได้เลย)
+        // 🔴 อย่าลืมวางลิงก์ API ของคุณ
         const API_URL = "https://script.google.com/macros/s/AKfycbx_KEKYYe2Mu1vTORWF8GZnV4zuOku_4IqEvwhZ4q556ggVOHjy-blHKvY_IuYOfGHqaA/exec";
 
         let allMediaData = [];
-        let allMediaCatsData = [];
+        let allCategoriesData = [];
         let filteredMedia = [];
         
         let currentPage = 1;
-        const itemsPerPage = 9; // แสดงหน้าละ 9 วิดีโอ
+        const itemsPerPage = 9; 
+        
+        let currentMediaType = 'video'; // ค่าเริ่มต้นคือ Video
         let activeCategoryId = 'all';
 
         // ================= 1. ฟังก์ชันตัวช่วยทั่วไป =================
@@ -418,7 +361,6 @@
             return url; 
         }
 
-        // ดึง ID วิดีโอจากลิงก์ YouTube เพื่อเอามาทำปก + เล่นวิดีโอ
         function getYouTubeId(url) {
             if(!url) return null;
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
@@ -433,22 +375,16 @@
             let dateParts = parts[0].split('/'); let timeParts = parts[1].split(':'); 
             if (dateParts.length !== 3) return new Date(0);
             let day = parseInt(dateParts[0], 10); let month = parseInt(dateParts[1], 10) - 1; let year = parseInt(dateParts[2], 10) - 543; 
-            let hours = timeParts[0] ? parseInt(timeParts[0], 10) : 0; let mins = timeParts[1] ? parseInt(timeParts[1], 10) : 0; let secs = timeParts[2] ? parseInt(timeParts[2], 10) : 0;
-            return new Date(year, month, day, hours, mins, secs);
+            return new Date(year, month, day);
         }
 
         // ================= 2. ดึงข้อมูลเมื่อโหลดหน้า =================
         document.addEventListener('DOMContentLoaded', async () => {
-            // เช็คว่ามี Login ไหม
             const savedUser = localStorage.getItem('userData');
-            if (savedUser) { updateUserMenuUI(JSON.parse(savedUser)); }
-
-            // เช็คว่ากดมาจากหมวดหมู่ไหน (ถ้าส่ง Parameter มา)
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('category')) activeCategoryId = urlParams.get('category');
+            if (savedUser) updateUserMenuUI(JSON.parse(savedUser));
 
             try {
-                // 🟢 โหลดข้อมูลพร้อมกัน 6 ตาราง (รวมของ Media)
+                // 🟢 โหลดข้อมูลพร้อมกัน 6 ตาราง
                 const [settingsRes, catsRes, mediaRes, menusRes, airlinesRes, statsRes] = await Promise.all([
                     fetch(API_URL + '?action=getSettings').then(r => r.json()),
                     fetch(API_URL + '?action=getTableData&sheetName=MediaCategories').then(r => r.json()),
@@ -458,18 +394,17 @@
                     fetch(API_URL + '?action=getWebStats').then(r => r.json())
                 ]);
 
-                // ใส่ข้อมูล UI ภายนอก (Navbar, Footer, Modal)
                 if(settingsRes.status === 'success') applySettingsToUI(settingsRes.data);
                 if(menusRes.status === 'success') renderSiteMenus(menusRes.data);
                 if(airlinesRes.status === 'success') renderFooterAirlines(airlinesRes.data);
                 if(statsRes.status === 'success') processWebStats(statsRes); 
 
-                // กรองข้อมูลวิดีโอ (เอาเฉพาะที่เปิดใช้งาน)
-                if (catsRes.status === 'success') allMediaCatsData = catsRes.data.filter(c => c.IsActive === 'TRUE');
-                if (mediaRes.status === 'success') allMediaData = mediaRes.data.filter(n => n.IsActive === 'TRUE');
+                if (catsRes.status === 'success') allCategoriesData = catsRes.data.filter(c => c.IsActive === 'TRUE');
+                // 🟢 ดึงข้อมูลเฉพาะที่เปิดใช้งาน
+                if (mediaRes.status === 'success') allMediaData = mediaRes.data.filter(m => m.IsActive === 'TRUE');
 
                 renderSidebar();
-                selectCategory(activeCategoryId, false);
+                applyFilters();
 
             } catch (error) {
                 console.error("Error loading data:", error);
@@ -480,49 +415,63 @@
             }
         });
 
-        // ================= 3. วาดเมนูหมวดหมู่ฝั่งซ้าย =================
+        // ================= 3. ระบบ Tabs (เลือก Video / Image) =================
+        function selectMediaType(type) {
+            currentMediaType = type;
+            activeCategoryId = 'all'; // รีเซ็ตหมวดหมู่กลับเป็น All เสมอ
+            
+            document.getElementById('tab-video').classList.remove('active');
+            document.getElementById('tab-image').classList.remove('active');
+            document.getElementById(`tab-${type}`).classList.add('active');
+
+            renderSidebar();
+            applyFilters();
+        }
+
+        // ================= 4. วาดเมนูหมวดหมู่ฝั่งซ้าย =================
         function renderSidebar() {
             const container = document.getElementById('sidebar-categories');
             container.innerHTML = '';
             
+            // 🟢 หาว่ามีหมวดหมู่ไหนบ้าง ที่มี สื่อ (Media) ประเภทที่กำลังเลือกอยู่
+            let categoriesWithMedia = new Set();
+            allMediaData.filter(m => m.MediaType === currentMediaType).forEach(m => {
+                categoriesWithMedia.add(m.CategoryID);
+            });
+
             let html = '';
-            // เรียงหมวดหมู่ตาม OrderList
-            allMediaCatsData.sort((a,b) => a.OrderList - b.OrderList).forEach(cat => {
-                let isActive = (cat.CategoryID === activeCategoryId) ? 'active' : '';
-                html += `<li class="cat-item ${isActive}" id="cat-${cat.CategoryID}" onclick="selectCategory('${cat.CategoryID}')"><i class="fa-solid fa-photo-film"></i> ${cat.CategoryName}</li>`;
+            allCategoriesData.sort((a,b) => a.OrderList - b.OrderList).forEach(cat => {
+                // แสดงเฉพาะหมวดหมู่ที่มีของอยู่ข้างใน
+                if (categoriesWithMedia.has(cat.CategoryID)) {
+                    let isActive = (cat.CategoryID === activeCategoryId) ? 'active' : '';
+                    html += `<li class="cat-item ${isActive}" id="cat-${cat.CategoryID}" onclick="selectCategory('${cat.CategoryID}')"><i class="fa-regular fa-folder"></i> ${cat.CategoryName}</li>`;
+                }
             });
             container.innerHTML = html;
 
-            // ไฮไลต์ปุ่ม "ทั้งหมด" ถ้าไม่ได้เลือกหมวดใดเลย
+            document.querySelectorAll('.cat-item').forEach(el => el.classList.remove('active'));
             if (activeCategoryId === 'all') document.getElementById('cat-all').classList.add('active');
+            else {
+                let el = document.getElementById(`cat-${activeCategoryId}`);
+                if(el) el.classList.add('active');
+            }
         }
 
-        // ================= 4. เมื่อคลิกเลือกหมวดหมู่ =================
-        function selectCategory(catId, shouldScroll = true) {
+        function selectCategory(catId) {
             activeCategoryId = catId;
-            
-            // อัปเดตไฮไลต์ในเมนู
             document.querySelectorAll('.cat-item').forEach(el => el.classList.remove('active'));
-            const activeEls = document.querySelectorAll(`#cat-${catId}`);
-            if (activeEls.length > 0) activeEls.forEach(el => el.classList.add('active'));
+            
+            let activeEl = document.getElementById(`cat-${catId}`);
+            if (activeEl) activeEl.classList.add('active');
             else document.getElementById('cat-all').classList.add('active');
 
-            // อัปเดตหัวข้อเรื่องด้านขวา
             const titleEl = document.getElementById('currentCategoryTitle');
-            if (catId === 'all') {
-                titleEl.innerText = "วิดีโอทั้งหมด";
-            } else {
-                let catObj = allMediaCatsData.find(c => c.CategoryID === catId);
-                titleEl.innerText = catObj ? catObj.CategoryName : "วิดีโอ";
-            }
+            if (catId === 'all') { titleEl.innerText = "รายการทั้งหมด"; } 
+            else { let catObj = allCategoriesData.find(c => c.CategoryID === catId); titleEl.innerText = catObj ? catObj.CategoryName : "รายการสื่อ"; }
 
-            // ล้างช่องค้นหา และสั่งกรองข้อมูล
             document.getElementById('searchMediaText').value = '';
             document.getElementById('sortMedia').value = 'newest';
             applyFilters();
-
-            // เลื่อนจอขึ้นไปบนสุด (เฉพาะเวลากดด้วยมือ)
-            if (shouldScroll) window.scrollTo({ top: document.getElementById('currentCategoryTitle').offsetTop - 160, behavior: 'smooth' });
         }
 
         // ================= 5. ระบบกรองและจัดเรียง =================
@@ -530,27 +479,29 @@
             const searchText = document.getElementById('searchMediaText').value.toLowerCase();
             const sortVal = document.getElementById('sortMedia').value;
 
-            // กรอง
             filteredMedia = allMediaData.filter(media => {
+                // 🟢 กรองตามประเภทแท็บด้านบน
+                if (media.MediaType !== currentMediaType) return false;
+                
+                // กรองหมวดหมู่
                 if (activeCategoryId !== 'all' && media.CategoryID !== activeCategoryId) return false;
+                // กรองคำค้นหา
                 if (searchText !== "" && !media.Title.toLowerCase().includes(searchText)) return false;
                 return true;
             });
 
-            // จัดเรียง
             filteredMedia.sort((a, b) => {
                 let dateA = parseThaiDate(a.CreateDate).getTime();
                 let dateB = parseThaiDate(b.CreateDate).getTime();
-                if (sortVal === 'newest') return dateB - dateA; // ใหม่ไปเก่า
-                if (sortVal === 'oldest') return dateA - dateB; // เก่าไปใหม่
+                if (sortVal === 'newest') return dateB - dateA; 
+                if (sortVal === 'oldest') return dateA - dateB; 
             });
 
-            // รีเซ็ตกลับไปหน้า 1
             currentPage = 1;
             renderMediaGrid();
         }
 
-        // ================= 6. วาดการ์ดวิดีโอ =================
+        // ================= 6. วาดการ์ดสื่อมัลติมีเดีย =================
         function renderMediaGrid() {
             const container = document.getElementById('mediaGridContainer');
             container.innerHTML = '';
@@ -565,43 +516,70 @@
             let pageData = filteredMedia.slice(startIndex, endIndex);
 
             if (pageData.length === 0) {
-                container.innerHTML = `<div class="col-12 text-center text-muted py-5"><i class="fa-solid fa-photo-film fa-4x mb-3 opacity-25"></i><h4>ไม่พบวิดีโอในหมวดหมู่นี้</h4></div>`;
+                container.innerHTML = `<div class="col-12 text-center text-muted py-5"><i class="fa-solid fa-photo-film fa-4x mb-3 opacity-25"></i><h4>ไม่พบข้อมูลในหมวดหมู่นี้</h4></div>`;
                 renderPagination(0);
                 return;
             }
 
             pageData.forEach(media => {
-                let catObj = allMediaCatsData.find(c => c.CategoryID === media.CategoryID);
+                let catObj = allCategoriesData.find(c => c.CategoryID === media.CategoryID);
                 let catName = catObj ? catObj.CategoryName : 'ทั่วไป';
                 let catColor = (catObj && catObj.ThemeColor) ? catObj.ThemeColor : 'var(--primary-blue)';
                 
                 let dateText = media.CreateDate ? media.CreateDate.split(' ')[0] : '-';
-                let ytId = getYouTubeId(media.VideoURL);
-
-                // ดึงรูปปก ถ้ายูสเซอร์ไม่อัปโหลดมา ให้ดึงจาก YouTube
-                let coverUrl = media.CoverImageURL ? convertDriveImageLink(media.CoverImageURL) : (ytId ? `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg` : 'https://via.placeholder.com/600x400?text=ไม่มีรูปหน้าปก');
-
-                // ซ่อนคำอธิบายลงในปุ่ม (เพื่อเอาไปส่งต่อให้ Popup)
                 let cleanDesc = encodeURIComponent(media.Description || '');
+                
+                let cardHtml = '';
 
-                container.innerHTML += `
-                    <div class="col-md-6 col-lg-4">
-                        <div class="media-card" onclick="openVideoModal('${ytId}', '${media.Title}', '${cleanDesc}')">
-                            <div class="media-img-wrapper">
-                                <img src="${coverUrl}" class="media-img" alt="ปกวิดีโอ" onerror="this.src='https://img.youtube.com/vi/${ytId}/mqdefault.jpg'">
-                                <i class="fa-brands fa-youtube play-icon-overlay"></i>
-                                <span class="media-badge" style="background-color: ${catColor};">${catName}</span>
-                            </div>
-                            <div class="media-body">
-                                <h5 class="media-title">${media.Title}</h5>
-                                <div class="media-meta">
-                                    <span><i class="fa-regular fa-calendar me-1"></i> ${dateText}</span>
-                                    <span class="text-danger fw-bold"><i class="fa-solid fa-play fa-sm me-1"></i> ดูคลิป</span>
+                // 🟢 6.1 วาดการ์ดแบบ Video
+                if (media.MediaType === 'video') {
+                    let ytId = getYouTubeId(media.MediaURL);
+                    let coverUrl = media.CoverImageURL ? convertDriveImageLink(media.CoverImageURL) : (ytId ? `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg` : 'https://via.placeholder.com/600x400?text=No+Video');
+
+                    cardHtml = `
+                        <div class="col-md-6 col-lg-4">
+                            <div class="media-card" onclick="openVideoModal('${ytId}', '${media.Title}', '${cleanDesc}')">
+                                <div class="media-img-wrapper">
+                                    <img src="${coverUrl}" class="media-img" onerror="this.src='https://img.youtube.com/vi/${ytId}/mqdefault.jpg'">
+                                    <i class="fa-brands fa-youtube play-icon-overlay"></i>
+                                    <span class="media-badge" style="background-color: ${catColor};">${catName}</span>
+                                </div>
+                                <div class="media-body">
+                                    <h5 class="media-title">${media.Title}</h5>
+                                    <div class="media-meta">
+                                        <span><i class="fa-regular fa-calendar me-1"></i> ${dateText}</span>
+                                        <span class="text-danger fw-bold"><i class="fa-solid fa-play fa-sm me-1"></i> ดูคลิป</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                `;
+                        </div>`;
+                } 
+                // 🟢 6.2 วาดการ์ดแบบ Image Gallery
+                else {
+                    let galArr = media.GalleryURLs ? media.GalleryURLs.split(', ') : [];
+                    let coverUrl = media.CoverImageURL ? convertDriveImageLink(media.CoverImageURL) : (galArr.length > 0 ? convertDriveImageLink(galArr[0]) : 'https://via.placeholder.com/600x400?text=No+Image');
+                    
+                    cardHtml = `
+                        <div class="col-md-6 col-lg-4">
+                            <div class="media-card" onclick="openMediaGalleryModal('${media.MediaID}')">
+                                <div class="media-img-wrapper">
+                                    <img src="${coverUrl}" class="media-img" onerror="this.src='https://via.placeholder.com/600x400?text=Error'">
+                                    <i class="fa-solid fa-images gallery-icon-overlay"></i>
+                                    <span class="media-badge" style="background-color: ${catColor};">${catName}</span>
+                                    <span class="badge bg-dark position-absolute bottom-0 end-0 m-2 z-3"><i class="fa-solid fa-image"></i> ${galArr.length} รูป</span>
+                                </div>
+                                <div class="media-body">
+                                    <h5 class="media-title">${media.Title}</h5>
+                                    <div class="media-meta">
+                                        <span><i class="fa-regular fa-calendar me-1"></i> ${dateText}</span>
+                                        <span class="text-info fw-bold"><i class="fa-solid fa-expand fa-sm me-1"></i> ดูแกลลอรี</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+                }
+                
+                container.innerHTML += cardHtml;
             });
 
             renderPagination(totalPages);
@@ -609,46 +587,73 @@
 
         // ================= 7. ระบบแบ่งหน้า =================
         function changePage(page) {
-            currentPage = page;
-            renderMediaGrid();
+            currentPage = page; renderMediaGrid();
             window.scrollTo({ top: document.getElementById('currentCategoryTitle').offsetTop - 160, behavior: 'smooth' });
         }
 
         function renderPagination(totalPages) {
-            const ul = document.getElementById('mediaPagination');
-            ul.innerHTML = '';
+            const ul = document.getElementById('mediaPagination'); ul.innerHTML = '';
             if(totalPages <= 1) return; 
 
             let prevClass = currentPage === 1 ? 'disabled' : '';
             ul.innerHTML += `<li class="page-item ${prevClass}"><a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage - 1})">ก่อนหน้า</a></li>`;
-            
             for(let i = 1; i <= totalPages; i++) {
                 let activeClass = i === currentPage ? 'active' : '';
                 ul.innerHTML += `<li class="page-item ${activeClass}"><a class="page-link" href="javascript:void(0)" onclick="changePage(${i})">${i}</a></li>`;
             }
-            
             let nextClass = currentPage === totalPages ? 'disabled' : '';
             ul.innerHTML += `<li class="page-item ${nextClass}"><a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage + 1})">ถัดไป</a></li>`;
         }
 
-        // ================= 8. ฟังก์ชันเปิด/ปิดวิดีโอ (YouTube) =================
+        // ================= 8. เปิดหน้าต่าง Video =================
         function openVideoModal(ytId, title, encodedDesc) {
             if(!ytId) { Swal.fire('ข้อผิดพลาด', 'ลิงก์วิดีโอไม่ถูกต้อง', 'error'); return; }
-            
             document.getElementById('videoModalTitle').innerText = title;
             document.getElementById('videoModalDesc').innerText = decodeURIComponent(encodedDesc) || 'ไม่มีคำอธิบาย';
-            
-            // สั่งเล่นวิดีโอผ่าน iFrame (autoplay=1)
             const iframe = document.getElementById('videoPlayer');
             iframe.src = `https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0`;
-
             new bootstrap.Modal(document.getElementById('videoModal')).show();
         }
 
-        // จับเหตุการณ์ตอนผู้ใช้กด "ปิดหน้าต่าง Modal" ให้สั่งหยุดวิดีโอทันที
-        document.getElementById('videoModal').addEventListener('hidden.bs.modal', function () {
-            document.getElementById('videoPlayer').src = ''; 
-        });
+        // เมื่อปิด Video ให้หยุดเล่น
+        document.getElementById('videoModal').addEventListener('hidden.bs.modal', function () { document.getElementById('videoPlayer').src = ''; });
+
+        // ================= 9. เปิดหน้าต่าง Image Gallery =================
+        function openMediaGalleryModal(mediaId) {
+            const media = allMediaData.find(m => m.MediaID === mediaId);
+            if (!media || !media.GalleryURLs) { Swal.fire('แจ้งเตือน', 'ไม่มีรูปภาพในแกลลอรีนี้', 'warning'); return; }
+
+            document.getElementById('galleryModalTitle').innerText = media.Title;
+            document.getElementById('galleryModalDesc').innerText = media.Description || 'ไม่มีคำอธิบาย';
+
+            const inner = document.getElementById('mediaGalleryCarouselInner'); 
+            const indicators = document.getElementById('mediaGalleryCarouselIndicators');
+            inner.innerHTML = ''; indicators.innerHTML = '';
+
+            let images = media.GalleryURLs.split(', ');
+            images.forEach((url, index) => {
+                let displayUrl = convertDriveImageLink(url); 
+                let rawUrl = url.replace('?usp=sharing', ''); 
+                let activeClass = index === 0 ? 'active' : ''; 
+                
+                indicators.innerHTML += `<button type="button" data-bs-target="#mediaGalleryCarousel" data-bs-slide-to="${index}" class="${activeClass}"></button>`;
+                inner.innerHTML += `
+                    <div class="carousel-item ${activeClass} h-100 w-100">
+                        <div class="d-flex justify-content-center align-items-center h-100 w-100 p-3">
+                            <img src="${displayUrl}" class="img-fluid" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                        </div>
+                        <div class="position-absolute bottom-0 end-0 m-4" style="z-index: 10;">
+                            <a href="${rawUrl}" target="_blank" class="btn btn-primary rounded-pill shadow"><i class="fa-solid fa-expand me-1"></i> ดูขนาดเต็ม / โหลด</a>
+                        </div>
+                    </div>`;
+            });
+
+            // สร้าง Instance แบบไม่เลื่อนอัตโนมัติ
+            const myCarousel = document.getElementById('mediaGalleryCarousel');
+            new bootstrap.Carousel(myCarousel, { interval: false, ride: false });
+            
+            new bootstrap.Modal(document.getElementById('mediaGalleryModal')).show();
+        }
 
         // ====================================================================
         // ================= ฟังก์ชันพื้นฐานของระบบ (Navbar/User/Footer) =================
