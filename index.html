@@ -2066,33 +2066,41 @@
                 }
 
                 // โครงสร้างการ์ดเที่ยวบินแบบใหม่ (Flexbox จัดเลย์เอาต์)
+                // 🟢 โครงสร้างการ์ดเที่ยวบินแบบใหม่ (Flexbox ปรับให้พอดี)
                 listHtml += `
-                <div class="card border-0 shadow-sm mb-3 border-start border-4" style="border-left-color: ${airColor} !important; border-radius: 8px;">
-                    <div class="card-body p-3 d-flex">
+                <div class="card border-0 shadow-sm mb-3 border-start border-4 overflow-hidden" style="border-left-color: ${airColor} !important; border-radius: 8px;">
+                    <div class="card-body p-0 d-flex"> <!-- 🟢 เอา p-3 ออก เปลี่ยนเป็น p-0 เพื่อให้เส้นแบ่งชัดเจน -->
                         
-                        <!-- ข้อมูลเที่ยวบินฝั่งซ้าย -->
-                        <div class="flex-grow-1">
-                            <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2 pe-2">
-                                <div class="fw-bold d-flex align-items-center text-truncate" style="color: ${airColor}; font-size: 1.05rem;">
+                        <!-- ข้อมูลเที่ยวบินฝั่งซ้าย (ยืดหดได้ตามพื้นที่) -->
+                        <div class="flex-grow-1 p-3" style="min-width: 0;">
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                                <div class="fw-bold d-flex align-items-center text-truncate pe-2" style="color: ${airColor}; font-size: 1rem;">
                                     ${logoHtml} <span class="text-truncate">${airName}</span>
                                 </div>
-                                <span class="badge rounded-pill fs-6 px-3 shadow-sm ms-2 flex-shrink-0" style="background-color: ${airColor}">${f.FlightNumber}</span>
+                                <span class="badge rounded-pill fs-6 px-3 shadow-sm flex-shrink-0" style="background-color: ${airColor}">${f.FlightNumber}</span>
                             </div>
-                            <div class="d-flex justify-content-between text-muted pe-2">
+                            
+                            <div class="d-flex justify-content-between text-muted">
                                 <div class="text-center" style="width: 42%;">
                                     <div class="small fw-bold text-dark text-truncate">${f.Origin}</div>
                                     <div class="display-6 fw-bold text-dark mt-1" style="font-size: 1.6rem;">${f.DepartureTime}</div>
                                 </div>
-                                <div class="align-self-center"><i class="fa-solid fa-arrow-right-long opacity-50 fa-lg"></i></div>
+                                <div class="align-self-center flex-shrink-0 px-2"><i class="fa-solid fa-arrow-right-long opacity-50 fa-lg"></i></div>
                                 <div class="text-center" style="width: 42%;">
                                     <div class="small fw-bold text-dark text-truncate">${f.Destination}</div>
                                     <div class="display-6 fw-bold text-dark mt-1" style="font-size: 1.6rem;">${f.ArrivalTime}</div>
                                 </div>
                             </div>
+                            
                         </div>
 
-                        <!-- 🟢 กล่องหลุมจอดฝั่งขวา (แสดงเฉพาะคนมีสิทธิ์) -->
-                        ${standHtml}
+                        <!-- 🟢 กล่องหลุมจอดฝั่งขวา (ล็อกขนาด ไม่ให้หดหายไป) -->
+                        ${showStandInfo ? `
+                        <div class="bg-light border-start d-flex flex-column align-items-center justify-content-center p-2 flex-shrink-0" style="width: 80px;">
+                            <div class="fw-bold" style="font-size: 0.65rem; color: ${airColor}; letter-spacing: 1px;">STAND</div>
+                            <div class="fw-bold text-dark lh-1 mt-1" style="font-size: 2.2rem;">${standForToday !== '-' ? standNumber : '<i class="fa-solid fa-minus fs-5 opacity-25"></i>'}</div>
+                        </div>` : ''}
 
                     </div>
                 </div>`;
