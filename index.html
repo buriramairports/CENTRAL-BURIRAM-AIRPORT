@@ -333,14 +333,16 @@
             <div class="col-lg-4">
                 <div class="card shadow-sm h-100 border-0">
                     <div class="card-header-custom bg-white">
-                        <h5 style="color: #555;"><i class="fa-solid fa-photo-film text-danger"></i> สื่อมัลติมีเดีย</h5>
+                        <h5 style="color: #555;"><i class="fa-solid fa-photo-film text-danger"></i> สื่อมัลติมีเดียแนะนำ</h5>
                     </div>
-                    <div class="card-body p-0 text-center bg-dark">
-                        <iframe width="100%" height="220" src="https://www.youtube.com/embed/c2hLmlUXxbs" frameborder="0" allowfullscreen></iframe>
+                    <!-- 🟢 เพิ่ม ID ให้ส่วนเนื้อหา -->
+                    <div class="card-body p-0 text-center bg-dark" id="homeMediaContent">
+                        <div class="text-white-50 p-5">กำลังโหลดข้อมูลสื่อ...</div>
                     </div>
                     <div class="card-footer bg-white border-0 d-flex justify-content-between align-items-center pb-3">
-                        <span class="fw-bold small">การเตรียมความพร้อมให้บริการ...</span>
-                        <button class="btn btn-view-all btn-sm">ดูทั้งหมด</button>
+                        <span class="fw-bold small text-truncate pe-2" id="homeMediaTitle">...</span>
+                        <!-- 🟢 ปุ่มดูทั้งหมด จะลิงก์ไปที่หน้า media.html -->
+                        <a href="media.html" class="btn btn-view-all btn-sm text-nowrap px-3 py-1">ดูทั้งหมด <i class="fa-solid fa-arrow-right fa-sm"></i></a>
                     </div>
                 </div>
             </div>
@@ -1018,8 +1020,8 @@
 
         async function loadInitialData() {
             try {
-               // 🟢 ดึงข้อมูลทีเดียว 10 ตารางรวด เพื่อให้หน้าเว็บโหลดเต็มรูปแบบ
-                const [settingsRes, bannersRes, eservicesRes, newsCatsRes, newsRes, eventsRes, airlinesRes, statsRes, flightsRes, siteMenusRes] = await Promise.all([
+               // 🟢 ดึงข้อมูลทีเดียว 11 ตารางรวด
+                const [settingsRes, bannersRes, eservicesRes, newsCatsRes, newsRes, eventsRes, airlinesRes, statsRes, flightsRes, siteMenusRes, mediaRes] = await Promise.all([
                     fetch(API_URL + '?action=getSettings').then(r => r.json()),
                     fetch(API_URL + '?action=getTableData&sheetName=Banners').then(r => r.json()),
                     fetch(API_URL + '?action=getTableData&sheetName=EServices').then(r => r.json()),
@@ -1029,7 +1031,8 @@
                     fetch(API_URL + '?action=getTableData&sheetName=Airlines').then(r => r.json()),
                     fetch(API_URL + '?action=getTableData&sheetName=PassengerStats').then(r => r.json()),
                     fetch(API_URL + '?action=getTableData&sheetName=FlightSchedules').then(r => r.json()),
-                    fetch(API_URL + '?action=getTableData&sheetName=SiteMenus').then(r => r.json()) // 🟢 เพิ่มบรรทัดนี้
+                    fetch(API_URL + '?action=getTableData&sheetName=SiteMenus').then(r => r.json()),
+                    fetch(API_URL + '?action=getTableData&sheetName=Media').then(r => r.json()) // 🟢 โหลด Media ด้วย
                 ]);
 
                 // 1. ตั้งค่าเว็บไซต์
@@ -1122,6 +1125,9 @@
 
                 // 5. ปฏิทินกิจกรรม
                 if(eventsRes.status === 'success') renderEvents(eventsRes.data);
+
+                // 🟢 วาดสื่อมัลติมีเดีย (Media)
+                if(mediaRes.status === 'success') renderHomeMedia(mediaRes.data);
 
                 // 🟢 ส่วนที่เพิ่มใหม่
                 if(airlinesRes.status === 'success') renderFooterAirlines(airlinesRes.data);
@@ -2485,6 +2491,61 @@
             }
         }
         // ================= สิ้นสุดฟังก์ชัน วาดเมนูด้านบน และ แผนผังเว็บ =================
+
+        // ================= เริ่มต้นฟังก์ชัน วาดสื่อมัลติมีเดียหน้าหลัก =================
+        function getYouTubeId(url) {
+            if(!url) return null;
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        function renderHomeMedia(mediaData) {
+            const container = document.getElementById('homeMediaContent');
+            const titleEl = document.getElementById('homeMediaTitle');
+            if(!container || !titleEl) return;
+
+            // ค้นหาสื่อที่ตั้งค่าให้โชว์หน้าแรก (ShowOnHome = 'TRUE') 
+            // ถ้าแอดมินไม่ได้ตั้งค่าไว้เลย ระบบจะหยิบสื่อล่าสุดที่เปิดใช้งาน (IsActive = 'TRUE') มาโชว์แทน 1 อัน
+            let activeMedia = mediaData.filter(m => m.IsActive === 'TRUE');
+            if (activeMedia.length === 0) {
+                container.innerHTML = `<div class="text-white-50 p-5 d-flex flex-column align-items-center"><i class="fa-solid fa-photo-film fa-2x mb-2 opacity-50"></i><span>ยังไม่มีข้อมูลสื่อมัลติมีเดีย</span></div>`;
+                titleEl.innerText = "ยังไม่มีข้อมูล";
+                return;
+            }
+
+            let targetMedia = activeMedia.find(m => m.ShowOnHome === 'TRUE');
+            if (!targetMedia) {
+                // หาไม่เจอ ให้เรียงตามวันที่สร้าง แล้วเอาอันใหม่สุด
+                activeMedia.sort((a, b) => parseDateTimeString(b.CreateDate).getTime() - parseDateTimeString(a.CreateDate).getTime());
+                targetMedia = activeMedia[0]; 
+            }
+
+            titleEl.innerText = targetMedia.Title;
+
+            // 🟢 วาดผลลัพธ์ตามประเภทสื่อ (วิดีโอ หรือ แกลลอรี)
+            if (targetMedia.MediaType === 'video') {
+                let ytId = getYouTubeId(targetMedia.MediaURL);
+                if (ytId) {
+                    container.innerHTML = `<iframe width="100%" height="220" src="https://www.youtube.com/embed/${ytId}?rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="display:block;"></iframe>`;
+                } else {
+                    container.innerHTML = `<div class="text-white-50 p-5">ลิงก์วิดีโอไม่ถูกต้อง</div>`;
+                }
+            } else {
+                // ถ้าเป็นแกลลอรีรูปภาพ
+                let galArr = targetMedia.GalleryURLs ? targetMedia.GalleryURLs.split(', ') : [];
+                let coverUrl = targetMedia.CoverImageURL ? convertDriveImageLink(targetMedia.CoverImageURL) : (galArr.length > 0 ? convertDriveImageLink(galArr[0]) : 'https://via.placeholder.com/600x400?text=No+Image');
+                
+                container.innerHTML = `
+                    <div style="position:relative; width:100%; height:220px; overflow:hidden; cursor:pointer;" onclick="window.location.href='media.html'">
+                        <img src="${coverUrl}" style="width:100%; height:100%; object-fit:cover; opacity:0.8; transition:0.3s;" onmouseover="this.style.opacity=0.5; this.style.transform='scale(1.05)';" onmouseout="this.style.opacity=0.8; this.style.transform='scale(1)';">
+                        <i class="fa-solid fa-images position-absolute text-white" style="top:50%; left:50%; transform:translate(-50%, -50%); font-size:3.5rem; opacity:0.9; text-shadow:0 4px 10px rgba(0,0,0,0.5); pointer-events:none;"></i>
+                        <span class="badge bg-dark position-absolute bottom-0 end-0 m-2 z-3"><i class="fa-solid fa-image"></i> ${galArr.length} รูป</span>
+                    </div>
+                `;
+            }
+        }
+        // ================= สิ้นสุดฟังก์ชัน วาดสื่อมัลติมีเดียหน้าหลัก =================
     </script>
 </body>
 </html>
