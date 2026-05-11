@@ -1238,11 +1238,12 @@
                     Swal.fire({ icon: 'success', title: 'บันทึกลำดับสำเร็จ!', showConfirmButton: false, timer: 1500 }); 
                     
                     // 🟢 แมพชื่อ Sheet ให้ตรงกับ ID ของปุ่มบันทึกลำดับ
-                    let btnIdMap = { 
+                     let btnIdMap = { 
                         'Banners': 'btnSaveOrder-Banners', 'Departments': 'btnSaveOrder-Departments', 
                         'EServices': 'btnSaveOrder-EServices', 'Airlines': 'btnSaveOrder-Airlines', 
                         'NewsCategories': 'btnSaveOrder-NewsCats', 'AboutCategories': 'btnSaveOrder-AboutCats', 
-                        'AboutPages': 'btnSaveOrder-AboutPages' 
+                        'AboutPages': 'btnSaveOrder-AboutPages', 'MediaCats': 'btnSaveOrder-MediaCats',
+                        'Media': 'btnSaveOrder-Media' // 🟢 เพิ่ม Media เข้ามา
                     };
                     
                     let targetBtn = document.getElementById(btnIdMap[sheetName]);
