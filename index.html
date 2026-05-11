@@ -155,9 +155,14 @@
 
            
         /* ================= ปรับแต่ง Modal และ ปฏิทินเที่ยวบิน ================= */
-        /* 1. ขยาย Modal ให้กว้างขึ้นเป็นพิเศษ (กว้างกว่า xl ปกติ) */
+        /* 1. ขยาย Modal ให้กว้างขึ้นเป็นพิเศษ (กว้างกว่า xl ปกติ) 
         @media (min-width: 1400px) { .modal-xxl { max-width: 1400px; } }
-        @media (min-width: 1200px) and (max-width: 1399px) { .modal-xxl { max-width: 1140px; } }
+        @media (min-width: 1200px) and (max-width: 1399px) { .modal-xxl { max-width: 1140px; } }*/
+
+        /* ================= ปรับแต่ง Modal ตารางเที่ยวบิน ================= */
+        /* ขยาย Modal ให้กว้างขึ้นเป็นพิเศษ (เกือบเต็มจอ) */
+        @media (min-width: 1400px) { .modal-xxl { max-width: 1450px; } }
+        @media (min-width: 1200px) and (max-width: 1399px) { .modal-xxl { max-width: 1180px; } }
 
         /* 3. ปรับขนาดช่องปฏิทินให้สูงขึ้น และเท่ากันทุกช่อง ป้องกันการยืดหด */
         .flight-day-box { min-height: 90px; position: relative; overflow: hidden; }
@@ -703,9 +708,10 @@
                 <div class="modal-body p-0">
                     <div class="row g-0">
                         <!-- ฝั่งซ้าย: รูปภาพแผนการบิน (ปรับเป็น col-lg-4) -->
-                        <div class="col-lg-4 bg-dark border-end p-0 d-flex flex-column align-items-center justify-content-center" style="min-height: 450px; position: relative;">
+                        <div class="col-lg-3 bg-dark border-end p-0 d-flex flex-column align-items-center justify-content-center" style="min-height: 450px; position: relative;">
                             <img id="flightScheduleImage" src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=800&auto=format&fit=crop" class="img-fluid opacity-75" alt="Flight Schedule" style="object-fit: contain; width: 100%; height: 100%;">
-                            <a id="flightScheduleImageLink" href="#" target="_blank" class="btn btn-primary position-absolute bottom-0 end-0 m-4 shadow-lg rounded-pill px-4"><i class="fa-solid fa-magnifying-glass-plus me-2"></i> ดูรูปตารางบินขนาดใหญ่</a>
+                            <!-- ปุ่มดูรูป ปรับให้เล็กลงนิดนึงจะได้ไม่ล้น -->
+                            <a id="flightScheduleImageLink" href="#" target="_blank" class="btn btn-primary btn-sm position-absolute bottom-0 end-0 m-3 shadow-lg rounded-pill px-3"><i class="fa-solid fa-magnifying-glass-plus me-1"></i> รูปขนาดใหญ่</a>
                         </div>
 
                         <!-- ฝั่งกลาง: ปฏิทินและเลือกเดือน (ปรับเป็น col-lg-4) -->
@@ -737,17 +743,14 @@
 
                         <!-- ฝั่งขวา: รายการเที่ยวบินในวันนั้น -->
                         <!-- 🟢 1. เติมคลาส d-flex flex-column เข้าไปที่กล่องคลุมเพื่อให้มันจัดเรียงแบบยืดหยุ่น -->
-                        <div class="col-lg-4 p-4 bg-light d-flex flex-column">
+                        <div class="col-lg-5 p-4 bg-light d-flex flex-column">
                             
-                            <!-- ส่วนหัวข้อ (ล็อคขนาดไว้ไม่ให้หดตัว) -->
                             <h5 class="fw-bold mb-3 border-bottom pb-2 flex-shrink-0" style="color: var(--primary-blue);">
                                 <i class="fa-solid fa-list-check me-2"></i> รายการเที่ยวบิน
                             </h5>
                             <div class="text-muted small mb-3 flex-shrink-0">วันที่เลือก: <span id="flightSelectedDate" class="fw-bold text-dark fs-6">-</span></div>
                             
-                            <!-- 🟢 2. ลบ max-height: 400px ออก แล้วใส่คลาส flex-grow-1 ให้มันขยายเต็มพื้นที่ว่างด้านล่าง -->
-                            <!--div id="flightDetailsResult" class="flex-grow-1" style="overflow-y: auto; overflow-x: hidden; padding-right: 10px; min-height: 400px;"-->
-                            <div id="flightDetailsResult" class="flex-grow-1 mt-2" style="overflow-y: auto; overflow-x: hidden; padding-right: 8px; height: 700px; max-height: 700px;">
+                            <div id="flightDetailsResult" class="flex-grow-1 mt-2" style="overflow-y: auto; overflow-x: hidden; padding-right: 8px; height: 500px; max-height: 500px;">
                                 <div class="text-center text-muted mt-5"><i class="fa-regular fa-hand-pointer fa-3x mb-3 opacity-25"></i><br>โปรดเลือกวันที่จากปฏิทิน</div>
                             </div>
 
@@ -2439,6 +2442,7 @@
             }
             
             Swal.fire({ icon: 'info', title: 'ออกจากระบบแล้ว', showConfirmButton: false, timer: 1000 });
+            window.location.reload(); 
         }
 
         // 🟢 ฟังก์ชันเปิดหน้าโปรไฟล์ส่วนตัว
