@@ -1976,14 +1976,18 @@
         }
         // ================= สิ้นสุดฟังก์ชัน เมื่อคลิกเลือกวันที่ =================
 
-          // ================= เริ่มต้นฟังก์ชัน วาดรายการเที่ยวบินด้านขวา (พร้อมระบบกรอง และแสดงชื่อเต็ม) =================
+         // ================= เริ่มต้นฟังก์ชัน วาดรายการเที่ยวบินด้านขวา (พร้อมระบบกรอง และแสดงชื่อเต็ม) =================
         function renderFlightListResult(filterAirlineID) {
+            // 1. ดึงข้อมูล User จาก LocalStorage เพื่อเช็คสิทธิ์ (แก้บั๊ก currentUser undefined)
             let showStandInfo = false;
-            if (isLoggedIn && currentUser) {
-                if (['SuperAdmin', 'SubAdmin', 'Staff'].includes(currentUser.role)) {
+            let savedUser = localStorage.getItem('userData');
+            if (savedUser) {
+                let userObj = JSON.parse(savedUser);
+                if (['SuperAdmin', 'SubAdmin', 'Staff'].includes(userObj.role)) {
                     showStandInfo = true;
                 }
             }
+            
             const resultBox = document.getElementById('flightDetailsResult');
             
             if (currentDayFlights.length === 0) {
@@ -1991,10 +1995,10 @@
                 return;
             }
 
-            // 🟢 1. สร้าง Dropdown สำหรับกรองสายการบิน
+            // 2. สร้าง Dropdown สำหรับกรองสายการบิน
             let uniqueAirlineIDs = [...new Set(currentDayFlights.map(f => f.AirlineID))];
             let filterHtml = '';
-            if (uniqueAirlineIDs.length > 1) { // จะแสดง Dropdown ก็ต่อเมื่อวันนั้นมีมากกว่า 1 สายการบิน
+            if (uniqueAirlineIDs.length > 1) { 
                 let options = `<option value="">แสดงทุกสายการบิน</option>`;
                 uniqueAirlineIDs.forEach(id => {
                     let airObj = allAirlinesData.find(a => a.AirlineID === id);
@@ -2011,24 +2015,28 @@
                 `;
             }
 
-            // 🟢 2. กรองข้อมูลตามที่เลือก และเรียงตามเวลา
+            // 3. กรองข้อมูลตามที่เลือก และเรียงตามเวลา
             let flightsToShow = currentDayFlights;
             if (filterAirlineID) {
                 flightsToShow = currentDayFlights.filter(f => f.AirlineID === filterAirlineID);
             }
             flightsToShow.sort((a,b) => a.DepartureTime.localeCompare(b.DepartureTime));
 
-            // 🟢 3. วาดรายการเที่ยวบิน (แสดงชื่อเต็มทั้งหมด)
+            // 4. วาดรายการเที่ยวบิน
             let listHtml = '';
-            // วันที่กำลังเลือกดูอยู่ (format: DD/MM/YYYY)
+            
+            // 🟢 แก้บั๊ก: ประกาศ Array เดือนตรงนี้ให้ฟังก์ชันนี้มองเห็นด้วย
+            const localMonthsTH = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+            
             let viewDateStr = document.getElementById('flightSelectedDate').innerText.replace(/\s+/g, ' '); 
-            // * ต้องแปลง viewDateStr ให้กลายเป็น DD/MM/YYYY ให้ตรงกับ Key ใน JSON ด้วย
             let dateParts = viewDateStr.split(' ');
             let selectedDateKey = '';
+            
             if(dateParts.length === 3) {
-                let d = dateParts[0].padStart(2, '0');
-                let m = (monthsTH.indexOf(dateParts[1]) + 1).toString().padStart(2, '0');
+                let d = parseInt(dateParts[0]).toString(); // แปลงให้เลขวันที่ไม่มี 0 นำหน้า เพื่อให้ตรงกับ Key ที่เซฟตอนแรก
+                let m = localMonthsTH.indexOf(dateParts[1]); // ค่าจะเป็น 0 - 11
                 let y = (parseInt(dateParts[2]) - 543).toString();
+                // 🟢 สร้าง Key ในรูปแบบ D/M/YYYY (ซึ่งเป็น Format เดียวกันกับตอนที่เซฟจาก Datepicker หลังบ้าน)
                 selectedDateKey = `${d}/${m}/${y}`;
             }
 
@@ -2049,12 +2057,15 @@
                     try {
                         let standMap = JSON.parse(f.StandAssignments || '{}');
                         let standForToday = standMap[selectedDateKey];
+                        
                         if (standForToday) {
                             standBadgeHtml = `<span class="badge bg-dark rounded-pill ms-2" style="font-size: 0.75rem;"><i class="fa-solid fa-product-hunt"></i> หลุมจอด: ${standForToday}</span>`;
                         } else {
                             standBadgeHtml = `<span class="badge bg-secondary rounded-pill ms-2 opacity-50" style="font-size: 0.7rem;">ไม่ได้กำหนดหลุมจอด</span>`;
                         }
-                    } catch(e) {}
+                    } catch(e) {
+                        console.error("Stand Error:", e);
+                    }
                 }
 
                 listHtml += `
@@ -2064,7 +2075,7 @@
                             <div class="fw-bold d-flex align-items-center" style="color: ${airColor}; font-size: 1.05rem;">
                                 ${logoHtml} <span>${airName}</span>
                             </div>
-                            <!-- 🟢 นำหลุมจอดมาแทรกต่อท้ายเลข Flight -->
+                            <!-- นำหลุมจอดมาแทรกต่อท้ายเลข Flight -->
                             <div>
                                 <span class="badge rounded-pill fs-6 px-3 shadow-sm" style="background-color: ${airColor}">${f.FlightNumber}</span>
                                 ${standBadgeHtml}
