@@ -341,7 +341,7 @@
     <script>
         // 🔴 อย่าลืมวางลิงก์ API ของคุณ
         const API_URL = "https://script.google.com/macros/s/AKfycbx_KEKYYe2Mu1vTORWF8GZnV4zuOku_4IqEvwhZ4q556ggVOHjy-blHKvY_IuYOfGHqaA/exec";
-
+        let isLoggedIn = false; 
         let allMediaData = [];
         let allCategoriesData = [];
         let filteredMedia = [];
@@ -757,11 +757,26 @@
                 </div>
             `;
         }
+        // ==================== ออกจากระบบ ====================
         function mockLogout() { 
+            isLoggedIn = false; 
             localStorage.removeItem('userData'); 
+            
+            // รีเซ็ตปุ่มกลับเป็นปุ่มเข้าสู่ระบบ (เผื่อไว้ก่อนรีเฟรช)
             const userMenu = document.getElementById('userMenu');
-            if(userMenu) userMenu.innerHTML = `<button class="btn btn-outline-light rounded-pill px-4" onclick="showAuthModal()"><i class="fa-solid fa-user me-2"></i> เข้าสู่ระบบ</button>`; 
-            Swal.fire({ icon: 'info', title: 'ออกจากระบบแล้ว', showConfirmButton: false, timer: 1000 });
+            if(userMenu) {
+                userMenu.innerHTML = `<button class="btn btn-outline-light rounded-pill px-4" onclick="showAuthModal()"><i class="fa-solid fa-user me-2"></i> เข้าสู่ระบบ</button>`; 
+            }
+            
+            // 🟢 เพิ่ม .then() เพื่อสั่งให้หน้าเว็บรีเฟรชตัวเองหลังจากแสดงข้อความเสร็จ
+            Swal.fire({ 
+                icon: 'info', 
+                title: 'ออกจากระบบแล้ว', 
+                showConfirmButton: false, 
+                timer: 1000 
+            }).then(() => {
+                window.location.reload(); // สั่งรีเฟรชหน้าเว็บเพื่อล้างข้อมูลที่ค้างอยู่ในหน้าจอ
+            });
         }
         function showAuthModal() { window.location.href = 'index.html?action=login'; }
         function showContactModal() { new bootstrap.Modal(document.getElementById('contactModal')).show(); }
