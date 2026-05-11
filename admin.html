@@ -1126,17 +1126,21 @@
                     }).catch(handleError);
                 }
                 else if (viewId === 'flightschedules') {
+                    // 🟢 โหลดข้อมูล 3 ตารางรวด: เที่ยวบิน, สายการบิน, และ รายชื่อหลุมจอด
                     Promise.all([ 
                         fetch(`${API_URL}?action=getTableData&sheetName=FlightSchedules`).then(res=>res.json()), 
-                        fetch(`${API_URL}?action=getTableData&sheetName=Airlines`).then(res=>res.json()) 
-                    ]).then(([flightsRes, airlinesRes]) => {
-                        if(flightsRes.status === 'success' && airlinesRes.status === 'success') {
+                        fetch(`${API_URL}?action=getTableData&sheetName=Airlines`).then(res=>res.json()),
+                        fetch(`${API_URL}?action=getTableData&sheetName=ParkingStands`).then(res=>res.json()) // ดึงหลุมจอดมาด้วย
+                    ]).then(([flightsRes, airlinesRes, standsRes]) => {
+                        if(flightsRes.status === 'success' && airlinesRes.status === 'success' && standsRes.status === 'success') {
                             currentTableData = flightsRes.data || [];
                             allAirlinesData = airlinesRes.data || [];
+                            allStandsData = standsRes.data || []; // 🟢 เก็บรายชื่อหลุมจอดลงตัวแปร Global
+                            
                             populateAirlineDropdown();
                             renderFlightsTable(currentTableData);
                             Swal.close();
-                        } else throw new Error("Data load failed");
+                        } else throw new Error("Data load failed (Flight/Airlines/Stands)");
                     }).catch(handleError);
                 }
                 else if (viewId === 'news') {
@@ -1203,7 +1207,7 @@
                         } else throw new Error("Data load failed");
                     }).catch(handleError);
                 }
-                // 🟢 เมนูใหม่: จัดการหลุมจอด (Parking Stands)
+               // 🟢 เมนูใหม่: จัดการหลุมจอด
                 else if (viewId === 'parkingstands') {
                     fetch(`${API_URL}?action=getTableData&sheetName=ParkingStands`).then(res=>res.json()).then(res => {
                         if(res.status === 'success') { 
