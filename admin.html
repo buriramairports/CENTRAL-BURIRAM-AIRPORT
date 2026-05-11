@@ -61,6 +61,8 @@
             
             <li id="header_flights" class="mt-4 px-3"><small class="text-uppercase fw-bold" style="color: #64748b; font-size: 0.7rem;">จัดการข้อมูลเที่ยวบิน/ผู้โดยสาร</small></li>
             <li id="menu_flightschedules"><a href="#" onclick="switchView('flightschedules', this)"><i class="fa-solid fa-plane-arrival"></i> ตารางเที่ยวบิน</a></li>
+            <li id="menu_airlines"><a href="#" onclick="switchView('airlines', this)"><i class="fa-solid fa-plane-circle-check"></i> สายการบิน</a></li>
+            <li id="menu_parkingstands"><a href="#" onclick="switchView('parkingstands', this)"><i class="fa-solid fa-product-hunt"></i> หลุมจอดอากาศยาน</a></li>
             <li id="menu_passengerstats"><a href="#" onclick="switchView('passengerstats', this)"><i class="fa-solid fa-users-line"></i> สถิติผู้โดยสาร</a></li>
 
             <li id="header_about" class="mt-4 px-3"><small class="text-uppercase fw-bold" style="color: #64748b; font-size: 0.7rem;">จัดการข้อมูลหน่วยงาน</small></li>
@@ -69,7 +71,6 @@
             
             <li id="header_basic" class="mt-4 px-3"><small class="text-uppercase fw-bold" style="color: #64748b; font-size: 0.7rem;">จัดการข้อมูลพื้นฐาน</small></li>
             <li id="menu_eservices"><a href="#" onclick="switchView('eservices', this)"><i class="fa-solid fa-laptop-code"></i> ระบบ E-Services</a></li>
-            <li id="menu_airlines"><a href="#" onclick="switchView('airlines', this)"><i class="fa-solid fa-plane-circle-check"></i> สายการบิน</a></li>
             <li id="menu_banners"><a href="#" onclick="switchView('banners', this)"><i class="fa-regular fa-images"></i> แบนเนอร์สไลด์</a></li>
             
             <li id="menuSuperAdminGroup">
@@ -289,6 +290,15 @@
                 <div class="card card-custom"><div class="card-body p-0 table-responsive"><table class="table table-hover align-middle mb-0"><thead class="table-light"><tr><th width="10%">ลำดับ</th><th width="25%">ชื่อกลุ่มงาน</th><th width="40%">รายละเอียด</th><th width="10%">สถานะ</th><th width="15%" class="text-center">จัดการ</th></tr></thead><tbody id="tbody-departments"></tbody></table></div></div>
             </div>
 
+            <!-- ================= VIEW: Parking Stands ================= -->
+            <div id="view-parkingstands" class="admin-view" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold text-dark mb-0"><i class="fa-solid fa-product-hunt me-2 text-primary"></i> จัดการหลุมจอดอากาศยาน</h4>
+                    <div><button id="btnSaveOrder-ParkingStands" class="btn btn-warning me-2 d-none" onclick="saveOrderAPI('ParkingStands', 'StandID')"><i class="fa-solid fa-save me-1"></i> บันทึกลำดับ</button><button class="btn btn-success" onclick="openStandModal()"><i class="fa-solid fa-plus me-1"></i> เพิ่มหลุมจอด</button></div>
+                </div>
+                <div class="card card-custom"><div class="card-body p-0 table-responsive"><table class="table table-hover align-middle mb-0"><thead class="table-light"><tr><th width="10%">ลำดับ</th><th width="50%">ชื่อ/หมายเลขหลุมจอด</th><th width="20%" class="text-center">สถานะ</th><th width="20%" class="text-center">จัดการ</th></tr></thead><tbody id="tbody-parkingstands"></tbody></table></div></div>
+            </div>
+            
             <!-- ================= VIEW: E-Services ================= -->
             <div id="view-eservices" class="admin-view" style="display: none;">
                 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -570,7 +580,32 @@
                             <div class="col-md-12 mt-3"><div class="form-check form-switch p-3 bg-light rounded border"><input class="form-check-input ms-0 me-3" type="checkbox" id="usr_Status" style="transform: scale(1.3);" checked><label class="form-check-label fw-bold text-success" id="usr_StatusLabel" for="usr_Status">บัญชีนี้พร้อมใช้งาน (Active)</label></div></div></div><button type="submit" class="btn btn-primary w-100 mt-2" id="btnSaveUser">บันทึกข้อมูลผู้ใช้งาน</button></form></div></div></div></div>
 
     <!-- Modal: Flight Schedules -->
-    <div class="modal fade" id="flightModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content border-0"><div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold" id="flightModalTitle">เพิ่ม/แก้ไข ตารางเที่ยวบิน</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><form id="formFlight" onsubmit="saveFlightRecord(event)"><input type="hidden" id="flt_FlightID"><div class="row g-3 mb-3 border-bottom pb-3"><div class="col-md-6"><label class="form-label fw-bold">สายการบิน <span class="text-danger">*</span></label><select class="form-select" id="flt_AirlineID" required></select></div><div class="col-md-3"><label class="form-label fw-bold">หมายเลขเที่ยวบิน <span class="text-danger">*</span></label><input type="text" class="form-control text-uppercase fw-bold text-primary" id="flt_FlightNumber" placeholder="เช่น FD3522" required></div><div class="col-md-3"><label class="form-label fw-bold text-danger">ประเภทเที่ยวบิน <span class="text-danger">*</span></label><select class="form-select fw-bold" id="flt_FlightType" required><option value="Arrival">ขาเข้า (Arrival)</option><option value="Departure">ขาออก (Departure)</option></select></div></div><div class="row g-3 mb-3"><div class="col-md-6"><label class="form-label fw-bold">ต้นทาง (Origin) <span class="text-danger">*</span></label><input class="form-control" list="airportOptions" id="flt_Origin" required></div><div class="col-md-6"><label class="form-label fw-bold">ปลายทาง (Destination) <span class="text-danger">*</span></label><input class="form-control" list="airportOptions" id="flt_Destination" required></div><datalist id="airportOptions"><option value="ดอนเมือง (DMK)"></option><option value="สุวรรณภูมิ (BKK)"></option><option value="บุรีรัมย์ (BFV)"></option><option value="ภูเก็ต (HKT)"></option><option value="เชียงใหม่ (CNX)"></option></datalist><div class="col-md-6"><label class="form-label fw-bold">เวลาออก (Departure) <span class="text-danger">*</span></label><input type="time" class="form-control fw-bold" id="flt_DepartureTime" required></div><div class="col-md-6"><label class="form-label fw-bold">เวลาถึง (Arrival) <span class="text-danger">*</span></label><input type="time" class="form-control fw-bold" id="flt_ArrivalTime" required></div></div><div class="mb-4 bg-light p-3 rounded border"><label class="form-label fw-bold text-primary mb-2"><i class="fa-regular fa-calendar-check"></i> วันที่ทำการบิน <span class="text-danger">*</span></label><div class="form-text mb-2">สามารถคลิกเลือกได้หลายวันบนปฏิทิน หากต้องการลบให้คลิกซ้ำที่วันนั้น</div><input type="text" id="flt_FlightDates" class="form-control bg-white" placeholder="คลิกเพื่อเลือกวันที่บนปฏิทิน..." required readonly></div><div class="form-check form-switch mb-3"><input class="form-check-input" type="checkbox" id="flt_IsActive" style="transform: scale(1.3);" checked><label class="form-check-label ms-2 fw-bold text-success" for="flt_IsActive">เปิดให้บริการเที่ยวบินนี้</label></div><button type="submit" class="btn btn-primary w-100" id="btnSaveFlight">บันทึกเที่ยวบิน</button></form></div></div></div></div>
+    <div class="modal fade" id="flightModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content border-0"><div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold" id="flightModalTitle">เพิ่ม/แก้ไข ตารางเที่ยวบิน</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><form id="formFlight" onsubmit="saveFlightRecord(event)"><input type="hidden" id="flt_FlightID"><div class="row g-3 mb-3 border-bottom pb-3"><div class="col-md-6"><label class="form-label fw-bold">สายการบิน <span class="text-danger">*</span></label><select class="form-select" id="flt_AirlineID" required></select></div><div class="col-md-3"><label class="form-label fw-bold">หมายเลขเที่ยวบิน <span class="text-danger">*</span></label><input type="text" class="form-control text-uppercase fw-bold text-primary" id="flt_FlightNumber" placeholder="เช่น FD3522" required></div><div class="col-md-3"><label class="form-label fw-bold text-danger">ประเภทเที่ยวบิน <span class="text-danger">*</span></label><select class="form-select fw-bold" id="flt_FlightType" required><option value="Arrival">ขาเข้า (Arrival)</option><option value="Departure">ขาออก (Departure)</option></select></div></div><div class="row g-3 mb-3"><div class="col-md-6"><label class="form-label fw-bold">ต้นทาง (Origin) <span class="text-danger">*</span></label><input class="form-control" list="airportOptions" id="flt_Origin" required></div><div class="col-md-6"><label class="form-label fw-bold">ปลายทาง (Destination) <span class="text-danger">*</span></label><input class="form-control" list="airportOptions" id="flt_Destination" required></div><datalist id="airportOptions"><option value="ดอนเมือง (DMK)"></option><option value="สุวรรณภูมิ (BKK)"></option><option value="บุรีรัมย์ (BFV)"></option><option value="ภูเก็ต (HKT)"></option><option value="เชียงใหม่ (CNX)"></option></datalist><div class="col-md-6"><label class="form-label fw-bold">เวลาออก (Departure) <span class="text-danger">*</span></label><input type="time" class="form-control fw-bold" id="flt_DepartureTime" required></div><div class="col-md-6"><label class="form-label fw-bold">เวลาถึง (Arrival) <span class="text-danger">*</span></label><input type="time" class="form-control fw-bold" id="flt_ArrivalTime" required></div></div><div class="mb-4 bg-light p-3 rounded border">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label fw-bold text-primary mb-0"><i class="fa-regular fa-calendar-check"></i> วันที่ทำการบิน <span class="text-danger">*</span></label>
+                                <div>
+                                    <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 py-0" onclick="selectAllDaysInMonth()"><i class="fa-solid fa-check-double me-1"></i>เลือกทั้งเดือนนี้</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-0 ms-1" onclick="flightDatepicker.clear()"><i class="fa-solid fa-eraser me-1"></i>ล้างค่า</button>
+                                </div>
+                            </div>
+                            <input type="text" id="flt_FlightDates" class="form-control bg-white" placeholder="คลิกเพื่อเลือกวันที่บนปฏิทิน..." required readonly>
+                        </div>
+                        
+                        <!-- 🟢 โซนกำหนดหลุมจอดแบบ Dynamic -->
+                        <div class="mb-4 border border-info rounded p-3 bg-white" id="standAssignmentSection" style="display: none;">
+                            <h6 class="fw-bold text-info"><i class="fa-solid fa-product-hunt me-1"></i> กำหนดหลุมจอด (Parking Stand)</h6>
+                            <div class="d-flex gap-2 mb-3 bg-info bg-opacity-10 p-2 rounded align-items-center">
+                                <span class="small fw-bold text-dark text-nowrap ms-2">กำหนดทั้งหมดเป็น:</span>
+                                <select class="form-select form-select-sm border-info" id="bulkStandSelect"></select>
+                                <button type="button" class="btn btn-sm btn-info text-white text-nowrap" onclick="applyBulkStands()"><i class="fa-solid fa-wand-magic-sparkles"></i> นำไปใช้</button>
+                            </div>
+                            <div id="standAssignmentsGrid" style="max-height: 250px; overflow-y: auto;" class="border rounded p-2">
+                                <!-- ตารางกำหนดหลุมจอดจะถูกสร้างที่นี่ -->
+                            </div>
+                        </div>
+
+                        <div class="form-check form-switch mb-3"><input class="form-check-input" type="checkbox" id="flt_IsActive" style="transform: scale(1.3);" checked><label class="form-check-label ms-2 fw-bold text-success" for="flt_IsActive">เปิดให้บริการเที่ยวบินนี้</label></div>
+        <button type="submit" class="btn btn-primary w-100" id="btnSaveFlight">บันทึกเที่ยวบิน</button></form></div></div></div></div>
 
     <!-- Modal: View Flight Dates -->
     <div class="modal fade" id="viewFlightDatesModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-md"><div class="modal-content border-0"><div class="modal-header bg-light"><h6 class="modal-title fw-bold text-primary"><i class="fa-regular fa-calendar-check"></i> ข้อมูลวันทำการบิน</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body p-4 text-center"><div class="mb-4 bg-light p-3 rounded border"><h4 class="fw-bold text-danger mb-2" id="viewDates_FlightNo">FD3522</h4><div class="fw-bold text-dark mb-2" id="viewDates_Airline"><i class="fa-solid fa-plane"></i> สายการบิน...</div><div class="text-secondary mb-2" id="viewDates_Route">ต้นทาง <i class="fa-solid fa-arrow-right mx-1"></i> ปลายทาง</div><div class="text-primary fw-bold"><i class="fa-regular fa-clock me-1"></i> <span id="viewDates_Time">00:00 - 00:00</span></div></div><div class="text-muted small mb-2">จำนวนวันทำการบินทั้งหมด <span id="viewDates_Count" class="fw-bold fs-5 text-dark">0</span> วัน</div><div class="d-flex justify-content-center"><input type="text" id="viewDates_Calendar" class="d-none"></div></div></div></div></div>
@@ -742,6 +777,9 @@
     <!-- Modal: Media Categories -->
     <div class="modal fade" id="mediaCatModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0"><div class="modal-header bg-danger text-white"><h5 class="modal-title fw-bold" id="mediaCatModalTitle">เพิ่ม/แก้ไข หมวดหมู่สื่อ</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><form id="formMediaCat" onsubmit="saveMediaCat(event)"><input type="hidden" id="mcat_CategoryID"><input type="hidden" id="mcat_OrderList"><div class="mb-3"><label class="form-label fw-bold">ชื่อหมวดหมู่ <span class="text-danger">*</span></label><input type="text" class="form-control" id="mcat_CategoryName" required></div><div class="row"><div class="col-6 mb-3"><label class="form-label fw-bold">สีของหมวดหมู่</label><input type="color" class="form-control form-control-color w-100" id="mcat_ThemeColor" value="#dc3545"></div><div class="col-6 mb-3 d-flex align-items-center"><div class="form-check form-switch mt-4"><input class="form-check-input" type="checkbox" id="mcat_IsActive" style="transform: scale(1.2);" checked><label class="form-check-label ms-2 fw-bold text-success" for="mcat_IsActive">เปิดใช้งาน</label></div></div></div><button type="submit" class="btn btn-danger w-100 mt-2" id="btnSaveMediaCat">บันทึกข้อมูล</button></form></div></div></div></div>
 
+    <!-- Modal: Parking Stands -->
+    <div class="modal fade" id="standModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0"><div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold" id="standModalTitle">เพิ่ม/แก้ไข หลุมจอด</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><form id="formStand" onsubmit="saveStand(event)"><input type="hidden" id="std_StandID"><input type="hidden" id="std_OrderList"><div class="mb-3"><label class="form-label fw-bold">ชื่อหลุมจอด <span class="text-danger">*</span></label><input type="text" class="form-control" id="std_StandName" placeholder="เช่น หลุม 1, Bay 2" required></div><div class="form-check form-switch mb-4"><input class="form-check-input" type="checkbox" id="std_IsActive" style="transform: scale(1.2);" checked><label class="form-check-label ms-2 fw-bold text-success" for="std_IsActive">เปิดใช้งาน</label></div><button type="submit" class="btn btn-primary w-100" id="btnSaveStand">บันทึกข้อมูล</button></form></div></div></div></div>
+    
    <!-- Modal: Media -->
     <div class="modal fade" id="mediaModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -925,7 +963,12 @@
             }
 
             try {
-                flightDatepicker = flatpickr("#flt_FlightDates", { mode: "multiple", dateFormat: "d/m/Y", locale: "th", conjunction: ", " });
+                flightDatepicker = flatpickr("#flt_FlightDates", { 
+    mode: "multiple", dateFormat: "d/m/Y", locale: "th", conjunction: ", ",
+    onChange: function(selectedDates, dateStr, instance) {
+        generateStandAssignmentsUI(dateStr); // 🟢 ให้สร้างตารางหลุมจอดเมื่อเปลี่ยนวัน
+    }
+});
                 quillEditor = new Quill('#news_Content_Editor', { theme: 'snow', placeholder: 'พิมพ์เนื้อหาข่าว หรือกด Ctrl+V เพื่อวางรูป...', modules: { toolbar: [ [{ 'header': [1, 2, 3, false] }], ['bold', 'italic', 'underline', 'strike'], [{ 'list': 'ordered'}, { 'list': 'bullet' }], [{ 'align': [] }], ['link'], ['clean'] ] } });
                 // เปิดใช้งานปฏิทินสำหรับตั้งเวลาข่าว
                 publishDatepicker = flatpickr("#news_PublishDate", { enableTime: true, dateFormat: "d/m/Y H:i", locale: "th", time_24hr: true });
@@ -1160,6 +1203,17 @@
                         } else throw new Error("Data load failed");
                     }).catch(handleError);
                 }
+                // 🟢 เมนูใหม่: จัดการหลุมจอด (Parking Stands)
+                else if (viewId === 'parkingstands') {
+                    fetch(`${API_URL}?action=getTableData&sheetName=ParkingStands`).then(res=>res.json()).then(res => {
+                        if(res.status === 'success') { 
+                            currentTableData = res.data || []; 
+                            renderStandsTable(currentTableData); 
+                            Swal.close(); 
+                        }
+                        else throw new Error(res.message);
+                    }).catch(handleError);
+                }
             } catch (error) {
                 console.error("Critical error in switchView:", error);
                 Swal.fire('ระบบขัดข้อง', 'โปรดรีเฟรชหน้าต่างใหม่', 'error');
@@ -1240,6 +1294,7 @@
                                 'AboutPages': renderAboutPagesTable,
                                 'MediaCategories': renderMediaCatsTable,
                                 'Media': renderMediaTable,
+                                'ParkingStands': renderStandsTable,
                                 'SiteMenus': renderSiteMenusTable // 🟢 เพิ่มการอัปเดตตารางเมนูตรงนี้
                             };
                             if (renderMap[sheetName]) renderMap[sheetName](currentTableData);
@@ -2207,9 +2262,69 @@
             });
         }
 
+        //================= เริ่มต้น ระบบจัดการ ตารางเที่ยวบิน =================
+        // ฟังก์ชันเลือกทุกวันในเดือนปัจจุบันของปฏิทิน
+        function selectAllDaysInMonth() {
+            let year = flightDatepicker.currentYear;
+            let month = flightDatepicker.currentMonth;
+            let daysInMonth = new Date(year, month + 1, 0).getDate();
+            let newDates = flightDatepicker.selectedDates || [];
+            
+            for(let d = 1; d <= daysInMonth; d++) {
+                let checkDate = new Date(year, month, d);
+                // ตรวจสอบว่ามีอยู่แล้วหรือยัง
+                if(!newDates.some(existingD => existingD.getTime() === checkDate.getTime())) {
+                    newDates.push(checkDate);
+                }
+            }
+            flightDatepicker.setDate(newDates);
+            generateStandAssignmentsUI(document.getElementById('flt_FlightDates').value);
+        }
+
+        let currentStandDataObj = {}; // เก็บข้อมูลหลุมจอดเดิมไว้
+
+        function generateStandAssignmentsUI(dateStr) {
+            const section = document.getElementById('standAssignmentSection');
+            const grid = document.getElementById('standAssignmentsGrid');
+            const bulkSelect = document.getElementById('bulkStandSelect');
+            
+            if (!dateStr) { section.style.display = 'none'; return; }
+            section.style.display = 'block';
+
+            let dates = dateStr.split(', ');
+            
+            // สร้าง Dropdown ตัวเลือกหลุมจอด
+            let optionsHtml = '<option value="">-- ไม่ระบุ --</option>';
+            allStandsData.filter(s => s.IsActive === 'TRUE').forEach(s => {
+                optionsHtml += `<option value="${s.StandName}">${s.StandName}</option>`;
+            });
+            bulkSelect.innerHTML = optionsHtml;
+
+            // สร้างตารางแต่ละวัน
+            let gridHtml = '';
+            dates.sort((a,b) => parseThaiDate(a).getTime() - parseThaiDate(b).getTime()).forEach(d => {
+                let savedStand = currentStandDataObj[d] || '';
+                gridHtml += `
+                    <div class="d-flex justify-content-between align-items-center mb-2 border-bottom pb-2">
+                        <div class="fw-bold text-dark ps-2 w-50"><i class="fa-regular fa-calendar text-muted me-2"></i>${d}</div>
+                        <select class="form-select form-select-sm w-50 stand-item-select" data-date="${d}">
+                            ${optionsHtml.replace(`value="${savedStand}"`, `value="${savedStand}" selected`)}
+                        </select>
+                    </div>
+                `;
+            });
+            grid.innerHTML = gridHtml;
+        }
+
+        function applyBulkStands() {
+            const bulkVal = document.getElementById('bulkStandSelect').value;
+            document.querySelectorAll('.stand-item-select').forEach(sel => sel.value = bulkVal);
+        }
+
+        // 🟢 เปลี่ยนฟังก์ชันบันทึกและแก้ไข เที่ยวบิน
         function openFlightModal(id = '') {
             document.getElementById('formFlight').reset(); document.getElementById('flt_FlightID').value = ''; document.getElementById('flightModalTitle').innerText = 'เพิ่มเที่ยวบินใหม่';
-            flightDatepicker.clear(); 
+            flightDatepicker.clear(); currentStandDataObj = {}; document.getElementById('standAssignmentSection').style.display = 'none';
 
             if (id) {
                 document.getElementById('flightModalTitle').innerText = 'แก้ไขเที่ยวบิน';
@@ -2217,7 +2332,13 @@
                 document.getElementById('flt_FlightID').value = item.FlightID; document.getElementById('flt_AirlineID').value = item.AirlineID; document.getElementById('flt_FlightNumber').value = item.FlightNumber;
                 document.getElementById('flt_FlightType').value = item.FlightType; document.getElementById('flt_Origin').value = item.Origin; document.getElementById('flt_Destination').value = item.Destination;
                 document.getElementById('flt_DepartureTime').value = item.DepartureTime; document.getElementById('flt_ArrivalTime').value = item.ArrivalTime; document.getElementById('flt_IsActive').checked = (item.IsActive === 'TRUE');
-                if (item.FlightDates) flightDatepicker.setDate(item.FlightDates.split(', '));
+                
+                try { currentStandDataObj = JSON.parse(item.StandAssignments || '{}'); } catch(e){}
+                
+                if (item.FlightDates) {
+                    flightDatepicker.setDate(item.FlightDates.split(', '));
+                    generateStandAssignmentsUI(item.FlightDates);
+                }
             }
             new bootstrap.Modal(document.getElementById('flightModal')).show();
         }
@@ -2226,18 +2347,29 @@
             e.preventDefault(); const datesStr = document.getElementById('flt_FlightDates').value;
             if (!datesStr) { Swal.fire('ข้อผิดพลาด', 'กรุณาคลิกเลือกวันที่ทำการบินอย่างน้อย 1 วัน', 'warning'); return; }
 
+            // 🟢 รวบรวมข้อมูลหลุมจอดไปแปลงเป็น JSON
+            let standMap = {};
+            document.querySelectorAll('.stand-item-select').forEach(sel => {
+                if(sel.value) standMap[sel.getAttribute('data-date')] = sel.value;
+            });
+
             const btn = document.getElementById('btnSaveFlight'); btn.innerHTML = 'กำลังบันทึก...'; btn.disabled = true;
 
-            const recordData = { FlightID: document.getElementById('flt_FlightID').value, AirlineID: document.getElementById('flt_AirlineID').value, FlightNumber: document.getElementById('flt_FlightNumber').value.toUpperCase(), FlightType: document.getElementById('flt_FlightType').value, Origin: document.getElementById('flt_Origin').value, Destination: document.getElementById('flt_Destination').value, DepartureTime: document.getElementById('flt_DepartureTime').value, ArrivalTime: document.getElementById('flt_ArrivalTime').value, FlightDates: datesStr, IsActive: document.getElementById('flt_IsActive').checked ? 'TRUE' : 'FALSE' };
+            const recordData = { 
+                FlightID: document.getElementById('flt_FlightID').value, AirlineID: document.getElementById('flt_AirlineID').value, FlightNumber: document.getElementById('flt_FlightNumber').value.toUpperCase(), FlightType: document.getElementById('flt_FlightType').value, Origin: document.getElementById('flt_Origin').value, Destination: document.getElementById('flt_Destination').value, DepartureTime: document.getElementById('flt_DepartureTime').value, ArrivalTime: document.getElementById('flt_ArrivalTime').value, FlightDates: datesStr, 
+                StandAssignments: JSON.stringify(standMap), // 🟢 บันทึก JSON ลงไป
+                IsActive: document.getElementById('flt_IsActive').checked ? 'TRUE' : 'FALSE' 
+            };
             fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'FlightSchedules', idColumn: 'FlightID', recordJSON: JSON.stringify(recordData) }) })
             .then(res => res.json()).then(res => { 
                 if (res.status === 'success') { 
-                    bootstrap.Modal.getInstance(document.getElementById('flightModal')).hide(); 
-                    Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', showConfirmButton: false, timer: 1500 }); 
-                    switchView('flightschedules', null);
+                    bootstrap.Modal.getInstance(document.getElementById('flightModal')).hide(); Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', showConfirmButton: false, timer: 1500 }); switchView('flightschedules', null);
                 } else { Swal.fire('ผิดพลาด', res.message, 'error'); } 
             }).finally(() => { btn.innerHTML = 'บันทึกเที่ยวบิน'; btn.disabled = false; });
         }
+        
+
+        //================= สิ้นสุด ระบบจัดการ ตารางเที่ยวบิน =================
 
         let readonlyDatepicker;
         function openViewDatesModal(flightNum, airlineID, route, depTime, arrTime, datesString) {
@@ -3407,6 +3539,31 @@
             new bootstrap.Modal(document.getElementById('adminGalleryModal')).show();
         }
         // ================= ฟังก์ชันสำหรับเปิดดูตัวอย่าง สื่อมัลติมีเดีย ในหน้าแอดมิน =================
+
+        // ================= จัดการหลุมจอด =================
+        let allStandsData = [];
+        function renderStandsTable(data) {
+            allStandsData = data; const tbody = document.getElementById('tbody-parkingstands'); tbody.innerHTML = '';
+            if (data.length === 0) return;
+            data.sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList)).forEach((item, index) => {
+                let badge = item.IsActive === 'TRUE' ? '<span class="badge bg-success">เปิดใช้งาน</span>' : '<span class="badge bg-secondary">ปิด</span>';
+                let btnUp = index > 0 ? `<button class="btn btn-sm btn-light text-primary me-1" onclick="moveOrder('ParkingStands', ${index}, -1, renderStandsTable)"><i class="fa-solid fa-arrow-up"></i></button>` : `<button class="btn btn-sm btn-light me-1" style="visibility:hidden;"><i class="fa-solid fa-arrow-up"></i></button>`; 
+                let btnDown = index < data.length - 1 ? `<button class="btn btn-sm btn-light text-primary me-2" onclick="moveOrder('ParkingStands', ${index}, 1, renderStandsTable)"><i class="fa-solid fa-arrow-down"></i></button>` : `<button class="btn btn-sm btn-light me-2" style="visibility:hidden;"><i class="fa-solid fa-arrow-down"></i></button>`; 
+                tbody.innerHTML += `<tr><td class="fw-bold text-center h5 text-muted">${item.OrderList}</td><td class="fw-bold text-primary fs-6">${item.StandName}</td><td class="text-center">${badge}</td><td class="text-center">${btnUp}${btnDown} <button class="btn btn-sm btn-outline-warning mx-1" onclick="openStandModal('${item.StandID}')"><i class="fa-solid fa-pen"></i></button><button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('ParkingStands', 'StandID', '${item.StandID}')"><i class="fa-solid fa-trash"></i></button></td></tr>`;
+            });
+        }
+        function openStandModal(id = '') {
+            document.getElementById('formStand').reset(); document.getElementById('std_StandID').value = '';
+            if (id) { const i = currentTableData.find(x => x.StandID === id); document.getElementById('std_StandID').value = i.StandID; document.getElementById('std_StandName').value = i.StandName; document.getElementById('std_OrderList').value = i.OrderList; document.getElementById('std_IsActive').checked = (i.IsActive === 'TRUE'); }
+            new bootstrap.Modal(document.getElementById('standModal')).show();
+        }
+        function saveStand(e) {
+            e.preventDefault(); const btn = document.getElementById('btnSaveStand'); btn.disabled = true;
+            let ord = document.getElementById('std_OrderList').value; if (!document.getElementById('std_StandID').value) ord = currentTableData.length + 1;
+            const rData = { StandID: document.getElementById('std_StandID').value, StandName: document.getElementById('std_StandName').value, OrderList: ord, IsActive: document.getElementById('std_IsActive').checked ? 'TRUE' : 'FALSE' };
+            fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'ParkingStands', idColumn: 'StandID', recordJSON: JSON.stringify(rData) }) }).then(res=>res.json()).then(res=>{ if (res.status === 'success') { bootstrap.Modal.getInstance(document.getElementById('standModal')).hide(); Swal.fire({ icon: 'success', showConfirmButton: false, timer: 1500 }); switchView('parkingstands', null); } }).finally(() => btn.disabled = false);
+        }
+        // ================= สิ้นสุด จัดการหลุมจอด =================
     </script>
 </body>
 </html>
