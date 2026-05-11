@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สื่อมัลติมีเดีย | ท่าอากาศยานบุรีรัมย์</title>
+    <link id="dynamic-favicon" rel="icon" href="https://cdn-icons-png.flaticon.com/512/3125/3125713.png" type="image/png">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6.5.1 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts (Kanit) -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-blue: #0A3161; 
+            --secondary-blue: #155297;
+            --light-bg: #F4F7F6;
+        }
+
+        body { font-family: 'Kanit', sans-serif; background-color: var(--light-bg); background-image: url('https://www.transparenttextures.com/patterns/cubes.png'); }
+        .navbar { background-color: var(--primary-blue); box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .navbar-brand img { height: 40px; margin-right: 10px; }
+
+        /* ================= Preloader ================= */
+        #preloader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--primary-blue); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.6s ease, visibility 0.6s ease; }
+        .loader-spinner { width: 50px; height: 50px; border: 5px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: white; animation: spin 1s ease-in-out infinite; margin-bottom: 20px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .blink { animation: blinker 1.5s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
+
+        /* ================= Sidebar หมวดหมู่ ================= */
+        .sidebar-card { border: none; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; background: white;}
+        .sidebar-header { background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue)); color: white; padding: 15px 20px; font-weight: bold; font-size: 1.1rem; }
+        .cat-list { list-style: none; padding: 0; margin: 0; }
+        .cat-item { padding: 10px 20px; border-bottom: 1px dashed #e2e8f0; cursor: pointer; transition: 0.2s; color: #334155; font-size: 0.95rem; display: flex; align-items: center;}
+        .cat-item i { margin-right: 10px; color: #94a3b8; transition: 0.2s;}
+        .cat-item:hover { background-color: #f8fafc; color: var(--primary-blue); padding-left: 25px;}
+        .cat-item.active { background-color: #eff6ff; color: var(--primary-blue); font-weight: bold; border-left: 4px solid var(--primary-blue); }
+        .cat-item.active i { color: var(--primary-blue); }
+
+        /* ================= การ์ด Media ================= */
+        .media-card { border: none; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.3s; cursor: pointer; height: 100%; display: flex; flex-direction: column; background: white;}
+        .media-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .media-img-wrapper { position: relative; height: 200px; overflow: hidden; background-color: #000; }
+        .media-img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; opacity: 0.85; }
+        .media-card:hover .media-img { transform: scale(1.05); opacity: 0.5; }
+        .play-icon-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 3rem; opacity: 0.8; transition: 0.3s; text-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 2;}
+        .media-card:hover .play-icon-overlay { color: #ef4444; transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+        .media-badge { position: absolute; top: 10px; left: 10px; color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 2;}
+        .media-body { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; }
+        .media-title { font-weight: bold; color: #1e293b; font-size: 1.05rem; line-height: 1.4; margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .media-meta { margin-top: auto; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: #64748b; border-top: 1px dashed #e2e8f0; padding-top: 10px; }
+
+        /* ================= ปรับแต่ง Scrollbar ฝั่งซ้าย ================= */
+        .sidebar-scrollable::-webkit-scrollbar { width: 6px; }
+        .sidebar-scrollable::-webkit-scrollbar-track { background: transparent; }
+        .sidebar-scrollable::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .sidebar-scrollable::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* ================= สไตล์ Footer ================= */
+        .footer-top-logos { background: white; padding: 15px 0; border-bottom: 2px solid var(--primary-blue); }
+        .footer-main { background-color: var(--primary-blue); color: white; padding: 40px 0 30px; font-size: 0.9rem; }
+        .footer-contact-logo { height: 65px; width: auto; max-width: 80px; object-fit: contain; transition: transform 0.3s ease; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3)); }
+        .footer-contact-logo:hover { transform: scale(1.1); }
+        .airline-box { background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; margin-bottom: 10px; display: flex; align-items: center; }
+        .stats-box { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; }
+        .footer-sitemap { background-color: #E9ECEF; padding: 40px 0 20px; font-size: 0.85rem; }
+        .footer-sitemap h6 { font-weight: 600; color: var(--primary-blue); margin-bottom: 15px; border-bottom: 2px solid #ccc; padding-bottom: 10px; display: inline-block;}
+        .footer-sitemap ul { list-style: none; padding: 0; }
+        .footer-sitemap ul li { margin-bottom: 8px; }
+        .footer-sitemap a { color: #555; text-decoration: none; transition: 0.2s; }
+        .footer-sitemap a:hover { color: var(--primary-blue); padding-left: 5px;}
+        .toggle-sitemap-btn { background-color: #E9ECEF; border: none; width: 100%; padding: 10px; color: var(--primary-blue); font-weight: 600; border-top: 1px solid #ccc; transition: 0.2s; cursor: pointer; text-align: center; }
+        .toggle-sitemap-btn:hover { background-color: #d1d5da; }
+
+        .e-service-card { border-top: 4px solid var(--primary-blue); cursor: pointer; transition: 0.3s; text-decoration: none; }
+        .e-service-card:hover { background-color: var(--primary-blue); transform: translateY(-5px); }
+        .e-service-card:hover h6, .e-service-card:hover i { color: white !important; }
+    </style>
+</head>
+<body>
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text">กำลังโหลดสื่อมัลติมีเดีย...</div>
+    </div>
+
+    <!-- แถบเมนูด้านบน -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="index.html">
+                <img id="navLogoImg" src="" style="height: 40px; margin-right: 10px; display: none;" alt="Logo">
+                <i id="navLogoIcon" class="fa-solid fa-plane-departure me-2"></i> 
+                <span id="navAirportName">ท่าอากาศยานบุรีรัมย์</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto" id="dynamicTopNav">
+                    <!-- เมนูด้านบนจะถูกดึงมาจากระบบหลังบ้านและวาดตรงนี้ -->
+                </ul>
+                <div id="userMenu">
+                    <button class="btn btn-outline-light rounded-pill px-4" onclick="showAuthModal()">
+                        <i class="fa-solid fa-user me-2"></i> เข้าสู่ระบบ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Page -->
+    <div style="background: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=2000&auto=format&fit=crop') center/cover; position: relative;">
+        <div style="background: rgba(10, 49, 97, 0.85); padding: 50px 0;">
+            <div class="container text-center text-white">
+                <h2 class="fw-bold mb-2">สื่อมัลติมีเดีย (Video Gallery)</h2>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb justify-content-center mb-0">
+                        <li class="breadcrumb-item"><a href="index.html" class="text-white-50 text-decoration-none">หน้าหลัก</a></li>
+                        <li class="breadcrumb-item active text-white" aria-current="page">สื่อมัลติมีเดีย</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- ส่วนเนื้อหาหลัก -->
+    <div class="container mt-5 mb-5">
+        <div class="row g-4">
+            
+           <!-- ฝั่งซ้าย: Sidebar หมวดหมู่ -->
+            <div class="col-lg-3 align-self-start" style="position: sticky; top: 10px; z-index: 10;">
+                <div class="sidebar-card" style="max-height: calc(100vh - 130px); display: flex; flex-direction: column;">
+                    <div class="sidebar-header flex-shrink-0">
+                        <i class="fa-solid fa-filter me-2"></i> หมวดหมู่วิดีโอ
+                    </div>
+                    <div class="flex-grow-1 sidebar-scrollable" style="overflow-y: auto;">
+                        <ul class="cat-list" id="sidebar-categories">
+                            <!-- หมวดหมู่จะถูกวาดโดย JS -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ฝั่งขวา: รายการวิดีโอ -->
+            <div class="col-lg-9">
+                <!-- เครื่องมือค้นหาและจัดเรียง -->
+                <div class="card border-0 shadow-sm mb-4 bg-white">
+                    <div class="card-body">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-md-7">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                                    <input type="text" id="searchMediaText" class="form-control border-start-0 bg-light" placeholder="ค้นหาชื่อวิดีโอ..." oninput="applyFilters()">
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <select class="form-select bg-light" id="sortMedia" onchange="applyFilters()">
+                                    <option value="newest">เรียงตามวันที่: ใหม่ล่าสุด</option>
+                                    <option value="oldest">เรียงตามวันที่: เก่าสุด</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- หัวข้อหมวดหมู่ที่เลือก -->
+                <h4 class="fw-bold mb-3" style="color: var(--primary-blue);" id="currentCategoryTitle">วิดีโอทั้งหมด</h4>
+
+                <!-- ผลลัพธ์การ์ด (Grid) -->
+                <div class="row g-4 mb-4" id="mediaGridContainer"></div>
+
+                <!-- Pagination (แบ่งหน้า) -->
+                <nav><ul class="pagination justify-content-center" id="mediaPagination"></ul></nav>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- FOOTER แบบเต็ม -->
+    <footer class="mt-5">
+        <div class="footer-top-logos text-center bg-white" style="border-bottom: 2px solid var(--primary-blue);">
+            <div class="container d-flex justify-content-center align-items-center flex-wrap py-3" style="gap: 20px;">
+                <img id="footerLogoMinistry" src="" class="footer-contact-logo" style="display: none;" alt="โลโก้กระทรวง">
+                <img id="footerLogoDept" src="" class="footer-contact-logo" style="display: none;" alt="โลโก้กรม">
+                <img id="footerLogoAirport" src="" class="footer-contact-logo" style="display: none;" alt="โลโก้สนามบิน">
+                <span id="footerLogoFallback" class="text-white-50 small">กำลังโหลดสัญลักษณ์หน่วยงาน...</span>
+            </div>
+        </div>
+
+        <div class="footer-main">
+            <div class="container">
+                <div class="row align-items-start g-4">
+                    <div class="col-lg-4 border-end border-secondary pe-4">
+                        <h5 class="fw-bold mb-3"><i class="fa-solid fa-building me-2"></i> <span id="footerSystemName">ท่าอากาศยานบุรีรัมย์</span></h5>
+                        <p class="mb-2"><i class="fa-solid fa-location-dot me-2 text-white-50"></i> <span id="footerAddress">-</span></p>
+                        <p class="mb-2"><i class="fa-solid fa-phone me-2 text-white-50"></i> <span id="footerPhone">-</span></p>
+                        <p class="mb-0"><i class="fa-solid fa-envelope me-2 text-white-50"></i> <span id="footerEmail">-</span></p>
+                    </div>
+                    
+                    <div class="col-lg-4 border-end border-secondary px-4">
+                        <h5 class="fw-bold mb-3 text-warning"><i class="fa-solid fa-plane-circle-check me-2"></i> สายการบินที่ให้บริการ</h5>
+                        <div id="footer-airlines-container">
+                            <span class="text-white-50 small">กำลังโหลดข้อมูล...</span>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4 ps-4">
+                        <h5 class="fw-bold mb-3"><i class="fa-solid fa-chart-line me-2"></i> สถิติผู้เข้าชมเว็บไซต์</h5>
+                        <div class="stats-box" style="background-color: #0d2847; border: 1px solid rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);">
+                            <div class="d-flex justify-content-between align-items-center border-bottom border-secondary border-opacity-25 pb-2 mb-2">
+                                <span class="fw-bold"><i class="fa-solid fa-users me-2"></i> ผู้เข้าชมทั้งหมด</span>
+                                <span class="fw-bold text-warning fs-5" id="statTotalAll">-</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center border-bottom border-secondary border-opacity-25 pb-2 mb-2">
+                                <span class="fw-bold" id="statCurrentMonthLabel"><i class="fa-regular fa-calendar me-2"></i> เดือนปัจจุบัน</span>
+                                <span class="fw-bold text-white fs-5" id="statTotalMonth">-</span>
+                            </div>
+                            <div class="border-0 pb-0 mt-2 d-flex justify-content-between align-items-center">
+                                <span class="text-success fw-bold"><i class="fa-solid fa-circle text-success fa-xs me-2 blink"></i> ออนไลน์ขณะนี้</span>
+                                <span class="badge rounded-pill px-3 py-1" style="background-color: #198754; font-size: 0.9rem;" id="statOnlineNow">1</span>
+                            </div>
+                        </div>
+                        <div class="text-end mt-3">
+                            <button class="btn btn-outline-light rounded-pill px-3 py-1 border-secondary" style="font-size: 0.85rem;" onclick="showWebStatsModal()">
+                                ดูข้อมูลย้อนหลัง <i class="fa-solid fa-clock-rotate-left ms-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="toggle-sitemap-btn w-100 p-2 border-0 fw-bold" style="background-color: #E9ECEF; color: var(--primary-blue);" type="button" data-bs-toggle="collapse" data-bs-target="#footerSitemapContainer">
+            <i class="fa-solid fa-chevron-down me-2"></i> แสดง/ซ่อน แผนผังเว็บไซต์
+        </button>
+
+        <div class="collapse" id="footerSitemapContainer">
+            <div class="footer-sitemap">
+                <div class="container">
+                    <div class="row text-center text-md-start" id="dynamicFooterSitemap">
+                        <!-- แผนผังเว็บ (Sitemap) จะถูกดึงมาจากระบบหลังบ้านและจัดกลุ่มที่นี่ -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="text-center py-3 border-top border-secondary small text-white" style="background-color: #213C6D;">
+            © 2569 สงวนลิขสิทธิ์ตามพระราชบัญญัติลิขสิทธิ์โดย <span id="footerSystemName2">ท่าอากาศยานบุรีรัมย์</span>
+        </div>
+    </footer>
+
+    <!-- ================= เริ่มต้น Modal ทั้งหมด ================= -->
+    <!-- Modal Video Player (เปิดเล่น YouTube) -->
+    <div class="modal fade" id="videoModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content border-0 bg-dark">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h5 class="modal-title fw-bold text-white"><i class="fa-brands fa-youtube text-danger me-2"></i> <span id="videoModalTitle">ชื่อวิดีโอ</span></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <!-- กำหนดอัตราส่วน 16:9 ให้วิดีโอ YouTube -->
+                    <div class="ratio ratio-16x9">
+                        <iframe id="videoPlayer" src="" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                    <div class="p-4 text-white">
+                        <h6 class="fw-bold text-success mb-2">รายละเอียด:</h6>
+                        <p id="videoModalDesc" class="mb-0 text-white-50" style="font-size: 0.95rem;"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal สถิติผู้เข้าชมเว็บย้อนหลัง -->
+    <div class="modal fade" id="webStatsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0">
+                <div class="modal-header text-white" style="background-color: var(--primary-blue);">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-chart-line me-2"></i> สถิติผู้เข้าชมเว็บย้อนหลัง</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-2 mb-4">
+                        <div class="col-12"><select class="form-select fw-bold text-primary" id="filterWebStatYear" onchange="renderWebStatsTable()"></select></div>
+                    </div>
+                    <table class="table table-bordered table-striped text-center">
+                        <thead class="table-light"><tr><th>เดือน</th><th>จำนวนผู้เข้าชมเว็บ</th></tr></thead>
+                        <tbody id="tbody-webstats"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal ติดต่อเรา (Popup) -->
+    <div class="modal fade" id="contactModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header text-white" style="background-color: var(--primary-blue);">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-address-book me-2"></i> ติดต่อเรา (Contact Us)</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="text-center mb-4 mt-2">
+                        <img id="modalContactLogoImg" src="" style="height: 80px; display: none; margin-bottom: 15px;">
+                        <i id="modalContactLogoIcon" class="fa-solid fa-building-flag fa-4x text-secondary mb-3"></i>
+                        <h4 class="fw-bold text-primary" id="modalContactName">ท่าอากาศยานบุรีรัมย์</h4>
+                    </div>
+                    <ul class="list-group list-group-flush mb-2">
+                        <li class="list-group-item d-flex align-items-center py-3 px-0">
+                            <div class="bg-light rounded-circle d-flex justify-content-center align-items-center me-3" style="width:45px; height:45px;"><i class="fa-solid fa-location-dot text-danger fs-5"></i></div>
+                            <div><div class="small text-muted fw-bold mb-1">ที่อยู่ทำการ</div><div id="modalContactAddress" class="text-dark">กำลังโหลด...</div></div>
+                        </li>
+                        <li class="list-group-item d-flex align-items-center py-3 px-0">
+                            <div class="bg-light rounded-circle d-flex justify-content-center align-items-center me-3" style="width:45px; height:45px;"><i class="fa-solid fa-phone text-success fs-5"></i></div>
+                            <div><div class="small text-muted fw-bold mb-1">เบอร์โทรศัพท์</div><div id="modalContactPhone" class="text-dark fw-bold fs-6">กำลังโหลด...</div></div>
+                        </li>
+                        <li class="list-group-item d-flex align-items-center py-3 px-0">
+                            <div class="bg-light rounded-circle d-flex justify-content-center align-items-center me-3" style="width:45px; height:45px;"><i class="fa-solid fa-envelope text-warning fs-5"></i></div>
+                            <div><div class="small text-muted fw-bold mb-1">อีเมล (E-mail)</div><div id="modalContactEmail" class="text-dark">กำลังโหลด...</div></div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">ปิดหน้าต่าง</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal รวมระบบ E-Services -->
+    <div class="modal fade" id="allEServicesModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 bg-light">
+                <div class="modal-header text-white" style="background-color: var(--primary-blue);">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-laptop-code"></i> ระบบบริการอิเล็กทรอนิกส์ทั้งหมด</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-3" id="all-eservice-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal โปรไฟล์ส่วนตัว -->
+    <div class="modal fade" id="myProfileModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header text-white" style="background-color: var(--primary-blue);">
+                    <h5 class="modal-title fw-bold"><i class="fa-regular fa-id-card me-2"></i> ข้อมูลส่วนตัวของฉัน</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4 bg-light">
+                    <form id="formMyProfile" onsubmit="saveMyProfile(event)">
+                        <input type="hidden" id="myProf_ID">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-secondary small mb-1">ชื่อ</label>
+                                <input type="text" class="form-control" id="myProf_Fname" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-secondary small mb-1">นามสกุล</label>
+                                <input type="text" class="form-control" id="myProf_Lname" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-secondary small mb-1">อีเมล</label>
+                                <input type="email" class="form-control" id="myProf_Email" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-secondary small mb-1">เบอร์โทรศัพท์</label>
+                                <input type="tel" class="form-control" id="myProf_Phone" required>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold text-secondary small mb-1">สถานศึกษา / หน่วยงาน</label>
+                                <input type="text" class="form-control" id="myProf_Org" required>
+                            </div>
+                        </div>
+                        <div class="p-3 border rounded bg-white mt-4">
+                            <label class="form-label fw-bold text-danger small mb-1"><i class="fa-solid fa-key"></i> เปลี่ยนรหัสผ่าน</label>
+                            <input type="text" class="form-control" id="myProf_Password" placeholder="เว้นว่างไว้หากไม่ต้องการเปลี่ยนรหัสผ่าน">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mt-4 py-2 fw-bold" id="btnSaveMyProfile">บันทึกการเปลี่ยนแปลง</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ================= สิ้นสุด Modal ทั้งหมด ================= -->
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // 🔴 อย่าลืมวางลิงก์ API ของคุณตรงนี้ (ใช้ลิงก์เดียวกับหน้าหลักได้เลย)
+        const API_URL = "https://script.google.com/macros/s/AKfycbx_KEKYYe2Mu1vTORWF8GZnV4zuOku_4IqEvwhZ4q556ggVOHjy-blHKvY_IuYOfGHqaA/exec";
+
+        let allMediaData = [];
+        let allMediaCatsData = [];
+        let filteredMedia = [];
+        
+        let currentPage = 1;
+        const itemsPerPage = 9; // แสดงหน้าละ 9 วิดีโอ
+        let activeCategoryId = 'all';
+
+        // ================= 1. ฟังก์ชันตัวช่วยทั่วไป =================
+        function convertDriveImageLink(url) {
+            if(!url) return "";
+            let id = ""; const regexView = /\/file\/d\/([a-zA-Z0-9_-]+)/; const regexId = /id=([a-zA-Z0-9_-]+)/; 
+            if (url.match(regexView)) id = url.match(regexView)[1]; else if (url.match(regexId)) id = url.match(regexId)[1];
+            if (id) return `https://drive.google.com/thumbnail?id=${id}&sz=w1000`;
+            return url; 
+        }
+
+        // ดึง ID วิดีโอจากลิงก์ YouTube เพื่อเอามาทำปก + เล่นวิดีโอ
+        function getYouTubeId(url) {
+            if(!url) return null;
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        function parseThaiDate(dateString) {
+            if (!dateString) return new Date(0); 
+            let parts = dateString.split(' ');
+            if (parts.length !== 2) return new Date(0);
+            let dateParts = parts[0].split('/'); let timeParts = parts[1].split(':'); 
+            if (dateParts.length !== 3) return new Date(0);
+            let day = parseInt(dateParts[0], 10); let month = parseInt(dateParts[1], 10) - 1; let year = parseInt(dateParts[2], 10) - 543; 
+            let hours = timeParts[0] ? parseInt(timeParts[0], 10) : 0; let mins = timeParts[1] ? parseInt(timeParts[1], 10) : 0; let secs = timeParts[2] ? parseInt(timeParts[2], 10) : 0;
+            return new Date(year, month, day, hours, mins, secs);
+        }
+
+        // ================= 2. ดึงข้อมูลเมื่อโหลดหน้า =================
+        document.addEventListener('DOMContentLoaded', async () => {
+            // เช็คว่ามี Login ไหม
+            const savedUser = localStorage.getItem('userData');
+            if (savedUser) { updateUserMenuUI(JSON.parse(savedUser)); }
+
+            // เช็คว่ากดมาจากหมวดหมู่ไหน (ถ้าส่ง Parameter มา)
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('category')) activeCategoryId = urlParams.get('category');
+
+            try {
+                // 🟢 โหลดข้อมูลพร้อมกัน 6 ตาราง (รวมของ Media)
+                const [settingsRes, catsRes, mediaRes, menusRes, airlinesRes, statsRes] = await Promise.all([
+                    fetch(API_URL + '?action=getSettings').then(r => r.json()),
+                    fetch(API_URL + '?action=getTableData&sheetName=MediaCategories').then(r => r.json()),
+                    fetch(API_URL + '?action=getTableData&sheetName=Media').then(r => r.json()),
+                    fetch(API_URL + '?action=getTableData&sheetName=SiteMenus').then(r => r.json()),
+                    fetch(API_URL + '?action=getTableData&sheetName=Airlines').then(r => r.json()),
+                    fetch(API_URL + '?action=getWebStats').then(r => r.json())
+                ]);
+
+                // ใส่ข้อมูล UI ภายนอก (Navbar, Footer, Modal)
+                if(settingsRes.status === 'success') applySettingsToUI(settingsRes.data);
+                if(menusRes.status === 'success') renderSiteMenus(menusRes.data);
+                if(airlinesRes.status === 'success') renderFooterAirlines(airlinesRes.data);
+                if(statsRes.status === 'success') processWebStats(statsRes); 
+
+                // กรองข้อมูลวิดีโอ (เอาเฉพาะที่เปิดใช้งาน)
+                if (catsRes.status === 'success') allMediaCatsData = catsRes.data.filter(c => c.IsActive === 'TRUE');
+                if (mediaRes.status === 'success') allMediaData = mediaRes.data.filter(n => n.IsActive === 'TRUE');
+
+                renderSidebar();
+                selectCategory(activeCategoryId, false);
+
+            } catch (error) {
+                console.error("Error loading data:", error);
+                Swal.fire('ข้อผิดพลาด', 'ไม่สามารถโหลดข้อมูลสื่อได้', 'error');
+            } finally {
+                const preloader = document.getElementById('preloader');
+                if (preloader) { preloader.style.opacity = '0'; setTimeout(() => { preloader.style.visibility = 'hidden'; }, 600); }
+            }
+        });
+
+        // ================= 3. วาดเมนูหมวดหมู่ฝั่งซ้าย =================
+        function renderSidebar() {
+            const container = document.getElementById('sidebar-categories');
+            container.innerHTML = '';
+            
+            let html = '';
+            // เรียงหมวดหมู่ตาม OrderList
+            allMediaCatsData.sort((a,b) => a.OrderList - b.OrderList).forEach(cat => {
+                let isActive = (cat.CategoryID === activeCategoryId) ? 'active' : '';
+                html += `<li class="cat-item ${isActive}" id="cat-${cat.CategoryID}" onclick="selectCategory('${cat.CategoryID}')"><i class="fa-solid fa-photo-film"></i> ${cat.CategoryName}</li>`;
+            });
+            container.innerHTML = html;
+
+            // ไฮไลต์ปุ่ม "ทั้งหมด" ถ้าไม่ได้เลือกหมวดใดเลย
+            if (activeCategoryId === 'all') document.getElementById('cat-all').classList.add('active');
+        }
+
+        // ================= 4. เมื่อคลิกเลือกหมวดหมู่ =================
+        function selectCategory(catId, shouldScroll = true) {
+            activeCategoryId = catId;
+            
+            // อัปเดตไฮไลต์ในเมนู
+            document.querySelectorAll('.cat-item').forEach(el => el.classList.remove('active'));
+            const activeEls = document.querySelectorAll(`#cat-${catId}`);
+            if (activeEls.length > 0) activeEls.forEach(el => el.classList.add('active'));
+            else document.getElementById('cat-all').classList.add('active');
+
+            // อัปเดตหัวข้อเรื่องด้านขวา
+            const titleEl = document.getElementById('currentCategoryTitle');
+            if (catId === 'all') {
+                titleEl.innerText = "วิดีโอทั้งหมด";
+            } else {
+                let catObj = allMediaCatsData.find(c => c.CategoryID === catId);
+                titleEl.innerText = catObj ? catObj.CategoryName : "วิดีโอ";
+            }
+
+            // ล้างช่องค้นหา และสั่งกรองข้อมูล
+            document.getElementById('searchMediaText').value = '';
+            document.getElementById('sortMedia').value = 'newest';
+            applyFilters();
+
+            // เลื่อนจอขึ้นไปบนสุด (เฉพาะเวลากดด้วยมือ)
+            if (shouldScroll) window.scrollTo({ top: document.getElementById('currentCategoryTitle').offsetTop - 160, behavior: 'smooth' });
+        }
+
+        // ================= 5. ระบบกรองและจัดเรียง =================
+        function applyFilters() {
+            const searchText = document.getElementById('searchMediaText').value.toLowerCase();
+            const sortVal = document.getElementById('sortMedia').value;
+
+            // กรอง
+            filteredMedia = allMediaData.filter(media => {
+                if (activeCategoryId !== 'all' && media.CategoryID !== activeCategoryId) return false;
+                if (searchText !== "" && !media.Title.toLowerCase().includes(searchText)) return false;
+                return true;
+            });
+
+            // จัดเรียง
+            filteredMedia.sort((a, b) => {
+                let dateA = parseThaiDate(a.CreateDate).getTime();
+                let dateB = parseThaiDate(b.CreateDate).getTime();
+                if (sortVal === 'newest') return dateB - dateA; // ใหม่ไปเก่า
+                if (sortVal === 'oldest') return dateA - dateB; // เก่าไปใหม่
+            });
+
+            // รีเซ็ตกลับไปหน้า 1
+            currentPage = 1;
+            renderMediaGrid();
+        }
+
+        // ================= 6. วาดการ์ดวิดีโอ =================
+        function renderMediaGrid() {
+            const container = document.getElementById('mediaGridContainer');
+            container.innerHTML = '';
+
+            const totalItems = filteredMedia.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+            
+            if (currentPage > totalPages) currentPage = totalPages;
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+
+            let pageData = filteredMedia.slice(startIndex, endIndex);
+
+            if (pageData.length === 0) {
+                container.innerHTML = `<div class="col-12 text-center text-muted py-5"><i class="fa-solid fa-photo-film fa-4x mb-3 opacity-25"></i><h4>ไม่พบวิดีโอในหมวดหมู่นี้</h4></div>`;
+                renderPagination(0);
+                return;
+            }
+
+            pageData.forEach(media => {
+                let catObj = allMediaCatsData.find(c => c.CategoryID === media.CategoryID);
+                let catName = catObj ? catObj.CategoryName : 'ทั่วไป';
+                let catColor = (catObj && catObj.ThemeColor) ? catObj.ThemeColor : 'var(--primary-blue)';
+                
+                let dateText = media.CreateDate ? media.CreateDate.split(' ')[0] : '-';
+                let ytId = getYouTubeId(media.VideoURL);
+
+                // ดึงรูปปก ถ้ายูสเซอร์ไม่อัปโหลดมา ให้ดึงจาก YouTube
+                let coverUrl = media.CoverImageURL ? convertDriveImageLink(media.CoverImageURL) : (ytId ? `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg` : 'https://via.placeholder.com/600x400?text=ไม่มีรูปหน้าปก');
+
+                // ซ่อนคำอธิบายลงในปุ่ม (เพื่อเอาไปส่งต่อให้ Popup)
+                let cleanDesc = encodeURIComponent(media.Description || '');
+
+                container.innerHTML += `
+                    <div class="col-md-6 col-lg-4">
+                        <div class="media-card" onclick="openVideoModal('${ytId}', '${media.Title}', '${cleanDesc}')">
+                            <div class="media-img-wrapper">
+                                <img src="${coverUrl}" class="media-img" alt="ปกวิดีโอ" onerror="this.src='https://img.youtube.com/vi/${ytId}/mqdefault.jpg'">
+                                <i class="fa-brands fa-youtube play-icon-overlay"></i>
+                                <span class="media-badge" style="background-color: ${catColor};">${catName}</span>
+                            </div>
+                            <div class="media-body">
+                                <h5 class="media-title">${media.Title}</h5>
+                                <div class="media-meta">
+                                    <span><i class="fa-regular fa-calendar me-1"></i> ${dateText}</span>
+                                    <span class="text-danger fw-bold"><i class="fa-solid fa-play fa-sm me-1"></i> ดูคลิป</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            renderPagination(totalPages);
+        }
+
+        // ================= 7. ระบบแบ่งหน้า =================
+        function changePage(page) {
+            currentPage = page;
+            renderMediaGrid();
+            window.scrollTo({ top: document.getElementById('currentCategoryTitle').offsetTop - 160, behavior: 'smooth' });
+        }
+
+        function renderPagination(totalPages) {
+            const ul = document.getElementById('mediaPagination');
+            ul.innerHTML = '';
+            if(totalPages <= 1) return; 
+
+            let prevClass = currentPage === 1 ? 'disabled' : '';
+            ul.innerHTML += `<li class="page-item ${prevClass}"><a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage - 1})">ก่อนหน้า</a></li>`;
+            
+            for(let i = 1; i <= totalPages; i++) {
+                let activeClass = i === currentPage ? 'active' : '';
+                ul.innerHTML += `<li class="page-item ${activeClass}"><a class="page-link" href="javascript:void(0)" onclick="changePage(${i})">${i}</a></li>`;
+            }
+            
+            let nextClass = currentPage === totalPages ? 'disabled' : '';
+            ul.innerHTML += `<li class="page-item ${nextClass}"><a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage + 1})">ถัดไป</a></li>`;
+        }
+
+        // ================= 8. ฟังก์ชันเปิด/ปิดวิดีโอ (YouTube) =================
+        function openVideoModal(ytId, title, encodedDesc) {
+            if(!ytId) { Swal.fire('ข้อผิดพลาด', 'ลิงก์วิดีโอไม่ถูกต้อง', 'error'); return; }
+            
+            document.getElementById('videoModalTitle').innerText = title;
+            document.getElementById('videoModalDesc').innerText = decodeURIComponent(encodedDesc) || 'ไม่มีคำอธิบาย';
+            
+            // สั่งเล่นวิดีโอผ่าน iFrame (autoplay=1)
+            const iframe = document.getElementById('videoPlayer');
+            iframe.src = `https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0`;
+
+            new bootstrap.Modal(document.getElementById('videoModal')).show();
+        }
+
+        // จับเหตุการณ์ตอนผู้ใช้กด "ปิดหน้าต่าง Modal" ให้สั่งหยุดวิดีโอทันที
+        document.getElementById('videoModal').addEventListener('hidden.bs.modal', function () {
+            document.getElementById('videoPlayer').src = ''; 
+        });
+
+        // ====================================================================
+        // ================= ฟังก์ชันพื้นฐานของระบบ (Navbar/User/Footer) =================
+        // ====================================================================
+        
+        function applySettingsToUI(settings) {
+            if(settings.SystemName) document.title = "สื่อมัลติมีเดีย | " + settings.SystemName;
+            let displayAirportName = settings.AirportName || settings.SystemName || 'ท่าอากาศยานบุรีรัมย์';
+            
+            if (document.getElementById('navAirportName')) document.getElementById('navAirportName').innerText = displayAirportName;
+            if (document.getElementById('footerSystemName')) document.getElementById('footerSystemName').innerText = displayAirportName;
+            if (document.getElementById('footerSystemName2')) document.getElementById('footerSystemName2').innerText = displayAirportName;
+            if (document.getElementById('modalContactName')) document.getElementById('modalContactName').innerText = displayAirportName;
+
+            let address = settings.ContactAddress || '-'; let phone = settings.ContactPhone || '-'; let email = settings.ContactEmail || '-';
+            if (document.getElementById('footerAddress')) document.getElementById('footerAddress').innerText = address;
+            if (document.getElementById('footerPhone')) document.getElementById('footerPhone').innerText = phone;
+            if (document.getElementById('footerEmail')) document.getElementById('footerEmail').innerText = email;
+            if (document.getElementById('modalContactAddress')) document.getElementById('modalContactAddress').innerText = address;
+            if (document.getElementById('modalContactPhone')) document.getElementById('modalContactPhone').innerText = phone;
+            if (document.getElementById('modalContactEmail')) document.getElementById('modalContactEmail').innerText = email;
+
+            if (settings.LogoAirport) {
+                let airportLogoUrl = convertDriveImageLink(settings.LogoAirport);
+                if (document.getElementById('dynamic-favicon')) document.getElementById('dynamic-favicon').href = airportLogoUrl;
+                if (document.getElementById('navLogoImg')) { document.getElementById('navLogoImg').src = airportLogoUrl; document.getElementById('navLogoImg').style.display = 'block'; if(document.getElementById('navLogoIcon')) document.getElementById('navLogoIcon').style.display = 'none'; }
+                if (document.getElementById('footerLogoAirport')) { document.getElementById('footerLogoAirport').src = airportLogoUrl; document.getElementById('footerLogoAirport').style.display = 'inline-block'; }
+                if (document.getElementById('modalContactLogoImg')) { document.getElementById('modalContactLogoImg').src = airportLogoUrl; document.getElementById('modalContactLogoImg').style.display = 'inline-block'; if(document.getElementById('modalContactLogoIcon')) document.getElementById('modalContactLogoIcon').style.display = 'none'; }
+            }
+
+            let hasFooterLogos = false;
+            if (settings.LogoMinistry) { document.getElementById('footerLogoMinistry').src = convertDriveImageLink(settings.LogoMinistry); document.getElementById('footerLogoMinistry').style.display = 'inline-block'; hasFooterLogos = true; }
+            if (settings.LogoDept) { document.getElementById('footerLogoDept').src = convertDriveImageLink(settings.LogoDept); document.getElementById('footerLogoDept').style.display = 'inline-block'; hasFooterLogos = true; }
+            if ((hasFooterLogos || settings.LogoAirport) && document.getElementById('footerLogoFallback')) document.getElementById('footerLogoFallback').style.display = 'none';
+        }
+
+        function renderSiteMenus(menusData) {
+            const activeMenus = menusData.filter(m => m.IsActive === 'TRUE').sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList));
+
+            const topNavContainer = document.getElementById('dynamicTopNav');
+            if (topNavContainer) {
+                const topMenus = activeMenus.filter(m => m.MenuPosition === 'TopNav');
+                let topHtml = '';
+                let currentPath = window.location.pathname.split('/').pop() || 'index.html';
+
+                topMenus.forEach(m => {
+                    let targetAttr = m.Target === '_blank' ? 'target="_blank"' : '';
+                    let isActive = currentPath === m.URL ? 'active' : '';
+                    let finalUrl = m.URL;
+                    if (finalUrl.startsWith('#')) finalUrl = 'index.html' + finalUrl;
+                    topHtml += `<li class="nav-item"><a class="nav-link ${isActive}" href="${finalUrl}" ${targetAttr}>${m.MenuName}</a></li>`;
+                });
+                topNavContainer.innerHTML = topHtml;
+            }
+
+            const footerContainer = document.getElementById('dynamicFooterSitemap');
+            if (footerContainer) {
+                const footerMenus = activeMenus.filter(m => m.MenuPosition === 'Footer');
+                let groupedMenus = {};
+                footerMenus.forEach(m => {
+                    let gName = m.GroupName || 'กลุ่มอื่นๆ';
+                    if (!groupedMenus[gName]) groupedMenus[gName] = [];
+                    groupedMenus[gName].push(m);
+                });
+
+                let footerHtml = `<div class="d-none col-md-12 mb-4 text-center border-bottom border-secondary pb-3"><a href="#" class="text-muted small mx-2 fw-bold"><i class="fa-solid fa-file-contract"></i> เงื่อนไขการให้บริการเว็บไซต์</a><a href="javascript:void(0)" class="text-muted small mx-2 fw-bold"><i class="fa-solid fa-shield-halved"></i> นโยบายคุ้มครองข้อมูลส่วนบุคคล</a><a href="#" class="text-muted small mx-2 fw-bold"><i class="fa-solid fa-lock"></i> นโยบายความปลอดภัย</a></div>`;
+                
+                for (const [groupName, links] of Object.entries(groupedMenus)) {
+                    footerHtml += `<div class="col-md-3 col-6 mb-4"><h6 class="fw-bold" style="color:var(--primary-blue); border-bottom: 2px solid #ccc; display: inline-block; padding-bottom: 5px; margin-bottom: 10px;">${groupName}</h6><ul class="list-unstyled">`;
+                    links.forEach(link => {
+                        let targetAttr = link.Target === '_blank' ? 'target="_blank"' : '';
+                        let finalUrl = link.URL;
+                        if (finalUrl.startsWith('#')) finalUrl = 'index.html' + finalUrl;
+                        footerHtml += `<li><a href="${finalUrl}" ${targetAttr} class="text-decoration-none text-muted">${link.MenuName}</a></li>`;
+                    });
+                    footerHtml += `</ul></div>`;
+                }
+                footerContainer.innerHTML = footerHtml;
+            }
+        }
+
+        const roleNamesTH = { 'SuperAdmin': 'ผู้ดูแลระบบสูงสุด', 'SubAdmin': 'ผู้ดูแลระบบ', 'Staff': 'เจ้าหน้าที่', 'User': 'ประชาชนทั่วไป' };
+        function updateUserMenuUI(user) {
+            if(!document.getElementById('userMenu')) return;
+            let adminMenu = '';
+            if (user.role === 'SuperAdmin' || user.role === 'SubAdmin') { adminMenu = `<li><a class="dropdown-item text-success fw-bold" href="admin.html"><i class="fa-solid fa-gauge-high me-2"></i>ไปที่ระบบหลังบ้าน</a></li><li><hr class="dropdown-divider"></li>`; }
+            const roleTH = roleNamesTH[user.role] || 'ประชาชนทั่วไป'; const roleDisplay = `${user.role} (${roleTH})`;
+
+            document.getElementById('userMenu').innerHTML = `
+                <div class="dropdown">
+                    <button class="btn btn-light rounded-pill px-3 py-1 dropdown-toggle d-flex align-items-center gap-2 border-0 shadow-sm" data-bs-toggle="dropdown">
+                        <i class="fa-solid fa-circle-user text-primary fs-4"></i> 
+                        <div class="text-start lh-1 pe-1"><div class="fw-bold text-dark" style="font-size: 0.9rem;">${user.fullname}</div><small class="text-muted" style="font-size: 0.7rem;">${roleDisplay}</small></div>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
+                        ${adminMenu}
+                        <li><a class="dropdown-item py-2" href="javascript:void(0)" onclick="openMyProfileModal()"><i class="fa-regular fa-id-card me-2 text-primary"></i> โปรไฟล์ส่วนตัว</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item py-2 text-danger" href="javascript:void(0)" onclick="mockLogout()"><i class="fa-solid fa-right-from-bracket me-2"></i> ออกจากระบบ</a></li>
+                    </ul>
+                </div>
+            `;
+        }
+        function mockLogout() { 
+            localStorage.removeItem('userData'); 
+            const userMenu = document.getElementById('userMenu');
+            if(userMenu) userMenu.innerHTML = `<button class="btn btn-outline-light rounded-pill px-4" onclick="showAuthModal()"><i class="fa-solid fa-user me-2"></i> เข้าสู่ระบบ</button>`; 
+            Swal.fire({ icon: 'info', title: 'ออกจากระบบแล้ว', showConfirmButton: false, timer: 1000 });
+        }
+        function showAuthModal() { window.location.href = 'index.html?action=login'; }
+        function showContactModal() { new bootstrap.Modal(document.getElementById('contactModal')).show(); }
+        function showAllEServicesModal() {
+            Swal.fire({title: 'กำลังโหลด...', didOpen: () => Swal.showLoading()});
+            fetch(API_URL + '?action=getTableData&sheetName=EServices').then(r => r.json()).then(res => {
+                Swal.close();
+                if(res.status === 'success') {
+                    const activeServices = res.data.filter(s => s.IsActive === 'TRUE').sort((a, b) => parseInt(a.OrderList) - parseInt(b.OrderList));
+                    const modalCont = document.getElementById('all-eservice-container'); modalCont.innerHTML = '';
+                    activeServices.forEach(s => { modalCont.innerHTML += `<div class="col-md-3 col-6"><a href="${s.URL}" target="${s.Target}" class="card h-100 p-3 shadow-sm e-service-card text-decoration-none"><div class="card-body text-center p-0 pt-2 text-dark"><i class="fa-solid ${s.IconClass} mb-2" style="font-size: 30px; color: var(--secondary-blue);"></i><h6 class="fw-bold mb-1" style="font-size: 0.95rem;">${s.ServiceName}</h6></div></a></div>`; });
+                    new bootstrap.Modal(document.getElementById('allEServicesModal')).show();
+                }
+            });
+        }
+        function renderFooterAirlines(data) {
+            const container = document.getElementById('footer-airlines-container'); container.innerHTML = '';
+            const activeAirlines = data.filter(a => a.IsActive === 'TRUE').sort((a,b) => parseInt(a.OrderList) - parseInt(b.OrderList));
+            if(activeAirlines.length === 0) { container.innerHTML = '<div class="text-white-50 small">ยังไม่มีข้อมูลสายการบิน</div>'; return; }
+            activeAirlines.forEach(item => {
+                let imgHtml = item.IconURL ? `<img src="${convertDriveImageLink(item.IconURL)}" style="height: 30px; width: 30px; object-fit: contain; background: white; border-radius: 5px; padding: 2px; margin-right: 15px;">` : `<i class="fa-solid fa-plane text-muted fa-2x me-3 bg-white p-1 rounded"></i>`;
+                container.innerHTML += `<div class="airline-box" style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; margin-bottom: 10px; display: flex; align-items: center; border-left: 4px solid ${item.ThemeColor || '#fff'};">${imgHtml}<div><div class="fw-bold">${item.AirlineName}</div><div class="small text-light"><i class="fa-solid fa-phone fa-sm"></i> ${item.PhoneNumber || '-'}</div></div></div>`;
+            });
+        }
+
+        let allWebStatsData = [];
+        function processWebStats(res) {
+            const d = new Date(); const currentYear = (d.getFullYear() + 543).toString(); const currentMonth = ("0" + (d.getMonth() + 1)).slice(-2); 
+            const monthNames = { "01": "มกราคม", "02": "กุมภาพันธ์", "03": "มีนาคม", "04": "เมษายน", "05": "พฤษภาคม", "06": "มิถุนายน", "07": "กรกฎาคม", "08": "สิงหาคม", "09": "กันยายน", "10": "ตุลาคม", "11": "พฤศจิกายน", "12": "ธันวาคม" };
+            document.getElementById('statCurrentMonthLabel').innerHTML = `<i class="fa-regular fa-calendar me-2"></i> ${monthNames[currentMonth]} ${currentYear}`;
+            allWebStatsData = res.data;
+            let totalAll = parseInt(res.total) || 0;
+            let thisMonthStat = allWebStatsData.find(s => String(s.year) === currentYear && String(s.month).padStart(2, '0') === currentMonth);
+            let thisMonthCount = thisMonthStat ? parseInt(thisMonthStat.count) : 0;
+            if (!sessionStorage.getItem('visited_this_session')) { sessionStorage.setItem('visited_this_session', 'true'); fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'recordVisit', year: currentYear, month: currentMonth }) }); thisMonthCount++; totalAll++; }
+            document.getElementById('statTotalAll').innerText = totalAll.toLocaleString('th-TH'); document.getElementById('statTotalMonth').innerText = thisMonthCount.toLocaleString('th-TH');
+            let uniqueYears = [...new Set(allWebStatsData.map(item => String(item.year)))].sort().reverse(); if(uniqueYears.length === 0) uniqueYears = [currentYear]; document.getElementById('filterWebStatYear').innerHTML = uniqueYears.map(y => `<option value="${y}">ประจำปี พ.ศ. ${y}</option>`).join('');
+
+            const hour = d.getHours(); let baseOnline = 5; if (hour >= 8 && hour <= 16) baseOnline = 25; else if (hour > 16 && hour <= 22) baseOnline = 15; 
+            let onlineNow = baseOnline + Math.floor(Math.random() * 15);
+            if (onlineNow > thisMonthCount) { let maxRealisticOnline = Math.ceil(thisMonthCount * (Math.random() * 0.15 + 0.05)); onlineNow = Math.max(1, maxRealisticOnline); }
+            document.getElementById('statOnlineNow').innerText = onlineNow;
+        }
+
+        function showWebStatsModal() { renderWebStatsTable(); new bootstrap.Modal(document.getElementById('webStatsModal')).show(); }
+        function renderWebStatsTable() {
+            const tbody = document.getElementById('tbody-webstats'); tbody.innerHTML = '';
+            const selectedYear = document.getElementById('filterWebStatYear').value;
+            const monthNames = { "01": "มกราคม", "02": "กุมภาพันธ์", "03": "มีนาคม", "04": "เมษายน", "05": "พฤษภาคม", "06": "มิถุนายน", "07": "กรกฎาคม", "08": "สิงหาคม", "09": "กันยายน", "10": "ตุลาคม", "11": "พฤศจิกายน", "12": "ธันวาคม" };
+            let filteredData = allWebStatsData.filter(item => String(item.year) === String(selectedYear));
+            if (filteredData.length === 0) { tbody.innerHTML = '<tr><td colspan="2" class="py-4 text-muted">ไม่มีข้อมูลของปีนี้</td></tr>'; return; }
+            let yearlyTotal = 0; 
+            filteredData.sort((a,b) => parseInt(b.month) - parseInt(a.month)).forEach(item => { let formattedMonth = ("0" + item.month).slice(-2); let viewCount = parseInt(item.count) || 0; yearlyTotal += viewCount; tbody.innerHTML += `<tr><td class="fw-bold">${monthNames[formattedMonth] || item.month}</td><td class="fs-6 fw-bold text-success">${viewCount.toLocaleString('th-TH')}</td></tr>`; });
+            tbody.innerHTML += `<tr class="table-light"><td class="fw-bold text-primary text-end pe-3">รวมทั้งปี พ.ศ. ${selectedYear}</td><td class="fs-5 fw-bold text-primary">${yearlyTotal.toLocaleString('th-TH')}</td></tr>`;
+        }
+
+        function openMyProfileModal() {
+            const user = JSON.parse(localStorage.getItem('userData'));
+            if(!user) return;
+            document.getElementById('myProf_ID').value = user.id; document.getElementById('myProf_Fname').value = user.fname || ''; document.getElementById('myProf_Lname').value = user.lname || ''; document.getElementById('myProf_Email').value = user.email || ''; document.getElementById('myProf_Phone').value = user.phone || ''; document.getElementById('myProf_Org').value = user.org || ''; document.getElementById('myProf_Password').value = '';
+            new bootstrap.Modal(document.getElementById('myProfileModal')).show();
+        }
+
+        function saveMyProfile(e) {
+            e.preventDefault(); const btn = document.getElementById('btnSaveMyProfile'); btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังบันทึก...'; btn.disabled = true;
+            const updateData = { UserID: document.getElementById('myProf_ID').value, FirstName: document.getElementById('myProf_Fname').value.trim(), LastName: document.getElementById('myProf_Lname').value.trim(), Email: document.getElementById('myProf_Email').value.trim(), Phone: document.getElementById('myProf_Phone').value.trim(), Organization: document.getElementById('myProf_Org').value.trim() };
+            const newPass = document.getElementById('myProf_Password').value.trim(); if (newPass !== '') updateData.Password = newPass;
+            fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'Users', idColumn: 'UserID', recordJSON: JSON.stringify(updateData) }) }).then(res => res.json()).then(res => {
+                if (res.status === 'success') {
+                    let user = JSON.parse(localStorage.getItem('userData')); user.fname = updateData.FirstName; user.lname = updateData.LastName; user.fullname = updateData.FirstName + ' ' + updateData.LastName; user.email = updateData.Email; user.phone = updateData.Phone; user.org = updateData.Organization; localStorage.setItem('userData', JSON.stringify(user)); updateUserMenuUI(user);
+                    bootstrap.Modal.getInstance(document.getElementById('myProfileModal')).hide(); Swal.fire({ icon: 'success', title: 'อัปเดตข้อมูลสำเร็จ', showConfirmButton: false, timer: 1500 });
+                } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
+            }).finally(() => { btn.innerHTML = 'บันทึกการเปลี่ยนแปลง'; btn.disabled = false; });
+        }
+    </script>
+</body>
+</html>
