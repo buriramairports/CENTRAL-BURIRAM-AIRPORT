@@ -331,17 +331,16 @@
             </div>
 
             <div class="col-lg-4">
-                <div class="card shadow-sm h-100 border-0">
-                    <div class="card-header-custom bg-white">
+                <div class="card shadow-sm h-100 border-0 d-flex flex-column">
+                    <div class="card-header-custom bg-white flex-shrink-0">
                         <h5 style="color: #555;"><i class="fa-solid fa-photo-film text-danger"></i> สื่อมัลติมีเดียแนะนำ</h5>
                     </div>
-                    <!-- 🟢 เพิ่ม ID ให้ส่วนเนื้อหา -->
-                    <div class="card-body p-0 text-center bg-dark" id="homeMediaContent">
-                        <div class="text-white-50 p-5">กำลังโหลดข้อมูลสื่อ...</div>
+                    <!-- 🟢 เอา bg-dark ออก และใช้ flex-grow-1 เพื่อให้ช่องยืดหยุ่นไม่มีขอบดำล้น -->
+                    <div class="card-body p-0 text-center flex-grow-1 d-flex flex-column justify-content-center" id="homeMediaContent">
+                        <div class="text-muted p-5">กำลังโหลดข้อมูลสื่อ...</div>
                     </div>
-                    <div class="card-footer bg-white border-0 d-flex justify-content-between align-items-center pb-3">
+                    <div class="card-footer bg-white border-0 d-flex justify-content-between align-items-center pb-3 flex-shrink-0">
                         <span class="fw-bold small text-truncate pe-2" id="homeMediaTitle">...</span>
-                        <!-- 🟢 ปุ่มดูทั้งหมด จะลิงก์ไปที่หน้า media.html -->
                         <a href="media.html" class="btn btn-view-all btn-sm text-nowrap px-3 py-1">ดูทั้งหมด <i class="fa-solid fa-arrow-right fa-sm"></i></a>
                     </div>
                 </div>
@@ -964,6 +963,30 @@
         </div>
     </div>
     <!-- ================= สิ้นสุด Modal โปรไฟล์ส่วนตัว ================= -->
+
+    <!-- ================= เริ่มต้น Modal สไลด์โชว์รูปภาพแกลลอรี (หน้าแรก) ================= -->
+    <div class="modal fade" id="mediaGalleryModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content border-0 bg-dark">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h5 class="modal-title fw-bold text-white"><i class="fa-solid fa-images text-info me-2"></i> <span id="galleryModalTitle">ชื่ออัลบั้ม</span></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0 relative">
+                    <div id="mediaGalleryCarousel" class="carousel slide" data-bs-interval="false">
+                        <div class="carousel-indicators" id="mediaGalleryCarouselIndicators"></div>
+                        <div class="carousel-inner" id="mediaGalleryCarouselInner" style="height: 75vh; background-color: #111;"></div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#mediaGalleryCarousel" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#mediaGalleryCarousel" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button>
+                    </div>
+                    <div class="p-4 text-white bg-dark">
+                        <h6 class="fw-bold text-success mb-2">รายละเอียด:</h6>
+                        <p id="galleryModalDesc" class="mb-0 text-white-50" style="font-size: 0.95rem;"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -2492,7 +2515,7 @@
         }
         // ================= สิ้นสุดฟังก์ชัน วาดเมนูด้านบน และ แผนผังเว็บ =================
 
-        // ================= เริ่มต้นฟังก์ชัน วาดสื่อมัลติมีเดียหน้าหลัก =================
+       // ================= เริ่มต้นฟังก์ชัน วาดสื่อมัลติมีเดียหน้าหลัก =================
         function getYouTubeId(url) {
             if(!url) return null;
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
@@ -2500,23 +2523,24 @@
             return (match && match[2].length === 11) ? match[2] : null;
         }
 
+        let allMediaDataGlobal = []; // ตัวแปรเก็บไว้ให้ Popup เรียกใช้ได้
+
         function renderHomeMedia(mediaData) {
+            allMediaDataGlobal = mediaData; // เก็บเผื่อใช้เปิด Popup
+            
             const container = document.getElementById('homeMediaContent');
             const titleEl = document.getElementById('homeMediaTitle');
             if(!container || !titleEl) return;
 
-            // ค้นหาสื่อที่ตั้งค่าให้โชว์หน้าแรก (ShowOnHome = 'TRUE') 
-            // ถ้าแอดมินไม่ได้ตั้งค่าไว้เลย ระบบจะหยิบสื่อล่าสุดที่เปิดใช้งาน (IsActive = 'TRUE') มาโชว์แทน 1 อัน
             let activeMedia = mediaData.filter(m => m.IsActive === 'TRUE');
             if (activeMedia.length === 0) {
-                container.innerHTML = `<div class="text-white-50 p-5 d-flex flex-column align-items-center"><i class="fa-solid fa-photo-film fa-2x mb-2 opacity-50"></i><span>ยังไม่มีข้อมูลสื่อมัลติมีเดีย</span></div>`;
+                container.innerHTML = `<div class="text-muted p-5 d-flex flex-column align-items-center"><i class="fa-solid fa-photo-film fa-2x mb-2 opacity-50"></i><span>ยังไม่มีข้อมูลสื่อมัลติมีเดีย</span></div>`;
                 titleEl.innerText = "ยังไม่มีข้อมูล";
                 return;
             }
 
             let targetMedia = activeMedia.find(m => m.ShowOnHome === 'TRUE');
             if (!targetMedia) {
-                // หาไม่เจอ ให้เรียงตามวันที่สร้าง แล้วเอาอันใหม่สุด
                 activeMedia.sort((a, b) => parseDateTimeString(b.CreateDate).getTime() - parseDateTimeString(a.CreateDate).getTime());
                 targetMedia = activeMedia[0]; 
             }
@@ -2527,23 +2551,65 @@
             if (targetMedia.MediaType === 'video') {
                 let ytId = getYouTubeId(targetMedia.MediaURL);
                 if (ytId) {
-                    container.innerHTML = `<iframe width="100%" height="220" src="https://www.youtube.com/embed/${ytId}?rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="display:block;"></iframe>`;
+                    // ใช้ style aspect-ratio (16:9) เพื่อให้ขนาดวิดีโอขยายพอดีเป๊ะกับกล่อง ไม่มีขอบดำโผล่
+                    container.innerHTML = `
+                    <div class="ratio ratio-16x9 w-100 h-100 m-0 p-0" style="border-radius: 0;">
+                        <iframe src="https://www.youtube.com/embed/${ytId}?rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 0; width: 100%; height: 100%;"></iframe>
+                    </div>`;
                 } else {
-                    container.innerHTML = `<div class="text-white-50 p-5">ลิงก์วิดีโอไม่ถูกต้อง</div>`;
+                    container.innerHTML = `<div class="text-muted p-5">ลิงก์วิดีโอไม่ถูกต้อง</div>`;
                 }
             } else {
                 // ถ้าเป็นแกลลอรีรูปภาพ
                 let galArr = targetMedia.GalleryURLs ? targetMedia.GalleryURLs.split(', ') : [];
                 let coverUrl = targetMedia.CoverImageURL ? convertDriveImageLink(targetMedia.CoverImageURL) : (galArr.length > 0 ? convertDriveImageLink(galArr[0]) : 'https://via.placeholder.com/600x400?text=No+Image');
                 
+                // 🟢 ใช้ onclick เรียกเปิดแกลลอรี แทนการกระโดดหน้าเว็บ
                 container.innerHTML = `
-                    <div style="position:relative; width:100%; height:220px; overflow:hidden; cursor:pointer;" onclick="window.location.href='media.html'">
-                        <img src="${coverUrl}" style="width:100%; height:100%; object-fit:cover; opacity:0.8; transition:0.3s;" onmouseover="this.style.opacity=0.5; this.style.transform='scale(1.05)';" onmouseout="this.style.opacity=0.8; this.style.transform='scale(1)';">
+                    <div style="position:relative; width:100%; height:100%; min-height:220px; overflow:hidden; cursor:pointer;" onclick="openHomeGalleryModal('${targetMedia.MediaID}')">
+                        <img src="${coverUrl}" style="width:100%; height:100%; object-fit:cover; opacity:0.85; transition:0.3s;" onmouseover="this.style.opacity=0.6; this.style.transform='scale(1.05)';" onmouseout="this.style.opacity=0.85; this.style.transform='scale(1)';">
                         <i class="fa-solid fa-images position-absolute text-white" style="top:50%; left:50%; transform:translate(-50%, -50%); font-size:3.5rem; opacity:0.9; text-shadow:0 4px 10px rgba(0,0,0,0.5); pointer-events:none;"></i>
                         <span class="badge bg-dark position-absolute bottom-0 end-0 m-2 z-3"><i class="fa-solid fa-image"></i> ${galArr.length} รูป</span>
                     </div>
                 `;
             }
+        }
+
+        // 🟢 ฟังก์ชันเปิดหน้าต่าง Image Gallery (ของหน้าแรก)
+        function openHomeGalleryModal(mediaId) {
+            const media = allMediaDataGlobal.find(m => m.MediaID === mediaId);
+            if (!media || !media.GalleryURLs) { Swal.fire('แจ้งเตือน', 'ไม่มีรูปภาพในแกลลอรีนี้', 'warning'); return; }
+
+            document.getElementById('galleryModalTitle').innerText = media.Title;
+            document.getElementById('galleryModalDesc').innerText = media.Description || 'ไม่มีคำอธิบาย';
+
+            const inner = document.getElementById('mediaGalleryCarouselInner'); 
+            const indicators = document.getElementById('mediaGalleryCarouselIndicators');
+            inner.innerHTML = ''; indicators.innerHTML = '';
+
+            let images = media.GalleryURLs.split(', ');
+            images.forEach((url, index) => {
+                let displayUrl = convertDriveImageLink(url); 
+                let rawUrl = url.replace('?usp=sharing', ''); 
+                let activeClass = index === 0 ? 'active' : ''; 
+                
+                indicators.innerHTML += `<button type="button" data-bs-target="#mediaGalleryCarousel" data-bs-slide-to="${index}" class="${activeClass}"></button>`;
+                inner.innerHTML += `
+                    <div class="carousel-item ${activeClass} h-100 w-100">
+                        <div class="d-flex justify-content-center align-items-center h-100 w-100 p-3">
+                            <img src="${displayUrl}" class="img-fluid" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                        </div>
+                        <div class="position-absolute bottom-0 end-0 m-4" style="z-index: 10;">
+                            <a href="${rawUrl}" target="_blank" class="btn btn-primary rounded-pill shadow"><i class="fa-solid fa-expand me-1"></i> ดูขนาดเต็ม / โหลด</a>
+                        </div>
+                    </div>`;
+            });
+
+            // สร้าง Instance แบบไม่เลื่อนอัตโนมัติ
+            const myCarousel = document.getElementById('mediaGalleryCarousel');
+            new bootstrap.Carousel(myCarousel, { interval: false, ride: false });
+            
+            new bootstrap.Modal(document.getElementById('mediaGalleryModal')).show();
         }
         // ================= สิ้นสุดฟังก์ชัน วาดสื่อมัลติมีเดียหน้าหลัก =================
     </script>
