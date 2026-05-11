@@ -2022,13 +2022,12 @@
             let viewDateStr = document.getElementById('flightSelectedDate').innerText.replace(/\s+/g, ' '); 
             let dateParts = viewDateStr.split(' ');
             let selectedDateKey = '';
+            let d = "", m = "", y = "";
             
             if(dateParts.length === 3) {
-                let d = parseInt(dateParts[0]).toString(); 
-                let m = (localMonthsTH.indexOf(dateParts[1]) + 1).toString(); // ใช้ 1-12
-                let y = (parseInt(dateParts[2]) - 543).toString();
-                // สร้าง Key ที่เอาเลข 0 นำหน้าออกให้หมด (เช่น 05/04/2026 ให้กลายเป็น 5/4/2026)
-                // เพื่อให้ตรงกับโครงสร้างที่ Datepicker ฝั่ง Admin แปลงลง JSON เป๊ะๆ ครับ
+                d = parseInt(dateParts[0]).toString(); 
+                m = (localMonthsTH.indexOf(dateParts[1]) + 1).toString(); // ใช้ 1-12
+                y = (parseInt(dateParts[2]) - 543).toString();
                 selectedDateKey = `${d}/${m}/${y}`;
             }
 
@@ -2049,31 +2048,28 @@
                     let standForToday = '-';
                     try {
                         let standMap = JSON.parse(f.StandAssignments || '{}');
-                        // ลองดึงแบบเป๊ะๆ ก่อน ถ้าไม่ได้ลองดึงแบบเติม 0 นำหน้า (เผื่อหลังบ้านเผลอเซฟมาคนละฟอร์แมต)
+                        // ลองดึงแบบเป๊ะๆ ก่อน ถ้าไม่ได้ลองดึงแบบเติม 0 นำหน้า
                         standForToday = standMap[selectedDateKey] || standMap[`${d.padStart(2,'0')}/${m.padStart(2,'0')}/${y}`] || '-';
                     } catch(e) {}
                     
-                    // สกัดเอาเฉพาะตัวเลขออกมาโชว์ให้ใหญ่ๆ (สมมติแอดมินพิมพ์มาว่า STAND 6 หรือ หลุม 6 เราจะพยายามดึงเลข 6 มา)
                     let standNumber = standForToday;
                     let numMatch = standForToday.match(/\d+/);
                     if(numMatch) standNumber = numMatch[0];
 
                     standHtml = `
-                    <div class="ms-3 ps-3 border-start d-flex flex-column align-items-center justify-content-center" style="min-width: 70px;">
+                    <div class="bg-light border-start d-flex flex-column align-items-center justify-content-center p-2 flex-shrink-0" style="width: 80px;">
                         <div class="fw-bold" style="font-size: 0.65rem; color: ${airColor}; letter-spacing: 1px;">STAND</div>
-                        <div class="fw-bold text-dark lh-1" style="font-size: 2rem;">${standForToday !== '-' ? standNumber : '<i class="fa-solid fa-minus fs-5 opacity-25"></i>'}</div>
+                        <div class="fw-bold text-dark lh-1 mt-1" style="font-size: 2.2rem;">${standForToday !== '-' ? standNumber : '<i class="fa-solid fa-minus fs-5 opacity-25"></i>'}</div>
                     </div>`;
                 }
 
-                // โครงสร้างการ์ดเที่ยวบินแบบใหม่ (Flexbox จัดเลย์เอาต์)
                 // 🟢 โครงสร้างการ์ดเที่ยวบินแบบใหม่ (Flexbox ปรับให้พอดี)
                 listHtml += `
                 <div class="card border-0 shadow-sm mb-3 border-start border-4 overflow-hidden" style="border-left-color: ${airColor} !important; border-radius: 8px;">
-                    <div class="card-body p-0 d-flex"> <!-- 🟢 เอา p-3 ออก เปลี่ยนเป็น p-0 เพื่อให้เส้นแบ่งชัดเจน -->
+                    <div class="card-body p-0 d-flex"> <!-- เอา p-3 ออก เปลี่ยนเป็น p-0 เพื่อให้เส้นแบ่งชัดเจน -->
                         
                         <!-- ข้อมูลเที่ยวบินฝั่งซ้าย (ยืดหดได้ตามพื้นที่) -->
                         <div class="flex-grow-1 p-3" style="min-width: 0;">
-                            
                             <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
                                 <div class="fw-bold d-flex align-items-center text-truncate pe-2" style="color: ${airColor}; font-size: 1rem;">
                                     ${logoHtml} <span class="text-truncate">${airName}</span>
@@ -2092,15 +2088,10 @@
                                     <div class="display-6 fw-bold text-dark mt-1" style="font-size: 1.6rem;">${f.ArrivalTime}</div>
                                 </div>
                             </div>
-                            
                         </div>
 
-                        <!-- 🟢 กล่องหลุมจอดฝั่งขวา (ล็อกขนาด ไม่ให้หดหายไป) -->
-                        ${showStandInfo ? `
-                        <div class="bg-light border-start d-flex flex-column align-items-center justify-content-center p-2 flex-shrink-0" style="width: 80px;">
-                            <div class="fw-bold" style="font-size: 0.65rem; color: ${airColor}; letter-spacing: 1px;">STAND</div>
-                            <div class="fw-bold text-dark lh-1 mt-1" style="font-size: 2.2rem;">${standForToday !== '-' ? standNumber : '<i class="fa-solid fa-minus fs-5 opacity-25"></i>'}</div>
-                        </div>` : ''}
+                        <!-- กล่องหลุมจอดฝั่งขวา (จะโชว์ก็ต่อเมื่อมีสิทธิ์) -->
+                        ${standHtml}
 
                     </div>
                 </div>`;
