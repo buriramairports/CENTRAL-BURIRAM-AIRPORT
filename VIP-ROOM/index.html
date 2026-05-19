@@ -1441,20 +1441,45 @@ function getAvailableDatesSummary() {
 
     // 🟢 ฟังก์ชัน 2: แสดง Modal อ่านข้อความเต็ม
     function showFullTextAlert(title, textEncoded) {
-        Swal.fire({
-            title: title,
-            html: `<div class="text-left text-sm text-gray-700 bg-gray-50 p-4 rounded-lg border whitespace-pre-wrap leading-relaxed">${decodeURIComponent(textEncoded)}</div>`,
-            confirmButtonColor: '#16a34a',
-            confirmButtonText: 'ปิดหน้าต่าง'
-        });
+        const text = decodeURIComponent(textEncoded);
+        const modalId = 'dynamicReadMoreModal';
+        
+        // ถ้ามีหน้าต่างเดิมค้างอยู่ให้ลบทิ้งก่อน
+        const existing = document.getElementById(modalId);
+        if(existing) existing.remove();
+
+        const modalHtml = `
+        <div id="${modalId}" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="document.getElementById('${modalId}').remove()"></div>
+            <div class="relative bg-white rounded-3xl w-full max-w-lg flex flex-col shadow-2xl animate-fadeIn p-6">
+                <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
+                    <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="file-text" class="w-5 h-5 text-green-600"></i> ${title}</h3>
+                    <button onclick="document.getElementById('${modalId}').remove()" class="text-gray-400 hover:bg-gray-100 p-1.5 rounded-lg transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+                </div>
+                <div class="text-sm text-gray-700 bg-gray-50 p-4 rounded-xl border border-gray-200 whitespace-pre-wrap leading-relaxed max-h-[60vh] overflow-y-auto">
+                    ${text}
+                </div>
+                <div class="mt-4 flex justify-end">
+                    <button onclick="document.getElementById('${modalId}').remove()" class="px-5 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl font-medium transition shadow-md">ปิดหน้าต่าง</button>
+                </div>
+            </div>
+        </div>`;
+        
+        // แทรก Modal ลงในหน้าเว็บและสั่งวาดไอคอน
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        if(typeof lucide !== 'undefined') lucide.createIcons();
     }
 
     // 🟢 ฟังก์ชัน 3: ตัดข้อความยาวๆ และเติมปุ่ม "อ่านทั้งหมด"
     function truncateWithReadMore(text, title) {
         if (!text) return '-';
         if (text.length <= 40) return text;
+        
+        // ป้องกัน Error กรณีมีเครื่องหมายคำพูด (') ในชื่อ Title หรือเนื้อหา
         const safeText = encodeURIComponent(text);
-        return `${text.substring(0, 40)}... <button onclick="showFullTextAlert('${title}', '${safeText}')" class="text-sky-600 hover:text-sky-800 text-[10px] bg-sky-50 px-2 py-0.5 rounded-full font-bold transition ml-1 border border-sky-100 shadow-sm">อ่านทั้งหมด</button>`;
+        const safeTitle = title.replace(/'/g, "\\'"); 
+        
+        return `${text.substring(0, 40)}... <button onclick="showFullTextAlert('${safeTitle}', '${safeText}')" class="text-sky-600 hover:text-sky-800 text-[10px] bg-sky-50 px-2 py-0.5 rounded-full font-bold transition ml-1 border border-sky-100 shadow-sm">อ่านทั้งหมด</button>`;
     }
 	
     // ================= ระบบเชื่อมต่อส่วนกลาง (SSO Bridge) =================
