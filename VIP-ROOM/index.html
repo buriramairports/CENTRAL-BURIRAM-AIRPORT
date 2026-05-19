@@ -2738,34 +2738,28 @@ function getAvailableDatesSummary() {
     // ==========================================
     let notifInterval = null;
 
-    // 1. ฟังก์ชันคำนวณและสร้างการแจ้งเตือน
+   // 1. ฟังก์ชันคำนวณและสร้างการแจ้งเตือน
     function buildNotifications() {
         if(!currentUser) return;
         const readKeys = JSON.parse(localStorage.getItem(`vrm_read_notifs_${currentUser.id}`) || '[]');
         let notifications = [];
 
-        // เรียงลำดับจากรายการล่าสุดก่อน (ID มากไปน้อย)
         const sortedBookings = [...allBookings].sort((a,b) => parseInt(b.id) - parseInt(a.id));
 
         sortedBookings.forEach(b => {
+            // 🟢 ส่วนที่ 1: ตรวจสอบการเพิ่มใหม่ หรือเปลี่ยนสถานะ (เหมือนเดิม)
             if(currentUser.role === 'admin') {
-                // [แก้ไข] แอดมิน: ไม่สนใจว่าเคยอ่านหรือยัง ตราบใดที่ยังเป็น "pending" ให้แสดงเสมอ
                 if(b.status === 'pending') {
                     const key = `admin_pending_${b.id}`;
-                    // เราจะจำลองสถานะ isUnread ว่าถ้าไม่ได้อยู่ใน readKeys ให้เด้งตัวเลขสีแดงกระดิ่ง
                     const isUnread = !readKeys.includes(key); 
                     notifications.push({
                         key: key, booking: b,
                         title: `รอตรวจสอบ: ห้อง ${b.roomName}`,
                         desc: `${b.organization} (${b.firstName})`,
-                        icon: 'clock', 
-                        color: isUnread ? 'text-yellow-600' : 'text-gray-500', 
-                        bg: isUnread ? 'bg-yellow-100' : 'bg-gray-100',
-                        isUnread: isUnread
+                        icon: 'clock', color: isUnread ? 'text-yellow-600' : 'text-gray-500', bg: isUnread ? 'bg-yellow-100' : 'bg-gray-100', isUnread: isUnread
                     });
                 }
             } else {
-                // ผู้ใช้: แจ้งเตือนรายการของตัวเองที่ถูก "อนุมัติ" หรือ "ปฏิเสธ" (กดอ่านแล้วจะหายไป)
                 if(b.userId === currentUser.id && (b.status === 'approved' || b.status === 'rejected')) {
                     const key = `user_${b.status}_${b.id}`;
                     if(!readKeys.includes(key)) {
@@ -2775,16 +2769,43 @@ function getAvailableDatesSummary() {
                             key: key, booking: b,
                             title: isApprove ? 'การจองได้รับการอนุมัติ ✅' : 'การจองถูกปฏิเสธ ❌',
                             desc: `ห้อง ${b.roomName} | วันที่ ${formatThaiDate(new Date(b.date))} (${sStr} น.)`,
-                            icon: isApprove ? 'check-circle' : 'x-circle', 
-                            color: isApprove ? 'text-green-500' : 'text-red-500',
-                            bg: isApprove ? 'bg-green-50' : 'bg-red-50',
-                            isUnread: true
+                            icon: isApprove ? 'check-circle' : 'x-circle', color: isApprove ? 'text-green-500' : 'text-red-500', bg: isApprove ? 'bg-green-50' : 'bg-red-50', isUnread: true
                         });
+                    }
+                }
+            }
+
+            // 🟢 ส่วนที่ 2: ตรวจสอบการ "แก้ไขข้อมูล" (Change Log)
+            let logs = [];
+            try { logs = JSON.parse(b.changeLog || '[]'); } catch(e){}
+            
+            if (logs.length > 0) {
+                const latestLog = logs[logs.length - 1]; // เอาประวัติล่าสุด
+                let updaterName = latestLog.updatedBy.split(' (')[0]; // ตัดเอาแค่ชื่อหน้าวงเล็บ
+                let myName = currentUser.firstName;
+                
+                // แจ้งเตือนแอดมินเมื่อผู้ใช้แก้ / แจ้งเตือนผู้ใช้เมื่อแอดมินแก้ (ไม่แจ้งเตือนตัวเองแก้เอง)
+                if (updaterName !== myName) {
+                    // ถ้าเป็นแอดมิน ให้ดูได้ทุกห้อง / ถ้าเป็นผู้ใช้ ให้ดูได้เฉพาะห้องตัวเอง
+                    if (currentUser.role === 'admin' || b.userId === currentUser.id) {
+                        const updateKey = `update_${b.id}_${logs.length}`;
+                        const isUnread = !readKeys.includes(updateKey);
+
+                        if (isUnread || currentUser.role === 'admin') { // แอดมินให้โชว์เป็นประวัติไว้ / ยูสเซอร์ดูกดแล้วหาย
+                            notifications.push({
+                                key: updateKey, booking: b,
+                                title: `มีการอัปเดตข้อมูล: ห้อง ${b.roomName}`,
+                                desc: `แก้ไขโดย: ${latestLog.updatedBy} เมื่อ ${latestLog.timestamp.split(' ')[1]} น.`,
+                                icon: 'edit', color: isUnread ? 'text-sky-600' : 'text-gray-500', bg: isUnread ? 'bg-sky-100' : 'bg-gray-100', isUnread: isUnread
+                            });
+                        }
                     }
                 }
             }
         });
 
+        // ทำให้ประวัติการอัปเดตไปอยู่บนสุด
+        notifications.sort((a,b) => b.isUnread - a.isUnread);
         renderNotifications(notifications);
     }
 
@@ -2882,6 +2903,40 @@ function getAvailableDatesSummary() {
         if(b.note) contentHtml += `<div class="mt-4 p-3 bg-white rounded-lg border border-gray-200 text-sm text-gray-700 shadow-sm"><b class="text-gray-800"><i data-lucide="info" class="w-4 h-4 inline mr-1 text-sky-500"></i> หมายเหตุ:</b> <span class="block mt-1">${b.note}</span></div>`;
         if(b.status === 'rejected' && b.rejectReason) contentHtml += `<div class="mt-4 p-3 bg-red-50 text-red-700 rounded-lg border border-red-200 text-sm shadow-sm"><b class="flex items-center gap-1"><i data-lucide="message-square-x" class="w-4 h-4"></i> เหตุผลที่ถูกปฏิเสธ:</b> <span class="block mt-1">${b.rejectReason}</span></div>`;
 
+		//////////////////////////////////////////////
+		// 🟢 สร้าง HTML ประวัติการแก้ไขข้อมูล
+        let logs = []; try { logs = JSON.parse(b.changeLog || '[]'); } catch(e) {}
+        if (logs.length > 0) {
+            contentHtml += `<div class="mt-4 border-t border-gray-200 pt-4">
+                <h6 class="font-bold text-sky-700 mb-3 flex items-center gap-2"><i data-lucide="history" class="w-5 h-5"></i> ประวัติการอัปเดตข้อมูล</h6>
+                <div class="space-y-3">`;
+
+            // เรียงจากใหม่ไปเก่า
+            [...logs].reverse().forEach(log => {
+                let detailItems = log.details.map(d => {
+                    let oldVal = d.old; let newVal = d.new;
+                    // แปลงรูปแบบให้สวยงาม
+                    if(d.field === 'ช่วงเวลา') { try{ oldVal = JSON.parse(d.old).join(', '); newVal = JSON.parse(d.new).join(', '); }catch(e){} } 
+                    else if(d.field === 'สถานะการจอง') { let stMap = {'pending':'รอตรวจสอบ', 'approved':'อนุมัติ', 'rejected':'ปฏิเสธ'}; oldVal = stMap[d.old]||d.old; newVal = stMap[d.new]||d.new; }
+
+                    return `<li class="text-xs text-gray-600 mb-1"><span class="font-medium text-gray-800">${d.field}:</span> <span class="text-red-500 line-through px-1 bg-red-50 rounded">${oldVal || '-'}</span> <i data-lucide="arrow-right" class="w-3 h-3 inline text-gray-400 mx-1"></i> <span class="text-green-600 font-medium px-1 bg-green-50 rounded">${newVal || '-'}</span></li>`;
+                }).join('');
+
+                contentHtml += `
+                <div class="bg-white p-3 rounded-xl border border-sky-100 shadow-sm relative overflow-hidden">
+                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-sky-400"></div>
+                    <div class="flex justify-between items-center mb-2 pb-2 border-b border-gray-50">
+                        <span class="text-xs font-bold text-sky-800"><i data-lucide="user-edit" class="w-3 h-3 inline"></i> ${log.updatedBy}</span>
+                        <span class="text-[10px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full"><i data-lucide="clock" class="w-3 h-3 inline"></i> ${log.timestamp}</span>
+                    </div>
+                    <ul class="list-disc pl-5 m-0 marker:text-sky-300">${detailItems}</ul>
+                </div>`;
+            });
+            contentHtml += `</div></div>`;
+        }
+
+		//////////////////////////////////////////////
+		
         document.getElementById('bdModalContent').innerHTML = contentHtml;
 
         // 3. จัดเตรียมปุ่ม (Footer Actions)
@@ -2908,13 +2963,17 @@ function getAvailableDatesSummary() {
     }
 
     // 5. อ่านทั้งหมด
-    function markAllNotifAsRead() {
+function markAllNotifAsRead() {
         const sortedBookings = [...allBookings];
         const readKeys = JSON.parse(localStorage.getItem(`vrm_read_notifs_${currentUser.id}`) || '[]');
         
         sortedBookings.forEach(b => {
             if(currentUser.role === 'admin' && b.status === 'pending') readKeys.push(`admin_pending_${b.id}`);
             if(currentUser.role === 'user' && b.userId === currentUser.id && b.status !== 'pending') readKeys.push(`user_${b.status}_${b.id}`);
+            
+            // 🟢 เคลียร์แจ้งเตือนอัปเดตข้อมูล
+            let logs = []; try { logs = JSON.parse(b.changeLog || '[]'); } catch(e){}
+            if(logs.length > 0) readKeys.push(`update_${b.id}_${logs.length}`);
         });
 
         localStorage.setItem(`vrm_read_notifs_${currentUser.id}`, JSON.stringify([...new Set(readKeys)]));
