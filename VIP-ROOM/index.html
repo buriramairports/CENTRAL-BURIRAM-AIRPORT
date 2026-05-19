@@ -1454,7 +1454,11 @@ function getAvailableDatesSummary() {
           if(res) {
               if(res.settings) { systemSettings = {...systemSettings, ...res.settings}; applySettingsToUI(); }
               if(res.rooms) allRooms = res.rooms;
-              if(res.bookings) allBookings = res.bookings;
+              
+              if(res.bookings) {
+                  allBookings = res.bookings;
+                  buildNotifications(); // 🟢 เพิ่มบรรทัดนี้: สั่งให้กระดิ่งคำนวณใหม่ทันทีที่ได้ข้อมูลจากเซิร์ฟเวอร์
+              }
               
               if(currentPage === 'home') {
                   updateFilterSelects();
@@ -2980,30 +2984,40 @@ function markAllNotifAsRead() {
         buildNotifications();
     }
 
-    // 6. ระบบดึงข้อมูลแบบ Background (ทำงานเงียบๆ ทุก 30 วินาที)
-  function startRealtimeSync() {
+    // 6. ระบบดึงข้อมูลแบบ Background (ทำงานเงียบๆ ทุก 25 วินาที)
+    function startRealtimeSync() {
         if(notifInterval) clearInterval(notifInterval);
         
         notifInterval = setInterval(() => {
-            // เปลียนจาก google.script.run... เป็น:
             apiCallSilent('getBookings', {}).then(data => {
                 if(data) {
-                    const newDataStr = JSON.stringify(data);
-                    const oldDataStr = JSON.stringify(allBookings);
+                    // 🟢 1. เช็คยอดแจ้งเตือน "ก่อน" อัปเดตข้อมูล
+                    const badge = document.getElementById('notifBadge');
+                    let oldUnreadCount = badge.classList.contains('hidden') ? 0 : parseInt(badge.textContent) || 0;
+
+                    // 🟢 2. ยัดข้อมูลใหม่ลงระบบ แล้วสั่งวาดกระดิ่งใหม่
+                    allBookings = data;
+                    buildNotifications(); 
+
+                    // 🟢 3. เช็คยอดแจ้งเตือน "หลัง" อัปเดตข้อมูล
+                    let newUnreadCount = badge.classList.contains('hidden') ? 0 : parseInt(badge.textContent) || 0;
                     
-                    if(newDataStr !== oldDataStr) {
-                        allBookings = data;
-                        buildNotifications(); 
+                    // ถ้ากระดิ่งมีตัวเลขเพิ่มขึ้น แปลว่ามีของใหม่ที่เกี่ยวกับเรา ให้เด้ง Toast
+                    if(newUnreadCount > oldUnreadCount) {
+                        showToast('🔔 มีการอัปเดตรายการจองใหม่', 'info');
                         
+                        // รีเฟรชหน้าจอที่เปิดค้างอยู่ให้เห็นข้อมูลใหม่ด้วย
                         if(currentPage === 'home') renderCalendar();
                         if(currentPage === 'manageBooking') { updateRoomFilters(); filterBookings(); }
                         if(currentPage === 'reports') { updateRoomFilters(); generateReport(); }
-                        
-                        showToast('🔔 มีการอัปเดตข้อมูลใหม่', 'info');
+                    } else {
+                        // ถึงไม่มีแจ้งเตือนใหม่ (เพราะอาจจะเป็นห้องคนอื่น) แต่แอบรีเฟรชตารางให้แอดมินเงียบๆ
+                        if(currentPage === 'manageBooking') filterBookings();
+                        if(currentPage === 'home') renderCalendar();
                     }
                 }
             }).catch(e => console.error("Realtime Sync Error", e));
-        }, 30000); 
+        }, 25000); 
     }
 
     // 7. คลิกพื้นที่ว่างเพื่อปิดหน้าต่างแจ้งเตือน
