@@ -534,7 +534,11 @@
                             <input type="text" class="form-control form-control-custom" id="loginUsername" placeholder="กรอกชื่อผู้ใช้" required>
                         </div>
                         <div class="mb-4">
-                            <label class="form-label">รหัสผ่าน <span class="req">*</span></label>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label class="form-label mb-0">รหัสผ่าน <span class="req">*</span></label>
+                                <!-- 🟢 เพิ่มปุ่มลืมรหัสผ่านตรงนี้ -->
+                                <a href="javascript:void(0)" onclick="openResetPasswordModal()" class="small text-decoration-none text-primary fw-bold">ลืมรหัสผ่าน?</a>
+                            </div>
                             <input type="password" class="form-control form-control-custom" id="loginPassword" placeholder="กรอกรหัสผ่าน" required>
                         </div>
                         <button type="submit" class="btn-auth-submit mb-3" id="btnLoginBtn">เข้าสู่ระบบ</button>
@@ -546,6 +550,67 @@
             </div>
         </div>
     </div>
+
+    <!-- ================= เริ่มต้น Modal กู้คืนรหัสผ่าน (ลืมรหัสผ่าน) ================= -->
+    <div class="modal fade" id="resetPasswordModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content auth-modal-content mt-5 border-0 shadow-lg">
+                <div class="modal-body p-4">
+                    <div class="auth-logo-wrapper mb-3" style="margin-top: -50px; background: #e0f2fe; color: #0284c7;">
+                        <i class="fa-solid fa-unlock-keyhole fa-3x"></i>
+                    </div>
+                    <h4 class="auth-title mb-1 text-primary">กู้คืนบัญชีผู้ใช้</h4>
+                    <p class="auth-subtitle mb-4">ระบบตรวจสอบข้อมูลยืนยันตัวตน</p>
+
+                    <!-- Step 1: ฟอร์มยืนยันตัวตน -->
+                    <form id="formVerifyReset" onsubmit="verifyResetData(event)">
+                        <div class="alert alert-light border shadow-sm small text-muted mb-4">
+                            <i class="fa-solid fa-circle-info text-info me-1"></i> กรุณากรอกข้อมูลให้ตรงกับที่ท่านได้ลงทะเบียนไว้ เพื่อเป็นการยืนยันตัวตน
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">ชื่อผู้ใช้ (Username) <span class="req">*</span></label>
+                            <input type="text" class="form-control form-control-custom" id="reset_Username" placeholder="เช่น u001" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">อีเมลที่ใช้สมัคร <span class="req">*</span></label>
+                            <input type="email" class="form-control form-control-custom" id="reset_Email" placeholder="เช่น user@mail.com" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">เบอร์โทรศัพท์ <span class="req">*</span></label>
+                            <input type="tel" class="form-control form-control-custom" id="reset_Phone" placeholder="เช่น 0812345678" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" id="btnVerifyReset" style="border-radius: 8px;">ตรวจสอบข้อมูล</button>
+                        <div class="text-center mt-3">
+                            <a href="javascript:void(0)" class="text-muted small text-decoration-none" onclick="backToLoginFromReset()"><i class="fa-solid fa-arrow-left"></i> กลับไปหน้าเข้าสู่ระบบ</a>
+                        </div>
+                    </form>
+
+                    <!-- Step 2: ฟอร์มตั้งรหัสผ่านใหม่ (ซ่อนไว้ตอนแรก) -->
+                    <form id="formSetNewPassword" onsubmit="submitNewPassword(event)" style="display: none;">
+                        <input type="hidden" id="reset_VerifiedUserID">
+                        <div class="p-3 bg-success bg-opacity-10 border border-success rounded mb-4 text-center">
+                            <i class="fa-solid fa-circle-check text-success fa-2x mb-2"></i>
+                            <h6 class="fw-bold text-success mb-1">ยืนยันตัวตนสำเร็จ!</h6>
+                            <div class="small text-dark">ยินดีต้อนรับ, <span id="reset_UserFullName" class="fw-bold">...</span></div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">ตั้งรหัสผ่านใหม่ <span class="req">*</span></label>
+                            <input type="password" class="form-control form-control-custom" id="reset_NewPassword" minlength="6" placeholder="อย่างน้อย 6 ตัวอักษร" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">ยืนยันรหัสผ่านใหม่อีกครั้ง <span class="req">*</span></label>
+                            <input type="password" class="form-control form-control-custom" id="reset_ConfirmPassword" minlength="6" placeholder="พิมพ์ให้ตรงกัน" required>
+                            <div id="passwordMismatchError" class="text-danger small fw-bold mt-1" style="display: none;">รหัสผ่านไม่ตรงกัน!</div>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100 py-2 fw-bold" id="btnSubmitNewPassword" style="border-radius: 8px;"><i class="fa-solid fa-save me-1"></i> บันทึกรหัสผ่านใหม่</button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ================= สิ้นสุด Modal กู้คืนรหัสผ่าน ================= -->
 
     <!-- 2. Modal สมัครสมาชิก (Register) -->
     <div class="modal fade" id="registerModal" tabindex="-1">
@@ -2398,6 +2463,112 @@
                 });
         }
 
+        // ==================== สิ้นสุด ส่ง login ======================
+
+        // ================= เริ่มต้น ระบบกู้คืนรหัสผ่าน (ลืมรหัสผ่าน) =================
+        function openResetPasswordModal() {
+            // ซ่อนหน้า Login และเปิดหน้า Reset
+            const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+            if(loginModal) loginModal.hide();
+            
+            document.getElementById('formVerifyReset').reset();
+            document.getElementById('formSetNewPassword').reset();
+            
+            // โชว์ Step 1 ซ่อน Step 2
+            document.getElementById('formVerifyReset').style.display = 'block';
+            document.getElementById('formSetNewPassword').style.display = 'none';
+            document.getElementById('passwordMismatchError').style.display = 'none';
+
+            new bootstrap.Modal(document.getElementById('resetPasswordModal')).show();
+        }
+
+        function backToLoginFromReset() {
+            bootstrap.Modal.getInstance(document.getElementById('resetPasswordModal')).hide();
+            new bootstrap.Modal(document.getElementById('loginModal')).show();
+        }
+
+        // ยิง API ตรวจสอบข้อมูลผู้ใช้
+        function verifyResetData(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnVerifyReset');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังตรวจสอบ...';
+            btn.disabled = true;
+
+            const formData = new URLSearchParams({
+                action: 'verifyAccountForReset',
+                username: document.getElementById('reset_Username').value.trim(),
+                email: document.getElementById('reset_Email').value.trim(),
+                phone: document.getElementById('reset_Phone').value.trim()
+            });
+
+            fetch(API_URL, { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // ถ้าตรงหมด ให้ซ่อน Step 1 เปิด Step 2
+                    document.getElementById('formVerifyReset').style.display = 'none';
+                    document.getElementById('formSetNewPassword').style.display = 'block';
+                    
+                    // นำข้อมูลผู้ใช้ที่เซิร์ฟเวอร์ส่งกลับมา แสดงให้ผู้ใช้มั่นใจ
+                    document.getElementById('reset_UserFullName').innerText = `${data.user.fname} ${data.user.lname}`;
+                    document.getElementById('reset_VerifiedUserID').value = data.user.id;
+                } else {
+                    Swal.fire({ icon: 'error', title: 'ไม่พบข้อมูล', text: data.message });
+                }
+            })
+            .catch(err => Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'error'))
+            .finally(() => { btn.innerHTML = 'ตรวจสอบข้อมูล'; btn.disabled = false; });
+        }
+
+        // ยิง API ตั้งรหัสผ่านใหม่
+        function submitNewPassword(e) {
+            e.preventDefault();
+            const pass1 = document.getElementById('reset_NewPassword').value;
+            const pass2 = document.getElementById('reset_ConfirmPassword').value;
+            const errorMsg = document.getElementById('passwordMismatchError');
+
+            if (pass1 !== pass2) {
+                errorMsg.style.display = 'block';
+                return;
+            }
+            errorMsg.style.display = 'none';
+
+            const btn = document.getElementById('btnSubmitNewPassword');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังบันทึก...';
+            btn.disabled = true;
+
+            const formData = new URLSearchParams({
+                action: 'resetUserPassword',
+                userId: document.getElementById('reset_VerifiedUserID').value,
+                newPassword: pass1
+            });
+
+            fetch(API_URL, { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    bootstrap.Modal.getInstance(document.getElementById('resetPasswordModal')).hide();
+                    
+                    // 🟢 โชว์สรุปให้ผู้ใช้เห็นว่าสำเร็จ พร้อมรายละเอียด
+                    Swal.fire({ 
+                        icon: 'success', 
+                        title: 'เปลี่ยนรหัสผ่านสำเร็จ!', 
+                        html: `บัญชี <b>${document.getElementById('reset_Username').value}</b><br>ได้รับการตั้งค่ารหัสผ่านใหม่เรียบร้อยแล้ว<br><small class="text-muted">กรุณาเข้าสู่ระบบด้วยรหัสผ่านใหม่ของท่าน</small>`,
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#16a34a'
+                    }).then(() => {
+                        // กลับไปหน้า Login อัตโนมัติ
+                        new bootstrap.Modal(document.getElementById('loginModal')).show();
+                    });
+                } else {
+                    Swal.fire('ข้อผิดพลาด', data.message, 'error');
+                }
+            })
+            .catch(err => Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'error'))
+            .finally(() => { btn.innerHTML = '<i class="fa-solid fa-save me-1"></i> บันทึกรหัสผ่านใหม่'; btn.disabled = false; });
+        }
+        // ================= สิ้นสุด ระบบกู้คืนรหัสผ่าน =================
+        
         // ==================== ส่งข้อมูล Register ====================
         function submitRegister(e) {
             e.preventDefault();
