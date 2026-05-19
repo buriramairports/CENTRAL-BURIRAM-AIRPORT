@@ -1396,6 +1396,67 @@ function getAvailableDatesSummary() {
     function formatThaiDate(d){ return `${d.getDate()} ${thaiMonthsNames[d.getMonth()]} ${d.getFullYear()+543}`; }
     function hideInitialSplash() { const s = document.getElementById('initialSplash'); if(s) { s.style.opacity = '0'; setTimeout(()=>s.style.display='none', 700); } }
 
+	// 🟢 ฟังก์ชัน 1: รวบช่วงเวลาที่ติดกันให้สั้นลง และเช็คกรณี "ทั้งวัน"
+    function formatTimeSlots(slotsJson, isHtml = true) {
+        try {
+            let slots = JSON.parse(slotsJson);
+            if (!slots || slots.length === 0) return '-';
+            
+            // เรียงลำดับเวลาจากน้อยไปมาก
+            slots.sort();
+
+            const allSlots = systemSettings.timeSlots || [];
+            let sysStart = allSlots.length > 0 ? allSlots[0].split('-')[0] : '';
+            let sysEnd = allSlots.length > 0 ? allSlots[allSlots.length - 1].split('-')[1] : '';
+
+            // ถ้าจองครบทุกช่วงเวลาที่ระบบมี
+            if (slots.length === allSlots.length && allSlots.length > 0) {
+                return isHtml ? `<span class="text-emerald-600 font-bold">ทั้งวัน</span> <span class="text-xs text-gray-500">(${sysStart}-${sysEnd} น.)</span>` : `ทั้งวัน (${sysStart}-${sysEnd} น.)`;
+            }
+
+            // ถ้าไม่ทั้งวัน ให้เช็คเวลารอยต่อ
+            let combined = [];
+            let currentStart = slots[0].split('-')[0];
+            let currentEnd = slots[0].split('-')[1];
+
+            for (let i = 1; i < slots.length; i++) {
+                let nextStart = slots[i].split('-')[0];
+                let nextEnd = slots[i].split('-')[1];
+
+                if (currentEnd === nextStart) {
+                    currentEnd = nextEnd; // เวลาต่อกัน ยืดเวลาจบออกไป
+                } else {
+                    combined.push(`${currentStart}-${currentEnd}`); // ไม่ต่อกัน ปิดก้อนเดิมเริ่มก้อนใหม่
+                    currentStart = nextStart;
+                    currentEnd = nextEnd;
+                }
+            }
+            combined.push(`${currentStart}-${currentEnd}`); // เก็บรอบสุดท้าย
+            
+            return combined.join(', ') + ' น.';
+        } catch (e) {
+            return slotsJson; 
+        }
+    }
+
+    // 🟢 ฟังก์ชัน 2: แสดง Modal อ่านข้อความเต็ม
+    function showFullTextAlert(title, textEncoded) {
+        Swal.fire({
+            title: title,
+            html: `<div class="text-left text-sm text-gray-700 bg-gray-50 p-4 rounded-lg border whitespace-pre-wrap leading-relaxed">${decodeURIComponent(textEncoded)}</div>`,
+            confirmButtonColor: '#16a34a',
+            confirmButtonText: 'ปิดหน้าต่าง'
+        });
+    }
+
+    // 🟢 ฟังก์ชัน 3: ตัดข้อความยาวๆ และเติมปุ่ม "อ่านทั้งหมด"
+    function truncateWithReadMore(text, title) {
+        if (!text) return '-';
+        if (text.length <= 40) return text;
+        const safeText = encodeURIComponent(text);
+        return `${text.substring(0, 40)}... <button onclick="showFullTextAlert('${title}', '${safeText}')" class="text-sky-600 hover:text-sky-800 text-[10px] bg-sky-50 px-2 py-0.5 rounded-full font-bold transition ml-1 border border-sky-100 shadow-sm">อ่านทั้งหมด</button>`;
+    }
+	
     // ================= ระบบเชื่อมต่อส่วนกลาง (SSO Bridge) =================
     function initApp(){
       setTimeout(hideInitialSplash, 5000); 
@@ -1739,11 +1800,11 @@ function getAvailableDatesSummary() {
             // Sort by Room, then Time
             dayBookings.sort((a,b) => a.roomName.localeCompare(b.roomName));
             listContainer.innerHTML = dayBookings.map(b => {
-                let slotsStr = ''; try{ slotsStr = JSON.parse(b.timeSlots).join(', '); }catch(e){}
+                let slotsStr = formatTimeSlots(b.timeSlots); // 🟢 ใช้ฟังก์ชันรวบเวลา
                 let badge = b.status==='approved' ? '<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs">อนุมัติ</span>' : '<span class="bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded text-xs">รอตรวจ</span>';
                 return `<div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col gap-1">
                     <div class="flex justify-between items-center"><span class="font-bold text-gray-800 text-sm"><i data-lucide="door-open" class="w-4 h-4 inline text-green-600"></i> ${b.roomName}</span> ${badge}</div>
-                    <div class="text-xs text-gray-600"><i data-lucide="clock" class="w-3 h-3 inline"></i> ${slotsStr} น.</div>
+                    <div class="text-xs text-gray-600"><i data-lucide="clock" class="w-3 h-3 inline"></i> ${slotsStr} </div>
                     <div class="text-xs text-gray-500 truncate" title="${b.organization} - ${b.purpose}"><i data-lucide="briefcase" class="w-3 h-3 inline"></i> ${b.organization} (${b.purpose})</div>
                 </div>`;
             }).join('');
@@ -2166,14 +2227,17 @@ function getAvailableDatesSummary() {
         if(list.length === 0) { document.getElementById('bookingTableBody').innerHTML = `<tr><td colspan="9" class="p-8 text-center text-gray-500">ไม่พบข้อมูล</td></tr>`; document.getElementById('pagination').innerHTML=''; return; }
 
         document.getElementById('bookingTableBody').innerHTML = list.map(b => {
-            let slotsStr = ''; try { slotsStr = JSON.parse(b.timeSlots).join(', '); } catch(e){}
+            // 🟢 ใช้ฟังก์ชันรวบเวลา
+            let slotsStr = formatTimeSlots(b.timeSlots); 
             const vvips = parseInt(b.vvips)||0; const staff = parseInt(b.staff)||0; const tp = vvips + staff;
             
             let sBadge = b.status==='pending'?'<span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs font-medium">รอตรวจสอบ</span>':b.status==='approved'?'<span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-medium">อนุมัติ</span>':'<span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-medium">ปฏิเสธ</span>';
             let fIcon = b.ATT_URL ? `<a href="${b.ATT_URL}" target="_blank" class="text-green-600 bg-green-50 p-2 rounded-lg hover:bg-green-100 inline-block transition"><i data-lucide="file-text" class="w-4 h-4"></i></a>` : '<span class="text-gray-300">-</span>';
             
-            let noteHtml = `<div class="text-xs text-gray-500 truncate max-w-[150px]" title="${b.note||'ไม่มี'}"><span class="font-medium text-gray-700">จอง:</span> ${b.note||'-'}</div>`;
-            if(b.status === 'rejected') noteHtml += `<div class="text-xs text-red-500 truncate max-w-[150px] mt-1" title="${b.rejectReason||''}"><span class="font-medium">เหตุผล:</span> ${b.rejectReason||'-'}</div>`;
+            // 🟢 ใช้ฟังก์ชันย่อข้อความ (เอาคลาส truncate เดิมทิ้งไป)
+            let noteText = b.note ? `<div class="mb-1"><span class="font-medium text-gray-800">จอง:</span> ${truncateWithReadMore(b.note, 'หมายเหตุการจอง')}</div>` : '<div class="text-gray-400 mb-1">- ไม่มีหมายเหตุ -</div>';
+            let rejectText = (b.status === 'rejected' && b.rejectReason) ? `<div class="text-red-600 bg-red-50 p-1 rounded"><span class="font-medium">เหตุผล:</span> ${truncateWithReadMore(b.rejectReason, 'เหตุผลที่ปฏิเสธ')}</div>` : '';
+            let noteHtml = `<div class="text-xs text-gray-600">${noteText}${rejectText}</div>`;
 
             let btns = '<div class="flex gap-1 justify-center">';
             
@@ -2186,20 +2250,16 @@ function getAvailableDatesSummary() {
             }
 
             const canDelete = (currentUser.role === 'admin') || (currentUser.role === 'user' && b.status === 'pending');
-            
-            if(canDelete) {
-                btns += `<button onclick="if(confirm('ยืนยันลบรายการนี้? (ไฟล์จะถูกลบด้วย)')) { apiCall('deleteBooking',{id:${b.id}}).then(()=>{allBookings=allBookings.filter(x=>x.id!==${b.id});filterBookings();showToast('ลบสำเร็จ','success');}) }" class="text-gray-500 bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded-lg transition" title="ลบข้อมูล"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>`;
-            }
-            
+            if(canDelete) btns += `<button onclick="if(confirm('ยืนยันลบรายการนี้? (ไฟล์จะถูกลบด้วย)')) { apiCall('deleteBooking',{id:${b.id}}).then(()=>{allBookings=allBookings.filter(x=>x.id!==${b.id});filterBookings();showToast('ลบสำเร็จ','success');}) }" class="text-gray-500 bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded-lg transition" title="ลบข้อมูล"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>`;
             btns += '</div>';
 
             return `<tr class="border-b border-gray-100 hover:bg-gray-50 transition">
-                <td class="p-3 text-sm"><div class="font-medium text-gray-800">${formatThaiDate(new Date(b.date))}</div><div class="text-xs text-green-600 mt-0.5">${slotsStr} น.</div></td>
+                <td class="p-3 text-sm"><div class="font-medium text-gray-800">${formatThaiDate(new Date(b.date))}</div><div class="text-xs text-green-600 mt-0.5">${slotsStr}</div></td>
                 <td class="p-3 text-sm font-bold text-gray-800">${b.roomName}</td>
-                <td class="p-3 text-sm"><div class="font-bold text-gray-800">${b.organization}</div><div class="text-xs text-gray-500 truncate max-w-[200px] mt-0.5" title="${b.purpose}">${b.purpose}</div></td>
+                <td class="p-3 text-sm"><div class="font-bold text-gray-800">${b.organization}</div><div class="text-xs text-gray-500 mt-0.5">${b.purpose}</div></td>
                 <td class="p-3 text-center"><div class="text-sm font-bold text-green-700" title="รวมทั้งหมด">${tp} คน</div><div class="text-[10px] text-gray-500 mt-0.5">VIP ${vvips} | จนท. ${staff}</div></td>
                 <td class="p-3 text-center">${sBadge}</td>
-                <td class="p-3">${noteHtml}</td>
+                <td class="p-3 max-w-[200px]">${noteHtml}</td>
                 <td class="p-3 text-xs text-gray-500"><div class="bg-gray-100 px-2 py-1 rounded inline-block whitespace-nowrap">${b.updatedBy||'-'}</div></td>
                 <td class="p-3 text-center">${fIcon}</td>
                 <td class="p-3">${btns}</td>
@@ -2331,7 +2391,7 @@ function getAvailableDatesSummary() {
         tableList = sortBookingArray(tableList, sortType);
 
         document.getElementById('reportTableBody').innerHTML = tableList.length===0 ? `<tr><td colspan="8" class="p-8 text-center text-gray-500">ไม่พบข้อมูล</td></tr>` : tableList.map(b=>{
-            let sStr=''; try{sStr=JSON.parse(b.timeSlots).join(', ');}catch(e){}
+            let sStr = formatTimeSlots(b.timeSlots); // 🟢 ใช้ฟังก์ชันรวบเวลา
             const tp = (parseInt(b.vvips)||0)+(parseInt(b.staff)||0);
             return `<tr class="border-b border-gray-100 hover:bg-gray-50 transition"><td class="p-3 text-sm">${formatThaiDate(new Date(b.date))}</td><td class="p-3 text-sm font-medium text-gray-800">${b.roomName}</td><td class="p-3 text-xs text-gray-600">${sStr}</td><td class="p-3 text-sm"><div class="truncate max-w-[200px]" title="${b.organization}">${b.organization}</div></td><td class="p-3 text-sm text-center text-purple-600">${b.vvips||0}</td><td class="p-3 text-sm text-center text-orange-600">${b.staff||0}</td><td class="p-3 text-sm text-center font-bold text-green-700">${tp}</td><td class="p-3 text-center text-xs">${b.status==='approved'?'<span class="text-green-600 bg-green-50 px-2 py-1 rounded">อนุมัติ</span>':b.status==='pending'?'<span class="text-yellow-600 bg-yellow-50 px-2 py-1 rounded">รอตรวจ</span>':'<span class="text-red-600 bg-red-50 px-2 py-1 rounded" title="'+(b.rejectReason||'')+'">ปฏิเสธ</span>'}</td></tr>`;
         }).join('');
@@ -2379,7 +2439,7 @@ function getAvailableDatesSummary() {
         let html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><meta charset="utf-8"><body><table border="1"><tr><th colspan="14" style="font-size:18px; padding:10px; background:#dcfce7; color:#166534;">รายงานการใช้ห้องรับรอง</th></tr><tr><th style="background:#f3f4f6;">วันที่</th><th style="background:#f3f4f6;">เวลา</th><th style="background:#f3f4f6;">ห้อง</th><th style="background:#f3f4f6;">ชื่องาน</th><th style="background:#f3f4f6;">หน่วยงาน</th><th style="background:#f3f4f6;">ชื่อผู้จอง</th><th style="background:#f3f4f6;">นามสกุล</th><th style="background:#f3f4f6;">แขก VIP</th><th style="background:#f3f4f6;">ผู้ติดตาม/จนท.</th><th style="background:#f3f4f6;">รวมคน</th><th style="background:#f3f4f6;">สถานะ</th><th style="background:#f3f4f6;">หมายเหตุ</th><th style="background:#f3f4f6;">เหตุผลปฏิเสธ</th><th style="background:#f3f4f6;">ผู้ทำรายการล่าสุด</th><th style="background:#f3f4f6;">ลิงก์ไฟล์แนบ</th></tr>';
         
         tableList.forEach(b => {
-            let sStr=''; try{sStr=JSON.parse(b.timeSlots).join(', ');}catch(e){}
+            let sStr = formatTimeSlots(b.timeSlots, false); // 🟢 ใส่ false เพื่อให้ส่งออกแบบไม่มี tag HTML ปนใน Excel
             const tp = (parseInt(b.vvips)||0)+(parseInt(b.staff)||0);
             totalVips += (parseInt(b.vvips)||0); totalStaff += (parseInt(b.staff)||0); totalTp += tp;
             
