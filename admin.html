@@ -1225,6 +1225,12 @@
         }
         // ================= สิ้นสุดฟังก์ชัน ระบบนำทาง (Switch View) =================
 
+        // 🟢 ฟังก์ชันทำความสะอาดเบอร์โทร (ลบขีด ลบช่องว่าง ให้เหลือแต่ตัวเลขล้วน)
+        function cleanPhoneNumber(phoneString) {
+            if (!phoneString) return '';
+            return phoneString.replace(/\D/g, ''); 
+        }
+        
         // ================= เริ่มต้น ฟังก์ชันช่วยเหลือ (Helpers) =================
         function convertDriveImageLink(url) {
             let id = ""; const regexView = /\/file\/d\/([a-zA-Z0-9_-]+)/; const regexId = /id=([a-zA-Z0-9_-]+)/; 
@@ -2198,10 +2204,27 @@
                 allowedMenusStr = selectedMenus.join(',');
             }
 
+            // 🟢 ดึงและล้างเบอร์โทรให้อยู่ในรูปแบบตัวเลขล้วน
+            const cleanPhone = cleanPhoneNumber(document.getElementById('usr_Phone').value);
+
             const recordData = {
-                UserID: document.getElementById('usr_UserID').value, Username: document.getElementById('usr_Username').value, Password: document.getElementById('usr_Password').value, FirstName: document.getElementById('usr_FirstName').value, LastName: document.getElementById('usr_LastName').value, Email: document.getElementById('usr_Email').value, Phone: document.getElementById('usr_Phone').value, Organization: document.getElementById('usr_Organization').value, Position: document.getElementById('usr_Position').value, Department: document.getElementById('usr_Department').value, Role: role, 
+                UserID: document.getElementById('usr_UserID').value, 
+                Username: document.getElementById('usr_Username').value, 
+                Password: document.getElementById('usr_Password').value, 
+                FirstName: document.getElementById('usr_FirstName').value, 
+                LastName: document.getElementById('usr_LastName').value, 
+                Email: document.getElementById('usr_Email').value, 
+                //Phone: document.getElementById('usr_Phone').value,
+                Phone: cleanPhone, // 🟢 ส่งเบอร์โทรที่ล้างแล้ว
+                Organization: document.getElementById('usr_Organization').value, 
+                Position: document.getElementById('usr_Position').value, 
+                Department: document.getElementById('usr_Department').value, 
+                Role: role, 
                 AllowedMenus: allowedMenusStr, 
-                Status: document.getElementById('usr_Status').checked ? 'Active' : 'Inactive', LastLogin: document.getElementById('usr_LastLogin').value, pdpaConsent: document.getElementById('usr_PDPA').value, RegisterDate: document.getElementById('usr_RegisterDate').value
+                Status: document.getElementById('usr_Status').checked ? 'Active' : 'Inactive', 
+                LastLogin: document.getElementById('usr_LastLogin').value, 
+                pdpaConsent: document.getElementById('usr_PDPA').value, 
+                RegisterDate: document.getElementById('usr_RegisterDate').value
             };
 
             const formData = new URLSearchParams({ action: 'saveRecord', sheetName: 'Users', idColumn: 'UserID', recordJSON: JSON.stringify(recordData) });
@@ -3006,11 +3029,15 @@
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังบันทึก...';
             btn.disabled = true;
 
+            // 🟢 ดึงและล้างเบอร์โทรให้อยู่ในรูปแบบตัวเลขล้วน
+            const cleanPhone = cleanPhoneNumber(document.getElementById('prof_Phone').value);
+            
             // เอาค่าที่แก้ไขจากหน้าฟอร์ม ไปอัปเดตใส่ object ตัวเต็ม
             myFullProfileData.FirstName = document.getElementById('prof_FirstName').value;
             myFullProfileData.LastName = document.getElementById('prof_LastName').value;
             myFullProfileData.Email = document.getElementById('prof_Email').value;
-            myFullProfileData.Phone = document.getElementById('prof_Phone').value;
+            //myFullProfileData.Phone = document.getElementById('prof_Phone').value;
+            myFullProfileData.Phone = cleanPhone; // 🟢 ส่งเบอร์โทรที่ล้างแล้ว
             myFullProfileData.Position = document.getElementById('prof_Position').value;
             myFullProfileData.Organization = document.getElementById('prof_Organization').value;
 
