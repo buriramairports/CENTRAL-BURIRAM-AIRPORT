@@ -566,6 +566,10 @@
                     <form id="formVerifyReset" onsubmit="verifyResetData(event)">
                         <div class="alert alert-light border shadow-sm small text-muted mb-4">
                             <i class="fa-solid fa-circle-info text-info me-1"></i> กรุณากรอกข้อมูลให้ตรงกับที่ท่านได้ลงทะเบียนไว้ เพื่อเป็นการยืนยันตัวตน
+                            <hr class="my-2 border-secondary opacity-25">
+                            <div class="text-center text-danger fw-bold">
+                                กรณีลืมชื่อผู้ใช้ (Username) กรุณา <a href="javascript:void(0)" onclick="showContactModal()" class="text-decoration-underline text-danger">ติดต่อเจ้าหน้าที่</a>
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">ชื่อผู้ใช้ (Username) <span class="req">*</span></label>
@@ -1104,6 +1108,12 @@
             return new Date() <= expDate;
         }
 
+        // 🟢 ฟังก์ชันทำความสะอาดเบอร์โทร (ลบขีด ลบช่องว่าง ให้เหลือแต่ตัวเลข)
+        function cleanPhoneNumber(phoneString) {
+            if (!phoneString) return '';
+            return phoneString.replace(/\D/g, ''); // \D หมายถึงลบทุกอย่างที่ไม่ใช่ตัวเลข (0-9) ออก
+        }
+        
         function convertDriveImageLink(url) {
             if(!url) return "";
             let id = ""; const regexView = /\/file\/d\/([a-zA-Z0-9_-]+)/; const regexId = /id=([a-zA-Z0-9_-]+)/; 
@@ -2494,11 +2504,15 @@
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังตรวจสอบ...';
             btn.disabled = true;
 
+            // 🟢 ล้างเบอร์โทรก่อนนำไปเปรียบเทียบในเซิร์ฟเวอร์
+            const cleanPhone = cleanPhoneNumber(document.getElementById('reset_Phone').value);
+            
             const formData = new URLSearchParams({
                 action: 'verifyAccountForReset',
                 username: document.getElementById('reset_Username').value.trim(),
                 email: document.getElementById('reset_Email').value.trim(),
-                phone: document.getElementById('reset_Phone').value.trim()
+                //phone: document.getElementById('reset_Phone').value.trim()
+                phone: cleanPhone // 🟢 ส่งเบอร์ที่ล้างแล้วไปให้ API ตรวจ
             });
 
             fetch(API_URL, { method: 'POST', body: formData })
@@ -2578,11 +2592,22 @@
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึกข้อมูล...';
             btn.disabled = true; inputsToDisable.forEach(id => document.getElementById(id).disabled = true);
 
+            // 🟢 เพิ่มการ cleanPhoneNumber ตรงนี้
+            const cleanPhone = cleanPhoneNumber(document.getElementById('regPhone').value);
+            
+            // เช็คว่ากรอกครบ 9-10 หลักไหม ถ้าไม่ครบให้เตือน
+            if (cleanPhone.length < 9) {
+                Swal.fire('ข้อผิดพลาด', 'กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง (เป็นตัวเลขอย่างน้อย 9-10 หลัก)', 'warning');
+                btn.innerHTML = 'สมัครสมาชิก'; btn.disabled = false; inputsToDisable.forEach(id => document.getElementById(id).disabled = false);
+                return;
+            }
+            
             const formData = new URLSearchParams();
             formData.append('action', 'register');
             formData.append('fname', document.getElementById('regFname').value);
             formData.append('lname', document.getElementById('regLname').value);
-            formData.append('phone', document.getElementById('regPhone').value);
+            //formData.append('phone', document.getElementById('regPhone').value);
+            formData.append('phone', cleanPhone); // 🟢 ส่งเบอร์โทรที่ล้างแล้วไปเซฟ
             formData.append('email', document.getElementById('regEmail').value);
             formData.append('org', document.getElementById('regOrg').value);
             formData.append('username', document.getElementById('regUsername').value);
@@ -2646,12 +2671,16 @@
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังบันทึก...';
             btn.disabled = true;
 
+            // 🟢 เพิ่มการ cleanPhoneNumber ตรงนี้
+            const cleanPhone = cleanPhoneNumber(document.getElementById('myProf_Phone').value);
+            
             const updateData = {
                 UserID: document.getElementById('myProf_ID').value,
                 FirstName: document.getElementById('myProf_Fname').value.trim(),
                 LastName: document.getElementById('myProf_Lname').value.trim(),
                 Email: document.getElementById('myProf_Email').value.trim(),
-                Phone: document.getElementById('myProf_Phone').value.trim(),
+                //Phone: document.getElementById('myProf_Phone').value.trim(),
+                Phone: cleanPhone, // 🟢 ส่งเบอร์โทรที่ล้างแล้วไปเซฟ
                 Organization: document.getElementById('myProf_Org').value.trim()
             };
 
