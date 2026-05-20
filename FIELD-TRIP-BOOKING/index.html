@@ -2275,12 +2275,26 @@ async function confirmCancelBooking(id) {
 
 	// ฟังก์ชันส่งข้อมูลไปหลังบ้านแบบเงียบๆ (ไม่แสดงหน้าต่างโหลด)
     function apiCallSilent(action, data={}) {
-        fetch(WEB_APP_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({ action: action, data: data }),
-            redirect: 'follow'
-        }).catch(e => console.error("Background API Error:", e));
+        return new Promise((resolve, reject) => {
+            fetch(WEB_APP_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: action, data: data }),
+                redirect: 'follow'
+            })
+            .then(response => response.json())
+            .then(res => {
+                if (res && res.success) {
+                    resolve(res.data); // ส่งข้อมูลที่ได้กลับไปให้ระบบทำงานต่อ
+                } else {
+                    resolve(null);
+                }
+            })
+            .catch(e => {
+                console.error("Background API Error:", e);
+                resolve(null);
+            });
+        });
     }
 
     // ตัวแปรเก็บข้อมูลสำรอง และคิวรูปรอลบ
