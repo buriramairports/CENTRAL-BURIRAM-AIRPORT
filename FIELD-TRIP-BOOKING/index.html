@@ -1162,18 +1162,18 @@ function closePdpaModal() {
                     localStorage.setItem('cache_bookings', JSON.stringify(allBookings));
                 }
                 
-                // 🟢 รอให้ข้อมูลอัปเดตลงตัวแปรหมดก่อน ค่อยสั่งวาดหน้าจอ
+                // 🟢 หน่วงเวลาให้ข้อมูลเซ็ตตัวเสร็จสมบูรณ์ก่อน แล้วค่อยสั่งวาดทุกอย่างใหม่
                 setTimeout(() => {
-                    buildNotifications(); // สร้างกระดิ่ง
-                    if(currentPage === 'home') renderCalendar();
+                    buildNotifications(); // อัปเดตกระดิ่ง
+                    if(currentPage === 'home') renderCalendar(); // 🟢 บังคับวาดปฏิทินใหม่ตรงนี้
                     if(currentPage === 'manageBooking') filterBookings();
                     if(currentPage === 'reports') generateReport();
-                }, 100);
+                }, 200); 
             }
             preloadBgAndHideSplash();
         }).catch(err => {
             hideInitialSplash();
-            console.error(err);
+            console.error("fetchDataInBackground Error:", err);
         });
     }
 
@@ -2636,15 +2636,30 @@ async function confirmCancelBooking(id) {
         `;
 
         // 🟢 เพิ่มข้อมูลประวัติการแก้ไขสีสวยๆ ไว้ด้านล่าง
+        // 🟢 สร้าง HTML ประวัติการแก้ไขข้อมูล
         let logs = []; try { logs = JSON.parse(b.changeLog || '[]'); } catch(e) {}
         if (logs.length > 0) {
             contentHtml += `<div class="mt-4 border-t border-gray-200 pt-4"><h6 class="font-bold text-sky-700 mb-3 flex items-center gap-2"><i data-lucide="history" class="w-5 h-5"></i> ประวัติการอัปเดตข้อมูล</h6><div class="space-y-3">`;
+            
             [...logs].reverse().forEach(log => {
                 let detailItems = log.details.map(d => {
                     let oldVal = d.old; let newVal = d.new;
-                    if(d.field === 'สถานะการจอง') { let stMap = {'pending':'รอตรวจสอบ', 'approved':'อนุมัติ', 'rejected':'ปฏิเสธ'}; oldVal = stMap[d.old]||d.old; newVal = stMap[d.new]||d.new; }
+                    
+                    // 🟢 แปลงช่วงเวลาให้ดูง่ายขึ้น
+                    if(d.field === 'ช่วงเวลา' || d.field === 'เวลาที่เข้าชม') { 
+                        try { 
+                            oldVal = formatTimeSlots(d.old, false); 
+                            newVal = formatTimeSlots(d.new, false); 
+                        } catch(e){} 
+                    } 
+                    else if(d.field === 'สถานะการจอง') { 
+                        let stMap = {'pending':'รอตรวจสอบ', 'approved':'อนุมัติ', 'rejected':'ปฏิเสธ'}; 
+                        oldVal = stMap[d.old]||d.old; newVal = stMap[d.new]||d.new; 
+                    }
+
                     return `<li class="text-xs text-gray-600 mb-1"><span class="font-medium text-gray-800">${d.field}:</span> <span class="text-red-500 line-through px-1 bg-red-50 rounded">${oldVal || '-'}</span> <i data-lucide="arrow-right" class="w-3 h-3 inline text-gray-400 mx-1"></i> <span class="text-green-600 font-medium px-1 bg-green-50 rounded">${newVal || '-'}</span></li>`;
                 }).join('');
+
                 contentHtml += `<div class="bg-white p-3 rounded-xl border border-sky-100 shadow-sm relative overflow-hidden"><div class="absolute left-0 top-0 bottom-0 w-1 bg-sky-400"></div><div class="flex justify-between items-center mb-2 pb-2 border-b border-gray-50"><span class="text-xs font-bold text-sky-800"><i data-lucide="user-edit" class="w-3 h-3 inline"></i> ${log.updatedBy}</span><span class="text-[10px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full"><i data-lucide="clock" class="w-3 h-3 inline"></i> ${log.timestamp}</span></div><ul class="list-disc pl-5 m-0 marker:text-sky-300">${detailItems}</ul></div>`;
             });
             contentHtml += `</div></div>`;
@@ -2742,35 +2757,37 @@ async function confirmCancelBooking(id) {
         
         notifInterval = setInterval(() => {
             apiCallSilent('getBookings', {}).then(data => {
-                if(data) {
-                    const newDataStr = JSON.stringify(data);
-                    const oldDataStr = JSON.stringify(allBookings);
+                if(data && Array.isArray(data)) { // 🟢 ดักเพื่อความชัวร์ว่าเซิร์ฟเวอร์ส่ง Array กลับมา
                     
-                    // ถ้าข้อมูลที่ดึงมาใหม่ ไม่เหมือนข้อมูลเดิมที่โชว์อยู่ แปลว่ามีคนอัปเดต
+                    // แปลงทั้ง 2 ตัวเป็น String เพื่อเปรียบเทียบให้ง่าย
+                    const newDataStr = JSON.stringify(data);
+                    const oldDataStr = JSON.stringify(allBookings || []);
+                    
+                    // 🟢 เช็คว่าข้อมูลบนเซิร์ฟเวอร์กับบนหน้าจอ "ต่างกันหรือไม่"
                     if(newDataStr !== oldDataStr) {
                         const badge = document.getElementById('notifBadge');
                         let oldUnreadCount = badge.classList.contains('hidden') ? 0 : parseInt(badge.textContent) || 0;
 
-                        allBookings = data;
+                        allBookings = data; // อัปเดตข้อมูลใหม่ทับของเก่า
                         localStorage.setItem('cache_bookings', JSON.stringify(allBookings));
                         
-                        // 🟢 สั่งวาดกระดิ่งใหม่ด้วยข้อมูลล่าสุด
-                        buildNotifications(); 
-
+                        buildNotifications(); // 🟢 สั่งวาดกระดิ่งทันที
+                        
+                        // อ่านค่ายอดแจ้งเตือน "หลังจาก" สร้างกระดิ่งเสร็จ
                         let newUnreadCount = badge.classList.contains('hidden') ? 0 : parseInt(badge.textContent) || 0;
                         
-                        // ถ้ากระดิ่งมียอดใหม่โผล่มา ให้เด้ง Toast แจ้งเตือน
+                        // 🟢 ถ้าตัวเลขกระดิ่งเพิ่มขึ้น ให้เด้ง Toast
                         if(newUnreadCount > oldUnreadCount) {
                             showToast('🔔 มีการอัปเดตข้อมูลการจองใหม่', 'info');
                         }
 
-                        // 🟢 บังคับวาดหน้าจอใหม่ทันทีเพื่อให้ข้อมูล Real-time
+                        // 🟢 บังคับวาดหน้าจอที่ยูสเซอร์เปิดค้างไว้ใหม่ทันที
                         if(currentPage === 'home') renderCalendar();
                         if(currentPage === 'manageBooking') filterBookings();
                         if(currentPage === 'reports') generateReport();
                     }
                 }
-            }).catch(e => console.error("Realtime Sync Error", e));
+            }).catch(e => console.error("Realtime Sync Error:", e));
         }, 30000); 
     }
 
