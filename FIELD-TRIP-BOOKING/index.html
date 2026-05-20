@@ -1160,12 +1160,15 @@ function closePdpaModal() {
                 if(data.bookings) {
                     allBookings = data.bookings;
                     localStorage.setItem('cache_bookings', JSON.stringify(allBookings));
-                    buildNotifications(); // 🟢 สั่งวาดกระดิ่งทันทีที่โหลดเสร็จ
                 }
                 
-                if(currentPage === 'home') renderCalendar();
-                if(currentPage === 'manageBooking') filterBookings();
-                if(currentPage === 'reports') generateReport();
+                // 🟢 รอให้ข้อมูลอัปเดตลงตัวแปรหมดก่อน ค่อยสั่งวาดหน้าจอ
+                setTimeout(() => {
+                    buildNotifications(); // สร้างกระดิ่ง
+                    if(currentPage === 'home') renderCalendar();
+                    if(currentPage === 'manageBooking') filterBookings();
+                    if(currentPage === 'reports') generateReport();
+                }, 100);
             }
             preloadBgAndHideSplash();
         }).catch(err => {
@@ -2669,7 +2672,7 @@ async function confirmCancelBooking(id) {
     function closeNotifDetail() { document.getElementById('notifDetailModal').classList.add('hidden'); }
 
 	/////////////////////////////////////////////
-	// 🟢 ฟังก์ชันสำหรับสร้าง Modal เด้งกลางจอเวลาอ่านข้อความยาวๆ
+	// 🟢 ฟังก์ชันสำหรับสร้าง Modal เด้งกลางจอเวลาอ่านข้อความยาวๆ (แก้ปัญหาข้อความล้น)
     function showFullTextAlert(title, textEncoded) {
         const text = decodeURIComponent(textEncoded);
         const modalId = 'dynamicReadMoreModal';
@@ -2684,7 +2687,8 @@ async function confirmCancelBooking(id) {
                     <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="file-text" class="w-5 h-5 text-sky-500"></i> ${title}</h3>
                     <button onclick="document.getElementById('${modalId}').remove()" class="text-gray-400 hover:bg-gray-100 p-1.5 rounded-lg transition"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </div>
-                <div class="text-sm text-gray-700 bg-gray-50 p-4 rounded-xl border border-gray-200 whitespace-pre-wrap leading-relaxed max-h-[60vh] overflow-y-auto">
+                <!-- 🟢 ใส่ break-words และ overflow-x-hidden ป้องกันตัวอักษรยาวทะลุขอบ -->
+                <div class="text-sm text-gray-700 bg-gray-50 p-4 rounded-xl border border-gray-200 whitespace-pre-wrap break-words overflow-x-hidden leading-relaxed max-h-[60vh] overflow-y-auto">
                     ${text}
                 </div>
                 <div class="mt-4 flex justify-end">
@@ -2732,30 +2736,38 @@ async function confirmCancelBooking(id) {
     }
 
     // 6. ระบบดึงข้อมูลแบบ Background (ทำงานเงียบๆ ทุก 30 วินาที)
+    // 🟢 ระบบดึงข้อมูลแบบ Background (ทำงานเงียบๆ ทุก 30 วินาที)
     function startRealtimeSync() {
         if(notifInterval) clearInterval(notifInterval);
         
         notifInterval = setInterval(() => {
             apiCallSilent('getBookings', {}).then(data => {
                 if(data) {
-                    const badge = document.getElementById('notifBadge');
-                    let oldUnreadCount = badge.classList.contains('hidden') ? 0 : parseInt(badge.textContent) || 0;
-
-                    allBookings = data;
-                    localStorage.setItem('cache_bookings', JSON.stringify(allBookings));
-                    buildNotifications(); 
-
-                    let newUnreadCount = badge.classList.contains('hidden') ? 0 : parseInt(badge.textContent) || 0;
+                    const newDataStr = JSON.stringify(data);
+                    const oldDataStr = JSON.stringify(allBookings);
                     
-                    if(newUnreadCount > oldUnreadCount) {
-                        showToast('🔔 มีการอัปเดตข้อมูลใหม่', 'info');
+                    // ถ้าข้อมูลที่ดึงมาใหม่ ไม่เหมือนข้อมูลเดิมที่โชว์อยู่ แปลว่ามีคนอัปเดต
+                    if(newDataStr !== oldDataStr) {
+                        const badge = document.getElementById('notifBadge');
+                        let oldUnreadCount = badge.classList.contains('hidden') ? 0 : parseInt(badge.textContent) || 0;
+
+                        allBookings = data;
+                        localStorage.setItem('cache_bookings', JSON.stringify(allBookings));
+                        
+                        // 🟢 สั่งวาดกระดิ่งใหม่ด้วยข้อมูลล่าสุด
+                        buildNotifications(); 
+
+                        let newUnreadCount = badge.classList.contains('hidden') ? 0 : parseInt(badge.textContent) || 0;
+                        
+                        // ถ้ากระดิ่งมียอดใหม่โผล่มา ให้เด้ง Toast แจ้งเตือน
+                        if(newUnreadCount > oldUnreadCount) {
+                            showToast('🔔 มีการอัปเดตข้อมูลการจองใหม่', 'info');
+                        }
+
+                        // 🟢 บังคับวาดหน้าจอใหม่ทันทีเพื่อให้ข้อมูล Real-time
                         if(currentPage === 'home') renderCalendar();
                         if(currentPage === 'manageBooking') filterBookings();
                         if(currentPage === 'reports') generateReport();
-                    } else {
-                        // ไม่อัปเดตกระดิ่ง แต่แอบวาดตารางหลังบ้านใหม่ให้ข้อมูลเป็นปัจจุบัน
-                        if(currentPage === 'manageBooking') filterBookings();
-                        if(currentPage === 'home') renderCalendar();
                     }
                 }
             }).catch(e => console.error("Realtime Sync Error", e));
