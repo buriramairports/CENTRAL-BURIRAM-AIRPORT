@@ -375,12 +375,12 @@
                                 </a>
                             </div>
                             <div class="col-6">
-                                <a href="#" class="quick-link-box" style="border-right: 2px solid white; background-color: #637F9A;">
+                               <a href="javascript:void(0)" onclick="toggleStaffOnly()" class="quick-link-box" style="border-right: 2px solid white; background-color: #637F9A;">
                                     <i class="fa-solid fa-users-gear"></i><span>บริการเจ้าหน้าที่</span>
                                 </a>
                             </div>
                             <div class="col-6">
-                                <a href="#" class="quick-link-box" style="background-color: #4C657C;">
+                                <a href="javascript:void(0)" onclick="toggleMobileApp()" class="quick-link-box" style="background-color: #4C657C;">
                                     <i class="fa-solid fa-mobile-screen"></i><span>Mobile App</span>
                                 </a>
                             </div>
@@ -1871,6 +1871,8 @@
         function showFlightScheduleModal() { new bootstrap.Modal(document.getElementById('flightModal')).show(); }
         function showPassengerStatsModal() { new bootstrap.Modal(document.getElementById('passengerStatsModal')).show(); }
         function toggleChatbot() { Swal.fire({ icon: 'info', title: 'ระบบแชทบอท', text: 'กำลังอยู่ในช่วงพัฒนา จะเปิดให้บริการเร็วๆ นี้ครับ', confirmButtonColor: '#0A3161' }); }
+        function toggleStaffOnly() { Swal.fire({ icon: 'info', title: 'ระบบสำหรับเจ้าหน้าที่', text: 'กำลังอยู่ในช่วงพัฒนา จะเปิดให้บริการเร็วๆ นี้ครับ', confirmButtonColor: '#0A3161' }); }
+        function toggleMobileApp() { Swal.fire({ icon: 'info', title: 'ระบบ Mobile App', text: 'กำลังอยู่ในช่วงพัฒนา จะเปิดให้บริการเร็วๆ นี้ครับ', confirmButtonColor: '#0A3161' }); }
         
         // ================= เริ่มต้นฟังก์ชัน โชว์รายละเอียดกิจกรรม =================
         function showCalendarDetail(day, month, title, time, location, dept) { 
