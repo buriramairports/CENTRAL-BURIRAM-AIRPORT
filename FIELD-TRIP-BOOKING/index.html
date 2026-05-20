@@ -1176,6 +1176,7 @@ function closePdpaModal() {
     }
 
     function applySettingsToUI() {
+		if(systemSettings.timeSlots) systemSettings.timeSlots.sort((a, b) => a.localeCompare(b));
 		updateBotUI();
         document.getElementById('headerTitle').textContent = systemSettings.systemName || 'ระบบจองวันทัศนศึกษา'; 
         document.getElementById('loginTitle').textContent = systemSettings.systemName || 'ระบบจองวันทัศนศึกษา'; 
@@ -2517,13 +2518,41 @@ async function confirmCancelBooking(id) {
 		if(i===-1)systemSettings.customDays[k].push(ds);else systemSettings.customDays[k].splice(i,1); renderSettingsCalendar(); checkSettingsChanged();
 	}
     
-    function renderTimeSlots(){document.getElementById('timeSlotsList').innerHTML=(systemSettings.timeSlots||[]).map((t,i)=>`<div class="flex items-center gap-2 mb-2"><input type="time" value="${t}" onchange="systemSettings.timeSlots[${i}]=this.value; checkSettingsChanged();" class="border border-gray-200 p-2 rounded-lg flex-1 outline-none focus:ring-2"><button onclick="systemSettings.timeSlots.splice(${i},1);renderTimeSlots()" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"><i data-lucide="trash-2" class="w-5 h-5"></i></button></div>`).join(''); lucide.createIcons();} 
+    // 🟢 ฟังก์ชันจัดการอัปเดตและเรียงลำดับเวลาอัตโนมัติ
+    function updateTimeSlot(index, value) {
+        systemSettings.timeSlots[index] = value;
+        // เรียงลำดับจากน้อยไปมาก (เช่น 08:00 -> 12:00 -> 15:00)
+        systemSettings.timeSlots.sort((a, b) => a.localeCompare(b));
+        renderTimeSlots(); // วาดหน้าจอใหม่ทันที
+        checkSettingsChanged();
+    }
+
+    function renderTimeSlots(){
+        // เผื่อไว้กรณีข้อมูลโหลดมาครั้งแรกยังไม่เรียง ให้เรียงก่อนแสดงผล
+        if(systemSettings.timeSlots) {
+            systemSettings.timeSlots.sort((a, b) => a.localeCompare(b));
+        }
+        
+        document.getElementById('timeSlotsList').innerHTML=(systemSettings.timeSlots||[]).map((t,i)=>`
+            <div class="flex items-center gap-2 mb-2">
+                <!-- ใส่ pattern ให้มันรับรู้ว่าเป็นเวลาแบบ 24h ไว้ช่วยบังคับบราวเซอร์บางตัว -->
+                <input type="time" value="${t}" onchange="updateTimeSlot(${i}, this.value)" class="border border-gray-200 p-2 rounded-lg flex-1 outline-none focus:ring-2">
+                <button onclick="systemSettings.timeSlots.splice(${i},1); renderTimeSlots(); checkSettingsChanged();" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition" title="ลบเวลานี้">
+                    <i data-lucide="trash-2" class="w-5 h-5"></i>
+                </button>
+            </div>
+        `).join(''); 
+        lucide.createIcons();
+    } 
+
     function addTimeSlot(){
-		if(!systemSettings.timeSlots)systemSettings.timeSlots=[]; systemSettings.timeSlots.push('12:00');
+		if(!systemSettings.timeSlots) systemSettings.timeSlots=[]; 
+        systemSettings.timeSlots.push('12:00');
+        systemSettings.timeSlots.sort((a, b) => a.localeCompare(b)); // เรียงลำดับทันทีที่กดเพิ่ม
 		renderTimeSlots();
 		checkSettingsChanged();
 	} 
-	function saveTimeSlots(){syncSettingsToDB();}
+	function saveTimeSlots(){ syncSettingsToDB(); }
     
     
 
