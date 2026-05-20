@@ -104,10 +104,13 @@
        </button>
 
        <!-- หน้าต่าง Dropdown แจ้งเตือน -->
-       <div id="notifPanel" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-2xl card-shadow z-[60] overflow-hidden border border-gray-100 animate-fadeIn">
+       <div id="notifPanel" class="hidden absolute right-0 mt-2 w-96 bg-white rounded-2xl card-shadow z-[60] overflow-hidden border border-gray-100 animate-fadeIn">
         <div class="bg-gray-50 px-4 py-3 border-b border-gray-100 flex justify-between items-center">
          <h3 class="font-bold text-sm text-gray-800 flex items-center gap-2"><i data-lucide="bell-ring" class="w-4 h-4 text-sky-500"></i> การแจ้งเตือน</h3>
-         <button onclick="markAllNotifAsRead()" class="text-xs font-medium text-sky-600 hover:text-sky-800 transition">อ่านทั้งหมด</button>
+         <div class="flex gap-3">
+             <button onclick="markAllNotifAsRead()" class="text-xs font-medium text-sky-600 hover:text-sky-800 transition">อ่านทั้งหมด</button>
+             <button onclick="clearReadNotifications()" class="text-xs font-medium text-gray-400 hover:text-red-500 transition border-l pl-3 border-gray-300"><i data-lucide="trash-2" class="w-3 h-3 inline"></i> ล้างที่อ่านแล้ว</button>
+         </div>
         </div>
         <div id="notifList" class="max-h-[60vh] overflow-y-auto bg-white divide-y divide-gray-50">
          <!-- รายการแจ้งเตือนจะถูกสร้างตรงนี้ -->
@@ -1147,7 +1150,7 @@ function closePdpaModal() {
 	//----------------------------------------------
 
     function fetchDataInBackground() {
-        apiCall('getInitialData', {}).then(data => {
+        apiCallSilent('getInitialData', {}).then(data => {
             if(data) {
                 if(data.settings) {
                     systemSettings = {...systemSettings, ...data.settings};
@@ -1157,6 +1160,7 @@ function closePdpaModal() {
                 if(data.bookings) {
                     allBookings = data.bookings;
                     localStorage.setItem('cache_bookings', JSON.stringify(allBookings));
+                    buildNotifications(); // 🟢 สั่งวาดกระดิ่งทันทีที่โหลดเสร็จ
                 }
                 
                 if(currentPage === 'home') renderCalendar();
@@ -1294,17 +1298,19 @@ function closePdpaModal() {
    
 
     function navigateTo(p){ 
-        currentPage=p; document.querySelectorAll('.page').forEach(x=>x.classList.add('hidden')); document.getElementById(p+'Page').classList.remove('hidden'); 
+        currentPage=p; 
+        document.querySelectorAll('.page').forEach(x=>x.classList.add('hidden')); 
+        document.getElementById(p+'Page').classList.remove('hidden'); 
         document.querySelectorAll('.sidebar-item').forEach(i => { i.classList.remove('active'); if (i.dataset.page === p) i.classList.add('active'); });
         toggleSidebar(false); 
+        
+        // สั่งวาดข้อมูลทันทีเมื่อกดสลับเมนู โดยไม่ต้องไปโหลดจากเน็ตใหม่
         if(p==='home'){ renderCalendar(); }
         else if(p==='manageBooking'){ filterBookings(); }
         else if(p==='profile') loadProfile();
         else if(p==='userManagement') loadUsers();
         else if(p==='reports'){ generateReport(); }
         else if(p==='settings') loadSettings(); 
-        
-        if(p==='home' || p==='manageBooking' || p==='reports') fetchDataInBackground();
     }
     function toggleSidebar(show=true){ document.getElementById('sidebar').classList.toggle('-translate-x-full',!show); document.getElementById('sidebarOverlay').classList.toggle('hidden',!show); }
 
@@ -1709,10 +1715,11 @@ function closePdpaModal() {
     
     function renderBookingTable(){ 
         const s=(pagination.page-1)*pagination.pageSize, list=currentBookings.slice(s,s+pagination.pageSize); 
-        if(list.length === 0) { document.getElementById('bookingTableBody').innerHTML = `<tr><td colspan="11" class="px-4 py-8 text-center text-gray-500">ไม่พบข้อมูล</td></tr>`; document.getElementById('pagination').innerHTML = ''; return; }
+        if(list.length === 0) { document.getElementById('bookingTableBody').innerHTML = `<tr><td colspan="12" class="px-4 py-8 text-center text-gray-500">ไม่พบข้อมูล</td></tr>`; document.getElementById('pagination').innerHTML = ''; return; }
 
         document.getElementById('bookingTableBody').innerHTML = list.map(b => {
-            const dateStr = formatThaiDate(new Date(b.date)); const t = parseInt(b.students||0)+parseInt(b.staff||0);
+            const dateStr = formatThaiDate(new Date(b.date)); 
+            const t = parseInt(b.students||0)+parseInt(b.staff||0);
             let sBadge = b.status==='pending'?'<span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-lg text-xs font-medium">รอตรวจสอบ</span>':b.status==='approved'?'<span class="px-2 py-1 bg-green-100 text-green-700 rounded-lg text-xs font-medium">อนุมัติ</span>':'<span class="px-2 py-1 bg-red-100 text-red-700 rounded-lg text-xs font-medium">ปฏิเสธ</span>';
             
             // ไอคอนแสดงไฟล์แนบ
@@ -1721,23 +1728,37 @@ function closePdpaModal() {
             // สร้างป้ายชื่อผู้ดำเนินการ
             let opBadge = b.updatedBy ? `<span class="text-xs text-gray-700 bg-gray-100 px-2 py-1 rounded-lg border border-gray-200 whitespace-nowrap">${b.updatedBy}</span>` : `<span class="text-gray-400 text-xs">-</span>`;
 
+            // 🟢 ใส่ระบบ "อ่านทั้งหมด" ให้กับหมายเหตุ
+            let combinedNote = (b.note || '') + (b.rejectReason ? `\n[เหตุผลปฏิเสธ]: ${b.rejectReason}` : '');
+            let displayNote = truncateWithReadMore(combinedNote, 'หมายเหตุ / เหตุผลปฏิเสธ');
+
             let btns = '<div class="flex items-center justify-center gap-1">';
             if(b.status === 'pending') {
                 btns += `<button onclick="openEditBooking(${b.id})" class="bg-sky-50 text-sky-600 hover:bg-sky-100 px-2 py-1.5 rounded-lg text-xs transition">แก้</button>`;
                 if(currentUser.role === 'admin') { btns += `<button onclick="approveBooking(${b.id})" class="bg-green-50 text-green-600 hover:bg-green-100 px-2 py-1.5 rounded-lg text-xs transition">อนุมัติ</button><button onclick="openRejectModal(${b.id})" class="bg-red-50 text-red-600 hover:bg-red-100 px-2 py-1.5 rounded-lg text-xs transition">ปฏิเสธ</button>`; }
             }
             
-            // เช็คสิทธิ์การแสดงปุ่มลบ (ถังขยะ)
-            let canDelete = false;
-            if(currentUser.role === 'admin') canDelete = true; // แอดมินลบได้ทุกสถานะ
-            else if(b.status === 'pending') canDelete = true;  // ผู้ใช้ทั่วไปลบ(ยกเลิก)ตัวเองได้เฉพาะตอน "รอตรวจสอบ"
-            
+            let canDelete = (currentUser.role === 'admin') || (currentUser.role === 'user' && b.status === 'pending');
             if(canDelete) {
                 btns += `<button onclick="confirmCancelBooking(${b.id})" class="bg-gray-100 text-gray-600 hover:bg-gray-200 px-2 py-1.5 rounded-lg text-xs transition" title="ลบข้อมูล"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>`;
             }
             btns += '</div>';
 
-            return `<tr class="border-b border-gray-100 hover:bg-gray-50 transition"><td class="p-3 text-sm whitespace-nowrap text-gray-700">${dateStr}</td><td class="p-3 text-sm whitespace-nowrap text-gray-700">${b.timeSlot} น.</td><td class="p-3 text-sm text-gray-700">${b.firstName} ${b.lastName}</td><td class="p-3 text-sm text-gray-700">${b.organization}</td><td class="p-3 text-sm text-center text-gray-700">${b.students}</td><td class="p-3 text-sm text-center text-gray-700">${b.staff}</td><td class="p-3 text-sm text-center font-bold text-sky-600">${t}</td><td class="p-3 text-center">${sBadge}</td><td class="p-3 text-center">${fileIcon}</td><td class="p-3">${opBadge}</td><td class="p-3 text-xs text-gray-500 max-w-[150px] truncate" title="${b.rejectReason||b.note||''}">${b.rejectReason||b.note||'-'}</td><td class="p-3 text-center">${btns}</td></tr>`;
+            // 🟢 เปลี่ยนคอลัมน์สุดท้ายของหมายเหตุเป็น displayNote
+            return `<tr class="border-b border-gray-100 hover:bg-gray-50 transition">
+                <td class="p-3 text-sm whitespace-nowrap text-gray-700">${dateStr}</td>
+                <td class="p-3 text-sm whitespace-nowrap text-gray-700">${b.timeSlot} น.</td>
+                <td class="p-3 text-sm text-gray-700">${b.firstName} ${b.lastName}</td>
+                <td class="p-3 text-sm text-gray-700">${b.organization}</td>
+                <td class="p-3 text-sm text-center text-gray-700">${b.students}</td>
+                <td class="p-3 text-sm text-center text-gray-700">${b.staff}</td>
+                <td class="p-3 text-sm text-center font-bold text-sky-600">${t}</td>
+                <td class="p-3 text-center">${sBadge}</td>
+                <td class="p-3 text-center">${fileIcon}</td>
+                <td class="p-3">${opBadge}</td>
+                <td class="p-3 text-sm text-gray-600">${displayNote}</td>
+                <td class="p-3 text-center">${btns}</td>
+            </tr>`;
         }).join(''); 
         lucide.createIcons();
 
@@ -2494,82 +2515,82 @@ async function confirmCancelBooking(id) {
     function formatDate(date){ return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`; }
     function formatThaiDate(date){ return `${date.getDate()} ${thaiMonthsShort[date.getMonth()]} ${date.getFullYear() + 543}`; }
 
-// === ระบบแจ้งเตือน (Notifications) แบบ Real-time ===
+// ================= ระบบแจ้งเตือน (Notifications) แบบ Real-time =================
     let notifInterval = null;
 
-    // 1. ฟังก์ชันคำนวณและสร้างการแจ้งเตือน
     function buildNotifications() {
         if(!currentUser) return;
         const readKeys = JSON.parse(localStorage.getItem(`read_notifs_${currentUser.id}`) || '[]');
+        const clearedKeys = JSON.parse(localStorage.getItem(`cleared_notifs_${currentUser.id}`) || '[]'); // 🟢 ตัวแปรสำหรับซ่อนที่ถูกลบ
         let notifications = [];
 
-        // เรียงลำดับจากรายการล่าสุดก่อน (ID มากไปน้อย)
-        const sortedBookings = [...allBookings].sort((a,b) => b.id - a.id);
+        const sortedBookings = [...allBookings].sort((a,b) => parseInt(b.id) - parseInt(a.id));
 
         sortedBookings.forEach(b => {
             if(currentUser.role === 'admin') {
-                // แอดมิน: แจ้งเตือนรายการที่ "รอตรวจสอบ"
                 if(b.status === 'pending') {
                     const key = `admin_pending_${b.id}`;
-                    if(!readKeys.includes(key)) {
-                        notifications.push({
-                            key: key, booking: b,
-                            title: 'มีรายการรอตรวจสอบ',
-                            desc: `${b.organization} (${b.firstName})`,
-                            icon: 'clock', color: 'text-yellow-500', bg: 'bg-yellow-50'
-                        });
+                    if(!clearedKeys.includes(key)) {
+                        const isUnread = !readKeys.includes(key); 
+                        notifications.push({ key: key, booking: b, title: 'มีรายการรอตรวจสอบ', desc: `${b.organization} (${b.firstName})`, icon: 'clock', color: isUnread ? 'text-yellow-600' : 'text-gray-500', bg: isUnread ? 'bg-yellow-100' : 'bg-gray-100', isUnread: isUnread });
                     }
                 }
             } else {
-                // ผู้ใช้: แจ้งเตือนรายการของตัวเองที่ถูก "อนุมัติ" หรือ "ปฏิเสธ"
                 if(b.userId === currentUser.id && (b.status === 'approved' || b.status === 'rejected')) {
                     const key = `user_${b.status}_${b.id}`;
-                    if(!readKeys.includes(key)) {
+                    if(!clearedKeys.includes(key)) {
+                        const isUnread = !readKeys.includes(key);
                         const isApprove = b.status === 'approved';
-                        notifications.push({
-                            key: key, booking: b,
-                            title: isApprove ? 'การจองได้รับการอนุมัติ' : 'การจองถูกปฏิเสธ',
-                            desc: `วันที่จอง: ${formatThaiDate(new Date(b.date))} (${b.timeSlot} น.)`,
-                            icon: isApprove ? 'check-circle' : 'x-circle', 
-                            color: isApprove ? 'text-green-500' : 'text-red-500',
-                            bg: isApprove ? 'bg-green-50' : 'bg-red-50'
-                        });
+                        notifications.push({ key: key, booking: b, title: isApprove ? 'การจองได้รับการอนุมัติ ✅' : 'การจองถูกปฏิเสธ ❌', desc: `วันที่จอง: ${formatThaiDate(new Date(b.date))} (${b.timeSlot} น.)`, icon: isApprove ? 'check-circle' : 'x-circle', color: isUnread ? (isApprove ? 'text-emerald-500' : 'text-red-500') : 'text-gray-500', bg: isUnread ? (isApprove ? 'bg-emerald-50' : 'bg-red-50') : 'bg-gray-100', isUnread: isUnread });
+                    }
+                }
+            }
+
+            // 🟢 ตรวจสอบการ "แก้ไขข้อมูล" (Change Log)
+            let logs = [];
+            try { logs = JSON.parse(b.changeLog || '[]'); } catch(e){}
+            
+            if (logs.length > 0) {
+                const latestLog = logs[logs.length - 1]; 
+                let updaterName = latestLog.updatedBy.split(' (')[0]; 
+                let myName = currentUser.firstName;
+                
+                if (updaterName !== myName) {
+                    if (currentUser.role === 'admin' || b.userId === currentUser.id) {
+                        const updateKey = `update_${b.id}_${logs.length}`;
+                        if(!clearedKeys.includes(updateKey)) {
+                            const isUnread = !readKeys.includes(updateKey);
+                            notifications.push({ key: updateKey, booking: b, title: `มีการอัปเดตข้อมูลการจอง`, desc: `แก้ไขโดย: ${latestLog.updatedBy} เมื่อ ${latestLog.timestamp.split(' ')[1]} น.`, icon: 'edit', color: isUnread ? 'text-sky-600' : 'text-gray-500', bg: isUnread ? 'bg-sky-100' : 'bg-gray-100', isUnread: isUnread });
+                        }
                     }
                 }
             }
         });
 
+        notifications.sort((a,b) => b.isUnread - a.isUnread);
         renderNotifications(notifications);
     }
 
     // 2. ฟังก์ชันวาด UI การแจ้งเตือน
-    function renderNotifications(notifs) {
+     function renderNotifications(notifs) {
         const badge = document.getElementById('notifBadge');
         const list = document.getElementById('notifList');
         
-        // อัปเดตตัวเลขกระดิ่ง
-        if(notifs.length > 0) {
-            badge.textContent = notifs.length > 99 ? '99+' : notifs.length;
-            badge.classList.remove('hidden', 'scale-0');
-            badge.classList.add('scale-100');
+        const unreadCount = notifs.filter(n => n.isUnread).length;
+        
+        if(unreadCount > 0) {
+            badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+            badge.classList.remove('hidden', 'scale-0'); badge.classList.add('scale-100');
         } else {
-            badge.classList.add('scale-0');
-            setTimeout(() => badge.classList.add('hidden'), 200);
+            badge.classList.add('scale-0'); setTimeout(() => badge.classList.add('hidden'), 200);
         }
 
-        // วาดรายการ
-        if(notifs.length === 0) {
-            list.innerHTML = `<div class="p-8 text-center text-gray-400 text-sm flex flex-col items-center"><i data-lucide="bell-off" class="w-8 h-8 mb-2 opacity-50"></i>ไม่มีการแจ้งเตือนใหม่</div>`;
-        } else {
+        if(notifs.length === 0) { list.innerHTML = `<div class="p-8 text-center text-gray-400 text-sm flex flex-col items-center"><i data-lucide="bell-off" class="w-8 h-8 mb-2 opacity-50"></i>ไม่มีการแจ้งเตือน</div>`; } 
+        else {
             list.innerHTML = notifs.map(n => `
-                <div onclick="clickNotification('${n.key}', ${n.booking.id})" class="p-4 hover:bg-gray-50 cursor-pointer transition flex items-start gap-3">
-                    <div class="p-2 rounded-full shrink-0 ${n.bg} ${n.color}">
-                        <i data-lucide="${n.icon}" class="w-5 h-5"></i>
-                    </div>
-                    <div>
-                        <p class="font-semibold text-sm text-gray-800">${n.title}</p>
-                        <p class="text-xs text-gray-500 mt-0.5 leading-relaxed">${n.desc}</p>
-                    </div>
+                <div onclick="clickNotification('${n.key}', ${n.booking.id})" class="p-4 hover:bg-gray-50 cursor-pointer transition flex items-start gap-3 ${n.isUnread ? 'bg-white' : 'bg-gray-50 opacity-80'}">
+                    <div class="p-2 rounded-full shrink-0 ${n.bg} ${n.color}"><i data-lucide="${n.icon}" class="w-5 h-5"></i></div>
+                    <div><p class="font-semibold text-sm ${n.isUnread ? 'text-gray-800' : 'text-gray-500'}">${n.title}</p><p class="text-xs mt-0.5 leading-relaxed ${n.isUnread ? 'text-gray-600' : 'text-gray-400'}">${n.desc}</p></div>
                 </div>
             `).join('');
         }
@@ -2577,142 +2598,168 @@ async function confirmCancelBooking(id) {
     }
 
     // 3. ปิด/เปิด หน้าต่างแจ้งเตือน
-    function toggleNotifPanel() {
-        document.getElementById('notifPanel').classList.toggle('hidden');
-    }
+    function toggleNotifPanel() { document.getElementById('notifPanel').classList.toggle('hidden'); }
 
     // 4. เมื่อคลิกอ่านแจ้งเตือน 1 รายการ
     function clickNotification(key, bookingId) {
-        // บันทึกว่าอ่านแล้ว
         const readKeys = JSON.parse(localStorage.getItem(`read_notifs_${currentUser.id}`) || '[]');
-        if(!readKeys.includes(key)) {
-            readKeys.push(key);
-            localStorage.setItem(`read_notifs_${currentUser.id}`, JSON.stringify(readKeys));
-        }
-        buildNotifications(); // อัปเดตตัวเลขกระดิ่ง
-        document.getElementById('notifPanel').classList.add('hidden'); // ปิดหน้าต่างกระดิ่ง
-
-        // เปิด Modal แสดงรายละเอียด
-        openNotifDetail(bookingId);
+        if(!readKeys.includes(key)) { readKeys.push(key); localStorage.setItem(`read_notifs_${currentUser.id}`, JSON.stringify(readKeys)); }
+        buildNotifications(); document.getElementById('notifPanel').classList.add('hidden'); openNotifDetail(bookingId);
     }
 
-    // ฟังก์ชันเปิดหน้าต่างรายละเอียดจากการแจ้งเตือน
+    // 🟢 แสดง Modal รายละเอียดที่ถูกอัปเดต
     function openNotifDetail(bookingId) {
-        const b = allBookings.find(x => x.id === bookingId);
+        const b = allBookings.find(x => parseInt(x.id) === parseInt(bookingId));
         if(!b) return showAlert('ไม่พบข้อมูล', 'รายการนี้อาจถูกลบไปแล้ว', 'error');
 
         const totalPeople = parseInt(b.students||0) + parseInt(b.staff||0);
         const dateStr = formatThaiDate(new Date(b.date));
         
-        // จัดการป้ายสถานะ
         let statusBadge = '';
         if(b.status === 'pending') statusBadge = '<span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-bold flex items-center gap-1 w-max"><i data-lucide="clock" class="w-4 h-4"></i> รอตรวจสอบ</span>';
         else if(b.status === 'approved') statusBadge = '<span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-bold flex items-center gap-1 w-max"><i data-lucide="check-circle" class="w-4 h-4"></i> อนุมัติแล้ว</span>';
         else statusBadge = '<span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-bold flex items-center gap-1 w-max"><i data-lucide="x-circle" class="w-4 h-4"></i> ปฏิเสธการจอง</span>';
-        
         document.getElementById('notifDetailStatus').innerHTML = statusBadge;
 
-        // จัดการลิงก์ไฟล์
         let fileHtml = b.ATT_URL ? `<a href="${b.ATT_URL}" target="_blank" class="text-sky-600 hover:text-sky-800 font-medium underline flex items-center gap-1"><i data-lucide="file-text" class="w-4 h-4"></i> เปิดดูไฟล์เอกสาร</a>` : `<span class="text-orange-500 font-medium"><i data-lucide="alert-triangle" class="w-4 h-4 inline"></i> ยังไม่แนบไฟล์</span>`;
 
-        // ใส่ข้อมูลลงตาราง
-        document.getElementById('notifDetailContent').innerHTML = `
+        let contentHtml = `
             <div class="grid grid-cols-3 border-b border-gray-200 pb-2"><span class="text-gray-500">วันที่เข้าชม:</span><span class="col-span-2 font-bold text-sky-600">${dateStr} เวลา ${b.timeSlot} น.</span></div>
             <div class="grid grid-cols-3 border-b border-gray-200 py-2"><span class="text-gray-500">ผู้จอง:</span><span class="col-span-2 font-medium">${b.firstName} ${b.lastName}</span></div>
             <div class="grid grid-cols-3 border-b border-gray-200 py-2"><span class="text-gray-500">หน่วยงาน:</span><span class="col-span-2 font-medium">${b.organization}</span></div>
             <div class="grid grid-cols-3 border-b border-gray-200 py-2"><span class="text-gray-500">ระดับชั้น:</span><span class="col-span-2 font-medium">${b.educationLevel}</span></div>
             <div class="grid grid-cols-3 border-b border-gray-200 py-2"><span class="text-gray-500">จำนวนคน:</span><span class="col-span-2 font-medium">นร. ${b.students} / ครู ${b.staff} (รวม ${totalPeople} คน)</span></div>
-            <div class="grid grid-cols-3 border-b border-gray-200 py-2"><span class="text-gray-500">หมายเหตุ:</span><span class="col-span-2 font-medium">${b.note || '-'}</span></div>
             <div class="grid grid-cols-3 pt-2"><span class="text-gray-500">ไฟล์แนบ:</span><span class="col-span-2">${fileHtml}</span></div>
         `;
 
-        // แสดงเหตุผลที่ปฏิเสธ
-        const rejectDiv = document.getElementById('notifRejectReason');
-        if(b.status === 'rejected' && b.rejectReason) {
-            document.getElementById('notifRejectText').textContent = b.rejectReason;
-            rejectDiv.classList.remove('hidden');
-        } else {
-            rejectDiv.classList.add('hidden');
+        // 🟢 เพิ่มข้อมูลประวัติการแก้ไขสีสวยๆ ไว้ด้านล่าง
+        let logs = []; try { logs = JSON.parse(b.changeLog || '[]'); } catch(e) {}
+        if (logs.length > 0) {
+            contentHtml += `<div class="mt-4 border-t border-gray-200 pt-4"><h6 class="font-bold text-sky-700 mb-3 flex items-center gap-2"><i data-lucide="history" class="w-5 h-5"></i> ประวัติการอัปเดตข้อมูล</h6><div class="space-y-3">`;
+            [...logs].reverse().forEach(log => {
+                let detailItems = log.details.map(d => {
+                    let oldVal = d.old; let newVal = d.new;
+                    if(d.field === 'สถานะการจอง') { let stMap = {'pending':'รอตรวจสอบ', 'approved':'อนุมัติ', 'rejected':'ปฏิเสธ'}; oldVal = stMap[d.old]||d.old; newVal = stMap[d.new]||d.new; }
+                    return `<li class="text-xs text-gray-600 mb-1"><span class="font-medium text-gray-800">${d.field}:</span> <span class="text-red-500 line-through px-1 bg-red-50 rounded">${oldVal || '-'}</span> <i data-lucide="arrow-right" class="w-3 h-3 inline text-gray-400 mx-1"></i> <span class="text-green-600 font-medium px-1 bg-green-50 rounded">${newVal || '-'}</span></li>`;
+                }).join('');
+                contentHtml += `<div class="bg-white p-3 rounded-xl border border-sky-100 shadow-sm relative overflow-hidden"><div class="absolute left-0 top-0 bottom-0 w-1 bg-sky-400"></div><div class="flex justify-between items-center mb-2 pb-2 border-b border-gray-50"><span class="text-xs font-bold text-sky-800"><i data-lucide="user-edit" class="w-3 h-3 inline"></i> ${log.updatedBy}</span><span class="text-[10px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full"><i data-lucide="clock" class="w-3 h-3 inline"></i> ${log.timestamp}</span></div><ul class="list-disc pl-5 m-0 marker:text-sky-300">${detailItems}</ul></div>`;
+            });
+            contentHtml += `</div></div>`;
         }
 
-        // สร้างปุ่ม Action
+        document.getElementById('notifDetailContent').innerHTML = contentHtml;
+
+        const rejectDiv = document.getElementById('notifRejectReason');
+        if(b.status === 'rejected' && b.rejectReason) { document.getElementById('notifRejectText').textContent = b.rejectReason; rejectDiv.classList.remove('hidden'); } 
+        else { rejectDiv.classList.add('hidden'); }
+
         let btnHtml = '';
         if(currentUser.role === 'admin' && b.status === 'pending') {
-            // ปุ่มสำหรับ Admin (รอตรวจ)
-            btnHtml = `
-                <button onclick="closeNotifDetail(); openEditBooking(${b.id})" class="px-4 py-2 bg-sky-50 text-sky-600 hover:bg-sky-100 rounded-lg font-medium transition">แก้ไข</button>
-                <div class="flex-1"></div>
-                <button onclick="closeNotifDetail(); openRejectModal(${b.id})" class="px-4 py-2 bg-red-500 text-white hover:bg-red-600 rounded-lg shadow font-medium transition">ปฏิเสธ</button>
-                <button onclick="closeNotifDetail(); approveBookingAndRefresh(${b.id})" class="px-4 py-2 bg-green-500 text-white hover:bg-green-600 rounded-lg shadow font-medium transition">อนุมัติ</button>
-            `;
+            btnHtml = `<button onclick="closeNotifDetail(); openEditBooking(${b.id})" class="px-4 py-2 bg-sky-50 text-sky-600 hover:bg-sky-100 rounded-lg font-medium transition">แก้ไข</button><div class="flex-1"></div><button onclick="closeNotifDetail(); openRejectModal(${b.id})" class="px-4 py-2 bg-red-500 text-white hover:bg-red-600 rounded-lg shadow font-medium transition">ปฏิเสธ</button><button onclick="closeNotifDetail(); approveBookingAndRefresh(${b.id})" class="px-4 py-2 bg-green-500 text-white hover:bg-green-600 rounded-lg shadow font-medium transition">อนุมัติ</button>`;
         } else {
-            // ปุ่มสำหรับ User (หรือ Admin ดูรายการที่เสร็จแล้ว)
             btnHtml = `<button onclick="closeNotifDetail()" class="px-4 py-2 bg-white border hover:bg-gray-100 rounded-lg text-gray-700 font-medium transition">ปิดหน้าต่าง</button>`;
-            
-            if(currentUser.role === 'user') {
-                btnHtml += `<button onclick="closeNotifDetail(); navigateTo('home')" class="px-4 py-2 btn-primary text-white rounded-lg shadow font-medium transition">ไปหน้าจองวันใหม่</button>`;
-            }
+            if(currentUser.role === 'user') btnHtml += `<button onclick="closeNotifDetail(); navigateTo('home')" class="px-4 py-2 btn-primary text-white rounded-lg shadow font-medium transition">ไปหน้าจองใหม่</button>`;
         }
 
         document.getElementById('notifDetailButtons').innerHTML = btnHtml;
-
         document.getElementById('notifDetailModal').classList.remove('hidden');
         lucide.createIcons();
     }
 
-    function closeNotifDetail() {
-        document.getElementById('notifDetailModal').classList.add('hidden');
+    function closeNotifDetail() { document.getElementById('notifDetailModal').classList.add('hidden'); }
+
+	/////////////////////////////////////////////
+	// 🟢 ฟังก์ชันสำหรับสร้าง Modal เด้งกลางจอเวลาอ่านข้อความยาวๆ
+    function showFullTextAlert(title, textEncoded) {
+        const text = decodeURIComponent(textEncoded);
+        const modalId = 'dynamicReadMoreModal';
+        const existing = document.getElementById(modalId);
+        if(existing) existing.remove();
+
+        const modalHtml = `
+        <div id="${modalId}" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="document.getElementById('${modalId}').remove()"></div>
+            <div class="relative bg-white rounded-3xl w-full max-w-lg flex flex-col shadow-2xl animate-fadeIn p-6">
+                <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
+                    <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="file-text" class="w-5 h-5 text-sky-500"></i> ${title}</h3>
+                    <button onclick="document.getElementById('${modalId}').remove()" class="text-gray-400 hover:bg-gray-100 p-1.5 rounded-lg transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+                </div>
+                <div class="text-sm text-gray-700 bg-gray-50 p-4 rounded-xl border border-gray-200 whitespace-pre-wrap leading-relaxed max-h-[60vh] overflow-y-auto">
+                    ${text}
+                </div>
+                <div class="mt-4 flex justify-end">
+                    <button onclick="document.getElementById('${modalId}').remove()" class="px-5 py-2 bg-sky-500 hover:bg-sky-600 text-white rounded-xl font-medium transition shadow-md">ปิดหน้าต่าง</button>
+                </div>
+            </div>
+        </div>`;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        if(typeof lucide !== 'undefined') lucide.createIcons();
     }
 
-    // ฟังก์ชันช่วยอนุมัติและรีเฟรชกระดิ่งทันที
-    async function approveBookingAndRefresh(id) {
-        await approveBooking(id);
-        buildNotifications(); // สั่งรีเฟรชกระดิ่งเพื่อให้เลขลดลงทันที
+    // 🟢 ฟังก์ชันสำหรับตัดข้อความให้สั้นลง และมีปุ่มกดอ่านเพิ่ม
+    function truncateWithReadMore(text, title) {
+        if (!text) return '-';
+        if (text.length <= 40) return text;
+        const safeText = encodeURIComponent(text);
+        const safeTitle = title.replace(/'/g, "\\'"); 
+        return `${text.substring(0, 40)}... <button onclick="showFullTextAlert('${safeTitle}', '${safeText}')" class="text-sky-600 hover:text-sky-800 text-[10px] bg-sky-50 px-2 py-0.5 rounded-full font-bold transition ml-1 border border-sky-100 shadow-sm">อ่านทั้งหมด</button>`;
     }
+
+	////////////////////////////////////////////
+
+    // ฟังก์ชันช่วยอนุมัติและรีเฟรชกระดิ่งทันที
+    async function approveBookingAndRefresh(id) { await approveBooking(id); buildNotifications(); }
 
     // 5. อ่านทั้งหมด
     function markAllNotifAsRead() {
-        // ให้จำการกดอ่านโดยยึดจากคีย์ทั้งหมดที่มีในขณะนั้น
         const sortedBookings = [...allBookings];
         const readKeys = JSON.parse(localStorage.getItem(`read_notifs_${currentUser.id}`) || '[]');
-        
         sortedBookings.forEach(b => {
             if(currentUser.role === 'admin' && b.status === 'pending') readKeys.push(`admin_pending_${b.id}`);
             if(currentUser.role === 'user' && b.userId === currentUser.id && b.status !== 'pending') readKeys.push(`user_${b.status}_${b.id}`);
+            let logs = []; try { logs = JSON.parse(b.changeLog || '[]'); } catch(e){}
+            if(logs.length > 0) readKeys.push(`update_${b.id}_${logs.length}`);
         });
-
-        localStorage.setItem(`read_notifs_${currentUser.id}`, JSON.stringify([...new Set(readKeys)]));
-        buildNotifications();
+        localStorage.setItem(`read_notifs_${currentUser.id}`, JSON.stringify([...new Set(readKeys)])); buildNotifications();
     }
 
-    // 6. ระบบดึงข้อมูลแบบ Background (ทำงานเงียบๆ ทุก 25 วินาที)
+	// 🟢 ล้างประวัติที่อ่านแล้ว
+    function clearReadNotifications() {
+        const readKeys = JSON.parse(localStorage.getItem(`read_notifs_${currentUser.id}`) || '[]');
+        if (readKeys.length === 0) return;
+        localStorage.setItem(`cleared_notifs_${currentUser.id}`, JSON.stringify(readKeys));
+        buildNotifications(); showToast('ล้างรายการที่อ่านแล้วสำเร็จ', 'success');
+    }
+
+    // 6. ระบบดึงข้อมูลแบบ Background (ทำงานเงียบๆ ทุก 30 วินาที)
     function startRealtimeSync() {
         if(notifInterval) clearInterval(notifInterval);
+        
         notifInterval = setInterval(() => {
-            // ใช้ fetch ส่งข้อมูลเงียบๆ โดยไม่แสดง Loader กลางจอ
-            fetch(WEB_APP_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ action: 'getBookings', data: {} }),
-                redirect: 'follow'
-            })
-            .then(res => res.json())
-            .then(res => {
-                if(res && res.success && res.data) {
-                    const newDataStr = JSON.stringify(res.data);
-                    const oldDataStr = JSON.stringify(allBookings);
-                    if(newDataStr !== oldDataStr) {
-                        allBookings = res.data;
-                        localStorage.setItem('cache_bookings', newDataStr);
-                        
-                        buildNotifications(); 
+            apiCallSilent('getBookings', {}).then(data => {
+                if(data) {
+                    const badge = document.getElementById('notifBadge');
+                    let oldUnreadCount = badge.classList.contains('hidden') ? 0 : parseInt(badge.textContent) || 0;
+
+                    allBookings = data;
+                    localStorage.setItem('cache_bookings', JSON.stringify(allBookings));
+                    buildNotifications(); 
+
+                    let newUnreadCount = badge.classList.contains('hidden') ? 0 : parseInt(badge.textContent) || 0;
+                    
+                    if(newUnreadCount > oldUnreadCount) {
+                        showToast('🔔 มีการอัปเดตข้อมูลใหม่', 'info');
                         if(currentPage === 'home') renderCalendar();
                         if(currentPage === 'manageBooking') filterBookings();
                         if(currentPage === 'reports') generateReport();
+                    } else {
+                        // ไม่อัปเดตกระดิ่ง แต่แอบวาดตารางหลังบ้านใหม่ให้ข้อมูลเป็นปัจจุบัน
+                        if(currentPage === 'manageBooking') filterBookings();
+                        if(currentPage === 'home') renderCalendar();
                     }
                 }
-            }).catch(e => console.error('Sync Background Error:', e));
-        }, 25000); 
+            }).catch(e => console.error("Realtime Sync Error", e));
+        }, 30000); 
     }
 
     // 7. คลิกพื้นที่ว่างเพื่อปิดหน้าต่างแจ้งเตือน
