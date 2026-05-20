@@ -1162,18 +1162,16 @@ function closePdpaModal() {
                     localStorage.setItem('cache_bookings', JSON.stringify(allBookings));
                 }
                 
-                // 🟢 หน่วงเวลาให้ข้อมูลเซ็ตตัวเสร็จสมบูรณ์ก่อน แล้วค่อยสั่งวาดทุกอย่างใหม่
-                setTimeout(() => {
-                    buildNotifications(); // อัปเดตกระดิ่ง
-                    if(currentPage === 'home') renderCalendar(); // 🟢 บังคับวาดปฏิทินใหม่ตรงนี้
-                    if(currentPage === 'manageBooking') filterBookings();
-                    if(currentPage === 'reports') generateReport();
-                }, 200); 
+                // 🟢 สั่งวาดกระดิ่งและหน้าจอ ทันทีที่ข้อมูลมาถึง 100% (บังคับวาดใหม่เสมอ)
+                buildNotifications(); 
+                if(currentPage === 'home') renderCalendar();
+                if(currentPage === 'manageBooking') filterBookings();
+                if(currentPage === 'reports') generateReport();
             }
-            preloadBgAndHideSplash();
+            preloadBgAndHideSplash(); // ปิดหน้าต่างโหลด
         }).catch(err => {
             hideInitialSplash();
-            console.error("fetchDataInBackground Error:", err);
+            console.error("Background Fetch Error:", err);
         });
     }
 
@@ -2751,44 +2749,55 @@ async function confirmCancelBooking(id) {
     }
 
     // 6. ระบบดึงข้อมูลแบบ Background (ทำงานเงียบๆ ทุก 30 วินาที)
-    // 🟢 ระบบดึงข้อมูลแบบ Background (ทำงานเงียบๆ ทุก 30 วินาที)
+   // 🟢 ระบบดึงข้อมูลแบบ Background (ทำงานเงียบๆ ทุก 20 วินาที)
     function startRealtimeSync() {
         if(notifInterval) clearInterval(notifInterval);
         
         notifInterval = setInterval(() => {
             apiCallSilent('getBookings', {}).then(data => {
-                if(data && Array.isArray(data)) { // 🟢 ดักเพื่อความชัวร์ว่าเซิร์ฟเวอร์ส่ง Array กลับมา
+                if(data && Array.isArray(data)) {
+                    // 🟢 1. ตรวจสอบว่ามีการเปลี่ยนแปลงจริงๆ หรือไม่ (ลึกระดับรายคิว)
+                    let isChanged = false;
                     
-                    // แปลงทั้ง 2 ตัวเป็น String เพื่อเปรียบเทียบให้ง่าย
-                    const newDataStr = JSON.stringify(data);
-                    const oldDataStr = JSON.stringify(allBookings || []);
-                    
-                    // 🟢 เช็คว่าข้อมูลบนเซิร์ฟเวอร์กับบนหน้าจอ "ต่างกันหรือไม่"
-                    if(newDataStr !== oldDataStr) {
+                    if (data.length !== allBookings.length) {
+                        isChanged = true; // มีคนจองเพิ่ม หรือโดนลบ
+                    } else {
+                        // เทียบข้อมูลทีละอัน ว่าสถานะ หรือ ประวัติการแก้ไขเปลี่ยนไปไหม
+                        for(let i=0; i<data.length; i++) {
+                            let oldItem = allBookings.find(b => b.id == data[i].id);
+                            if (!oldItem || oldItem.status !== data[i].status || oldItem.changeLog !== data[i].changeLog) {
+                                isChanged = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    // 🟢 2. ถ้ามีการเปลี่ยนแปลงเกิดขึ้น ให้ดำเนินการอัปเดตหน้าจอ
+                    if(isChanged) {
                         const badge = document.getElementById('notifBadge');
                         let oldUnreadCount = badge.classList.contains('hidden') ? 0 : parseInt(badge.textContent) || 0;
 
-                        allBookings = data; // อัปเดตข้อมูลใหม่ทับของเก่า
+                        allBookings = data;
                         localStorage.setItem('cache_bookings', JSON.stringify(allBookings));
                         
-                        buildNotifications(); // 🟢 สั่งวาดกระดิ่งทันที
+                        buildNotifications(); // สั่งวาดกระดิ่งใหม่
                         
-                        // อ่านค่ายอดแจ้งเตือน "หลังจาก" สร้างกระดิ่งเสร็จ
                         let newUnreadCount = badge.classList.contains('hidden') ? 0 : parseInt(badge.textContent) || 0;
                         
-                        // 🟢 ถ้าตัวเลขกระดิ่งเพิ่มขึ้น ให้เด้ง Toast
+                        // ถ้ามียอดแจ้งเตือนเพิ่มขึ้น ให้เด้ง Toast และเล่นเสียง (ถ้ามี)
                         if(newUnreadCount > oldUnreadCount) {
-                            showToast('🔔 มีการอัปเดตข้อมูลการจองใหม่', 'info');
+                            showToast('🔔 มีการอัปเดตข้อมูลการจอง', 'info');
+                            try { document.getElementById('botSound').play(); } catch(e){} 
                         }
 
-                        // 🟢 บังคับวาดหน้าจอที่ยูสเซอร์เปิดค้างไว้ใหม่ทันที
+                        // บังคับวาดหน้าจอที่ผู้ใช้กำลังเปิดอยู่ใหม่ทันที
                         if(currentPage === 'home') renderCalendar();
                         if(currentPage === 'manageBooking') filterBookings();
                         if(currentPage === 'reports') generateReport();
                     }
                 }
             }).catch(e => console.error("Realtime Sync Error:", e));
-        }, 30000); 
+        }, 20000); // 🟢 ปรับเวลาให้เช็คทุกๆ 20 วินาที จะได้ทันใจยิ่งขึ้นครับ
     }
 
     // 7. คลิกพื้นที่ว่างเพื่อปิดหน้าต่างแจ้งเตือน
