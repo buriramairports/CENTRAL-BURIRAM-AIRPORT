@@ -2503,7 +2503,8 @@
 
                         // 🟢 ถ้าเป็นแอดมิน เด้งไปหน้า admin ทันที
                         if (data.user.role === 'SuperAdmin' || data.user.role === 'SubAdmin') {
-                            setTimeout(() => { window.location.href = 'admin.html'; }, 1000);
+                            //setTimeout(() => { window.location.href = 'admin.html'; }, 1000);
+                            setTimeout(() => { window.location.href = 'index.html'; }, 1000);
                         } else {
                             // ถ้าเป็น User ธรรมดา ให้อัปเดตแค่ UI
                             updateUserMenuUI(data.user);
