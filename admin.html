@@ -2385,13 +2385,23 @@
                 let catBadge = item.FlightCategory === 'Private' ? '<span class="badge bg-dark ms-1"><i class="fa-solid fa-user-secret"></i> พิเศษ</span>' : '';
                 
                 let airlineObj = allAirlinesData.find(a => a.AirlineID === item.AirlineID);
-                let airlineName = airlineObj ? airlineObj.AirlineName : 'ไม่ทราบสายการบิน';
                 
-                // 🟢 แก้ไขตรงนี้: เพิ่มการแปลงลิงก์ Drive (convertDriveImageLink) ก่อนนำไปแสดง
-                let convertedUrl = (airlineObj && airlineObj.IconURL) ? convertDriveImageLink(airlineObj.IconURL) : '';
-                let airlineIcon = convertedUrl 
-                    ? `<img src="${convertedUrl}" style="height:20px; width:20px; object-fit:contain; margin-right:5px; border-radius:3px; background:white;">` 
-                    : `<i class="fa-solid fa-plane me-2 text-muted"></i>`;
+                let airlineName = 'ไม่ทราบสายการบิน';
+                let airlineIcon = `<i class="fa-solid fa-plane me-2 text-muted"></i>`;
+                
+                // 🟢 เช็คว่าถ้ามีคำว่า CUSTOM_ นำหน้า แปลว่าแอดมินพิมพ์ชื่อหน่วยงานมาเอง (เช่น กองทัพอากาศ)
+                if (item.AirlineID && item.AirlineID.startsWith('CUSTOM_')) {
+                    airlineName = item.AirlineID.replace('CUSTOM_', ''); // ตัดคำว่า CUSTOM_ ออกแล้วเอาไปโชว์เลย
+                    airlineIcon = `<i class="fa-solid fa-user-secret me-2 text-secondary" title="เที่ยวบินพิเศษ"></i>`; // เปลี่ยนไอคอนให้ดูเป็นเครื่องพิเศษ
+                } 
+                // ถ้าเป็นสายการบินปกติที่มีในระบบ
+                else if (airlineObj) {
+                    airlineName = airlineObj.AirlineName;
+                    let convertedUrl = airlineObj.IconURL ? convertDriveImageLink(airlineObj.IconURL) : '';
+                    if (convertedUrl) {
+                        airlineIcon = `<img src="${convertedUrl}" style="height:20px; width:20px; object-fit:contain; margin-right:5px; border-radius:3px; background:white;">`;
+                    }
+                }
                 
                 let datesArr = item.FlightDates ? item.FlightDates.split(', ') : [];
                 let btnDates = datesArr.length > 0 
@@ -2615,8 +2625,14 @@
             document.getElementById('viewDates_Route').innerHTML = route.replace('-', '<i class="fa-solid fa-arrow-right mx-2"></i>');
             document.getElementById('viewDates_Time').innerText = depTime + ' - ' + arrTime;
             
-            let airlineObj = allAirlinesData.find(a => a.AirlineID === airlineID);
-            document.getElementById('viewDates_Airline').innerHTML = airlineObj ? `<i class="fa-solid fa-plane me-1"></i> ${airlineObj.AirlineName}` : 'ไม่ทราบสายการบิน';
+            // 🟢 เช็คว่าถ้าพิมพ์ชื่อมาเอง ให้โชว์ชื่อนั้นไปเลย
+            if (airlineID && airlineID.startsWith('CUSTOM_')) {
+                let customName = airlineID.replace('CUSTOM_', '');
+                document.getElementById('viewDates_Airline').innerHTML = `<i class="fa-solid fa-user-secret me-1 text-secondary"></i> ${customName}`;
+            } else {
+                let airlineObj = allAirlinesData.find(a => a.AirlineID === airlineID);
+                document.getElementById('viewDates_Airline').innerHTML = airlineObj ? `<i class="fa-solid fa-plane me-1 text-primary"></i> ${airlineObj.AirlineName}` : '<i class="fa-solid fa-circle-question me-1 text-danger"></i> ไม่ทราบข้อมูลสายการบิน';
+            }
 
             let datesArr = datesString ? datesString.split(', ') : [];
             document.getElementById('viewDates_Count').innerText = datesArr.length;
