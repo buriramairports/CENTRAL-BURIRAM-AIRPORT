@@ -1608,7 +1608,8 @@
                         slides = `<div class="swiper-slide"><div class="p-5 text-center text-muted">ไม่มีข่าวสารในหมวดหมู่นี้</div></div>`; 
                     } else {
                         catNews.forEach(n => {
-                            let imgUrl = convertDriveImageLink(n.CoverImageURL) || 'https://via.placeholder.com/600x400?text=ไม่มีรูปหน้าปก';
+                            //let imgUrl = convertDriveImageLink(n.CoverImageURL) || 'https://via.placeholder.com/600x400?text=ไม่มีรูปหน้าปก';
+                            let imgUrl = convertDriveImageLink(n.CoverImageURL) || 'https://images.unsplash.com/photo-1517400508447-f8dd518b86db?w=600&q=80&blur=50'; // 🟢 ใช้รูปวิวสนามบินแบบเบลอๆ แทนดูสวยกว่า
                             let newBadge = isStillNew(n.ExpireDate) ? `<span class="badge bg-danger ms-2 blink">NEW</span>` : '';
                             let dateText = n.PublishDate ? n.PublishDate.split(' ')[0] : n.CreateDate.split(' ')[0];
                             let views = n.ViewCount || 0; 
@@ -2196,7 +2197,19 @@
                     </div>`;
                 }
 
-                // 🟢 โครงสร้างการ์ดเที่ยวบินแบบใหม่ (เอา text-truncate ออกเพื่อให้ชื่อแสดงได้ 2 บรรทัดถ้ายาวเกินไป)
+                
+
+                // 🟢 โชว์หมายเหตุ (เฉพาะเที่ยวบิน Private และต้องมีคนพิมพ์มา)
+                let remarkHtml = '';
+                if (f.FlightCategory === 'Private' && f.Remark) {
+                    remarkHtml = `
+                    <div class="mt-2 pt-2 border-top border-secondary border-opacity-10">
+                        <span class="text-xs fw-bold" style="color: ${airColor};"><i class="fa-solid fa-circle-info me-1"></i> หมายเหตุ/ภารกิจ:</span>
+                        <span class="text-xs text-muted ms-1">${f.Remark}</span>
+                    </div>`;
+                }
+
+                // โครงสร้างการ์ดเที่ยวบินแบบใหม่
                 listHtml += `
                 <div class="card border-0 shadow-sm mb-3 border-start border-4 overflow-hidden" style="border-left-color: ${airColor} !important; border-radius: 8px;">
                     <div class="card-body p-0 d-flex">
@@ -2205,7 +2218,6 @@
                         <div class="flex-grow-1 p-3" style="min-width: 0;">
                             
                             <div class="d-flex justify-content-between align-items-start mb-3 border-bottom pb-2">
-                                <!-- 🟢 เอา text-truncate ออก เพื่อให้ชื่อยาวๆ ขึ้นบรรทัดใหม่ได้ -->
                                 <div class="fw-bold d-flex align-items-center pe-2" style="color: ${airColor}; font-size: 1rem; line-height: 1.3;">
                                     ${logoHtml} <span>${airName}</span>
                                 </div>
@@ -2224,6 +2236,8 @@
                                 </div>
                             </div>
                             
+                            <!-- 🟢 ใส่กล่องหมายเหตุตรงนี้ -->
+                            ${remarkHtml}
                         </div>
 
                         <!-- กล่องหลุมจอดฝั่งขวา -->
