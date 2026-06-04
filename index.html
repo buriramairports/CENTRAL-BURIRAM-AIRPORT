@@ -810,16 +810,22 @@
                             </div>
                         </div>
 
-                        <!-- ฝั่งขวา: รายการเที่ยวบินในวันนั้น -->
-                        <!-- 🟢 1. เติมคลาส d-flex flex-column เข้าไปที่กล่องคลุมเพื่อให้มันจัดเรียงแบบยืดหยุ่น -->
+                        <!-- ฝั่งขวา: รายการเที่ยวบิน -->
                         <div class="col-lg-5 p-4 bg-light d-flex flex-column">
                             
-                            <h5 class="fw-bold mb-3 border-bottom pb-2 flex-shrink-0" style="color: var(--primary-blue);">
+                            <h5 class="fw-bold mb-2 border-bottom pb-2 flex-shrink-0" style="color: var(--primary-blue);">
                                 <i class="fa-solid fa-list-check me-2"></i>รายการเที่ยวบิน <span class="fw-bold text-dark fs-6">&nbsp;&nbsp;|&nbsp;&nbsp;วันที่เลือก: </span><span id="flightSelectedDate" class="fw-bold text-dark fs-6">-</span>
                             </h5>
-                            <!--div class="text-muted small mb-3 flex-shrink-0">วันที่เลือก: <span id="flightSelectedDate" class="fw-bold text-dark fs-6">-</span></div-->
                             
-                            <div id="flightDetailsResult" class="flex-grow-1 mt-2" style="overflow-y: auto; overflow-x: hidden; padding-right: 8px; height: 710px; max-height: 710px;">
+                            <!-- 🟢 ปุ่ม Tab สลับดู (จะแสดงผลเฉพาะเจ้าหน้าที่เท่านั้นด้วย JS) -->
+                            <div id="flightCategoryTabsContainer" class="mb-2" style="display: none;">
+                                <ul class="nav nav-pills nav-fill bg-white border rounded p-1 shadow-sm">
+                                    <li class="nav-item"><a class="nav-link active fw-bold py-1" href="javascript:void(0)" onclick="setFlightCategory('Commercial')" id="tab-flight-commercial">เที่ยวบินพาณิชย์</a></li>
+                                    <li class="nav-item"><a class="nav-link fw-bold py-1 text-secondary" href="javascript:void(0)" onclick="setFlightCategory('Private')" id="tab-flight-private"><i class="fa-solid fa-user-secret"></i> เที่ยวบินส่วนตัว/พิเศษ</a></li>
+                                </ul>
+                            </div>
+                            
+                            <div id="flightDetailsResult" class="flex-grow-1 mt-2" style="overflow-y: auto; overflow-x: hidden; padding-right: 8px; height: 500px; max-height: 500px;">
                                 <div class="text-center text-muted mt-5"><i class="fa-regular fa-hand-pointer fa-3x mb-3 opacity-25"></i><br>โปรดเลือกวันที่จากปฏิทิน</div>
                             </div>
 
@@ -1947,6 +1953,21 @@
         
         // ================= เริ่มต้น ตัวแปรเก็บข้อมูลเที่ยวบินของวันที่เลือก =================
         let currentDayFlights = []; 
+        let currentViewFlightCategory = 'Commercial'; // 🟢 เริ่มต้นให้แสดงไฟล์ตพาณิชย์เสมอ
+
+        function setFlightCategory(category) {
+            currentViewFlightCategory = category;
+            document.getElementById('tab-flight-commercial').classList.remove('active', 'text-white');
+            document.getElementById('tab-flight-private').classList.remove('active', 'text-white', 'bg-dark');
+            document.getElementById('tab-flight-commercial').classList.add('text-secondary');
+            document.getElementById('tab-flight-private').classList.add('text-secondary');
+            
+            if(category === 'Commercial') document.getElementById('tab-flight-commercial').classList.add('active', 'text-white');
+            else document.getElementById('tab-flight-private').classList.add('active', 'text-white', 'bg-dark');
+            
+            renderFlightListResult(''); // วาดตารางใหม่
+        }
+        
         // ================= สิ้นสุด ตัวแปรเก็บข้อมูลเที่ยวบินของวันที่เลือก =================
 
         // ================= เริ่มต้นฟังก์ชัน วาดตารางปฏิทินเที่ยวบิน (ปรับให้รองรับ 12 โลโก้) =================
@@ -2074,14 +2095,25 @@
                 }
             }
             
+            // 🟢 โชว์ปุ่ม Tab ถ้าเป็นเจ้าหน้าที่
+            if (showStandInfo) {
+                document.getElementById('flightCategoryTabsContainer').style.display = 'block';
+            } else {
+                document.getElementById('flightCategoryTabsContainer').style.display = 'none';
+                currentViewFlightCategory = 'Commercial'; // บังคับดูได้แค่พาณิชย์
+            }
+
             const resultBox = document.getElementById('flightDetailsResult');
             
-            if (currentDayFlights.length === 0) {
-                resultBox.innerHTML = `<div class="text-center p-4 text-muted bg-white rounded shadow-sm"><i class="fa-solid fa-plane-slash fa-3x mb-3 opacity-25"></i><h6>ไม่มีเที่ยวบินให้บริการในวันที่เลือก</h6></div>`;
+            // 🟢 กรองข้อมูลล่วงหน้า ให้โชว์เฉพาะ Type ที่เลือก (หรือถ้าเป็นประชาชน ก็จะเห็นแค่ Commercial อัตโนมัติ)
+            let allowedFlights = currentDayFlights.filter(f => (f.FlightCategory || 'Commercial') === currentViewFlightCategory);
+
+            if (allowedFlights.length === 0) {
+                resultBox.innerHTML = `<div class="text-center p-4 text-muted bg-white rounded shadow-sm"><i class="fa-solid fa-plane-slash fa-3x mb-3 opacity-25"></i><h6>ไม่มีเที่ยวบิน${currentViewFlightCategory==='Private'?'พิเศษ':''}ให้บริการในวันที่เลือก</h6></div>`;
                 return;
             }
 
-            let uniqueAirlineIDs = [...new Set(currentDayFlights.map(f => f.AirlineID))];
+            let uniqueAirlineIDs = [...new Set(allowedFlights.map(f => f.AirlineID))];
             let filterHtml = '';
             if (uniqueAirlineIDs.length > 1) { 
                 let options = `<option value="">แสดงทุกสายการบิน</option>`;
@@ -2098,8 +2130,8 @@
                 `;
             }
 
-            let flightsToShow = currentDayFlights;
-            if (filterAirlineID) { flightsToShow = currentDayFlights.filter(f => f.AirlineID === filterAirlineID); }
+            let flightsToShow = allowedFlights;
+            if (filterAirlineID) { flightsToShow = allowedFlights.filter(f => f.AirlineID === filterAirlineID); }
             flightsToShow.sort((a,b) => a.DepartureTime.localeCompare(b.DepartureTime));
 
             let listHtml = '';
