@@ -2152,8 +2152,19 @@
 
             flightsToShow.forEach(f => {
                 let airObj = allAirlinesData.find(a => a.AirlineID === f.AirlineID);
-                let airName = airObj ? airObj.AirlineName : 'ไม่ทราบสายการบิน';
-                let airColor = airObj ? airObj.ThemeColor : 'var(--primary-blue)';
+                
+                let airName = 'ไม่ทราบสายการบิน';
+                let airColor = 'var(--primary-blue)';
+                
+                // 🟢 ถ้าระบบเจอคำว่า CUSTOM_ แปลว่าแอดมินพิมพ์ชื่อมาเอง (เช่น เครื่องทหาร)
+                if (f.AirlineID && f.AirlineID.startsWith('CUSTOM_')) {
+                    airName = f.AirlineID.replace('CUSTOM_', ''); // ตัดคำว่า CUSTOM_ ออกเพื่อเอามาโชว์
+                    airColor = '#475569'; // ให้ธีมสีเป็นสีเทาเข้ม (สำหรับ Private Flight)
+                } 
+                else if (airObj) {
+                    airName = airObj.AirlineName;
+                    airColor = airObj.ThemeColor;
+                }
                 
                 let iconType = f.FlightType === 'Arrival' ? 'fa-plane-arrival' : 'fa-plane-departure';
                 let airLogoUrl = airObj && airObj.IconURL ? convertDriveImageLink(airObj.IconURL) : '';
