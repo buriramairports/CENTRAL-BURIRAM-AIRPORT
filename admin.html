@@ -2241,18 +2241,31 @@
         // ================= สิ้นสุด ระบบจัดการ ผู้ใช้งาน =================
 
         // ================= เริ่มต้น ระบบจัดการ ตารางเที่ยวบิน (Flight Schedules) =================
-        function populateAirlineDropdown() {
-            fetch(`${API_URL}?action=getTableData&sheetName=Airlines`).then(res => res.json()).then(res => {
-                if(res.status === 'success') {
-                    allAirlinesData = res.data;
-                    const select = document.getElementById('flt_AirlineID');
-                    select.innerHTML = '<option value="">-- เลือกสายการบิน --</option>';
-                    res.data.filter(a => a.IsActive === 'TRUE').forEach(airline => {
-                        select.innerHTML += `<option value="${airline.AirlineID}">${airline.AirlineName}</option>`;
-                    });
-                    renderFlightsTable(currentTableData);
-                }
+        function populateAirlineDropdown(selectedId = '') {
+            const select = document.getElementById('flt_AirlineID');
+            if(!select) return;
+
+            // ถ้ารายชื่อสายการบินยังว่างอยู่ ค่อยไปดึง API (ป้องกันการดึงซ้ำซ้อน)
+            if (allAirlinesData.length === 0) {
+                fetch(`${API_URL}?action=getTableData&sheetName=Airlines`).then(res => res.json()).then(res => {
+                    if(res.status === 'success') {
+                        allAirlinesData = res.data;
+                        drawAirlineOptions(select, selectedId);
+                    }
+                });
+            } else {
+                drawAirlineOptions(select, selectedId);
+            }
+        }
+
+        // ฟังก์ชันช่วยวาด <option> 
+        function drawAirlineOptions(selectElement, selectedId) {
+            let optionsHtml = '<option value="">-- เลือกสายการบิน --</option>';
+            allAirlinesData.filter(a => a.IsActive === 'TRUE').forEach(airline => {
+                let isSelected = (airline.AirlineID === selectedId) ? 'selected' : '';
+                optionsHtml += `<option value="${airline.AirlineID}" ${isSelected}>${airline.AirlineName}</option>`;
             });
+            selectElement.innerHTML = optionsHtml;
         }
 
         function renderFlightsTable(data) {
@@ -2355,21 +2368,31 @@
 
         // 🟢 เปลี่ยนฟังก์ชันบันทึกและแก้ไข เที่ยวบิน
         function openFlightModal(id = '') {
-            document.getElementById('formFlight').reset(); document.getElementById('flt_FlightID').value = ''; document.getElementById('flightModalTitle').innerText = 'เพิ่มเที่ยวบินใหม่';
-            flightDatepicker.clear(); currentStandDataObj = {}; document.getElementById('standAssignmentSection').style.display = 'none';
-            document.getElementById('flt_AirlineID').value = ""; // 🟢 รีเซ็ต Dropdown
+            document.getElementById('formFlight').reset(); 
+            document.getElementById('flt_FlightID').value = ''; 
+            document.getElementById('flightModalTitle').innerText = 'เพิ่มเที่ยวบินใหม่';
+            flightDatepicker.clear(); 
+            currentStandDataObj = {}; 
+            document.getElementById('standAssignmentSection').style.display = 'none';
+            
+            // 🟢 ถ้าเป็นการเพิ่มใหม่ ให้วาด Dropdown แบบไม่มีค่า
+            if(!id) populateAirlineDropdown('');
 
             if (id) {
                 document.getElementById('flightModalTitle').innerText = 'แก้ไขเที่ยวบิน';
                 const item = currentTableData.find(x => x.FlightID === id);
                 document.getElementById('flt_FlightID').value = item.FlightID; 
                 
-                // 🟢 ใช้ setTimeout ช่วยให้มั่นใจว่าข้อมูลยัดเข้า Dropdown แล้วค่อยเซ็ตค่า
-                setTimeout(() => { document.getElementById('flt_AirlineID').value = item.AirlineID; }, 50);
+                // 🟢 สั่งวาด Dropdown และตั้งค่า AirlineID ให้ทันที (ไม่ต้องใช้ setTimeout แล้ว)
+                populateAirlineDropdown(item.AirlineID);
                 
                 document.getElementById('flt_FlightNumber').value = item.FlightNumber;
-                document.getElementById('flt_FlightType').value = item.FlightType; document.getElementById('flt_Origin').value = item.Origin; document.getElementById('flt_Destination').value = item.Destination;
-                document.getElementById('flt_DepartureTime').value = item.DepartureTime; document.getElementById('flt_ArrivalTime').value = item.ArrivalTime; document.getElementById('flt_IsActive').checked = (item.IsActive === 'TRUE');
+                document.getElementById('flt_FlightType').value = item.FlightType; 
+                document.getElementById('flt_Origin').value = item.Origin; 
+                document.getElementById('flt_Destination').value = item.Destination;
+                document.getElementById('flt_DepartureTime').value = item.DepartureTime; 
+                document.getElementById('flt_ArrivalTime').value = item.ArrivalTime; 
+                document.getElementById('flt_IsActive').checked = (item.IsActive === 'TRUE');
                 
                 try { currentStandDataObj = JSON.parse(item.StandAssignments || '{}'); } catch(e){}
                 
