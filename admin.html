@@ -581,31 +581,49 @@
 
     <!-- Modal: Flight Schedules -->
     <div class="modal fade" id="flightModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content border-0"><div class="modal-header bg-primary text-white">
-                <h5 class="modal-title fw-bold" id="flightModalTitle">เพิ่ม/แก้ไข ตารางเที่ยวบิน</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
+        <!-- 🟢 ขยายขนาด Modal เป็น modal-xl เพื่อให้ฟอร์มกว้างขึ้น ไม่ตกขอบ -->
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content border-0">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold" id="flightModalTitle">เพิ่ม/แก้ไข ตารางเที่ยวบิน</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
                 <div class="modal-body p-4">
                     <form id="formFlight" onsubmit="saveFlightRecord(event)">
                         <input type="hidden" id="flt_FlightID">
+                        
                         <div class="row g-3 mb-3 border-bottom pb-3">
-                            <div class="col-md-3">
-                                <label class="form-label fw-bold">สายการบิน <span class="text-danger">*</span></label>
-                                <select class="form-select" id="flt_AirlineID" required></select>
-                            </div>
+                            <!-- 🟢 สลับให้ รูปแบบเที่ยวบิน อยู่ซ้ายสุด -->
                             <div class="col-md-3">
                                 <label class="form-label fw-bold text-success">รูปแบบเที่ยวบิน <span class="text-danger">*</span></label>
-                                <select class="form-select fw-bold" id="flt_FlightCategory" required>
+                                <select class="form-select fw-bold" id="flt_FlightCategory" onchange="togglePrivateAirlineUI()" required>
                                     <option value="Commercial">พาณิชย์ (Public)</option>
                                     <option value="Private">ส่วนตัว/พิเศษ (Private)</option>
                                 </select>
                             </div>
-                            <div class="col-md-3">
+                            
+                            <div class="col-md-5">
+                                <label class="form-label fw-bold">หน่วยงาน / สายการบิน <span class="text-danger">*</span></label>
+                                
+                                <!-- Dropdown ปกติสำหรับเลือกสายการบินที่มีในฐานข้อมูล -->
+                                <select class="form-select" id="flt_AirlineID" required></select>
+                                
+                                <!-- ช่องกรอกข้อความเอง (จะแสดงเมื่อเลือก Private แล้วเลือก "อื่นๆ") -->
+                                <input type="text" class="form-control mt-2" id="flt_CustomAirlineName" placeholder="เช่น กองทัพอากาศ, Private Jet" style="display: none;">
+                                
+                                <div class="form-check mt-2" id="div_CustomAirlineCheck" style="display: none;">
+                                    <input class="form-check-input" type="checkbox" id="chk_CustomAirline" onchange="togglePrivateAirlineUI()">
+                                    <label class="form-check-label text-muted small" for="chk_CustomAirline">
+                                        พิมพ์ชื่อหน่วยงาน/สายการบินเอง (สำหรับเที่ยวบินพิเศษ)
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-2">
                                 <label class="form-label fw-bold">หมายเลขเที่ยวบิน <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control text-uppercase fw-bold text-primary" id="flt_FlightNumber" placeholder="เช่น FD3522" required>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <label class="form-label fw-bold text-danger">ประเภทเที่ยวบิน <span class="text-danger">*</span></label>
                                 <select class="form-select fw-bold" id="flt_FlightType" required>
                                     <option value="Arrival">ขาเข้า (Arrival)</option>
@@ -613,7 +631,35 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="row g-3 mb-3"><div class="col-md-6"><label class="form-label fw-bold">ต้นทาง (Origin) <span class="text-danger">*</span></label><input class="form-control" list="airportOptions" id="flt_Origin" required></div><div class="col-md-6"><label class="form-label fw-bold">ปลายทาง (Destination) <span class="text-danger">*</span></label><input class="form-control" list="airportOptions" id="flt_Destination" required></div><datalist id="airportOptions"><option value="ดอนเมือง (DMK)"></option><option value="สุวรรณภูมิ (BKK)"></option><option value="บุรีรัมย์ (BFV)"></option><option value="ภูเก็ต (HKT)"></option><option value="เชียงใหม่ (CNX)"></option></datalist><div class="col-md-6"><label class="form-label fw-bold">เวลาออก (Departure) <span class="text-danger">*</span></label><input type="time" class="form-control fw-bold" id="flt_DepartureTime" required></div><div class="col-md-6"><label class="form-label fw-bold">เวลาถึง (Arrival) <span class="text-danger">*</span></label><input type="time" class="form-control fw-bold" id="flt_ArrivalTime" required></div></div><div class="mb-4 bg-light p-3 rounded border">
+                        
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">ต้นทาง (Origin) <span class="text-danger">*</span></label>
+                                <input class="form-control" list="airportOptions" id="flt_Origin" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">ปลายทาง (Destination) <span class="text-danger">*</span></label>
+                                <input class="form-control" list="airportOptions" id="flt_Destination" required>
+                            </div>
+                            <datalist id="airportOptions">
+                                <option value="ดอนเมือง (DMK)"></option>
+                                <option value="สุวรรณภูมิ (BKK)"></option>
+                                <option value="บุรีรัมย์ (BFV)"></option>
+                                <option value="ภูเก็ต (HKT)"></option>
+                                <option value="เชียงใหม่ (CNX)"></option>
+                            </datalist>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">เวลาออก (Departure) <span class="text-danger">*</span></label>
+                                <input type="time" class="form-control fw-bold" id="flt_DepartureTime" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">เวลาถึง (Arrival) <span class="text-danger">*</span></label>
+                                <input type="time" class="form-control fw-bold" id="flt_ArrivalTime" required>
+                            </div>
+                        </div>
+
+                        <!-- 🟢 โซนกำหนดวันและหลุมจอดแบบ Dynamic -->
+                        <div class="mb-4 bg-light p-3 rounded border">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <label class="form-label fw-bold text-primary mb-0"><i class="fa-regular fa-calendar-check"></i> วันที่ทำการบิน <span class="text-danger">*</span></label>
                                 <div>
@@ -624,7 +670,7 @@
                             <input type="text" id="flt_FlightDates" class="form-control bg-white" placeholder="คลิกเพื่อเลือกวันที่บนปฏิทิน..." required readonly>
                         </div>
                         
-                        <!-- 🟢 โซนกำหนดหลุมจอดแบบ Dynamic -->
+                        <!-- โซนกำหนดหลุมจอด (Stand) -->
                         <div class="mb-4 border border-info rounded p-3 bg-white" id="standAssignmentSection" style="display: none;">
                             <h6 class="fw-bold text-info"><i class="fa-solid fa-product-hunt me-1"></i> กำหนดหลุมจอด (Parking Stand)</h6>
                             <div class="d-flex gap-2 mb-3 bg-info bg-opacity-10 p-2 rounded align-items-center">
@@ -637,8 +683,16 @@
                             </div>
                         </div>
 
-                        <div class="form-check form-switch mb-3"><input class="form-check-input" type="checkbox" id="flt_IsActive" style="transform: scale(1.3);" checked><label class="form-check-label ms-2 fw-bold text-success" for="flt_IsActive">เปิดให้บริการเที่ยวบินนี้</label></div>
-        <button type="submit" class="btn btn-primary w-100" id="btnSaveFlight">บันทึกเที่ยวบิน</button></form></div></div></div></div>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="flt_IsActive" style="transform: scale(1.3);" checked>
+                            <label class="form-check-label ms-2 fw-bold text-success" for="flt_IsActive">เปิดให้บริการเที่ยวบินนี้</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100" id="btnSaveFlight">บันทึกเที่ยวบิน</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal: View Flight Dates -->
     <div class="modal fade" id="viewFlightDatesModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-md"><div class="modal-content border-0"><div class="modal-header bg-light"><h6 class="modal-title fw-bold text-primary"><i class="fa-regular fa-calendar-check"></i> ข้อมูลวันทำการบิน</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body p-4 text-center"><div class="mb-4 bg-light p-3 rounded border"><h4 class="fw-bold text-danger mb-2" id="viewDates_FlightNo">FD3522</h4><div class="fw-bold text-dark mb-2" id="viewDates_Airline"><i class="fa-solid fa-plane"></i> สายการบิน...</div><div class="text-secondary mb-2" id="viewDates_Route">ต้นทาง <i class="fa-solid fa-arrow-right mx-1"></i> ปลายทาง</div><div class="text-primary fw-bold"><i class="fa-regular fa-clock me-1"></i> <span id="viewDates_Time">00:00 - 00:00</span></div></div><div class="text-muted small mb-2">จำนวนวันทำการบินทั้งหมด <span id="viewDates_Count" class="fw-bold fs-5 text-dark">0</span> วัน</div><div class="d-flex justify-content-center"><input type="text" id="viewDates_Calendar" class="d-none"></div></div></div></div></div>
@@ -2412,11 +2466,51 @@
             document.querySelectorAll('.stand-item-select').forEach(sel => sel.value = bulkVal);
         }
 
-        // 🟢 เปลี่ยนฟังก์ชันบันทึกและแก้ไข เที่ยวบิน
+      // 🟢 ฟังก์ชันซ่อน/โชว์ ช่องกรอกชื่อหน่วยงานเอง (เฉพาะเที่ยวบิน Private)
+        function togglePrivateAirlineUI() {
+            const cat = document.getElementById('flt_FlightCategory').value;
+            const chk = document.getElementById('chk_CustomAirline');
+            const selectAirline = document.getElementById('flt_AirlineID');
+            const customInput = document.getElementById('flt_CustomAirlineName');
+            const chkDiv = document.getElementById('div_CustomAirlineCheck');
+
+            if (cat === 'Private') {
+                chkDiv.style.display = 'block'; // โชว์ Checkbox ให้เลือกพิมพ์เอง
+                if (chk.checked) {
+                    selectAirline.style.display = 'none';
+                    selectAirline.required = false;
+                    customInput.style.display = 'block';
+                    customInput.required = true;
+                } else {
+                    selectAirline.style.display = 'block';
+                    selectAirline.required = true;
+                    customInput.style.display = 'none';
+                    customInput.required = false;
+                }
+            } else {
+                // ถ้าเป็น Commercial ให้บังคับใช้ Dropdown อย่างเดียว
+                chkDiv.style.display = 'none';
+                chk.checked = false;
+                selectAirline.style.display = 'block';
+                selectAirline.required = true;
+                customInput.style.display = 'none';
+                customInput.required = false;
+            }
+        }
+
+        // 🟢 เปิด Modal ตารางเที่ยวบิน
         function openFlightModal(id = '') {
-            document.getElementById('formFlight').reset(); document.getElementById('flt_FlightID').value = ''; document.getElementById('flightModalTitle').innerText = 'เพิ่มเที่ยวบินใหม่';
-            flightDatepicker.clear(); currentStandDataObj = {}; document.getElementById('standAssignmentSection').style.display = 'none';
+            document.getElementById('formFlight').reset(); 
+            document.getElementById('flt_FlightID').value = ''; 
+            document.getElementById('flightModalTitle').innerText = 'เพิ่มเที่ยวบินใหม่';
+            flightDatepicker.clear(); 
+            currentStandDataObj = {}; 
+            document.getElementById('standAssignmentSection').style.display = 'none';
             document.getElementById('flt_AirlineID').value = ""; 
+            
+            // รีเซ็ต UI การพิมพ์ชื่อหน่วยงานเอง
+            document.getElementById('chk_CustomAirline').checked = false;
+            togglePrivateAirlineUI();
 
             if(!id) populateAirlineDropdown('');
 
@@ -2424,10 +2518,20 @@
                 document.getElementById('flightModalTitle').innerText = 'แก้ไขเที่ยวบิน';
                 const item = currentTableData.find(x => x.FlightID === id);
                 document.getElementById('flt_FlightID').value = item.FlightID; 
-                setTimeout(() => { document.getElementById('flt_AirlineID').value = item.AirlineID; }, 50);
+                document.getElementById('flt_FlightCategory').value = item.FlightCategory || 'Commercial';
+                
+                // ตรวจสอบว่าเที่ยวบินนี้เคยพิมพ์ชื่อสายการบินมาเองหรือไม่ (มีคำนำหน้า CUSTOM_ ไหม)
+                if (item.AirlineID && item.AirlineID.startsWith('CUSTOM_')) {
+                    document.getElementById('chk_CustomAirline').checked = true;
+                    togglePrivateAirlineUI();
+                    document.getElementById('flt_CustomAirlineName').value = item.AirlineID.replace('CUSTOM_', '');
+                } else {
+                    document.getElementById('chk_CustomAirline').checked = false;
+                    togglePrivateAirlineUI();
+                    setTimeout(() => { document.getElementById('flt_AirlineID').value = item.AirlineID; }, 50);
+                }
                 
                 document.getElementById('flt_FlightNumber').value = item.FlightNumber;
-                document.getElementById('flt_FlightCategory').value = item.FlightCategory || 'Commercial'; // 🟢 ดึงค่า
                 document.getElementById('flt_FlightType').value = item.FlightType; 
                 document.getElementById('flt_Origin').value = item.Origin; 
                 document.getElementById('flt_Destination').value = item.Destination;
@@ -2445,23 +2549,35 @@
             new bootstrap.Modal(document.getElementById('flightModal')).show();
         }
 
+        // 🟢 บันทึกตารางเที่ยวบิน
         function saveFlightRecord(e) {
-            e.preventDefault(); const datesStr = document.getElementById('flt_FlightDates').value;
+            e.preventDefault(); 
+            const datesStr = document.getElementById('flt_FlightDates').value;
             if (!datesStr) { Swal.fire('ข้อผิดพลาด', 'กรุณาคลิกเลือกวันที่ทำการบินอย่างน้อย 1 วัน', 'warning'); return; }
 
+            // รวบรวมข้อมูลหลุมจอด
             let standMap = {};
             document.querySelectorAll('.stand-item-select').forEach(sel => {
                 if(sel.value) standMap[sel.getAttribute('data-date')] = sel.value;
             });
 
-            const btn = document.getElementById('btnSaveFlight'); btn.innerHTML = 'กำลังบันทึก...'; btn.disabled = true;
+            // ตรวจสอบข้อมูลสายการบิน (เช็คว่าพิมพ์เอง หรือเลือกจาก Dropdown)
+            let finalAirlineID = document.getElementById('flt_AirlineID').value;
+            if (document.getElementById('flt_FlightCategory').value === 'Private' && document.getElementById('chk_CustomAirline').checked) {
+                // ถ้าพิมพ์เอง จะใส่คำว่า CUSTOM_ นำหน้า เพื่อให้ระบบรู้และเอาไปแยกโชว์ในหน้า Index
+                finalAirlineID = 'CUSTOM_' + document.getElementById('flt_CustomAirlineName').value.trim();
+            }
+
+            const btn = document.getElementById('btnSaveFlight'); 
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังบันทึก...'; 
+            btn.disabled = true;
 
             const recordData = { 
                 FlightID: document.getElementById('flt_FlightID').value, 
-                AirlineID: document.getElementById('flt_AirlineID').value, 
+                AirlineID: finalAirlineID,  // 🟢 ส่งค่าที่ผ่านการจัดการแล้ว
                 FlightNumber: document.getElementById('flt_FlightNumber').value.toUpperCase(), 
                 FlightType: document.getElementById('flt_FlightType').value, 
-                FlightCategory: document.getElementById('flt_FlightCategory').value, // 🟢 ส่งค่าไปเซฟ
+                FlightCategory: document.getElementById('flt_FlightCategory').value, 
                 Origin: document.getElementById('flt_Origin').value, 
                 Destination: document.getElementById('flt_Destination').value, 
                 DepartureTime: document.getElementById('flt_DepartureTime').value, 
@@ -2470,15 +2586,16 @@
                 StandAssignments: JSON.stringify(standMap), 
                 IsActive: document.getElementById('flt_IsActive').checked ? 'TRUE' : 'FALSE' 
             };
+            
             fetch(API_URL, { method: 'POST', body: new URLSearchParams({ action: 'saveRecord', sheetName: 'FlightSchedules', idColumn: 'FlightID', recordJSON: JSON.stringify(recordData) }) })
             .then(res => res.json()).then(res => { 
                 if (res.status === 'success') { 
-                    bootstrap.Modal.getInstance(document.getElementById('flightModal')).hide(); Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', showConfirmButton: false, timer: 1500 }); switchView('flightschedules', null);
+                    bootstrap.Modal.getInstance(document.getElementById('flightModal')).hide(); 
+                    Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', showConfirmButton: false, timer: 1500 }); 
+                    switchView('flightschedules', null);
                 } else { Swal.fire('ผิดพลาด', res.message, 'error'); } 
             }).finally(() => { btn.innerHTML = 'บันทึกเที่ยวบิน'; btn.disabled = false; });
         }
-        
-
         //================= สิ้นสุด ระบบจัดการ ตารางเที่ยวบิน =================
 
         let readonlyDatepicker;
